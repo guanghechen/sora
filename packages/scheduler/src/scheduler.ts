@@ -1,4 +1,5 @@
 import type { IPipeline } from '@guanghechen/pipeline'
+import { delay } from '@guanghechen/shared'
 import type { ITask } from '@guanghechen/task'
 import { ResumableTask, TaskStatus, TaskStrategy } from '@guanghechen/task'
 import type { IReporter, IScheduler } from './types'
@@ -77,7 +78,7 @@ export class Scheduler<D, T extends ITask> extends ResumableTask implements ISch
       if (top === undefined) {
         if (pipeline.closed) break
 
-        yield new Promise<void>(resolve => setTimeout(resolve, this._idleInterval))
+        yield delay(this._idleInterval)
         continue
       }
 

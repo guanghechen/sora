@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@guanghechen/pipeline": "^1.0.0-alpha.1",
+    "@guanghechen/shared": "^1.0.0-alpha.1",
     "@guanghechen/task": "^1.0.0-alpha.1"
   },
   "devDependencies": {
