@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.settings.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "sourceMap": true,
+    "paths": {
+      "jest.helper": ["jest.helper.mts"]
+    }
+  },
+  "exclude": ["**/__test__/fixtures"]
+}

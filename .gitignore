@@ -1,0 +1,34 @@
+.DS_Store
+
+coverage/
+dist/
+lib/
+node_modules/
+*.tsbuildinfo
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+lerna-debug.log*
+npm-error.log*
+yarn-error.log*
+
+# Editor directories and files
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+
+.yarn/*
+!.yarn/plugins
+!.yarn/releases
+
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw*
