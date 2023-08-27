@@ -466,17 +466,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/chalk-logger@npm:^5.0.5":
-  version: 5.0.5
-  resolution: "@guanghechen/chalk-logger@npm:5.0.5"
+"@guanghechen/chalk-logger@npm:^5.0.6":
+  version: 5.0.6
+  resolution: "@guanghechen/chalk-logger@npm:5.0.6"
   dependencies:
-    "@guanghechen/helper-is": ^5.0.5
-    "@guanghechen/invariant": ^5.0.5
-    "@guanghechen/utility-types": ^5.0.5
+    "@guanghechen/helper-is": ^5.0.6
+    "@guanghechen/invariant": ^5.0.6
+    "@guanghechen/utility-types": ^5.0.6
     chalk: ^5.3.0
     dayjs: ^1.11.9
     json5: ^2.2.3
-  checksum: 60c39c986de74e90d2f40eddcccf9372f8bdc849e7e4bc0771ec51088c2e98b77fac01b6b8684130cb79166a777c7299ddf6c928092cb30e9646ef41591fa6db
+  checksum: 32aa3b0ce4f7566542291762866a2bcf8b66c336d7607e6911445af35a6e145c8ced0cb576d27127d78e6d9762df2592a06f763cd3df8a7600bc0060d6f93625
   languageName: node
   linkType: hard
 
@@ -489,16 +489,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/eslint-config-ts@npm:^5.0.5":
-  version: 5.0.5
-  resolution: "@guanghechen/eslint-config-ts@npm:5.0.5"
+"@guanghechen/eslint-config-ts@npm:^5.0.6":
+  version: 5.0.6
+  resolution: "@guanghechen/eslint-config-ts@npm:5.0.6"
   dependencies:
     "@guanghechen/eslint-config": ^5.0.2
-    "@typescript-eslint/eslint-plugin": ^6.4.0
-    "@typescript-eslint/parser": ^6.4.0
+    "@typescript-eslint/eslint-plugin": ^6.4.1
+    "@typescript-eslint/parser": ^6.4.1
   peerDependencies:
     eslint: ^8.0.0
-  checksum: b45120a0179fb184065db24cf5ea805d2cce5134163f6be28746b72f3eef7490e1a0d6711db0392c2081eb9c3192f6b6757d48222882bbe8b24331852a7e6cff
+  checksum: 94caa3e3f409c856a3a57d92d31992f4df49096e5c36101f19fddfa1c84dc723bd44d68256b875b85153b5613feb8d502b1a091edc8179b4077b6f2164f75ed1
   languageName: node
   linkType: hard
 
@@ -513,52 +513,52 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/helper-fs@npm:^5.0.5":
-  version: 5.0.5
-  resolution: "@guanghechen/helper-fs@npm:5.0.5"
-  dependencies:
-    "@guanghechen/invariant": ^5.0.5
-    "@guanghechen/utility-types": ^5.0.5
-  checksum: 059a2c6f1072f23159db469a95faa4c7ccd4deaa7e4df6ee82bd40d0b5c7fa490ebbe3432de2ef0b5883f504a4ab5846375c524047c5cf9eb5ae1137773d23b7
-  languageName: node
-  linkType: hard
-
-"@guanghechen/helper-func@npm:^5.0.5":
-  version: 5.0.5
-  resolution: "@guanghechen/helper-func@npm:5.0.5"
-  checksum: b3ae541a3214ec4ffc61094289d33727a950e589a98b5aec32038ee424f60224c6fe5c1bfed22c04b0bad542128099a4c7923f2e7ee0f7fc577df4cc221463ff
-  languageName: node
-  linkType: hard
-
-"@guanghechen/helper-is@npm:^5.0.5":
-  version: 5.0.5
-  resolution: "@guanghechen/helper-is@npm:5.0.5"
-  checksum: 6d4844365b07d3462d22193182eaa94191d046422a3ce7fbcd4e3916bebd30f0022a590262340950ee5b3e6ec4b456f6dde536c40cb94fa7175b0f6fcd05a4df
-  languageName: node
-  linkType: hard
-
-"@guanghechen/helper-npm@npm:^5.0.6":
+"@guanghechen/helper-fs@npm:^5.0.6":
   version: 5.0.6
-  resolution: "@guanghechen/helper-npm@npm:5.0.6"
+  resolution: "@guanghechen/helper-fs@npm:5.0.6"
+  dependencies:
+    "@guanghechen/invariant": ^5.0.6
+    "@guanghechen/utility-types": ^5.0.6
+  checksum: fc709de3608afb747ac46e681fe8ba50561605f27646750dcd36f8c759ae7591abbf31039c3b67f28230ce6bff696f205f5a7b16ba0aba8e58256bad31ab01e9
+  languageName: node
+  linkType: hard
+
+"@guanghechen/helper-func@npm:^5.0.6":
+  version: 5.0.6
+  resolution: "@guanghechen/helper-func@npm:5.0.6"
+  checksum: 8ff026ffe5a6ee5726b7bb9e22e249060699f26ecef2f27b31a622461eef4e362e283f57f74f543d3f7d481b8735d6a4895476e15d55b8631bdb7befc5dd275a
+  languageName: node
+  linkType: hard
+
+"@guanghechen/helper-is@npm:^5.0.6":
+  version: 5.0.6
+  resolution: "@guanghechen/helper-is@npm:5.0.6"
+  checksum: b23353b017f012e4a7a73bb2f14a5180e6fdbebb62816c80896be4f5e535737e0be070c1d7edf7772a678d0eb5fda182310892854c1895e35f8128610c03f0a2
+  languageName: node
+  linkType: hard
+
+"@guanghechen/helper-npm@npm:^5.0.7":
+  version: 5.0.7
+  resolution: "@guanghechen/helper-npm@npm:5.0.7"
   dependencies:
     import-meta-resolve: ^3.0.0
-  checksum: a605b49ebc84df14850f4a2a92298aa66f4bae443915644562f0fec214a16a1293d606553a30ebd73df6aff99c68bf5d9a0557e36fb06e5fd610932aa131e5a3
+  checksum: d0d09d2ce82d9265230700f430146fc2d5cd22eb33369775fd15bd308d9114b3758493e9216a39e1bdc09aee081612a2cbdfc544bfd9da205422cb278ea3d7a5
   languageName: node
   linkType: hard
 
-"@guanghechen/invariant@npm:^5.0.5":
-  version: 5.0.5
-  resolution: "@guanghechen/invariant@npm:5.0.5"
-  checksum: dc084ade1b2da234aeff7c4d95e1c740f8cf9d133a3d5404f8236e3a6b6f19dc8ae547f03c989f890942a6de749fe6dd2d2674a5b8c4998a618551b6e61f2e17
+"@guanghechen/invariant@npm:^5.0.6":
+  version: 5.0.6
+  resolution: "@guanghechen/invariant@npm:5.0.6"
+  checksum: 3fd0b4e214b8bcce99908d1c321a3f23937b844781ab569509c0a86221b760dc61c96c23ad0f454683e20bca25f7609e2be0256e2cf60e3443b5a39f06921d6e
   languageName: node
   linkType: hard
 
-"@guanghechen/jest-config@npm:^5.0.5":
-  version: 5.0.5
-  resolution: "@guanghechen/jest-config@npm:5.0.5"
+"@guanghechen/jest-config@npm:^5.0.6":
+  version: 5.0.6
+  resolution: "@guanghechen/jest-config@npm:5.0.6"
   dependencies:
     json5: ^2.2.3
-  checksum: d5103298e9a361546c51a2a82c5295277d86fdf58d89fe7fa7198b57eb39b24833702691a91174804c0c3fed9822293b964c174281da4ca5ac2236aa7367045e
+  checksum: 92a42bcacbc0270df4c10d5091f7081109d9d2b03be6696c82f578a8223b92338ee4349b82b1ee7d9fc0a32b5b002bbd83530d6f225934ecaf9dc48b3f32923e
   languageName: node
   linkType: hard
 
@@ -567,9 +567,9 @@ __metadata:
   resolution: "@guanghechen/monitor@workspace:packages/monitor"
   dependencies:
     cross-env: ^7.0.3
-    jest: ^29.6.3
+    jest: ^29.6.4
     rimraf: ^5.0.1
-    rollup: ^3.28.0
+    rollup: ^3.28.1
   languageName: unknown
   linkType: soft
 
@@ -579,27 +579,27 @@ __metadata:
   dependencies:
     "@guanghechen/monitor": ^1.0.0-alpha.0
     cross-env: ^7.0.3
-    jest: ^29.6.3
+    jest: ^29.6.4
     rimraf: ^5.0.1
-    rollup: ^3.28.0
+    rollup: ^3.28.1
   languageName: unknown
   linkType: soft
 
-"@guanghechen/rollup-config@npm:^5.1.2":
-  version: 5.1.2
-  resolution: "@guanghechen/rollup-config@npm:5.1.2"
+"@guanghechen/rollup-config@npm:^5.2.0":
+  version: 5.2.0
+  resolution: "@guanghechen/rollup-config@npm:5.2.0"
   dependencies:
-    "@guanghechen/helper-npm": ^5.0.6
+    "@guanghechen/helper-npm": ^5.0.7
     "@rollup/plugin-commonjs": 25.0.4
     "@rollup/plugin-json": 6.0.0
-    "@rollup/plugin-node-resolve": 15.2.0
-    "@rollup/plugin-typescript": 11.1.2
+    "@rollup/plugin-node-resolve": 15.2.1
+    "@rollup/plugin-typescript": 11.1.3
     import-meta-resolve: ^3.0.0
     rollup-plugin-dts: ^6.0.0
   peerDependencies:
     rollup: ^3.0.0
     typescript: ">=3.7.0"
-  checksum: fb9625610c38908b8fdbf80b0010ae43ba14ae104ae3bb10e692877a144c1cf9be277b315d4535730f93615f7396be4d032a613908e567c6bbd07b3197ff6786
+  checksum: 12a5e5d1bc07a1788fe19769a4e425804cbec60c70cd963a94a47397a0bf908ea719bd8bb3d8216bf518333976698e24e6e0f3563a585b184cba55e383fcb966
   languageName: node
   linkType: hard
 
@@ -610,27 +610,27 @@ __metadata:
     "@guanghechen/pipeline": ^1.0.0-alpha.0
     "@guanghechen/task": ^1.0.0-alpha.0
     cross-env: ^7.0.3
-    jest: ^29.6.3
+    jest: ^29.6.4
     rimraf: ^5.0.1
-    rollup: ^3.28.0
+    rollup: ^3.28.1
   languageName: unknown
   linkType: soft
 
-"@guanghechen/script-doc-link@npm:^5.0.7":
-  version: 5.0.7
-  resolution: "@guanghechen/script-doc-link@npm:5.0.7"
+"@guanghechen/script-doc-link@npm:^5.0.8":
+  version: 5.0.8
+  resolution: "@guanghechen/script-doc-link@npm:5.0.8"
   dependencies:
-    "@guanghechen/chalk-logger": ^5.0.5
-    "@guanghechen/helper-fs": ^5.0.5
-    "@guanghechen/helper-func": ^5.0.5
-    "@guanghechen/helper-is": ^5.0.5
-    "@guanghechen/invariant": ^5.0.5
-    "@guanghechen/utility-types": ^5.0.5
+    "@guanghechen/chalk-logger": ^5.0.6
+    "@guanghechen/helper-fs": ^5.0.6
+    "@guanghechen/helper-func": ^5.0.6
+    "@guanghechen/helper-is": ^5.0.6
+    "@guanghechen/invariant": ^5.0.6
+    "@guanghechen/utility-types": ^5.0.6
     globby: ^13.2.2
     minimist: ^1.2.8
   bin:
     ghc-doc-link-rewrite: lib/esm/cli.mjs
-  checksum: eea9edcb7560a29a355aa13ce5284ed82762e00a02862b2c141711ab46739675687b5ab79c0a8878310be72856070f65b19f254f9b54f016e27fffdf9c77bd78
+  checksum: 91498f5268be36a5a559f59ca3a436233e88a4ba194367a06b0d887caef2ca2144ff1a15c64c05b4a359825b7e12c455209d25de5c80df5e04352c0f0a3c55de
   languageName: node
   linkType: hard
 
@@ -639,9 +639,9 @@ __metadata:
   resolution: "@guanghechen/shared@workspace:packages/shared"
   dependencies:
     cross-env: ^7.0.3
-    jest: ^29.6.3
+    jest: ^29.6.4
     rimraf: ^5.0.1
-    rollup: ^3.28.0
+    rollup: ^3.28.1
   languageName: unknown
   linkType: soft
 
@@ -652,10 +652,10 @@ __metadata:
     "@babel/core": 7.22.11
     "@guanghechen/conventional-changelog": ^5.0.1
     "@guanghechen/eslint-config": ^5.0.2
-    "@guanghechen/eslint-config-ts": ^5.0.5
-    "@guanghechen/jest-config": ^5.0.5
-    "@guanghechen/rollup-config": ^5.1.2
-    "@guanghechen/script-doc-link": ^5.0.7
+    "@guanghechen/eslint-config-ts": ^5.0.6
+    "@guanghechen/jest-config": ^5.0.6
+    "@guanghechen/rollup-config": ^5.2.0
+    "@guanghechen/script-doc-link": ^5.0.8
     "@types/jest": 29.5.4
     "@types/node": ^18.17.11
     "@types/react": ^18.2.21
@@ -687,16 +687,16 @@ __metadata:
   dependencies:
     "@guanghechen/monitor": ^1.0.0-alpha.0
     cross-env: ^7.0.3
-    jest: ^29.6.3
+    jest: ^29.6.4
     rimraf: ^5.0.1
-    rollup: ^3.28.0
+    rollup: ^3.28.1
   languageName: unknown
   linkType: soft
 
-"@guanghechen/utility-types@npm:^5.0.5":
-  version: 5.0.5
-  resolution: "@guanghechen/utility-types@npm:5.0.5"
-  checksum: 7f8c018805368dda834020f334db73427b83753069cf9917cb9f87d7d66fc026b373b12e7e619a35b1c47e2f651f51a58581e576348e91cbe6a655ea3aaf3714
+"@guanghechen/utility-types@npm:^5.0.6":
+  version: 5.0.6
+  resolution: "@guanghechen/utility-types@npm:5.0.6"
+  checksum: e7b55d3a0b965d265740202eaeb4f96f504cc25594100506b9b872d419b0c30523ca06ea69308349a4521d80fd475a16324602837faa72ddacee272c9ee2987f
   languageName: node
   linkType: hard
 
@@ -1549,9 +1549,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rollup/plugin-node-resolve@npm:15.2.0":
-  version: 15.2.0
-  resolution: "@rollup/plugin-node-resolve@npm:15.2.0"
+"@rollup/plugin-node-resolve@npm:15.2.1":
+  version: 15.2.1
+  resolution: "@rollup/plugin-node-resolve@npm:15.2.1"
   dependencies:
     "@rollup/pluginutils": ^5.0.1
     "@types/resolve": 1.20.2
@@ -1564,13 +1564,13 @@ __metadata:
   peerDependenciesMeta:
     rollup:
       optional: true
-  checksum: 92abfd7f1f5df08d71e4b8dd433d31cf1d62f68891ae3dd5e03a8a7f8d42d9c4433c14a25ead04204fea8235c663a3bbb66ba5528103a6dab66bd8c124f85a0d
+  checksum: e8f706db6ab826e80d1c9a85d2d1e736f2f78a34ea5d49dd0004d6603249a504696967674b2f021cd144536b88d24ffa058383f08b61b4b665be3c7bfacc006a
   languageName: node
   linkType: hard
 
-"@rollup/plugin-typescript@npm:11.1.2":
-  version: 11.1.2
-  resolution: "@rollup/plugin-typescript@npm:11.1.2"
+"@rollup/plugin-typescript@npm:11.1.3":
+  version: 11.1.3
+  resolution: "@rollup/plugin-typescript@npm:11.1.3"
   dependencies:
     "@rollup/pluginutils": ^5.0.1
     resolve: ^1.22.1
@@ -1583,7 +1583,7 @@ __metadata:
       optional: true
     tslib:
       optional: true
-  checksum: f4655a35e08639574e86dbce578b76468ee8627e4a3d8a46b7e0703d5d98c39a9bda9aa7144510aae11c5d8ce9c3b065e7f3e52dd31fbc6780015dd7802e01f7
+  checksum: cde5475d16fb201bc6755eb676e72136591e9d4996b566ca702ab37870ba2554ba96a7cdacf4cd4b75ab004ae0d9fb4b32da014d3fae1d41c9bb783a843551f1
   languageName: node
   linkType: hard
 
@@ -1920,7 +1920,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:^6.4.0":
+"@typescript-eslint/eslint-plugin@npm:^6.4.1":
   version: 6.4.1
   resolution: "@typescript-eslint/eslint-plugin@npm:6.4.1"
   dependencies:
@@ -1945,7 +1945,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:^6.4.0":
+"@typescript-eslint/parser@npm:^6.4.1":
   version: 6.4.1
   resolution: "@typescript-eslint/parser@npm:6.4.1"
   dependencies:
@@ -5951,7 +5951,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest@npm:^29.6.3, jest@npm:^29.6.4":
+"jest@npm:^29.6.4":
   version: 29.6.4
   resolution: "jest@npm:29.6.4"
   dependencies:
@@ -8223,7 +8223,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup@npm:^3.28.0, rollup@npm:^3.28.1":
+"rollup@npm:^3.28.1":
   version: 3.28.1
   resolution: "rollup@npm:3.28.1"
   dependencies:
