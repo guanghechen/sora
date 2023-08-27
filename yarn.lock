@@ -562,7 +562,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/monitor@^1.0.0-alpha.0, @guanghechen/monitor@workspace:packages/monitor":
+"@guanghechen/monitor@^1.0.0-alpha.1, @guanghechen/monitor@workspace:packages/monitor":
   version: 0.0.0-use.local
   resolution: "@guanghechen/monitor@workspace:packages/monitor"
   dependencies:
@@ -573,11 +573,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/pipeline@^1.0.0-alpha.0, @guanghechen/pipeline@workspace:packages/pipeline":
+"@guanghechen/pipeline@^1.0.0-alpha.1, @guanghechen/pipeline@workspace:packages/pipeline":
   version: 0.0.0-use.local
   resolution: "@guanghechen/pipeline@workspace:packages/pipeline"
   dependencies:
-    "@guanghechen/monitor": ^1.0.0-alpha.0
+    "@guanghechen/monitor": ^1.0.0-alpha.1
     cross-env: ^7.0.3
     jest: ^29.6.4
     rimraf: ^5.0.1
@@ -607,8 +607,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/scheduler@workspace:packages/scheduler"
   dependencies:
-    "@guanghechen/pipeline": ^1.0.0-alpha.0
-    "@guanghechen/task": ^1.0.0-alpha.0
+    "@guanghechen/pipeline": ^1.0.0-alpha.1
+    "@guanghechen/task": ^1.0.0-alpha.1
     cross-env: ^7.0.3
     jest: ^29.6.4
     rimraf: ^5.0.1
@@ -681,11 +681,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/task@^1.0.0-alpha.0, @guanghechen/task@workspace:packages/task":
+"@guanghechen/task@^1.0.0-alpha.1, @guanghechen/task@workspace:packages/task":
   version: 0.0.0-use.local
   resolution: "@guanghechen/task@workspace:packages/task"
   dependencies:
-    "@guanghechen/monitor": ^1.0.0-alpha.0
+    "@guanghechen/monitor": ^1.0.0-alpha.1
     cross-env: ^7.0.3
     jest: ^29.6.4
     rimraf: ^5.0.1
