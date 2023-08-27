@@ -562,6 +562,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@guanghechen/monitor@^1.0.0-alpha.0, @guanghechen/monitor@workspace:packages/monitor":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/monitor@workspace:packages/monitor"
+  dependencies:
+    cross-env: ^7.0.3
+    jest: ^29.6.3
+    rimraf: ^5.0.1
+    rollup: ^3.28.0
+  languageName: unknown
+  linkType: soft
+
+"@guanghechen/pipeline@^1.0.0-alpha.0, @guanghechen/pipeline@workspace:packages/pipeline":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/pipeline@workspace:packages/pipeline"
+  dependencies:
+    "@guanghechen/monitor": ^1.0.0-alpha.0
+    cross-env: ^7.0.3
+    jest: ^29.6.3
+    rimraf: ^5.0.1
+    rollup: ^3.28.0
+  languageName: unknown
+  linkType: soft
+
 "@guanghechen/rollup-config@npm:^5.1.2":
   version: 5.1.2
   resolution: "@guanghechen/rollup-config@npm:5.1.2"
@@ -580,6 +603,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@guanghechen/scheduler@workspace:packages/scheduler":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/scheduler@workspace:packages/scheduler"
+  dependencies:
+    "@guanghechen/pipeline": ^1.0.0-alpha.0
+    "@guanghechen/task": ^1.0.0-alpha.0
+    cross-env: ^7.0.3
+    jest: ^29.6.3
+    rimraf: ^5.0.1
+    rollup: ^3.28.0
+  languageName: unknown
+  linkType: soft
+
 "@guanghechen/script-doc-link@npm:^5.0.7":
   version: 5.0.7
   resolution: "@guanghechen/script-doc-link@npm:5.0.7"
@@ -597,6 +633,17 @@ __metadata:
   checksum: eea9edcb7560a29a355aa13ce5284ed82762e00a02862b2c141711ab46739675687b5ab79c0a8878310be72856070f65b19f254f9b54f016e27fffdf9c77bd78
   languageName: node
   linkType: hard
+
+"@guanghechen/shared@workspace:packages/shared":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/shared@workspace:packages/shared"
+  dependencies:
+    cross-env: ^7.0.3
+    jest: ^29.6.3
+    rimraf: ^5.0.1
+    rollup: ^3.28.0
+  languageName: unknown
+  linkType: soft
 
 "@guanghechen/sora@workspace:.":
   version: 0.0.0-use.local
@@ -631,6 +678,18 @@ __metadata:
     ts-jest: 29.1.1
     ts-node: 10.9.1
     typescript: 5.2.2
+  languageName: unknown
+  linkType: soft
+
+"@guanghechen/task@^1.0.0-alpha.0, @guanghechen/task@workspace:packages/task":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/task@workspace:packages/task"
+  dependencies:
+    "@guanghechen/monitor": ^1.0.0-alpha.0
+    cross-env: ^7.0.3
+    jest: ^29.6.3
+    rimraf: ^5.0.1
+    rollup: ^3.28.0
   languageName: unknown
   linkType: soft
 
@@ -5892,7 +5951,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest@npm:^29.6.4":
+"jest@npm:^29.6.3, jest@npm:^29.6.4":
   version: 29.6.4
   resolution: "jest@npm:29.6.4"
   dependencies:
@@ -8164,7 +8223,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup@npm:^3.28.1":
+"rollup@npm:^3.28.0, rollup@npm:^3.28.1":
   version: 3.28.1
   resolution: "rollup@npm:3.28.1"
   dependencies:

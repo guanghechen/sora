@@ -4,7 +4,11 @@
     "baseUrl": ".",
     "sourceMap": true,
     "paths": {
-      "jest.helper": ["jest.helper.mts"]
+      "@guanghechen/monitor": ["packages/monitor/src"],
+      "@guanghechen/pipeline": ["packages/pipeline/src"],
+      "@guanghechen/shared": ["packages/shared/src"],
+      "@guanghechen/scheduler": ["packages/scheduler/src"],
+      "@guanghechen/task": ["packages/task/src"]
     }
   },
   "exclude": ["**/__test__/fixtures"]
