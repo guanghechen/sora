@@ -8,7 +8,7 @@ export interface IMonitor<P extends any[]> {
 
   readonly destroyed: boolean
 
-  subscribe(callback: IMonitorCallback<P>): IMonitorUnsubscribe
+  subscribe(callback: IMonitorCallback<P> | undefined): IMonitorUnsubscribe
 
   notify(...args: P): void
 

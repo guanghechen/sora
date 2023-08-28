@@ -1,6 +1,5 @@
-import type { IMonitor, IMonitorCallback, IMonitorUnsubscribe } from './types'
-
-const noop: IMonitorUnsubscribe = (): void => {}
+import { noop } from '@guanghechen/shared'
+import type { IMonitor, IMonitorCallback } from './types'
 
 export class Monitor<P extends any[]> implements IMonitor<P> {
   public readonly name: string
@@ -23,8 +22,8 @@ export class Monitor<P extends any[]> implements IMonitor<P> {
     return this._destroyed
   }
 
-  public subscribe(callback: IMonitorCallback<P>): () => void {
-    if (this._destroyed) return noop
+  public subscribe(callback: IMonitorCallback<P> | undefined): () => void {
+    if (this._destroyed || callback === undefined) return noop
 
     if (!this._callbacks.includes(callback)) {
       if (this._notifying) this._callbacks = [...this._callbacks, callback]

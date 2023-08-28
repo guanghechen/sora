@@ -1,35 +1,30 @@
+import { SoraErrorCollector, SoraErrorLevel } from '@guanghechen/error'
+import type { ISoraErrorCollector } from '@guanghechen/error'
 import type { IMonitor } from '@guanghechen/monitor'
 import { Monitor } from '@guanghechen/monitor'
+import { noop } from '@guanghechen/shared'
 import { TaskStatus, active, alive, terminated } from './constant'
-import type {
-  ITaskError,
-  ITaskErrorDetail,
-  ITaskMonitor,
-  ITaskState,
-  IUnMonitorTask,
-} from './types'
-
-const noop: IUnMonitorTask = (): void => {}
+import type { ITaskError, ITaskMonitor, ITaskState, IUnMonitorTask } from './types'
 
 type IParametersOfOnAddError = Parameters<Required<ITaskMonitor>['onAddError']>
 type IParametersOfOnStatusChange = Parameters<Required<ITaskMonitor>['onStatusChange']>
 
 export class TaskState implements ITaskState {
   public readonly name: string
+  protected readonly _errorCollector: ISoraErrorCollector
   private readonly _monitors: {
     onStatusChange: IMonitor<IParametersOfOnStatusChange>
     onAddError: IMonitor<IParametersOfOnAddError>
   }
-  private readonly _errorDetails: ITaskErrorDetail[]
   private _status: TaskStatus
 
   constructor(name: string) {
     this.name = name
+    this._errorCollector = new SoraErrorCollector(name)
     this._monitors = {
       onAddError: new Monitor<IParametersOfOnAddError>('onAddError'),
       onStatusChange: new Monitor<IParametersOfOnStatusChange>('onStatusChange'),
     }
-    this._errorDetails = []
     this._status = TaskStatus.PENDING
   }
 
@@ -50,12 +45,12 @@ export class TaskState implements ITaskState {
   }
 
   public get hasError(): boolean {
-    return this._errorDetails.length > 0
+    return this._errorCollector.size > 0
   }
 
   public get error(): ITaskError | undefined {
-    if (this._errorDetails.length === 0) return undefined
-    return { from: this.name, details: this._errorDetails.slice() }
+    if (this._errorCollector.size === 0) return undefined
+    return { from: this.name, details: this._errorCollector.errors }
   }
 
   public set status(status: TaskStatus) {
@@ -79,12 +74,9 @@ export class TaskState implements ITaskState {
     if (this.terminated) return noop
 
     const { onAddError, onStatusChange } = monitor
-    const unsubscribeOnAddError = onAddError
-      ? this._monitors.onAddError.subscribe(onAddError)
-      : noop
-    const unsubscribeOnStatusChange = onStatusChange
-      ? this._monitors.onStatusChange.subscribe(onStatusChange)
-      : noop
+    const unsubscribeOnAddError = this._monitors.onAddError.subscribe(onAddError)
+    const unsubscribeOnStatusChange = this._monitors.onStatusChange.subscribe(onStatusChange)
+
     return (): void => {
       unsubscribeOnAddError()
       unsubscribeOnStatusChange()
@@ -131,15 +123,19 @@ export class TaskState implements ITaskState {
 
   public cleanup(): void {
     if (!this.terminated) throw new Error(`[cleanup] task(${this.name}) is not terminated`)
-    this._errorDetails.length = 0
+    this._errorCollector.cleanup()
     this._monitors.onStatusChange.destroy()
     this._monitors.onAddError.destroy()
   }
 
-  protected _addError(type: string, error: unknown): void {
-    this._errorDetails.push({ type, error })
+  protected _addError(
+    type: string,
+    error: unknown,
+    level: SoraErrorLevel = SoraErrorLevel.ERROR,
+  ): void {
+    this._errorCollector.add(type, error, level)
 
     // Notify.
-    this._monitors.onAddError.notify(type, error)
+    this._monitors.onAddError.notify(type, error, level)
   }
 }

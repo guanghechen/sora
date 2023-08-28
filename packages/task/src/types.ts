@@ -1,17 +1,13 @@
+import type { ISoraError, SoraErrorLevel } from '@guanghechen/error'
 import type { TaskStatus } from './constant'
-
-export interface ITaskErrorDetail {
-  type: string
-  error: unknown
-}
 
 export interface ITaskError {
   from: string
-  details: ITaskErrorDetail[]
+  details: ISoraError[]
 }
 
 export interface ITaskMonitor {
-  onAddError(type: string, error: unknown): void
+  onAddError(type: string, error: unknown, level: SoraErrorLevel | undefined): void
   onStatusChange(status: TaskStatus, prevStatus: TaskStatus): void
 }
 

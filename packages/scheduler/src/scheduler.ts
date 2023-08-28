@@ -1,3 +1,4 @@
+import { SoraErrorLevel } from '@guanghechen/error'
 import type { IPipeline } from '@guanghechen/pipeline'
 import { delay } from '@guanghechen/shared'
 import type { ITask } from '@guanghechen/task'
@@ -59,8 +60,10 @@ export class Scheduler<D, T extends ITask> extends ResumableTask implements ISch
 
   public override finish(): Promise<void> {
     if (!this._pipeline.closed) {
-      console.warn(
+      this._addError(
+        'SchedulerError',
         `[Scheduler] ${this.name}: pipeline is not closed, the finish won't be terminated`,
+        SoraErrorLevel.WARN,
       )
     }
     return super.finish()
@@ -103,6 +106,7 @@ export class Scheduler<D, T extends ITask> extends ResumableTask implements ISch
         })
         void task.start()
       }).finally(() => {
+        task.cleanup()
         this._task = undefined
       })
     }

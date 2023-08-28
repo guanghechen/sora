@@ -1,9 +1,8 @@
 import type { IMonitor } from '@guanghechen/monitor'
 import { Monitor } from '@guanghechen/monitor'
+import { noop } from '@guanghechen/shared'
 import { PipelineStatus } from './constant'
 import type { IPipeline, IPipelineMonitor, IUnMonitorPipeline } from './types'
-
-const noop = (): void => {}
 
 type IParametersOfOnClosed = Parameters<Required<IPipelineMonitor>['onClosed']>
 type IParametersOfOnPushed = Parameters<Required<IPipelineMonitor>['onPushed']>
@@ -55,8 +54,8 @@ export abstract class Pipeline<D, T> implements IPipeline<D, T> {
     }
 
     const { onClosed, onPushed } = monitor
-    const unsubscribeOnClosed = onClosed ? this._monitors.onClosed.subscribe(onClosed) : noop
-    const unsubscribeOnPushed = onPushed ? this._monitors.onPushed.subscribe(onPushed) : noop
+    const unsubscribeOnClosed = this._monitors.onClosed.subscribe(onClosed)
+    const unsubscribeOnPushed = this._monitors.onPushed.subscribe(onPushed)
 
     return (): void => {
       unsubscribeOnClosed()

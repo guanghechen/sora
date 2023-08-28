@@ -4,6 +4,7 @@
     "baseUrl": ".",
     "sourceMap": true,
     "paths": {
+      "@guanghechen/error": ["packages/error/src"],
       "@guanghechen/monitor": ["packages/monitor/src"],
       "@guanghechen/pipeline": ["packages/pipeline/src"],
       "@guanghechen/shared": ["packages/shared/src"],

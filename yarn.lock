@@ -489,6 +489,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@guanghechen/error@^1.0.0-alpha.1, @guanghechen/error@workspace:packages/error":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/error@workspace:packages/error"
+  dependencies:
+    cross-env: ^7.0.3
+    jest: ^29.6.4
+    rimraf: ^5.0.1
+    rollup: ^3.28.1
+  languageName: unknown
+  linkType: soft
+
 "@guanghechen/eslint-config-ts@npm:^5.0.6":
   version: 5.0.6
   resolution: "@guanghechen/eslint-config-ts@npm:5.0.6"
@@ -566,6 +577,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/monitor@workspace:packages/monitor"
   dependencies:
+    "@guanghechen/shared": ^1.0.0-alpha.1
     cross-env: ^7.0.3
     jest: ^29.6.4
     rimraf: ^5.0.1
@@ -578,6 +590,7 @@ __metadata:
   resolution: "@guanghechen/pipeline@workspace:packages/pipeline"
   dependencies:
     "@guanghechen/monitor": ^1.0.0-alpha.1
+    "@guanghechen/shared": ^1.0.0-alpha.1
     cross-env: ^7.0.3
     jest: ^29.6.4
     rimraf: ^5.0.1
@@ -607,6 +620,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/scheduler@workspace:packages/scheduler"
   dependencies:
+    "@guanghechen/error": ^1.0.0-alpha.1
     "@guanghechen/pipeline": ^1.0.0-alpha.1
     "@guanghechen/shared": ^1.0.0-alpha.1
     "@guanghechen/task": ^1.0.0-alpha.1
@@ -686,7 +700,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/task@workspace:packages/task"
   dependencies:
+    "@guanghechen/error": ^1.0.0-alpha.1
     "@guanghechen/monitor": ^1.0.0-alpha.1
+    "@guanghechen/shared": ^1.0.0-alpha.1
     cross-env: ^7.0.3
     jest: ^29.6.4
     rimraf: ^5.0.1

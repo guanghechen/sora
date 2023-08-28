@@ -1,3 +1,4 @@
+import { SoraErrorLevel } from '@guanghechen/error'
 import { delay } from '@guanghechen/shared'
 import { jest } from '@jest/globals'
 import type { ITaskMonitor } from '../src'
@@ -88,13 +89,18 @@ describe('AtomicTask', () => {
       from: task.name,
       details: [
         {
-          type: 'AtomicTaskError',
-          error: 'Something went wrong',
+          from: 'AtomicTaskError',
+          level: SoraErrorLevel.ERROR,
+          details: 'Something went wrong',
         },
       ],
     })
     expect(monitor.onAddError).toHaveBeenCalledTimes(1)
-    expect(monitor.onAddError).toHaveBeenCalledWith('AtomicTaskError', 'Something went wrong')
+    expect(monitor.onAddError).toHaveBeenCalledWith(
+      'AtomicTaskError',
+      'Something went wrong',
+      SoraErrorLevel.ERROR,
+    )
   })
 
   it('should finish from pending', async () => {

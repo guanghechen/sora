@@ -1,3 +1,4 @@
+import { SoraErrorLevel } from '@guanghechen/error'
 import { delay } from '@guanghechen/shared'
 import { jest } from '@jest/globals'
 import type { ITaskMonitor } from '../src'
@@ -239,13 +240,18 @@ function basicTests(strategy: TaskStrategy): void {
         from: task.name,
         details: [
           {
-            type: 'ResumableTaskError',
-            error: 'Something went wrong',
+            from: 'ResumableTaskError',
+            level: SoraErrorLevel.ERROR,
+            details: 'Something went wrong',
           },
         ],
       })
       expect(monitor.onAddError).toHaveBeenCalledTimes(1)
-      expect(monitor.onAddError).toHaveBeenCalledWith('ResumableTaskError', 'Something went wrong')
+      expect(monitor.onAddError).toHaveBeenCalledWith(
+        'ResumableTaskError',
+        'Something went wrong',
+        SoraErrorLevel.ERROR,
+      )
     })
 
     it('should start and auto fail', async () => {
@@ -289,13 +295,18 @@ function basicTests(strategy: TaskStrategy): void {
         from: task.name,
         details: [
           {
-            type: 'ResumableTaskError',
-            error: 'Something went wrong',
+            from: 'ResumableTaskError',
+            level: SoraErrorLevel.ERROR,
+            details: 'Something went wrong',
           },
         ],
       })
       expect(monitor.onAddError).toHaveBeenCalledTimes(1)
-      expect(monitor.onAddError).toHaveBeenCalledWith('ResumableTaskError', 'Something went wrong')
+      expect(monitor.onAddError).toHaveBeenCalledWith(
+        'ResumableTaskError',
+        'Something went wrong',
+        SoraErrorLevel.ERROR,
+      )
     })
 
     it('should finish from pending', async () => {
