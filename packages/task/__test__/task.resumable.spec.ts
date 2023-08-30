@@ -1,8 +1,8 @@
-import { SoraErrorLevel } from '@guanghechen/error'
+import { ErrorLevelEnum, TaskStatusEnum, TaskStrategyEnum } from '@guanghechen/constant'
 import { delay } from '@guanghechen/shared'
+import type { ITaskMonitor } from '@guanghechen/types'
 import { jest } from '@jest/globals'
-import type { ITaskMonitor } from '../src'
-import { ResumableTask, TaskStatus, TaskStrategy } from '../src'
+import { ResumableTask } from '../src'
 
 type ITaskExecutor = () => IterableIterator<Promise<void>>
 
@@ -12,7 +12,7 @@ const stepDuration = 30
 class ResumableTaskForTest extends ResumableTask {
   protected readonly __execute: ITaskExecutor
 
-  constructor(strategy: TaskStrategy, execute: ITaskExecutor) {
+  constructor(strategy: TaskStrategyEnum, execute: ITaskExecutor) {
     super({ name: 'ResumableTaskForTest', strategy, pollInterval })
     this.__execute = execute
   }
@@ -23,14 +23,14 @@ class ResumableTaskForTest extends ResumableTask {
 }
 
 describe('ABORT_ON_ERROR', () => {
-  basicTests(TaskStrategy.ABORT_ON_ERROR)
+  basicTests(TaskStrategyEnum.ABORT_ON_ERROR)
 })
 
 describe('CONTINUE_ON_ERROR', () => {
-  basicTests(TaskStrategy.CONTINUE_ON_ERROR)
+  basicTests(TaskStrategyEnum.CONTINUE_ON_ERROR)
 })
 
-function basicTests(strategy: TaskStrategy): void {
+function basicTests(strategy: TaskStrategyEnum): void {
   describe('basic', () => {
     let monitor: ITaskMonitor
 
@@ -70,14 +70,14 @@ function basicTests(strategy: TaskStrategy): void {
       task.monitor(monitor)
 
       expect(result).toEqual(0)
-      expect(task.status).toEqual(TaskStatus.PENDING)
+      expect(task.status).toEqual(TaskStatusEnum.PENDING)
       expect(task.hasError).toEqual(false)
       expect(task.error).toEqual(undefined)
       expect(monitor.onAddError).toHaveBeenCalledTimes(0)
 
       const startPromise = task.start()
       expect(result).toEqual(1)
-      expect(task.status).toEqual(TaskStatus.RUNNING)
+      expect(task.status).toEqual(TaskStatusEnum.RUNNING)
       expect(mockRun).toHaveBeenCalledTimes(1)
 
       await startPromise
@@ -88,48 +88,48 @@ function basicTests(strategy: TaskStrategy): void {
 
       await delay(8)
       expect(result).toEqual(2)
-      expect(task.status).toEqual(TaskStatus.RUNNING)
+      expect(task.status).toEqual(TaskStatusEnum.RUNNING)
 
       const pausePromise = task.pause()
       expect(result).toEqual(2)
-      expect(task.status).toEqual(TaskStatus.ATTEMPT_SUSPENDING)
+      expect(task.status).toEqual(TaskStatusEnum.ATTEMPT_SUSPENDING)
 
       await pausePromise
       expect(result).toEqual(2)
-      expect(task.status).toEqual(TaskStatus.SUSPENDED)
+      expect(task.status).toEqual(TaskStatusEnum.SUSPENDED)
 
       // Once paused, the following steps will be blocked.
       await delay(pollInterval + stepDuration)
       expect(result).toEqual(2)
-      expect(task.status).toEqual(TaskStatus.SUSPENDED)
+      expect(task.status).toEqual(TaskStatusEnum.SUSPENDED)
 
       const resumePromise = task.resume()
       expect(result).toEqual(2)
-      expect(task.status).toEqual(TaskStatus.ATTEMPT_RESUMING)
+      expect(task.status).toEqual(TaskStatusEnum.ATTEMPT_RESUMING)
 
       await resumePromise // resume will trigger queueing a new step.
       expect(result).toEqual(2)
-      expect(task.status).toEqual(TaskStatus.RUNNING)
+      expect(task.status).toEqual(TaskStatusEnum.RUNNING)
 
       await delay(pollInterval)
       expect(result).toEqual(3)
-      expect(task.status).toEqual(TaskStatus.RUNNING)
+      expect(task.status).toEqual(TaskStatusEnum.RUNNING)
 
       const finishPromise = task.finish()
       expect(result).toEqual(3)
-      expect(task.status).toEqual(TaskStatus.ATTEMPT_FINISHING)
+      expect(task.status).toEqual(TaskStatusEnum.ATTEMPT_FINISHING)
 
       await delay(stepDuration)
       expect(result).toEqual(4)
-      expect(task.status).toEqual(TaskStatus.ATTEMPT_FINISHING)
+      expect(task.status).toEqual(TaskStatusEnum.ATTEMPT_FINISHING)
 
       await delay(stepDuration)
       expect(result).toEqual(5)
-      expect(task.status).toEqual(TaskStatus.ATTEMPT_FINISHING)
+      expect(task.status).toEqual(TaskStatusEnum.ATTEMPT_FINISHING)
 
       await finishPromise
       expect(result).toEqual(8)
-      expect(task.status).toEqual(TaskStatus.FINISHED)
+      expect(task.status).toEqual(TaskStatusEnum.FINISHED)
 
       expect(task.hasError).toEqual(false)
       expect(task.error).toEqual(undefined)
@@ -169,14 +169,14 @@ function basicTests(strategy: TaskStrategy): void {
       task.monitor(monitor)
 
       expect(result).toEqual(0)
-      expect(task.status).toEqual(TaskStatus.PENDING)
+      expect(task.status).toEqual(TaskStatusEnum.PENDING)
       expect(task.hasError).toEqual(false)
       expect(task.error).toEqual(undefined)
       expect(monitor.onAddError).toHaveBeenCalledTimes(0)
 
       const startPromise = task.start()
       expect(result).toEqual(1)
-      expect(task.status).toEqual(TaskStatus.RUNNING)
+      expect(task.status).toEqual(TaskStatusEnum.RUNNING)
       expect(mockRun).toHaveBeenCalledTimes(1)
 
       await startPromise
@@ -187,11 +187,11 @@ function basicTests(strategy: TaskStrategy): void {
 
       await delay(5)
       expect(result).toEqual(2)
-      expect(task.status).toEqual(TaskStatus.RUNNING)
+      expect(task.status).toEqual(TaskStatusEnum.RUNNING)
 
       await delay((pollInterval + stepDuration) * 10)
       expect(result).toEqual(8)
-      expect(task.status).toEqual(TaskStatus.FINISHED)
+      expect(task.status).toEqual(TaskStatusEnum.FINISHED)
 
       expect(task.hasError).toEqual(false)
       expect(task.error).toEqual(undefined)
@@ -219,13 +219,13 @@ function basicTests(strategy: TaskStrategy): void {
       const task = new ResumableTaskForTest(strategy, mockRun)
       task.monitor(monitor)
 
-      expect(task.status).toEqual(TaskStatus.PENDING)
+      expect(task.status).toEqual(TaskStatusEnum.PENDING)
       expect(task.hasError).toEqual(false)
       expect(task.error).toEqual(undefined)
       expect(monitor.onAddError).toHaveBeenCalledTimes(0)
 
       void task.start()
-      expect(task.status).toEqual(TaskStatus.RUNNING)
+      expect(task.status).toEqual(TaskStatusEnum.RUNNING)
       expect(task.hasError).toEqual(false)
       expect(task.error).toEqual(undefined)
       expect(monitor.onAddError).toHaveBeenCalledTimes(0)
@@ -233,15 +233,15 @@ function basicTests(strategy: TaskStrategy): void {
 
       await task.finish()
       expect(mockRun).toHaveBeenCalledTimes(1)
-      expect(result).toEqual(strategy === TaskStrategy.ABORT_ON_ERROR ? 2 : 4)
-      expect(task.status).toEqual(TaskStatus.FAILED)
+      expect(result).toEqual(strategy === TaskStrategyEnum.ABORT_ON_ERROR ? 2 : 4)
+      expect(task.status).toEqual(TaskStatusEnum.FAILED)
       expect(task.hasError).toEqual(true)
       expect(task.error).toEqual({
         from: task.name,
         details: [
           {
             from: 'ResumableTaskError',
-            level: SoraErrorLevel.ERROR,
+            level: ErrorLevelEnum.ERROR,
             details: 'Something went wrong',
           },
         ],
@@ -250,7 +250,7 @@ function basicTests(strategy: TaskStrategy): void {
       expect(monitor.onAddError).toHaveBeenCalledWith(
         'ResumableTaskError',
         'Something went wrong',
-        SoraErrorLevel.ERROR,
+        ErrorLevelEnum.ERROR,
       )
     })
 
@@ -274,13 +274,13 @@ function basicTests(strategy: TaskStrategy): void {
       const task = new ResumableTaskForTest(strategy, mockRun)
       task.monitor(monitor)
 
-      expect(task.status).toEqual(TaskStatus.PENDING)
+      expect(task.status).toEqual(TaskStatusEnum.PENDING)
       expect(task.hasError).toEqual(false)
       expect(task.error).toEqual(undefined)
       expect(monitor.onAddError).toHaveBeenCalledTimes(0)
 
       void task.start()
-      expect(task.status).toEqual(TaskStatus.RUNNING)
+      expect(task.status).toEqual(TaskStatusEnum.RUNNING)
       expect(task.hasError).toEqual(false)
       expect(task.error).toEqual(undefined)
       expect(monitor.onAddError).toHaveBeenCalledTimes(0)
@@ -288,15 +288,15 @@ function basicTests(strategy: TaskStrategy): void {
 
       await delay((pollInterval + stepDuration) * 5)
       expect(mockRun).toHaveBeenCalledTimes(1)
-      expect(result).toEqual(strategy === TaskStrategy.ABORT_ON_ERROR ? 2 : 4)
-      expect(task.status).toEqual(TaskStatus.FAILED)
+      expect(result).toEqual(strategy === TaskStrategyEnum.ABORT_ON_ERROR ? 2 : 4)
+      expect(task.status).toEqual(TaskStatusEnum.FAILED)
       expect(task.hasError).toEqual(true)
       expect(task.error).toEqual({
         from: task.name,
         details: [
           {
             from: 'ResumableTaskError',
-            level: SoraErrorLevel.ERROR,
+            level: ErrorLevelEnum.ERROR,
             details: 'Something went wrong',
           },
         ],
@@ -305,7 +305,7 @@ function basicTests(strategy: TaskStrategy): void {
       expect(monitor.onAddError).toHaveBeenCalledWith(
         'ResumableTaskError',
         'Something went wrong',
-        SoraErrorLevel.ERROR,
+        ErrorLevelEnum.ERROR,
       )
     })
 
@@ -325,14 +325,14 @@ function basicTests(strategy: TaskStrategy): void {
       const task = new ResumableTaskForTest(strategy, mockRun)
       task.monitor(monitor)
 
-      expect(task.status).toEqual(TaskStatus.PENDING)
+      expect(task.status).toEqual(TaskStatusEnum.PENDING)
       expect(task.hasError).toEqual(false)
       expect(task.error).toEqual(undefined)
       expect(monitor.onAddError).toHaveBeenCalledTimes(0)
 
       await task.finish()
       expect(result).toEqual(3)
-      expect(task.status).toEqual(TaskStatus.FINISHED)
+      expect(task.status).toEqual(TaskStatusEnum.FINISHED)
       expect(task.hasError).toEqual(false)
       expect(task.error).toEqual(undefined)
       expect(monitor.onAddError).toHaveBeenCalledTimes(0)
@@ -355,14 +355,14 @@ function basicTests(strategy: TaskStrategy): void {
       const task = new ResumableTaskForTest(strategy, mockRun)
       task.monitor(monitor)
 
-      expect(task.status).toEqual(TaskStatus.PENDING)
+      expect(task.status).toEqual(TaskStatusEnum.PENDING)
       expect(task.hasError).toEqual(false)
       expect(task.error).toEqual(undefined)
       expect(monitor.onAddError).toHaveBeenCalledTimes(0)
 
       await task.cancel()
       expect(result).toEqual(0)
-      expect(task.status).toEqual(TaskStatus.CANCELLED)
+      expect(task.status).toEqual(TaskStatusEnum.CANCELLED)
       expect(task.hasError).toEqual(false)
       expect(task.error).toEqual(undefined)
       expect(monitor.onAddError).toHaveBeenCalledTimes(0)
@@ -385,14 +385,14 @@ function basicTests(strategy: TaskStrategy): void {
       const task = new ResumableTaskForTest(strategy, mockRun)
       task.monitor(monitor)
 
-      expect(task.status).toEqual(TaskStatus.PENDING)
+      expect(task.status).toEqual(TaskStatusEnum.PENDING)
       expect(task.hasError).toEqual(false)
       expect(task.error).toEqual(undefined)
       expect(monitor.onAddError).toHaveBeenCalledTimes(0)
 
       await task.start()
       expect(result).toEqual(1)
-      expect(task.status).toEqual(TaskStatus.RUNNING)
+      expect(task.status).toEqual(TaskStatusEnum.RUNNING)
       expect(task.hasError).toEqual(false)
       expect(task.error).toEqual(undefined)
       expect(monitor.onAddError).toHaveBeenCalledTimes(0)
@@ -400,10 +400,10 @@ function basicTests(strategy: TaskStrategy): void {
 
       await delay(pollInterval)
       expect(result).toEqual(2)
-      expect(task.status).toEqual(TaskStatus.RUNNING)
+      expect(task.status).toEqual(TaskStatusEnum.RUNNING)
 
       const promise = task.cancel()
-      expect(task.status).toEqual(TaskStatus.ATTEMPT_CANCELING)
+      expect(task.status).toEqual(TaskStatusEnum.ATTEMPT_CANCELING)
       expect(task.hasError).toEqual(false)
       expect(task.error).toEqual(undefined)
       expect(monitor.onAddError).toHaveBeenCalledTimes(0)
@@ -411,7 +411,7 @@ function basicTests(strategy: TaskStrategy): void {
 
       await promise
       expect(result).toEqual(2)
-      expect(task.status).toEqual(TaskStatus.CANCELLED)
+      expect(task.status).toEqual(TaskStatusEnum.CANCELLED)
       expect(task.hasError).toEqual(false)
       expect(task.error).toEqual(undefined)
       expect(monitor.onAddError).toHaveBeenCalledTimes(0)

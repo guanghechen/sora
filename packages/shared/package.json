@@ -11,7 +11,7 @@
     "url": "https://github.com/guanghechen/sora/tree/@guanghechen/shared@1.0.0-alpha.2",
     "directory": "packages/_shared"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/shared@1.0.0-alpha.1/packages/_shared#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/shared@1.0.0-alpha.2/packages/_shared#readme",
   "type": "module",
   "main": "./lib/cjs/index.cjs",
   "module": "./lib/esm/index.mjs",

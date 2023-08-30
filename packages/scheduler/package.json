@@ -38,9 +38,9 @@
     "prepublishOnly": "yarn build"
   },
   "dependencies": {
-    "@guanghechen/error": "^1.0.0-alpha.2",
-    "@guanghechen/pipeline": "^1.0.0-alpha.2",
-    "@guanghechen/task": "^1.0.0-alpha.2"
+    "@guanghechen/constant": "^1.0.0-alpha.0",
+    "@guanghechen/task": "^1.0.0-alpha.2",
+    "@guanghechen/types": "^1.0.0-alpha.0"
   },
   "devDependencies": {
     "@guanghechen/shared": "^1.0.0-alpha.2",

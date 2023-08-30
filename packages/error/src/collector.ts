@@ -1,5 +1,5 @@
-import type { ISoraError, ISoraErrorCollector } from './types'
-import { SoraErrorLevel } from './types'
+import { ErrorLevelEnum } from '@guanghechen/constant'
+import type { ISoraError, ISoraErrorCollector } from '@guanghechen/types'
 
 export class SoraErrorCollector implements ISoraErrorCollector {
   public readonly name: string
@@ -18,7 +18,7 @@ export class SoraErrorCollector implements ISoraErrorCollector {
     return this._errors.slice()
   }
 
-  public add(from: string, error: unknown, level: SoraErrorLevel = SoraErrorLevel.ERROR): void {
+  public add(from: string, error: unknown, level: ErrorLevelEnum = ErrorLevelEnum.ERROR): void {
     this._errors.push({ from, level, details: error })
   }
 

@@ -38,6 +38,9 @@
     "prepublishOnly": "yarn build",
     "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
   },
+  "dependencies": {
+    "@guanghechen/types": "^1.0.0-alpha.0"
+  },
   "devDependencies": {
     "@guanghechen/shared": "^1.0.0-alpha.2",
     "cross-env": "^7.0.3",

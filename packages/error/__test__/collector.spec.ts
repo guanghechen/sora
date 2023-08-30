@@ -1,5 +1,6 @@
-import type { ISoraErrorCollector } from '../src'
-import { SoraErrorCollector, SoraErrorLevel } from '../src'
+import { ErrorLevelEnum } from '@guanghechen/constant'
+import type { ISoraErrorCollector } from '@guanghechen/types'
+import { SoraErrorCollector } from '../src'
 
 describe('SoraErrorCollector', () => {
   let collector: ISoraErrorCollector
@@ -17,13 +18,13 @@ describe('SoraErrorCollector', () => {
   })
 
   it('should add errors correctly', () => {
-    collector.add('Source1', 'Error1', SoraErrorLevel.FATAL)
-    collector.add('Source2', 'Error2', SoraErrorLevel.WARN)
+    collector.add('Source1', 'Error1', ErrorLevelEnum.FATAL)
+    collector.add('Source2', 'Error2', ErrorLevelEnum.WARN)
 
     expect(collector.size).toBe(2)
     expect(collector.errors).toEqual([
-      { from: 'Source1', level: SoraErrorLevel.FATAL, details: 'Error1' },
-      { from: 'Source2', level: SoraErrorLevel.WARN, details: 'Error2' },
+      { from: 'Source1', level: ErrorLevelEnum.FATAL, details: 'Error1' },
+      { from: 'Source2', level: ErrorLevelEnum.WARN, details: 'Error2' },
     ])
   })
 
@@ -31,18 +32,18 @@ describe('SoraErrorCollector', () => {
     collector.add('Source1', 'Error1')
     expect(collector.size).toBe(1)
     expect(collector.errors).toEqual([
-      { from: 'Source1', level: SoraErrorLevel.ERROR, details: 'Error1' },
+      { from: 'Source1', level: ErrorLevelEnum.ERROR, details: 'Error1' },
     ])
 
     const otherCollector = new SoraErrorCollector('OtherCollector')
-    otherCollector.add('Source3', 'Error3', SoraErrorLevel.WARN)
+    otherCollector.add('Source3', 'Error3', ErrorLevelEnum.WARN)
 
     collector.merge(otherCollector)
 
     expect(collector.size).toBe(2)
     expect(collector.errors).toEqual([
-      { from: 'Source1', level: SoraErrorLevel.ERROR, details: 'Error1' },
-      { from: 'Source3', level: SoraErrorLevel.WARN, details: 'Error3' },
+      { from: 'Source1', level: ErrorLevelEnum.ERROR, details: 'Error1' },
+      { from: 'Source3', level: ErrorLevelEnum.WARN, details: 'Error3' },
     ])
   })
 
@@ -51,8 +52,8 @@ describe('SoraErrorCollector', () => {
     collector.add('Source5', 'Error5')
     expect(collector.size).toBe(2)
     expect(collector.errors).toEqual([
-      { from: 'Source4', level: SoraErrorLevel.ERROR, details: 'Error4' },
-      { from: 'Source5', level: SoraErrorLevel.ERROR, details: 'Error5' },
+      { from: 'Source4', level: ErrorLevelEnum.ERROR, details: 'Error4' },
+      { from: 'Source5', level: ErrorLevelEnum.ERROR, details: 'Error5' },
     ])
 
     collector.cleanup()
@@ -63,7 +64,7 @@ describe('SoraErrorCollector', () => {
     collector.add('Source6', 'Error6')
     expect(collector.size).toBe(1)
     expect(collector.errors).toEqual([
-      { from: 'Source6', level: SoraErrorLevel.ERROR, details: 'Error6' },
+      { from: 'Source6', level: ErrorLevelEnum.ERROR, details: 'Error6' },
     ])
   })
 })

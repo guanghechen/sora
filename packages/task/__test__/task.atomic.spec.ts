@@ -1,8 +1,8 @@
-import { SoraErrorLevel } from '@guanghechen/error'
+import { ErrorLevelEnum, TaskStatusEnum } from '@guanghechen/constant'
 import { delay } from '@guanghechen/shared'
+import type { ITaskMonitor } from '@guanghechen/types'
 import { jest } from '@jest/globals'
-import type { ITaskMonitor } from '../src'
-import { AtomicTask, TaskStatus } from '../src'
+import { AtomicTask } from '../src'
 
 type ITaskExecutor = () => Promise<void>
 
@@ -31,29 +31,29 @@ describe('AtomicTask', () => {
     const task = new AtomicTaskForTest(mockRun)
     task.monitor(monitor)
 
-    expect(task.status).toEqual(TaskStatus.PENDING)
+    expect(task.status).toEqual(TaskStatusEnum.PENDING)
     expect(task.hasError).toEqual(false)
     expect(task.error).toEqual(undefined)
     expect(monitor.onAddError).toHaveBeenCalledTimes(0)
 
     void task.start()
-    expect(task.status).toEqual(TaskStatus.RUNNING)
+    expect(task.status).toEqual(TaskStatusEnum.RUNNING)
     expect(mockRun).toHaveBeenCalledTimes(1)
 
     await task.start()
-    expect(task.status).toEqual(TaskStatus.FINISHED)
+    expect(task.status).toEqual(TaskStatusEnum.FINISHED)
 
     await task.pause()
-    expect(task.status).toEqual(TaskStatus.FINISHED)
+    expect(task.status).toEqual(TaskStatusEnum.FINISHED)
 
     await task.resume()
-    expect(task.status).toEqual(TaskStatus.FINISHED)
+    expect(task.status).toEqual(TaskStatusEnum.FINISHED)
 
     await task.cancel()
-    expect(task.status).toEqual(TaskStatus.FINISHED)
+    expect(task.status).toEqual(TaskStatusEnum.FINISHED)
 
     await task.finish()
-    expect(task.status).toEqual(TaskStatus.FINISHED)
+    expect(task.status).toEqual(TaskStatusEnum.FINISHED)
 
     expect(task.hasError).toEqual(false)
     expect(task.error).toEqual(undefined)
@@ -69,13 +69,13 @@ describe('AtomicTask', () => {
     const task = new AtomicTaskForTest(mockRun)
     task.monitor(monitor)
 
-    expect(task.status).toEqual(TaskStatus.PENDING)
+    expect(task.status).toEqual(TaskStatusEnum.PENDING)
     expect(task.hasError).toEqual(false)
     expect(task.error).toEqual(undefined)
     expect(monitor.onAddError).toHaveBeenCalledTimes(0)
 
     void task.start()
-    expect(task.status).toEqual(TaskStatus.RUNNING)
+    expect(task.status).toEqual(TaskStatusEnum.RUNNING)
     expect(task.hasError).toEqual(false)
     expect(task.error).toEqual(undefined)
     expect(monitor.onAddError).toHaveBeenCalledTimes(0)
@@ -83,14 +83,14 @@ describe('AtomicTask', () => {
 
     await task.finish()
     expect(mockRun).toHaveBeenCalledTimes(1)
-    expect(task.status).toEqual(TaskStatus.FAILED)
+    expect(task.status).toEqual(TaskStatusEnum.FAILED)
     expect(task.hasError).toEqual(true)
     expect(task.error).toEqual({
       from: task.name,
       details: [
         {
           from: 'AtomicTaskError',
-          level: SoraErrorLevel.ERROR,
+          level: ErrorLevelEnum.ERROR,
           details: 'Something went wrong',
         },
       ],
@@ -99,7 +99,7 @@ describe('AtomicTask', () => {
     expect(monitor.onAddError).toHaveBeenCalledWith(
       'AtomicTaskError',
       'Something went wrong',
-      SoraErrorLevel.ERROR,
+      ErrorLevelEnum.ERROR,
     )
   })
 
@@ -108,13 +108,13 @@ describe('AtomicTask', () => {
     const task = new AtomicTaskForTest(mockRun)
     task.monitor(monitor)
 
-    expect(task.status).toEqual(TaskStatus.PENDING)
+    expect(task.status).toEqual(TaskStatusEnum.PENDING)
     expect(task.hasError).toEqual(false)
     expect(task.error).toEqual(undefined)
     expect(monitor.onAddError).toHaveBeenCalledTimes(0)
 
     await task.finish()
-    expect(task.status).toEqual(TaskStatus.FINISHED)
+    expect(task.status).toEqual(TaskStatusEnum.FINISHED)
     expect(task.hasError).toEqual(false)
     expect(task.error).toEqual(undefined)
     expect(monitor.onAddError).toHaveBeenCalledTimes(0)
@@ -126,13 +126,13 @@ describe('AtomicTask', () => {
     const task = new AtomicTaskForTest(mockRun)
     task.monitor(monitor)
 
-    expect(task.status).toEqual(TaskStatus.PENDING)
+    expect(task.status).toEqual(TaskStatusEnum.PENDING)
     expect(task.hasError).toEqual(false)
     expect(task.error).toEqual(undefined)
     expect(monitor.onAddError).toHaveBeenCalledTimes(0)
 
     await task.cancel()
-    expect(task.status).toEqual(TaskStatus.CANCELLED)
+    expect(task.status).toEqual(TaskStatusEnum.CANCELLED)
     expect(task.hasError).toEqual(false)
     expect(task.error).toEqual(undefined)
     expect(monitor.onAddError).toHaveBeenCalledTimes(0)
@@ -144,27 +144,27 @@ describe('AtomicTask', () => {
     const task = new AtomicTaskForTest(mockRun)
     task.monitor(monitor)
 
-    expect(task.status).toEqual(TaskStatus.PENDING)
+    expect(task.status).toEqual(TaskStatusEnum.PENDING)
     expect(task.hasError).toEqual(false)
     expect(task.error).toEqual(undefined)
     expect(monitor.onAddError).toHaveBeenCalledTimes(0)
 
     void task.start()
-    expect(task.status).toEqual(TaskStatus.RUNNING)
+    expect(task.status).toEqual(TaskStatusEnum.RUNNING)
     expect(task.hasError).toEqual(false)
     expect(task.error).toEqual(undefined)
     expect(monitor.onAddError).toHaveBeenCalledTimes(0)
     expect(mockRun).toHaveBeenCalledTimes(1)
 
     const promise = task.cancel()
-    expect(task.status).toEqual(TaskStatus.ATTEMPT_CANCELING)
+    expect(task.status).toEqual(TaskStatusEnum.ATTEMPT_CANCELING)
     expect(task.hasError).toEqual(false)
     expect(task.error).toEqual(undefined)
     expect(monitor.onAddError).toHaveBeenCalledTimes(0)
     expect(mockRun).toHaveBeenCalledTimes(1)
 
     await promise
-    expect(task.status).toEqual(TaskStatus.FINISHED)
+    expect(task.status).toEqual(TaskStatusEnum.FINISHED)
     expect(task.hasError).toEqual(false)
     expect(task.error).toEqual(undefined)
     expect(monitor.onAddError).toHaveBeenCalledTimes(0)

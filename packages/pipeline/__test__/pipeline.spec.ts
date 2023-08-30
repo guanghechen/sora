@@ -1,6 +1,7 @@
+import { PipelineStatusEnum } from '@guanghechen/constant'
+import type { IPipelineMonitor } from '@guanghechen/types'
 import { jest } from '@jest/globals'
-import type { IPipelineMonitor } from '../src'
-import { Pipeline, PipelineStatus } from '../src'
+import { Pipeline } from '../src'
 
 interface IData {
   name: string
@@ -27,13 +28,13 @@ describe('Pipeline', () => {
   })
 
   it('should initialize with ALIVE status', () => {
-    expect(pipeline.status).toBe(PipelineStatus.ALIVE)
+    expect(pipeline.status).toBe(PipelineStatusEnum.ALIVE)
   })
 
   it('should close the pipeline', () => {
-    expect(pipeline.status).toBe(PipelineStatus.ALIVE)
+    expect(pipeline.status).toBe(PipelineStatusEnum.ALIVE)
     pipeline.close()
-    expect(pipeline.status).toBe(PipelineStatus.CLOSED)
+    expect(pipeline.status).toBe(PipelineStatusEnum.CLOSED)
   })
 
   it('should call onClosed monitor when closed', () => {

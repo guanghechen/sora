@@ -1,15 +1,15 @@
-import { TaskStatus, TaskStrategy } from '../constant'
-import { TaskState } from '../state'
-import type { ITask } from '../types'
+import { TaskStatusEnum, TaskStrategyEnum } from '@guanghechen/constant'
+import type { ITask } from '@guanghechen/types'
+import { TaskState } from './state'
 
 interface IResumableTaskProps {
   name: string
-  strategy: TaskStrategy
+  strategy: TaskStrategyEnum
   pollInterval: number
 }
 
 export abstract class ResumableTask extends TaskState implements ITask {
-  public readonly strategy: TaskStrategy
+  public readonly strategy: TaskStrategyEnum
   private readonly _pollInterval: number
   private _execution: IterableIterator<Promise<void>> | undefined
   private _step: Promise<void> | undefined
@@ -23,8 +23,8 @@ export abstract class ResumableTask extends TaskState implements ITask {
   }
 
   public async start(): Promise<void> {
-    if (this.status === TaskStatus.PENDING) {
-      this.status = TaskStatus.RUNNING
+    if (this.status === TaskStatusEnum.PENDING) {
+      this.status = TaskStatusEnum.RUNNING
 
       this._execution = this.run()
       this.launchStep()
@@ -33,25 +33,25 @@ export abstract class ResumableTask extends TaskState implements ITask {
   }
 
   public async pause(): Promise<void> {
-    if (this.status === TaskStatus.RUNNING) {
-      this.status = TaskStatus.ATTEMPT_SUSPENDING
+    if (this.status === TaskStatusEnum.RUNNING) {
+      this.status = TaskStatusEnum.ATTEMPT_SUSPENDING
 
       await this._step
 
-      if (this.status === TaskStatus.ATTEMPT_SUSPENDING) {
-        this.status = TaskStatus.SUSPENDED
+      if (this.status === TaskStatusEnum.ATTEMPT_SUSPENDING) {
+        this.status = TaskStatusEnum.SUSPENDED
       }
     }
   }
 
   public async resume(): Promise<void> {
-    if (this.status === TaskStatus.SUSPENDED) {
-      this.status = TaskStatus.ATTEMPT_RESUMING
+    if (this.status === TaskStatusEnum.SUSPENDED) {
+      this.status = TaskStatusEnum.ATTEMPT_RESUMING
 
       await this._step
 
-      if (this.status === TaskStatus.ATTEMPT_RESUMING) {
-        this.status = TaskStatus.RUNNING
+      if (this.status === TaskStatusEnum.ATTEMPT_RESUMING) {
+        this.status = TaskStatusEnum.RUNNING
         this.queueStep()
       }
     }
@@ -59,20 +59,20 @@ export abstract class ResumableTask extends TaskState implements ITask {
 
   public async cancel(): Promise<void> {
     if (this.alive) {
-      this.status = TaskStatus.ATTEMPT_CANCELING
+      this.status = TaskStatusEnum.ATTEMPT_CANCELING
 
       await this._step
 
-      if (this.status === TaskStatus.ATTEMPT_CANCELING) {
-        this.status = TaskStatus.CANCELLED
+      if (this.status === TaskStatusEnum.ATTEMPT_CANCELING) {
+        this.status = TaskStatusEnum.CANCELLED
       }
     }
   }
 
   public async finish(): Promise<void> {
-    if (this.status === TaskStatus.PENDING) await this.start()
+    if (this.status === TaskStatusEnum.PENDING) await this.start()
     if (this.alive) {
-      this.status = TaskStatus.ATTEMPT_FINISHING
+      this.status = TaskStatusEnum.ATTEMPT_FINISHING
 
       // Waiting current step terminated.
       await this._step
@@ -80,20 +80,20 @@ export abstract class ResumableTask extends TaskState implements ITask {
       // Execute until done.
       const execution = this._execution
       if (execution) {
-        while (this.status === TaskStatus.ATTEMPT_FINISHING) {
+        while (this.status === TaskStatusEnum.ATTEMPT_FINISHING) {
           const step = execution.next()
           if (step.done) {
-            this.status = this.hasError ? TaskStatus.FAILED : TaskStatus.FINISHED // Finished.
+            this.status = this.hasError ? TaskStatusEnum.FAILED : TaskStatusEnum.FINISHED // Finished.
             break
           }
 
           await step.value.catch(error => {
             this._addError('ResumableTaskError', error)
             switch (this.strategy) {
-              case TaskStrategy.ABORT_ON_ERROR:
-                if (!this.terminated) this.status = TaskStatus.FAILED
+              case TaskStrategyEnum.ABORT_ON_ERROR:
+                if (!this.terminated) this.status = TaskStatusEnum.FAILED
                 break
-              case TaskStrategy.CONTINUE_ON_ERROR:
+              case TaskStrategyEnum.CONTINUE_ON_ERROR:
                 break
             }
           })
@@ -105,10 +105,10 @@ export abstract class ResumableTask extends TaskState implements ITask {
   protected abstract run(): IterableIterator<Promise<void>>
 
   private launchStep(): void {
-    if (this.status === TaskStatus.RUNNING && this._step === undefined && this._execution) {
+    if (this.status === TaskStatusEnum.RUNNING && this._step === undefined && this._execution) {
       const step = this._execution.next()
       if (step.done) {
-        this.status = this.hasError ? TaskStatus.FAILED : TaskStatus.FINISHED // Finished.
+        this.status = this.hasError ? TaskStatusEnum.FAILED : TaskStatusEnum.FINISHED // Finished.
         return
       }
 
@@ -121,10 +121,10 @@ export abstract class ResumableTask extends TaskState implements ITask {
           this._step = undefined
           this._addError('ResumableTaskError', error)
           switch (this.strategy) {
-            case TaskStrategy.ABORT_ON_ERROR:
-              if (!this.terminated) this.status = TaskStatus.FAILED
+            case TaskStrategyEnum.ABORT_ON_ERROR:
+              if (!this.terminated) this.status = TaskStatusEnum.FAILED
               break
-            case TaskStrategy.CONTINUE_ON_ERROR:
+            case TaskStrategyEnum.CONTINUE_ON_ERROR:
               this.queueStep()
               break
           }

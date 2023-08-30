@@ -1,10 +1,30 @@
-import { SoraErrorCollector, SoraErrorLevel } from '@guanghechen/error'
-import type { ISoraErrorCollector } from '@guanghechen/error'
-import type { IMonitor } from '@guanghechen/monitor'
+import { ErrorLevelEnum, TaskStatusEnum } from '@guanghechen/constant'
+import { SoraErrorCollector } from '@guanghechen/error'
 import { Monitor } from '@guanghechen/monitor'
 import { noop } from '@guanghechen/shared'
-import { TaskStatus, active, alive, terminated } from './constant'
-import type { ITaskError, ITaskMonitor, ITaskState, IUnMonitorTask } from './types'
+import type {
+  IMonitor,
+  ISoraErrorCollector,
+  ITaskError,
+  ITaskMonitor,
+  ITaskState,
+  IUnMonitorTask,
+} from '@guanghechen/types'
+
+const active: TaskStatusEnum =
+  TaskStatusEnum.RUNNING | //
+  TaskStatusEnum.ATTEMPT_SUSPENDING |
+  TaskStatusEnum.ATTEMPT_RESUMING
+const alive: TaskStatusEnum =
+  TaskStatusEnum.PENDING | //
+  TaskStatusEnum.RUNNING |
+  TaskStatusEnum.SUSPENDED |
+  TaskStatusEnum.ATTEMPT_SUSPENDING |
+  TaskStatusEnum.ATTEMPT_RESUMING
+const terminated: TaskStatusEnum =
+  TaskStatusEnum.CANCELLED | //
+  TaskStatusEnum.FAILED |
+  TaskStatusEnum.FINISHED
 
 type IParametersOfOnAddError = Parameters<Required<ITaskMonitor>['onAddError']>
 type IParametersOfOnStatusChange = Parameters<Required<ITaskMonitor>['onStatusChange']>
@@ -16,7 +36,7 @@ export class TaskState implements ITaskState {
     onStatusChange: IMonitor<IParametersOfOnStatusChange>
     onAddError: IMonitor<IParametersOfOnAddError>
   }
-  private _status: TaskStatus
+  private _status: TaskStatusEnum
 
   constructor(name: string) {
     this.name = name
@@ -25,10 +45,10 @@ export class TaskState implements ITaskState {
       onAddError: new Monitor<IParametersOfOnAddError>('onAddError'),
       onStatusChange: new Monitor<IParametersOfOnStatusChange>('onStatusChange'),
     }
-    this._status = TaskStatus.PENDING
+    this._status = TaskStatusEnum.PENDING
   }
 
-  public get status(): TaskStatus {
+  public get status(): TaskStatusEnum {
     return this._status
   }
 
@@ -53,7 +73,7 @@ export class TaskState implements ITaskState {
     return { from: this.name, details: this._errorCollector.errors }
   }
 
-  public set status(status: TaskStatus) {
+  public set status(status: TaskStatusEnum) {
     const curStatus = this._status
     if (status !== curStatus) {
       const accepted: boolean = this.check(status)
@@ -83,37 +103,37 @@ export class TaskState implements ITaskState {
     }
   }
 
-  public check(nextStatus: TaskStatus): boolean {
-    const status: TaskStatus = this._status
+  public check(nextStatus: TaskStatusEnum): boolean {
+    const status: TaskStatusEnum = this._status
     switch (nextStatus) {
-      case TaskStatus.PENDING:
+      case TaskStatusEnum.PENDING:
         return false
-      case TaskStatus.RUNNING:
-        return status === TaskStatus.PENDING || status === TaskStatus.ATTEMPT_RESUMING
-      case TaskStatus.SUSPENDED:
-        return status === TaskStatus.ATTEMPT_SUSPENDING
-      case TaskStatus.CANCELLED:
-        return status === TaskStatus.ATTEMPT_CANCELING
-      case TaskStatus.FAILED:
+      case TaskStatusEnum.RUNNING:
+        return status === TaskStatusEnum.PENDING || status === TaskStatusEnum.ATTEMPT_RESUMING
+      case TaskStatusEnum.SUSPENDED:
+        return status === TaskStatusEnum.ATTEMPT_SUSPENDING
+      case TaskStatusEnum.CANCELLED:
+        return status === TaskStatusEnum.ATTEMPT_CANCELING
+      case TaskStatusEnum.FAILED:
         return (
-          status !== TaskStatus.PENDING &&
-          status !== TaskStatus.SUSPENDED &&
+          status !== TaskStatusEnum.PENDING &&
+          status !== TaskStatusEnum.SUSPENDED &&
           (status & terminated) === 0
         )
-      case TaskStatus.FINISHED:
+      case TaskStatusEnum.FINISHED:
         return (
-          status !== TaskStatus.PENDING &&
-          status !== TaskStatus.SUSPENDED &&
+          status !== TaskStatusEnum.PENDING &&
+          status !== TaskStatusEnum.SUSPENDED &&
           (status & terminated) === 0
         )
-      case TaskStatus.ATTEMPT_SUSPENDING:
-        return status === TaskStatus.RUNNING
-      case TaskStatus.ATTEMPT_RESUMING:
-        return status === TaskStatus.SUSPENDED
-      case TaskStatus.ATTEMPT_CANCELING:
+      case TaskStatusEnum.ATTEMPT_SUSPENDING:
+        return status === TaskStatusEnum.RUNNING
+      case TaskStatusEnum.ATTEMPT_RESUMING:
+        return status === TaskStatusEnum.SUSPENDED
+      case TaskStatusEnum.ATTEMPT_CANCELING:
         return (status & alive) > 0
-      case TaskStatus.ATTEMPT_FINISHING:
-        return status !== TaskStatus.PENDING && (status & alive) > 0
+      case TaskStatusEnum.ATTEMPT_FINISHING:
+        return status !== TaskStatusEnum.PENDING && (status & alive) > 0
       /* c8 ignore start */
       default:
         return false
@@ -131,7 +151,7 @@ export class TaskState implements ITaskState {
   protected _addError(
     type: string,
     error: unknown,
-    level: SoraErrorLevel = SoraErrorLevel.ERROR,
+    level: ErrorLevelEnum = ErrorLevelEnum.ERROR,
   ): void {
     this._errorCollector.add(type, error, level)
 

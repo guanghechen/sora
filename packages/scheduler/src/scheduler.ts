@@ -1,9 +1,8 @@
-import { SoraErrorLevel } from '@guanghechen/error'
-import type { IPipeline } from '@guanghechen/pipeline'
+import { ErrorLevelEnum, TaskStatusEnum, TaskStrategyEnum } from '@guanghechen/constant'
 import { delay } from '@guanghechen/shared'
-import type { ITask } from '@guanghechen/task'
-import { ResumableTask, TaskStatus, TaskStrategy } from '@guanghechen/task'
-import type { IReporter, IScheduler } from './types'
+import { ResumableTask } from '@guanghechen/task'
+import type { IPipeline, IReporter, IScheduler, ITask } from '@guanghechen/types'
+import type {} from '@guanghechen/shared'
 
 export interface ISequentialSchedulerProps<D, T extends ITask> {
   name: string
@@ -24,7 +23,7 @@ export class Scheduler<D, T extends ITask> extends ResumableTask implements ISch
     const pollInterval: number = Math.max(0, Number(props.pollInterval) || 0)
     const idleInterval: number = Math.max(500, Number(props.idleInterval) || 0)
 
-    super({ name, strategy: TaskStrategy.CONTINUE_ON_ERROR, pollInterval })
+    super({ name, strategy: TaskStrategyEnum.CONTINUE_ON_ERROR, pollInterval })
 
     this._idleInterval = idleInterval
     this._pipeline = pipeline
@@ -36,16 +35,16 @@ export class Scheduler<D, T extends ITask> extends ResumableTask implements ISch
         const task: T | undefined = this._task
         if (task) {
           switch (newStatus) {
-            case TaskStatus.ATTEMPT_SUSPENDING:
+            case TaskStatusEnum.ATTEMPT_SUSPENDING:
               void task.pause()
               break
-            case TaskStatus.ATTEMPT_RESUMING:
+            case TaskStatusEnum.ATTEMPT_RESUMING:
               void task.resume()
               break
-            case TaskStatus.ATTEMPT_CANCELING:
+            case TaskStatusEnum.ATTEMPT_CANCELING:
               void task.cancel()
               break
-            case TaskStatus.ATTEMPT_FINISHING:
+            case TaskStatusEnum.ATTEMPT_FINISHING:
               void task.finish()
               break
           }
@@ -63,7 +62,7 @@ export class Scheduler<D, T extends ITask> extends ResumableTask implements ISch
       this._addError(
         'SchedulerError',
         `[Scheduler] ${this.name}: pipeline is not closed, the finish won't be terminated`,
-        SoraErrorLevel.WARN,
+        ErrorLevelEnum.WARN,
       )
     }
     return super.finish()
@@ -91,13 +90,13 @@ export class Scheduler<D, T extends ITask> extends ResumableTask implements ISch
         task.monitor({
           onStatusChange: status => {
             switch (status) {
-              case TaskStatus.FINISHED:
+              case TaskStatusEnum.FINISHED:
                 resolve()
                 break
-              case TaskStatus.FAILED:
+              case TaskStatusEnum.FAILED:
                 reject(task.error)
                 break
-              case TaskStatus.CANCELLED:
+              case TaskStatusEnum.CANCELLED:
                 resolve()
                 break
               default:

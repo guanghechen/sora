@@ -39,7 +39,9 @@
     "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
   },
   "dependencies": {
-    "@guanghechen/monitor": "^1.0.0-alpha.2"
+    "@guanghechen/constant": "^1.0.0-alpha.0",
+    "@guanghechen/monitor": "^1.0.0-alpha.2",
+    "@guanghechen/types": "^1.0.0-alpha.0"
   },
   "devDependencies": {
     "@guanghechen/shared": "^1.0.0-alpha.2",

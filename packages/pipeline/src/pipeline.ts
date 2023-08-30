@@ -1,8 +1,7 @@
-import type { IMonitor } from '@guanghechen/monitor'
+import { PipelineStatusEnum } from '@guanghechen/constant'
 import { Monitor } from '@guanghechen/monitor'
 import { noop } from '@guanghechen/shared'
-import { PipelineStatus } from './constant'
-import type { IPipeline, IPipelineMonitor, IUnMonitorPipeline } from './types'
+import type { IMonitor, IPipeline, IPipelineMonitor, IUnMonitorPipeline } from '@guanghechen/types'
 
 type IParametersOfOnClosed = Parameters<Required<IPipelineMonitor>['onClosed']>
 type IParametersOfOnPushed = Parameters<Required<IPipelineMonitor>['onPushed']>
@@ -13,7 +12,7 @@ export abstract class Pipeline<D, T> implements IPipeline<D, T> {
     onClosed: IMonitor<IParametersOfOnClosed>
     onPushed: IMonitor<IParametersOfOnPushed>
   }
-  private _status: PipelineStatus
+  private _status: PipelineStatusEnum
 
   constructor() {
     this._materials = []
@@ -21,25 +20,25 @@ export abstract class Pipeline<D, T> implements IPipeline<D, T> {
       onClosed: new Monitor<IParametersOfOnClosed>('onClosed'),
       onPushed: new Monitor<IParametersOfOnPushed>('onPushed'),
     }
-    this._status = PipelineStatus.ALIVE
+    this._status = PipelineStatusEnum.ALIVE
   }
 
   public get size(): number {
     return this._materials.length
   }
 
-  public get status(): PipelineStatus {
+  public get status(): PipelineStatusEnum {
     return this._status
   }
 
   public get closed(): boolean {
-    return this._status === PipelineStatus.CLOSED
+    return this._status === PipelineStatusEnum.CLOSED
   }
 
   public close(): void {
     if (this.closed) return
 
-    this._status = PipelineStatus.CLOSED
+    this._status = PipelineStatusEnum.CLOSED
     this._monitors.onClosed.notify()
 
     // cleanup
