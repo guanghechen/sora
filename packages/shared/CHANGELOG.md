@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.3](https://github.com/guanghechen/sora/compare/@guanghechen/shared@1.0.0-alpha.2...@guanghechen/shared@1.0.0-alpha.3) (2023-08-30)
+
+
+### Performance Improvements
+
+* 🎨 reuse constants and types ([5efb70e](https://github.com/guanghechen/sora/commit/5efb70e6df130dc870ccb5add632291dcbd94809))
+
+
+
+
+
 # [1.0.0-alpha.2](https://github.com/guanghechen/sora/compare/@guanghechen/shared@1.0.0-alpha.1...@guanghechen/shared@1.0.0-alpha.2) (2023-08-28)
 
 
