@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0-alpha.4](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler@6.0.0-alpha.3...@guanghechen/scheduler@6.0.0-alpha.4) (2023-09-02)
+
+
+### Performance Improvements
+
+* 🎨 make pipeline methods asynchronous ([58eef0b](https://github.com/guanghechen/sora/commit/58eef0b9ddc1a09714d9a63e3f5063752b4ec73a))
+
+
+
+
+
 # [6.0.0-alpha.3](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler@6.0.0-alpha.2...@guanghechen/scheduler@6.0.0-alpha.3) (2023-08-30)
 
 

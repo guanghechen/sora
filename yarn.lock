@@ -500,12 +500,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/error@^1.0.0-alpha.3, @guanghechen/error@workspace:packages/error":
+"@guanghechen/error@^1.0.0-alpha.4, @guanghechen/error@workspace:packages/error":
   version: 0.0.0-use.local
   resolution: "@guanghechen/error@workspace:packages/error"
   dependencies:
     "@guanghechen/constant": ^1.0.0-alpha.1
-    "@guanghechen/types": ^1.0.0-alpha.1
+    "@guanghechen/types": ^1.0.0-alpha.2
     cross-env: ^7.0.3
     jest: ^29.6.4
     rimraf: ^5.0.1
@@ -586,12 +586,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/monitor@^1.0.0-alpha.3, @guanghechen/monitor@workspace:packages/monitor":
+"@guanghechen/monitor@^1.0.0-alpha.4, @guanghechen/monitor@workspace:packages/monitor":
   version: 0.0.0-use.local
   resolution: "@guanghechen/monitor@workspace:packages/monitor"
   dependencies:
     "@guanghechen/shared": ^1.0.0-alpha.3
-    "@guanghechen/types": ^1.0.0-alpha.1
+    "@guanghechen/types": ^1.0.0-alpha.2
     cross-env: ^7.0.3
     jest: ^29.6.4
     rimraf: ^5.0.1
@@ -604,9 +604,9 @@ __metadata:
   resolution: "@guanghechen/pipeline@workspace:packages/pipeline"
   dependencies:
     "@guanghechen/constant": ^1.0.0-alpha.1
-    "@guanghechen/monitor": ^1.0.0-alpha.3
+    "@guanghechen/monitor": ^1.0.0-alpha.4
     "@guanghechen/shared": ^1.0.0-alpha.3
-    "@guanghechen/types": ^1.0.0-alpha.1
+    "@guanghechen/types": ^1.0.0-alpha.2
     cross-env: ^7.0.3
     jest: ^29.6.4
     rimraf: ^5.0.1
@@ -619,7 +619,7 @@ __metadata:
   resolution: "@guanghechen/reporter@workspace:packages/reporter"
   dependencies:
     "@guanghechen/constant": ^1.0.0-alpha.1
-    "@guanghechen/types": ^1.0.0-alpha.1
+    "@guanghechen/types": ^1.0.0-alpha.2
     chalk: ^5.3.0
     cross-env: ^7.0.3
     dayjs: ^1.11.9
@@ -654,8 +654,8 @@ __metadata:
   dependencies:
     "@guanghechen/constant": ^1.0.0-alpha.1
     "@guanghechen/shared": ^1.0.0-alpha.3
-    "@guanghechen/task": ^1.0.0-alpha.3
-    "@guanghechen/types": ^1.0.0-alpha.1
+    "@guanghechen/task": ^1.0.0-alpha.4
+    "@guanghechen/types": ^1.0.0-alpha.2
     cross-env: ^7.0.3
     jest: ^29.6.4
     rimraf: ^5.0.1
@@ -728,13 +728,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/task@^1.0.0-alpha.3, @guanghechen/task@workspace:packages/task":
+"@guanghechen/task@^1.0.0-alpha.4, @guanghechen/task@workspace:packages/task":
   version: 0.0.0-use.local
   resolution: "@guanghechen/task@workspace:packages/task"
   dependencies:
     "@guanghechen/constant": ^1.0.0-alpha.1
-    "@guanghechen/error": ^1.0.0-alpha.3
-    "@guanghechen/monitor": ^1.0.0-alpha.3
+    "@guanghechen/error": ^1.0.0-alpha.4
+    "@guanghechen/monitor": ^1.0.0-alpha.4
     "@guanghechen/shared": ^1.0.0-alpha.3
     cross-env: ^7.0.3
     jest: ^29.6.4
@@ -743,7 +743,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/types@^1.0.0-alpha.1, @guanghechen/types@workspace:packages/types":
+"@guanghechen/types@^1.0.0-alpha.2, @guanghechen/types@workspace:packages/types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/types@workspace:packages/types"
   dependencies:

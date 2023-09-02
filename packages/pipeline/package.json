@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/pipeline",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-alpha.4",
   "description": "Task pipeline",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline@1.0.0-alpha.3",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline@1.0.0-alpha.4",
     "directory": "packages/pipeline"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline@1.0.0-alpha.3/packages/pipeline#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline@1.0.0-alpha.4/packages/pipeline#readme",
   "type": "module",
   "main": "./lib/cjs/index.cjs",
   "module": "./lib/esm/index.mjs",
@@ -40,8 +40,8 @@
   },
   "dependencies": {
     "@guanghechen/constant": "^1.0.0-alpha.1",
-    "@guanghechen/monitor": "^1.0.0-alpha.3",
-    "@guanghechen/types": "^1.0.0-alpha.1"
+    "@guanghechen/monitor": "^1.0.0-alpha.4",
+    "@guanghechen/types": "^1.0.0-alpha.2"
   },
   "devDependencies": {
     "@guanghechen/shared": "^1.0.0-alpha.3",
