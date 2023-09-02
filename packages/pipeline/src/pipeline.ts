@@ -35,7 +35,7 @@ export abstract class Pipeline<D, T> implements IPipeline<D, T> {
     return this._status === PipelineStatusEnum.CLOSED
   }
 
-  public close(): void {
+  public async close(): Promise<void> {
     if (this.closed) return
 
     this._status = PipelineStatusEnum.CLOSED
@@ -62,16 +62,16 @@ export abstract class Pipeline<D, T> implements IPipeline<D, T> {
     }
   }
 
-  public pull(): T | undefined {
+  public async pull(): Promise<T | undefined> {
     while (this._materials.length > 0) {
       const material: D = this._materials.shift()!
-      const cooked: T | undefined = this.cook(material, this._materials)
+      const cooked: T | undefined = await this.cook(material, this._materials)
       if (cooked !== undefined) return cooked
     }
     return undefined
   }
 
-  public push(material: D): void {
+  public async push(material: D): Promise<void> {
     if (this.closed) return
 
     this._materials.push(material)
@@ -80,5 +80,5 @@ export abstract class Pipeline<D, T> implements IPipeline<D, T> {
     this._monitors.onPushed.notify()
   }
 
-  protected abstract cook(material: D, others: ReadonlyArray<D>): T | undefined
+  protected abstract cook(material: D, others: ReadonlyArray<D>): Promise<T | undefined>
 }

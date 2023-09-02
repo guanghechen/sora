@@ -53,8 +53,8 @@ export class Scheduler<D, T extends ITask> extends ResumableTask implements ISch
     })
   }
 
-  public schedule(data: D): void {
-    this._pipeline.push(data)
+  public async schedule(data: D): Promise<void> {
+    await this._pipeline.push(data)
   }
 
   public override finish(): Promise<void> {
@@ -70,45 +70,36 @@ export class Scheduler<D, T extends ITask> extends ResumableTask implements ISch
 
   protected override *run(): IterableIterator<Promise<void>> {
     const pipeline: IPipeline<D, T> = this._pipeline
-
-    for (;;) {
-      let top: T | undefined = undefined
-      while (top === undefined && pipeline.size > 0) {
-        top = pipeline.pull()
-      }
-
-      if (top === undefined) {
-        if (pipeline.closed) break
-
-        yield delay(this._idleInterval)
-        continue
-      }
-
-      const task: T = top
-      this._task = task
-      yield new Promise<void>((resolve, reject) => {
-        task.monitor({
-          onStatusChange: status => {
-            switch (status) {
-              case TaskStatusEnum.FINISHED:
-                resolve()
-                break
-              case TaskStatusEnum.FAILED:
-                reject(task.error)
-                break
-              case TaskStatusEnum.CANCELLED:
-                resolve()
-                break
-              default:
-            }
-          },
-        })
-        void task.start()
-      }).finally(() => {
-        task.cleanup()
-        this._task = undefined
-      })
-    }
+    while (pipeline.size > 0 || !pipeline.closed) yield this._pullAndRun()
     return
+  }
+
+  private async _pullAndRun(): Promise<void> {
+    const task: T | undefined = await this._pipeline.pull()
+    if (task === undefined) return delay(this._idleInterval)
+
+    this._task = task
+    return new Promise<void>((resolve, reject) => {
+      task.monitor({
+        onStatusChange: status => {
+          switch (status) {
+            case TaskStatusEnum.FINISHED:
+              resolve()
+              break
+            case TaskStatusEnum.FAILED:
+              reject(task.error)
+              break
+            case TaskStatusEnum.CANCELLED:
+              resolve()
+              break
+            default:
+          }
+        },
+      })
+      void task.start()
+    }).finally(() => {
+      task.cleanup()
+      this._task = undefined
+    })
   }
 }

@@ -33,7 +33,7 @@ export interface IPipeline<D, T> {
   /**
    * Dispose the pipeline.
    */
-  close(): void
+  close(): Promise<void>
 
   /**
    * Monitor the pipeline changes.
@@ -45,10 +45,10 @@ export interface IPipeline<D, T> {
    * Add a element into the pipeline.
    * @param material
    */
-  push(material: D): void
+  push(material: D): Promise<void>
 
   /**
    * Retrieve an element from the pipeline.
    */
-  pull(): T | undefined
+  pull(): Promise<T | undefined>
 }

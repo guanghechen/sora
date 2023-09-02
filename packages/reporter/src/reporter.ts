@@ -66,10 +66,6 @@ export class Reporter implements IReporter {
     return this._baseName + '#' + this._divisionName
   }
 
-  public setBaseName(basename: string | null): void {
-    this._baseName = basename ?? this._baseName
-  }
-
   public setDivisionName(divisionName: string | null): void {
     this._divisionName = divisionName ?? this._divisionName
   }

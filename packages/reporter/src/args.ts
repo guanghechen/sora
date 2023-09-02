@@ -14,10 +14,10 @@ export function parseOptionsFromArgs(args: string[]): IReporterOptions {
   for (let i = 0; i < args.length; ++i) {
     const arg = args[i]
     const match = regex.exec(arg)
-    if (match == null) continue
+    if (!match) continue
     let [, key, val] = match
 
-    if (val == null) {
+    if (typeof val !== 'string') {
       if (i + 1 < args.length) {
         const nextArg = args[i + 1]
         if (/^-/.test(nextArg)) continue
@@ -51,7 +51,7 @@ export function parseOptionsFromCommander(commanderOptions: ICommanderOptions): 
   if (typeof commanderOptions.logLevel === 'string') {
     const logLevel = commanderOptions.logLevel.trim().toLowerCase()
     const level = resolveLevel(logLevel)
-    if (level != null) options.level = level
+    if (level) options.level = level
   }
 
   // Resolve log name
