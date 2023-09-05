@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/scheduler",
-  "version": "6.0.0-alpha.4",
+  "version": "6.0.0-alpha.5",
   "description": "Task scheduler",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@6.0.0-alpha.4",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@6.0.0-alpha.5",
     "directory": "packages/scheduler"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@6.0.0-alpha.4/packages/scheduler#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@6.0.0-alpha.5/packages/scheduler#readme",
   "type": "module",
   "main": "./lib/cjs/index.cjs",
   "module": "./lib/esm/index.mjs",
@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "@guanghechen/constant": "^1.0.0-alpha.1",
-    "@guanghechen/task": "^1.0.0-alpha.4",
+    "@guanghechen/task": "^1.0.0-alpha.5",
     "@guanghechen/types": "^1.0.0-alpha.2"
   },
   "devDependencies": {

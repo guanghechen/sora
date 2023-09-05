@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0-alpha.5](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler@6.0.0-alpha.4...@guanghechen/scheduler@6.0.0-alpha.5) (2023-09-05)
+
+
+### Performance Improvements
+
+* 🎨 re-export types and constants ([7213062](https://github.com/guanghechen/sora/commit/721306218d253c3dad6549f145cf51c81e86d9ad))
+
+
+
+
+
 # [6.0.0-alpha.4](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler@6.0.0-alpha.3...@guanghechen/scheduler@6.0.0-alpha.4) (2023-09-02)
 
 

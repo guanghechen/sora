@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/monitor",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.5",
   "description": "Monitor",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/monitor@1.0.0-alpha.4",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/monitor@1.0.0-alpha.5",
     "directory": "packages/monitor"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/monitor@1.0.0-alpha.4/packages/monitor#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/monitor@1.0.0-alpha.5/packages/monitor#readme",
   "type": "module",
   "main": "./lib/cjs/index.cjs",
   "module": "./lib/esm/index.mjs",

@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/task",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.5",
   "description": "Atomic and resumable tasks",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/task@1.0.0-alpha.4",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/task@1.0.0-alpha.5",
     "directory": "packages/task"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/task@1.0.0-alpha.4/packages/task#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/task@1.0.0-alpha.5/packages/task#readme",
   "type": "module",
   "main": "./lib/cjs/index.cjs",
   "module": "./lib/esm/index.mjs",
@@ -40,8 +40,8 @@
   },
   "dependencies": {
     "@guanghechen/constant": "^1.0.0-alpha.1",
-    "@guanghechen/error": "^1.0.0-alpha.4",
-    "@guanghechen/monitor": "^1.0.0-alpha.4",
+    "@guanghechen/error": "^1.0.0-alpha.5",
+    "@guanghechen/monitor": "^1.0.0-alpha.5",
     "@guanghechen/types": "^1.0.0-alpha.2"
   },
   "devDependencies": {
