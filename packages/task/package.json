@@ -41,7 +41,8 @@
   "dependencies": {
     "@guanghechen/constant": "^1.0.0-alpha.1",
     "@guanghechen/error": "^1.0.0-alpha.4",
-    "@guanghechen/monitor": "^1.0.0-alpha.4"
+    "@guanghechen/monitor": "^1.0.0-alpha.4",
+    "@guanghechen/types": "^1.0.0-alpha.2"
   },
   "devDependencies": {
     "@guanghechen/shared": "^1.0.0-alpha.3",

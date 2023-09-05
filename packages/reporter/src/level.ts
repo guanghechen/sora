@@ -4,7 +4,7 @@ import type { ChalkInstance } from 'chalk'
 
 export interface ColorfulChalk {
   readonly fg: ChalkInstance
-  readonly bg: ChalkInstance | null
+  readonly bg?: ChalkInstance | undefined
 }
 
 export interface ILevelStyle {
@@ -18,37 +18,37 @@ export type ILevelStyleMap = Record<ReporterLevelEnum, ILevelStyle>
 export const defaultLevelStyleMap: ILevelStyleMap = Object.freeze({
   [ReporterLevelEnum.DEBUG]: {
     title: 'debug',
-    labelChalk: { fg: chalk.grey, bg: null },
-    contentChalk: { fg: chalk.grey, bg: null },
+    labelChalk: { fg: chalk.grey },
+    contentChalk: { fg: chalk.grey },
   },
   [ReporterLevelEnum.VERBOSE]: {
     title: 'verb ',
-    labelChalk: { fg: chalk.cyan, bg: null },
-    contentChalk: { fg: chalk.cyan, bg: null },
+    labelChalk: { fg: chalk.cyan },
+    contentChalk: { fg: chalk.cyan },
   },
   [ReporterLevelEnum.INFO]: {
     title: 'info ',
-    labelChalk: { fg: chalk.green, bg: null },
-    contentChalk: { fg: chalk.green, bg: null },
+    labelChalk: { fg: chalk.green },
+    contentChalk: { fg: chalk.green },
   },
   [ReporterLevelEnum.WARN]: {
     title: 'warn ',
-    labelChalk: { fg: chalk.yellow, bg: null },
-    contentChalk: { fg: chalk.yellow, bg: null },
+    labelChalk: { fg: chalk.yellow },
+    contentChalk: { fg: chalk.yellow },
   },
   [ReporterLevelEnum.ERROR]: {
     title: 'error',
-    labelChalk: { fg: chalk.red, bg: null },
-    contentChalk: { fg: chalk.red, bg: null },
+    labelChalk: { fg: chalk.red },
+    contentChalk: { fg: chalk.red },
   },
   [ReporterLevelEnum.FATAL]: {
     title: 'fatal',
     labelChalk: { fg: chalk.black, bg: chalk.bgRed },
-    contentChalk: { fg: chalk.redBright, bg: null },
+    contentChalk: { fg: chalk.redBright },
   },
 })
 
-export const resolveLevel = (level: string): ReporterLevelEnum | null => {
+export const resolveLevel = (level: string): ReporterLevelEnum | undefined => {
   switch (level.toLowerCase()) {
     case 'debug':
       return ReporterLevelEnum.DEBUG
@@ -67,7 +67,7 @@ export const resolveLevel = (level: string): ReporterLevelEnum | null => {
       return ReporterLevelEnum.FATAL
     /* c8 ignore start */
     default:
-      return null
+      return undefined
     /* c8 ignore end */
   }
 }

@@ -14,8 +14,8 @@ export interface IReporterFlights {
 }
 
 export interface IReporterOptions {
-  baseName?: string | null
-  level?: ReporterLevelEnum | null
+  baseName?: string
+  level?: ReporterLevelEnum
   flights?: Partial<IReporterFlights>
   placeholderRegex?: RegExp
 }
@@ -66,8 +66,8 @@ export class Reporter implements IReporter {
     return this._baseName + '#' + this._divisionName
   }
 
-  public setDivisionName(divisionName: string | null): void {
-    this._divisionName = divisionName ?? this._divisionName
+  public setDivisionName(divisionName: string): void {
+    this._divisionName = divisionName
   }
 
   public debug(messageFormat: string | unknown, ...messages: unknown[]): void {
@@ -147,7 +147,7 @@ export class Reporter implements IReporter {
     let levelText = levelStyle.title
     if (this.flights.colorful) {
       levelText = levelStyle.labelChalk.fg(levelText)
-      if (levelStyle.labelChalk.bg != null) levelText = levelStyle.labelChalk.bg(levelText)
+      if (levelStyle.labelChalk.bg) levelText = levelStyle.labelChalk.bg(levelText)
     }
 
     const titleText: string = this.flights.title
@@ -166,9 +166,7 @@ export class Reporter implements IReporter {
     if (this.flights.colorful) {
       const levelStyle = this.levelStyleMap[level]
       text = levelStyle.contentChalk.fg(text)
-      if (levelStyle.contentChalk.bg != null) {
-        text = levelStyle.contentChalk.bg(text)
-      }
+      if (levelStyle.contentChalk.bg) text = levelStyle.contentChalk.bg(text)
     }
     return text
   }
