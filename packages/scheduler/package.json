@@ -17,10 +17,11 @@
   "module": "./lib/esm/index.mjs",
   "exports": {
     "import": "./lib/esm/index.mjs",
-    "require": "./lib/cjs/index.cjs"
+    "require": "./lib/cjs/index.cjs",
+    "types": "./lib/types/index.d.ts"
   },
-  "types": "lib/types/index.d.ts",
-  "source": "src/index.ts",
+  "types": "./lib/types/index.d.ts",
+  "source": "./src/index.ts",
   "license": "MIT",
   "engines": {
     "node": ">= 16.0.0"
