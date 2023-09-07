@@ -44,7 +44,6 @@
   "dependencies": {
     "@guanghechen/constant": "^1.0.0-alpha.2",
     "@guanghechen/types": "^1.0.0-alpha.3",
-    "chalk": "^5.3.0",
     "dayjs": "^1.11.9",
     "json5": "^2.2.3"
   },

@@ -1,10 +1,9 @@
 import { LevelOrdinalMap, ReporterLevelEnum } from '@guanghechen/constant'
-import type { IReporter } from '@guanghechen/types'
+import type { IChalk , IReporter } from '@guanghechen/types'
 import dayjs from 'dayjs'
 import { parseOptionsFromArgs } from './args'
 import { normalizeString } from './format'
 import type { ILevelStyleMap } from './level'
-import { defaultLevelStyleMap } from './level'
 
 export interface IReporterFlights {
   readonly date: boolean
@@ -41,14 +40,46 @@ export class Reporter implements IReporter {
   protected _baseName: string
   protected _divisionName: string
 
-  constructor(options_: IReporterOptions = {}, args: string[] = getDefaultArgs()) {
+  constructor(chalk: IChalk, options_: IReporterOptions = {}, args: string[] = getDefaultArgs()) {
     const options: IReporterOptions = {
       ...options_,
       ...parseOptionsFromArgs(args),
     }
 
     this.level = options.level ?? ReporterLevelEnum.INFO
-    this.levelStyleMap = defaultLevelStyleMap
+    this.levelStyleMap = Object.freeze({
+      [ReporterLevelEnum.DEBUG]: {
+        title: 'debug',
+        labelChalk: { fg: chalk.grey },
+        contentChalk: { fg: chalk.grey },
+      },
+      [ReporterLevelEnum.VERBOSE]: {
+        title: 'verb ',
+        labelChalk: { fg: chalk.cyan },
+        contentChalk: { fg: chalk.cyan },
+      },
+      [ReporterLevelEnum.INFO]: {
+        title: 'info ',
+        labelChalk: { fg: chalk.green },
+        contentChalk: { fg: chalk.green },
+      },
+      [ReporterLevelEnum.WARN]: {
+        title: 'warn ',
+        labelChalk: { fg: chalk.yellow },
+        contentChalk: { fg: chalk.yellow },
+      },
+      [ReporterLevelEnum.ERROR]: {
+        title: 'error',
+        labelChalk: { fg: chalk.red },
+        contentChalk: { fg: chalk.red },
+      },
+      [ReporterLevelEnum.FATAL]: {
+        title: 'fatal',
+        labelChalk: { fg: chalk.black, bg: chalk.bgRed },
+        contentChalk: { fg: chalk.redBright },
+      },
+    })
+
     this.flights = Object.freeze({
       date: options.flights?.date ?? false,
       title: options.flights?.title ?? true,
