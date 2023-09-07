@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/monitor",
-  "version": "1.0.0-alpha.6",
+  "version": "1.0.0-alpha.7",
   "description": "Monitor",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/monitor@1.0.0-alpha.6",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/monitor@1.0.0-alpha.7",
     "directory": "packages/monitor"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/monitor@1.0.0-alpha.6/packages/monitor#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/monitor@1.0.0-alpha.7/packages/monitor#readme",
   "type": "module",
   "main": "./lib/cjs/index.cjs",
   "module": "./lib/esm/index.mjs",
@@ -40,10 +40,10 @@
     "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
   },
   "dependencies": {
-    "@guanghechen/types": "^1.0.0-alpha.3"
+    "@guanghechen/types": "^1.0.0-alpha.4"
   },
   "devDependencies": {
-    "@guanghechen/shared": "^1.0.0-alpha.4",
+    "@guanghechen/shared": "^1.0.0-alpha.5",
     "cross-env": "^7.0.3",
     "jest": "^29.6.4",
     "rimraf": "^5.0.1",

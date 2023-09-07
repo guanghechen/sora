@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/shared",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.5",
   "description": "Shared codes, utils, types, constants and etc.",
   "author": {
     "name": "guanghechen",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/shared@1.0.0-alpha.4",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/shared@1.0.0-alpha.5",
     "directory": "packages/_shared"
   },
   "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/shared@1.0.0-alpha.2/packages/_shared#readme",

@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/reporter",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.5",
   "description": "A simple colorful reporter",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/reporter@1.0.0-alpha.4",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/reporter@1.0.0-alpha.5",
     "directory": "packages/reporter"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/reporter@1.0.0-alpha.4/packages/reporter#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/reporter@1.0.0-alpha.5/packages/reporter#readme",
   "keywords": [
     "reporter"
   ],
@@ -42,8 +42,8 @@
     "prepublishOnly": "yarn build"
   },
   "dependencies": {
-    "@guanghechen/constant": "^1.0.0-alpha.2",
-    "@guanghechen/types": "^1.0.0-alpha.3",
+    "@guanghechen/constant": "^1.0.0-alpha.3",
+    "@guanghechen/types": "^1.0.0-alpha.4",
     "dayjs": "^1.11.9",
     "json5": "^2.2.3"
   },
