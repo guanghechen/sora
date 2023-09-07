@@ -19,6 +19,7 @@ export default async function rollupConfig() {
     ],
     classifyDependency: (id) => {
       if (id === '@guanghechen/shared') return DependencyCategory.BUILTIN
+      if (id === '.') return DependencyCategory.EXTERNAL
       return DependencyCategory.UNKNOWN
     }
   })

@@ -1,0 +1,65 @@
+{
+  "name": "@guanghechen/chalk",
+  "version": "1.0.0-alpha.0",
+  "description": "Chalk (forked from https://github.com/chalk/chalk)",
+  "author": {
+    "name": "guanghechen",
+    "url": "https://github.com/guanghechen/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/chalk@1.0.0-alpha.0",
+    "directory": "packages/chalk"
+  },
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/chalk@1.0.0-alpha.0/packages/chalk#readme",
+  "type": "module",
+  "main": "./lib/cjs/index.cjs",
+  "module": "./lib/esm/index.mjs",
+  "exports": {
+    ".": {
+      "import": "./lib/esm/index.mjs",
+      "require": "./lib/cjs/index.cjs",
+      "source": "./src/index.ts",
+      "types": "./lib/types/index.d.ts"
+    },
+    "./node": {
+      "import": "./lib/esm/node.mjs",
+      "require": "./lib/cjs/node.cjs",
+      "source": "./src/node.ts",
+      "types": "./lib/types/node.d.ts"
+    },
+    "./browser": {
+      "import": "./lib/esm/browser.mjs",
+      "require": "./lib/cjs/browser.cjs",
+      "source": "./src/browser.ts",
+      "types": "./lib/types/browser.d.ts"
+    }
+  },
+  "types": "./lib/types/index.d.ts",
+  "source": "./src/index.ts",
+  "license": "MIT",
+  "engines": {
+    "node": ">= 16.0.0"
+  },
+  "files": [
+    "lib/",
+    "!lib/**/*.map",
+    "package.json",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "rimraf lib/ && cross-env NODE_ENV=production rollup -c ../../rollup.config.mjs",
+    "prepublishOnly": "yarn build"
+  },
+  "dependencies": {
+    "@guanghechen/types": "^1.0.0-alpha.3"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "jest": "^29.6.4",
+    "rimraf": "^5.0.1",
+    "rollup": "^3.28.1"
+  }
+}

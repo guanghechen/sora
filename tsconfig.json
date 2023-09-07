@@ -4,6 +4,8 @@
     "baseUrl": ".",
     "sourceMap": true,
     "paths": {
+      "@guanghechen/chalk": ["packages/chalk/src"],
+      "@guanghechen/chalk/node": ["packages/chalk/src/node"],
       "@guanghechen/constant": ["packages/constant/src"],
       "@guanghechen/error": ["packages/error/src"],
       "@guanghechen/monitor": ["packages/monitor/src"],

@@ -480,6 +480,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@guanghechen/chalk@^1.0.0-alpha.0, @guanghechen/chalk@workspace:packages/chalk":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/chalk@workspace:packages/chalk"
+  dependencies:
+    "@guanghechen/types": ^1.0.0-alpha.3
+    cross-env: ^7.0.3
+    jest: ^29.6.4
+    rimraf: ^5.0.1
+    rollup: ^3.28.1
+  languageName: unknown
+  linkType: soft
+
 "@guanghechen/constant@^1.0.0-alpha.2, @guanghechen/constant@workspace:packages/constant":
   version: 0.0.0-use.local
   resolution: "@guanghechen/constant@workspace:packages/constant"
@@ -618,9 +630,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/reporter@workspace:packages/reporter"
   dependencies:
+    "@guanghechen/chalk": ^1.0.0-alpha.0
     "@guanghechen/constant": ^1.0.0-alpha.2
     "@guanghechen/types": ^1.0.0-alpha.3
-    chalk: ^5.3.0
     cross-env: ^7.0.3
     dayjs: ^1.11.9
     jest: ^29.6.4
