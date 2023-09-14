@@ -1,5 +1,5 @@
 import { LevelOrdinalMap, ReporterLevelEnum } from '@guanghechen/constant'
-import type { IChalk , IReporter } from '@guanghechen/types'
+import type { IChalk, IReporter } from '@guanghechen/types'
 import dayjs from 'dayjs'
 import { parseOptionsFromArgs } from './args'
 import { normalizeString } from './format'

@@ -95,9 +95,9 @@ const rawStyles: IRawStyles = {
 }
 
 const colorKeys: Array<keyof IChalkColor> = ['close', 'ansi', 'ansi256', 'ansi16m']
-export const modifierNames: IModifyExcludeColorName[] = Object.keys(
-  rawStyles.modifier,
-).filter(key => !colorKeys.includes(key as keyof IChalkColor)) as IModifyExcludeColorName[]
+export const modifierNames: IModifyExcludeColorName[] = Object.keys(rawStyles.modifier).filter(
+  key => !colorKeys.includes(key as keyof IChalkColor),
+) as IModifyExcludeColorName[]
 export const foregroundColorNames: IForegroundColorExcludeColorName[] = Object.keys(
   rawStyles.color,
 ).filter(key => !colorKeys.includes(key as keyof IChalkColor)) as IForegroundColorExcludeColorName[]
@@ -110,7 +110,8 @@ export const colorNames: Array<
 
 function assembleStyles(): IAnsiStyles {
   const codes = new Map<number, number>()
-  const styles: { -readonly [key in keyof IAnsiStyles]: IAnsiStyles[key] } = {} as unknown as IAnsiStyles
+  const styles: { -readonly [key in keyof IAnsiStyles]: IAnsiStyles[key] } =
+    {} as unknown as IAnsiStyles
 
   for (const [groupName, group] of Object.entries(rawStyles)) {
     for (const [styleName, style] of Object.entries(group)) {

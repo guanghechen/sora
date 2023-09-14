@@ -12,7 +12,9 @@ export function createBuilder(generator: IChalkStyles): IChalkBuilder {
 
   function builder(...texts: string[]): string {
     let text: string = texts.join(' ')
-    if (generator.level <= ColorSupportLevelEnum.DISABLED || !text) return generator.isEmpty ? '' : text
+    if (generator.level <= ColorSupportLevelEnum.DISABLED || !text) {
+      return generator.isEmpty ? '' : text
+    }
 
     let styler: IChalkStyler | undefined = generator.styler
     if (styler === undefined) return text

@@ -8,9 +8,14 @@ import { ColorSupportLevelEnum } from '../shared/types'
 const env: IProcessEnv = process.env as unknown as IProcessEnv
 const argv: string[] = (globalThis as any).Deno ? (globalThis as any).Deno.args : process.argv
 const noFlagForceColor: ColorSupportLevelEnum | undefined = _envForceColor()
-const flagForceColor: ColorSupportLevelEnum | undefined = noFlagForceColor ?? _defaultFlagForceColor()
+const flagForceColor: ColorSupportLevelEnum | undefined =
+  noFlagForceColor ?? _defaultFlagForceColor()
 
-export const supportsColor: IChalkColorSupport | false = _createSupportsColor(tty.isatty(1), true, true)
+export const supportsColor: IChalkColorSupport | false = _createSupportsColor(
+  tty.isatty(1),
+  true,
+  true,
+)
 export const supportsColorStderr: IChalkColorSupport | false = _createSupportsColor(
   tty.isatty(2),
   true,
@@ -120,7 +125,9 @@ function _supportsColor(
     // Windows 10 build 14931 is the first release that supports 16m/TrueColor.
     const osRelease = os.release().split('.')
     if (Number(osRelease[0]) >= 10 && Number(osRelease[2]) >= 10_586) {
-      return Number(osRelease[2]) >= 14_931 ? ColorSupportLevelEnum.True16m : ColorSupportLevelEnum.ANSI256
+      return Number(osRelease[2]) >= 14_931
+        ? ColorSupportLevelEnum.True16m
+        : ColorSupportLevelEnum.ANSI256
     }
     return ColorSupportLevelEnum.BASIC
   }

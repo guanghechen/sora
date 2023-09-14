@@ -117,5 +117,9 @@ for (const styleName of styleNames) {
 export const Styles = Styles_ as unknown as IChalkStylesConstructor
 
 interface IChalkStylesConstructor {
-  new (level: ColorSupportLevelEnum, styler: IChalkStyler | undefined, isEmpty: boolean): IChalkStyles
+  new (
+    level: ColorSupportLevelEnum,
+    styler: IChalkStyler | undefined,
+    isEmpty: boolean,
+  ): IChalkStyles
 }
