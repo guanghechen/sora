@@ -14,7 +14,7 @@
       "@guanghechen/shared": ["packages/shared/src"],
       "@guanghechen/scheduler": ["packages/scheduler/src"],
       "@guanghechen/task": ["packages/task/src"],
-      "@guanghechen/types": ["packages/types/src"],
+      "@guanghechen/types": ["packages/types/src"]
     }
   },
   "exclude": ["**/__test__/fixtures"]
