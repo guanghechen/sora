@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/scheduler",
-  "version": "6.0.0-alpha.7",
+  "version": "6.0.0-alpha.8",
   "description": "Task scheduler",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@6.0.0-alpha.7",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@6.0.0-alpha.8",
     "directory": "packages/scheduler"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@6.0.0-alpha.7/packages/scheduler#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@6.0.0-alpha.8/packages/scheduler#readme",
   "type": "module",
   "main": "./lib/cjs/index.cjs",
   "module": "./lib/esm/index.mjs",
@@ -39,12 +39,12 @@
     "prepublishOnly": "yarn build"
   },
   "dependencies": {
-    "@guanghechen/constant": "^1.0.0-alpha.3",
-    "@guanghechen/task": "^1.0.0-alpha.7",
-    "@guanghechen/types": "^1.0.0-alpha.4"
+    "@guanghechen/constant": "^1.0.0-alpha.4",
+    "@guanghechen/task": "^1.0.0-alpha.8",
+    "@guanghechen/types": "^1.0.0-alpha.5"
   },
   "devDependencies": {
-    "@guanghechen/shared": "^1.0.0-alpha.5",
+    "@guanghechen/shared": "^1.0.0-alpha.6",
     "cross-env": "^7.0.3",
     "jest": "^29.7.0",
     "rimraf": "^5.0.1",

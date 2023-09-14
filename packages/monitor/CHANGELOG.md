@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.8](https://github.com/guanghechen/sora/compare/@guanghechen/monitor@1.0.0-alpha.7...@guanghechen/monitor@1.0.0-alpha.8) (2023-09-14)
+
+
+### Performance Improvements
+
+* ⬆️ upgrade dependencies ([0af59d8](https://github.com/guanghechen/sora/commit/0af59d85d8c2c514f57e5289e87f0a3cbb6ab5ab))
+
+
+
+
+
 # [1.0.0-alpha.7](https://github.com/guanghechen/sora/compare/@guanghechen/monitor@1.0.0-alpha.6...@guanghechen/monitor@1.0.0-alpha.7) (2023-09-07)
 
 
