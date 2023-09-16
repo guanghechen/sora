@@ -32,19 +32,15 @@ type IParametersOfOnStatusChange = Parameters<Required<ITaskMonitor>['onStatusCh
 export class TaskState implements ITaskState {
   public readonly name: string
   protected readonly _errorCollector: ISoraErrorCollector
-  private readonly _monitors: {
-    onStatusChange: IMonitor<IParametersOfOnStatusChange>
-    onAddError: IMonitor<IParametersOfOnAddError>
-  }
+  private readonly _monitorAddError: IMonitor<IParametersOfOnAddError>
+  private readonly _monitorStatusChange: IMonitor<IParametersOfOnStatusChange>
   private _status: TaskStatusEnum
 
   constructor(name: string) {
     this.name = name
     this._errorCollector = new SoraErrorCollector(name)
-    this._monitors = {
-      onAddError: new Monitor<IParametersOfOnAddError>('onAddError'),
-      onStatusChange: new Monitor<IParametersOfOnStatusChange>('onStatusChange'),
-    }
+    this._monitorAddError = new Monitor<IParametersOfOnAddError>('onAddError')
+    this._monitorStatusChange = new Monitor<IParametersOfOnStatusChange>('onStatusChange')
     this._status = TaskStatusEnum.PENDING
   }
 
@@ -81,7 +77,7 @@ export class TaskState implements ITaskState {
         this._status = status
 
         // Notify.
-        this._monitors.onStatusChange.notify(status, curStatus)
+        this._monitorStatusChange.notify(status, curStatus)
       } else {
         throw new TypeError(
           `[transit] unexpected status: task(${this.name}) cur(${curStatus}) next(${status})`,
@@ -94,8 +90,8 @@ export class TaskState implements ITaskState {
     if (this.terminated) return noop
 
     const { onAddError, onStatusChange } = monitor
-    const unsubscribeOnAddError = this._monitors.onAddError.subscribe(onAddError)
-    const unsubscribeOnStatusChange = this._monitors.onStatusChange.subscribe(onStatusChange)
+    const unsubscribeOnAddError = this._monitorAddError.subscribe(onAddError)
+    const unsubscribeOnStatusChange = this._monitorStatusChange.subscribe(onStatusChange)
 
     return (): void => {
       unsubscribeOnAddError()
@@ -144,8 +140,8 @@ export class TaskState implements ITaskState {
   public cleanup(): void {
     if (!this.terminated) throw new Error(`[cleanup] task(${this.name}) is not terminated`)
     this._errorCollector.cleanup()
-    this._monitors.onStatusChange.destroy()
-    this._monitors.onAddError.destroy()
+    this._monitorStatusChange.destroy()
+    this._monitorAddError.destroy()
   }
 
   protected _addError(
@@ -156,6 +152,6 @@ export class TaskState implements ITaskState {
     this._errorCollector.add(type, error, level)
 
     // Notify.
-    this._monitors.onAddError.notify(type, error, level)
+    this._monitorAddError.notify(type, error, level)
   }
 }

@@ -13,11 +13,11 @@ class TaskStateForTest extends TaskState {
   }
 
   public get sizeOfOnStatusChangeMonitor(): number {
-    return (this as any)._monitors.onStatusChange.size
+    return (this as any)._monitorStatusChange.size
   }
 
   public get sizeOfOnAddErrorMonitor(): number {
-    return (this as any)._monitors.onAddError.size
+    return (this as any)._monitorAddError.size
   }
 }
 
