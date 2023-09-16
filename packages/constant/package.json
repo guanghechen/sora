@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/constant",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.5",
   "description": "Shared constants",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/constant@1.0.0-alpha.4",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/constant@1.0.0-alpha.5",
     "directory": "packages/constant"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/constant@1.0.0-alpha.4/packages/constant#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/constant@1.0.0-alpha.5/packages/constant#readme",
   "keywords": [
     "logger",
     "colorful logger"

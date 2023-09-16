@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.9](https://github.com/guanghechen/sora/compare/@guanghechen/error@1.0.0-alpha.8...@guanghechen/error@1.0.0-alpha.9) (2023-09-16)
+
+
+### Performance Improvements
+
+* ⬆️ upgrade dependencies ([a259feb](https://github.com/guanghechen/sora/commit/a259feba5933148a34e4f498c9b883a5f87b7b50))
+
+
+
+
+
 # [1.0.0-alpha.8](https://github.com/guanghechen/sora/compare/@guanghechen/error@1.0.0-alpha.7...@guanghechen/error@1.0.0-alpha.8) (2023-09-14)
 
 

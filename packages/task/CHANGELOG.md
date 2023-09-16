@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.9](https://github.com/guanghechen/sora/compare/@guanghechen/task@1.0.0-alpha.8...@guanghechen/task@1.0.0-alpha.9) (2023-09-16)
+
+
+### Performance Improvements
+
+* 🎨 expand monitors into smaller properties ([28179bf](https://github.com/guanghechen/sora/commit/28179bf6ab0904c5b669e33fbadc9f13f12ccab7))
+* ⬆️ upgrade dependencies ([a259feb](https://github.com/guanghechen/sora/commit/a259feba5933148a34e4f498c9b883a5f87b7b50))
+
+
+
+
+
 # [1.0.0-alpha.8](https://github.com/guanghechen/sora/compare/@guanghechen/task@1.0.0-alpha.7...@guanghechen/task@1.0.0-alpha.8) (2023-09-14)
 
 

@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.6](https://github.com/guanghechen/sora/compare/@guanghechen/types@1.0.0-alpha.5...@guanghechen/types@1.0.0-alpha.6) (2023-09-16)
+
+
+### Performance Improvements
+
+* 🎨 support to wait task terminated in scheduler ([dfdd27c](https://github.com/guanghechen/sora/commit/dfdd27c3aa7368121873879929e6abd00a031a67))
+* 🎨 export 'level' in IReporter ([d16a0f3](https://github.com/guanghechen/sora/commit/d16a0f32bf91526865a7c8742239fc2ebbaf8fda))
+* ⬆️ upgrade dependencies ([a259feb](https://github.com/guanghechen/sora/commit/a259feba5933148a34e4f498c9b883a5f87b7b50))
+
+
+
+
+
 # [1.0.0-alpha.5](https://github.com/guanghechen/sora/compare/@guanghechen/types@1.0.0-alpha.4...@guanghechen/types@1.0.0-alpha.5) (2023-09-14)
 
 

@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.7](https://github.com/guanghechen/sora/compare/@guanghechen/reporter@1.0.0-alpha.6...@guanghechen/reporter@1.0.0-alpha.7) (2023-09-16)
+
+
+### Bug Fixes
+
+* 🐛 flights option not working ([7ffde6a](https://github.com/guanghechen/sora/commit/7ffde6a9fd55e1e2916153b9e336b61c04a19b88))
+
+
+### Performance Improvements
+
+* 🎨 try to call the `toJSON` to get the formatable texts ([7b30360](https://github.com/guanghechen/sora/commit/7b30360d3eed47a03cff4f97a5e117a180b83169))
+* ⬆️ upgrade dependencies ([a259feb](https://github.com/guanghechen/sora/commit/a259feba5933148a34e4f498c9b883a5f87b7b50))
+
+
+
+
+
 # [1.0.0-alpha.6](https://github.com/guanghechen/sora/compare/@guanghechen/reporter@1.0.0-alpha.5...@guanghechen/reporter@1.0.0-alpha.6) (2023-09-14)
 
 

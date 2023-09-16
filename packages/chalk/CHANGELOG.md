@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.3](https://github.com/guanghechen/sora/compare/@guanghechen/chalk@1.0.0-alpha.2...@guanghechen/chalk@1.0.0-alpha.3) (2023-09-16)
+
+
+### Performance Improvements
+
+* ⬆️ upgrade dependencies ([a259feb](https://github.com/guanghechen/sora/commit/a259feba5933148a34e4f498c9b883a5f87b7b50))
+
+
+
+
+
 # [1.0.0-alpha.2](https://github.com/guanghechen/sora/compare/@guanghechen/chalk@1.0.0-alpha.1...@guanghechen/chalk@1.0.0-alpha.2) (2023-09-14)
 
 
