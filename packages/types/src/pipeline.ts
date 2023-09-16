@@ -1,5 +1,16 @@
 import type { PipelineStatusEnum } from '@guanghechen/constant'
 
+export interface IPipelineMaterial<D> {
+  code: number
+  alive: boolean
+  data: D
+}
+
+export interface IPipelineProduct<T> {
+  codes: number[]
+  data: T | undefined
+}
+
 export interface IPipelineMonitor {
   /**
    * Called when the pipeline disposed.
@@ -44,11 +55,12 @@ export interface IPipeline<D, T> {
   /**
    * Add a element into the pipeline.
    * @param material
+   * @returns the code of the material
    */
-  push(material: D): Promise<void>
+  push(material: D): Promise<number>
 
   /**
    * Retrieve an element from the pipeline.
    */
-  pull(): Promise<T | undefined>
+  pull(): Promise<IPipelineProduct<T>>
 }

@@ -1,5 +1,15 @@
 import type { ITask } from './task'
 
 export interface IScheduler<D> extends ITask {
-  schedule(data: D): Promise<void>
+  /**
+   * Schedule a task.
+   * @param data
+   * @returns the code of the task
+   */
+  schedule(data: D): Promise<number>
+  /**
+   * Waiting a task terminated. (done / cancelled / failed)
+   * @param code the code of the task
+   */
+  waitTaskTerminated(code: number): Promise<void>
 }
