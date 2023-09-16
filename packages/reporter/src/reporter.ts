@@ -40,10 +40,15 @@ export class Reporter implements IReporter {
   protected _baseName: string
   protected _divisionName: string
 
-  constructor(chalk: IChalk, options_: IReporterOptions = {}, args: string[] = getDefaultArgs()) {
+  constructor(chalk: IChalk, options_: IReporterOptions = {}, args_: string[] = getDefaultArgs()) {
+    const argOptions: IReporterOptions = parseOptionsFromArgs(args_)
     const options: IReporterOptions = {
       ...options_,
-      ...parseOptionsFromArgs(args),
+      ...argOptions,
+      flights: {
+        ...options_.flights,
+        ...argOptions.flights,
+      },
     }
 
     this.level = options.level ?? ReporterLevelEnum.INFO
