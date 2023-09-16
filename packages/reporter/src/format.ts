@@ -5,7 +5,13 @@ export const normalizeString = (
   inline: boolean,
   replacer?: ((key: string, value: any) => any) | null,
 ): string => {
-  const message: unknown | null | undefined = typeof data === 'function' ? data() : data
+  const message: unknown | null | undefined =
+    typeof data === 'function'
+      ? data()
+      : typeof (data as any)?.toJSON === 'function'
+      ? (data as any).toJSON()
+      : data
+
   if (message === null) return 'null'
   if (message === undefined) return 'undefined'
   switch (typeof message) {
@@ -17,5 +23,6 @@ export const normalizeString = (
       return String(message)
   }
   if (message instanceof Error) return message.stack ?? message.message ?? message.name
+
   return inline ? JSON5.stringify(message, replacer, 0) : JSON5.stringify(message, replacer, 2)
 }
