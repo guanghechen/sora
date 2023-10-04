@@ -1,4 +1,4 @@
-import type { ITask } from './task'
+import type { ITask } from '@guanghechen/task.types'
 
 export interface IScheduler<D> extends ITask {
   /**

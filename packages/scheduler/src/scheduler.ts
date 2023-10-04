@@ -1,15 +1,12 @@
-import { ErrorLevelEnum, TaskStatusEnum, TaskStrategyEnum, delay } from '@guanghechen/internal'
-import type {
-  IMonitor,
-  IMonitorUnsubscribe,
-  IPipeline,
-  IPipelineProduct,
-  IReporter,
-  IScheduler,
-  ITask,
-} from '@guanghechen/internal'
+import { ErrorLevelEnum } from '@guanghechen/error.types'
+import { delay } from '@guanghechen/internal'
+import type { IMonitor, IMonitorUnsubscribe } from '@guanghechen/monitor'
 import { Monitor } from '@guanghechen/monitor'
-import { ResumableTask } from '@guanghechen/task'
+import type { IPipeline, IPipelineProduct } from '@guanghechen/pipeline.types'
+import type { IReporter } from '@guanghechen/reporter.types'
+import type { IScheduler } from '@guanghechen/scheduler.types'
+import type { ITask } from '@guanghechen/task'
+import { ResumableTask, TaskStatusEnum, TaskStrategyEnum } from '@guanghechen/task'
 
 type IParametersOfOnTaskTerminated = [codes: number[], status: TaskStatusEnum, error: unknown]
 

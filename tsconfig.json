@@ -20,7 +20,9 @@
       "@guanghechen/reporter": ["packages/reporter/src"],
       "@guanghechen/reporter.types": ["packages/reporter.types/src"],
       "@guanghechen/scheduler": ["packages/scheduler/src"],
+      "@guanghechen/scheduler.types": ["packages/scheduler.types/src"],
       "@guanghechen/task": ["packages/task/src"],
+      "@guanghechen/task.types": ["packages/task.types/src"],
       "@guanghechen/viewmodel": ["packages/viewmodel/src"]
     }
   },
