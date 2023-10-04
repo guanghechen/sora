@@ -1,7 +1,21 @@
 {
-  "name": "@guanghechen/internal",
+  "name": "@guanghechen/cipher",
   "version": "1.0.0-alpha.0",
-  "private": true,
+  "description": "Utility functions for cipher contents.",
+  "author": {
+    "name": "guanghechen",
+    "url": "https://github.com/guanghechen/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher@1.0.0-alpha.0",
+    "directory": "packages/cipher"
+  },
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher@1.0.0-alpha.0/packages/cipher#readme",
+  "keywords": [
+    "cipher",
+    "cipher helper"
+  ],
   "type": "module",
   "exports": {
     ".": {
@@ -32,9 +46,14 @@
     "prepublishOnly": "yarn build",
     "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
   },
+  "dependencies": {
+    "@guanghechen/cipher.types": "^1.0.0-alpha.0",
+    "@guanghechen/invariant": "^5.0.7"
+  },
   "devDependencies": {
+    "@guanghechen/internal": "^1.0.0-alpha.0",
     "cross-env": "^7.0.3",
-    "rimraf": "^5.0.5",
-    "rollup": "^3.29.4"
+    "rimraf": "^5.0.1",
+    "rollup": "^3.29.0"
   }
 }

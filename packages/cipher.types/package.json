@@ -1,7 +1,17 @@
 {
-  "name": "@guanghechen/internal",
+  "name": "@guanghechen/cipher.types",
   "version": "1.0.0-alpha.0",
-  "private": true,
+  "description": "types of @guanghechen/cipher",
+  "author": {
+    "name": "guanghechen",
+    "url": "https://github.com/guanghechen/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher.types@1.0.0-alpha.0",
+    "directory": "packages/cipher.types"
+  },
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher.types@1.0.0-alpha.0/packages/cipher.types#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -29,8 +39,7 @@
   ],
   "scripts": {
     "build": "rimraf lib/ && cross-env NODE_ENV=production rollup -c ../../rollup.config.mjs",
-    "prepublishOnly": "yarn build",
-    "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
+    "prepublishOnly": "yarn build"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",

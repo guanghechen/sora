@@ -6,13 +6,17 @@
     "paths": {
       /** shared packages */
       "@guanghechen/internal": ["packages/_internal/src"],
+      "jest.helper": ["jest.helper.mts"],
 
       /** basic packages */
       "@guanghechen/chalk": ["packages/chalk/src"],
       "@guanghechen/chalk.types": ["packages/chalk.types/src"],
+      "@guanghechen/cipher": ["packages/cipher/src"],
+      "@guanghechen/cipher.types": ["packages/cipher.types/src"],
       "@guanghechen/equal": ["packages/equal/src"],
       "@guanghechen/error": ["packages/error/src"],
       "@guanghechen/error.types": ["packages/error.types/src"],
+      "@guanghechen/invariant": ["packages/invariant/src"],
       "@guanghechen/monitor": ["packages/monitor/src"],
       "@guanghechen/monitor.types": ["packages/monitor.types/src"],
       "@guanghechen/pipeline": ["packages/pipeline/src"],

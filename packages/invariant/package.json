@@ -1,7 +1,17 @@
 {
-  "name": "@guanghechen/internal",
-  "version": "1.0.0-alpha.0",
-  "private": true,
+  "name": "@guanghechen/invariant",
+  "version": "5.0.7",
+  "description": "Invariant function",
+  "author": {
+    "name": "guanghechen",
+    "url": "https://github.com/guanghechen/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/invariant@5.0.7",
+    "directory": "packages/invariant"
+  },
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/invariant@5.0.7/packages/invariant#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -34,7 +44,7 @@
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "rimraf": "^5.0.5",
-    "rollup": "^3.29.4"
+    "rimraf": "^5.0.1",
+    "rollup": "^3.29.0"
   }
 }

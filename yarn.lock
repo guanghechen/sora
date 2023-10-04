@@ -501,6 +501,29 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@guanghechen/cipher.types@^1.0.0-alpha.0, @guanghechen/cipher.types@workspace:packages/cipher.types":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/cipher.types@workspace:packages/cipher.types"
+  dependencies:
+    cross-env: ^7.0.3
+    rimraf: ^5.0.5
+    rollup: ^3.29.4
+  languageName: unknown
+  linkType: soft
+
+"@guanghechen/cipher@workspace:packages/cipher":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/cipher@workspace:packages/cipher"
+  dependencies:
+    "@guanghechen/cipher.types": ^1.0.0-alpha.0
+    "@guanghechen/internal": ^1.0.0-alpha.0
+    "@guanghechen/invariant": ^5.0.7
+    cross-env: ^7.0.3
+    rimraf: ^5.0.1
+    rollup: ^3.29.0
+  languageName: unknown
+  linkType: soft
+
 "@guanghechen/conventional-changelog@npm:^5.0.1":
   version: 5.0.1
   resolution: "@guanghechen/conventional-changelog@npm:5.0.1"
@@ -620,12 +643,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/invariant@npm:^5.0.7":
-  version: 5.0.7
-  resolution: "@guanghechen/invariant@npm:5.0.7"
-  checksum: e4ab5b6c4fab5399e2ce0204ee73513803903894a94ce72a7cf44f8d93392c8cea8d203da7764b5fd82b90cd0aeccdf61440a60e74615ae681656529535b3fa2
-  languageName: node
-  linkType: hard
+"@guanghechen/invariant@^5.0.7, @guanghechen/invariant@workspace:packages/invariant":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/invariant@workspace:packages/invariant"
+  dependencies:
+    cross-env: ^7.0.3
+    rimraf: ^5.0.1
+    rollup: ^3.29.0
+  languageName: unknown
+  linkType: soft
 
 "@guanghechen/jest-config@npm:^5.0.7":
   version: 5.0.7
@@ -787,6 +813,7 @@ __metadata:
     "@types/jest": 29.5.5
     "@types/node": ^18.18.3
     "@types/react": ^18.2.24
+    ci-info: ^3.9.0
     cross-env: ^7.0.3
     dayjs: ^1.11.10
     eslint: 8.50.0
@@ -3039,6 +3066,13 @@ __metadata:
   version: 3.8.0
   resolution: "ci-info@npm:3.8.0"
   checksum: d0a4d3160497cae54294974a7246202244fff031b0a6ea20dd57b10ec510aa17399c41a1b0982142c105f3255aff2173e5c0dd7302ee1b2f28ba3debda375098
+  languageName: node
+  linkType: hard
+
+"ci-info@npm:^3.9.0":
+  version: 3.9.0
+  resolution: "ci-info@npm:3.9.0"
+  checksum: 6b19dc9b2966d1f8c2041a838217299718f15d6c4b63ae36e4674edd2bee48f780e94761286a56aa59eb305a85fbea4ddffb7630ec063e7ec7e7e5ad42549a87
   languageName: node
   linkType: hard
 
@@ -8421,7 +8455,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup@npm:^3.28.1, rollup@npm:^3.29.4":
+"rollup@npm:^3.28.1, rollup@npm:^3.29.0, rollup@npm:^3.29.4":
   version: 3.29.4
   resolution: "rollup@npm:3.29.4"
   dependencies:

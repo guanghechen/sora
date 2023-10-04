@@ -20,14 +20,13 @@ export default async function () {
     collectCoverageFrom: [...(baseConfig.collectCoverageFrom ?? [])],
     coveragePathIgnorePatterns: [],
     coverageThreshold: {
-      ...(coverageMap[manifest.name] ?? {
-        global: {
-          branches: 100,
-          functions: 100,
-          lines: 100,
-          statements: 100,
-        },
-      }),
+      global: {
+        branches: 100,
+        functions: 100,
+        lines: 100,
+        statements: 100,
+      },
+      ...coverageMap[manifest.name],
     },
     extensionsToTreatAsEsm: ['.ts', '.mts'],
     prettierPath: require.resolve('prettier-2'),
@@ -36,6 +35,9 @@ export default async function () {
 }
 
 const coverageMap = {
+  '@guanghechen/internal': {
+    'src/util/noop.ts': { functions: 0 },
+  },
   '@guanghechen/viewmodel': {
     global: {
       branches: 86,
