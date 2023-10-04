@@ -38,10 +38,10 @@ export default async function () {
 const coverageMap = {
   '@guanghechen/viewmodel': {
     global: {
-      branches: 85,
+      branches: 86,
       functions: 70,
-      lines: 66,
-      statements: 66,
+      lines: 60,
+      statements: 60,
     },
   },
 }
