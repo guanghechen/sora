@@ -1,9 +1,10 @@
-import { LevelOrdinalMap, ReporterLevelEnum } from '@guanghechen/constant'
-import type { IChalk, IReporter } from '@guanghechen/types'
+import type { IChalk } from '@guanghechen/chalk'
 import dayjs from 'dayjs'
 import { parseOptionsFromArgs } from './args'
+import { ReporterLevelEnum } from './constant'
 import { normalizeString } from './format'
 import type { ILevelStyleMap } from './level'
+import type { IReporter } from './types'
 
 export interface IReporterFlights {
   readonly date: boolean
@@ -136,7 +137,7 @@ export class Reporter implements IReporter {
     messageFormat: string | unknown,
     ...messages: unknown[]
   ): void {
-    if (!level || LevelOrdinalMap[level] < LevelOrdinalMap[this.level]) return
+    if (!level || level < this.level) return
     const header = this.formatHeader(level, new Date())
 
     let newline = false

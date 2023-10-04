@@ -1,8 +1,14 @@
+import type { ReporterLevelEnum } from './constant'
+
 export interface IReporter {
   /**
    * Reporter name.
    */
   readonly name: string
+  /**
+   * Reporter level.
+   */
+  readonly level: ReporterLevelEnum
   /**
    * Print debug messages.
    * @param messageFormat

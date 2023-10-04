@@ -1,5 +1,5 @@
-import { ReporterLevelEnum } from '@guanghechen/constant'
-import type { IChalkBuilder } from '@guanghechen/types'
+import type { IChalkBuilder } from '@guanghechen/chalk'
+import { ReporterLevelEnum } from './constant'
 
 export interface IChalkPair {
   readonly fg: IChalkBuilder

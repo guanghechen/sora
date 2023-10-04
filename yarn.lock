@@ -480,7 +480,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/chalk@workspace:packages/chalk":
+"@guanghechen/chalk@^1.0.0-alpha.3, @guanghechen/chalk@workspace:packages/chalk":
   version: 0.0.0-use.local
   resolution: "@guanghechen/chalk@workspace:packages/chalk"
   dependencies:
@@ -629,6 +629,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/reporter@workspace:packages/reporter"
   dependencies:
+    "@guanghechen/chalk": ^1.0.0-alpha.3
     "@guanghechen/constant": ^1.0.0-alpha.5
     "@guanghechen/types": ^1.0.0-alpha.6
     cross-env: ^7.0.3
