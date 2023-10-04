@@ -7,8 +7,8 @@ import {
 import replace from '@rollup/plugin-replace'
 import path from 'node:path'
 
-const builtinIds = new Set(['@guanghechen/shared'])
-const externalIds = new Set(['./index.mjs'])
+const builtins = new Set(['@guanghechen/shared'])
+const externals = new Set(['./index.mjs'])
 
 export default async function rollupConfig() {
   const { default: manifest } = await import(path.resolve('package.json'), {
@@ -38,8 +38,8 @@ export default async function rollupConfig() {
       }),
     ],
     classifyDependency: id => {
-      if (builtinIds.has(id)) return DependencyCategory.BUILTIN
-      if (externalIds.has(id)) return DependencyCategory.EXTERNAL
+      if (builtins.has(id)) return DependencyCategory.BUILTIN
+      if (externals.has(id)) return DependencyCategory.EXTERNAL
       return DependencyCategory.UNKNOWN
     },
   })

@@ -36,6 +36,10 @@
   "workspaces": [
     "packages/*"
   ],
+  "dependencies": {
+    "dayjs": "^1.11.9",
+    "json5": "^2.2.3"
+  },
   "devDependencies": {
     "@babel/core": "7.22.19",
     "@guanghechen/conventional-changelog": "^5.0.1",
