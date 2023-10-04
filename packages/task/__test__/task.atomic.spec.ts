@@ -1,6 +1,5 @@
-import { ErrorLevelEnum, TaskStatusEnum } from '@guanghechen/constant'
-import { delay } from '@guanghechen/shared'
-import type { ITaskMonitor } from '@guanghechen/types'
+import { ErrorLevelEnum, TaskStatusEnum , delay } from '@guanghechen/_shared'
+import type { ITaskMonitor } from '@guanghechen/_shared'
 import { jest } from '@jest/globals'
 import { AtomicTask } from '../src'
 

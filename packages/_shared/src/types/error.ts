@@ -1,4 +1,4 @@
-import type { ErrorLevelEnum } from '@guanghechen/constant'
+import type { ErrorLevelEnum } from '../constant'
 
 export interface ISoraError {
   from: string

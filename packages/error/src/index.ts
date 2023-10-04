@@ -1,5 +1,5 @@
 // Re-export types and constants
-export { ErrorLevelEnum } from '@guanghechen/constant'
-export type { ISoraError, ISoraErrorCollector } from '@guanghechen/types'
+export { ErrorLevelEnum } from '@guanghechen/_shared'
+export type { ISoraError, ISoraErrorCollector } from '@guanghechen/_shared'
 
 export * from './collector'

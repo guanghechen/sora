@@ -1,5 +1,5 @@
-import { TaskStatusEnum } from '@guanghechen/constant'
-import type { ITaskMonitor } from '@guanghechen/types'
+import { TaskStatusEnum } from '@guanghechen/_shared'
+import type { ITaskMonitor } from '@guanghechen/_shared'
 import { jest } from '@jest/globals'
 import { TaskState } from '../src'
 

@@ -4,17 +4,17 @@
     "baseUrl": ".",
     "sourceMap": true,
     "paths": {
+      /** builtin */
+      "@guanghechen/_shared": ["packages/_shared/src"],
+
+      /** packages */
       "@guanghechen/chalk": ["packages/chalk/src"],
-      "@guanghechen/chalk/node": ["packages/chalk/src/node"],
-      "@guanghechen/constant": ["packages/constant/src"],
       "@guanghechen/error": ["packages/error/src"],
       "@guanghechen/monitor": ["packages/monitor/src"],
       "@guanghechen/pipeline": ["packages/pipeline/src"],
       "@guanghechen/reporter": ["packages/reporter/src"],
-      "@guanghechen/shared": ["packages/shared/src"],
       "@guanghechen/scheduler": ["packages/scheduler/src"],
-      "@guanghechen/task": ["packages/task/src"],
-      "@guanghechen/types": ["packages/types/src"]
+      "@guanghechen/task": ["packages/task/src"]
     }
   },
   "exclude": ["**/__test__/fixtures"]

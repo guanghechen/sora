@@ -1,4 +1,4 @@
-import type { ErrorLevelEnum, TaskStatusEnum } from '@guanghechen/constant'
+import type { ErrorLevelEnum, TaskStatusEnum } from '../constant'
 import type { ISoraError } from './error'
 
 export interface ITaskError {

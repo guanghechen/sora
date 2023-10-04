@@ -1,13 +1,14 @@
 import {
   DependencyCategory,
   createRollupConfig,
+  dtsPresetConfigBuilder,
   modify,
   tsPresetConfigBuilder,
 } from '@guanghechen/rollup-config'
 import replace from '@rollup/plugin-replace'
 import path from 'node:path'
 
-const builtins = new Set(['@guanghechen/shared'])
+const builtins = new Set(['@guanghechen/_shared'])
 const externals = new Set(['./index.mjs'])
 
 export default async function rollupConfig() {
@@ -35,6 +36,11 @@ export default async function rollupConfig() {
           }),
           modify(),
         ],
+      }),
+      dtsPresetConfigBuilder({
+        dtsOptions: {
+          respectExternal: true,
+        },
       }),
     ],
     classifyDependency: id => {

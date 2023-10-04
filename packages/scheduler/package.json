@@ -39,13 +39,11 @@
     "prepublishOnly": "yarn build"
   },
   "dependencies": {
-    "@guanghechen/constant": "^1.0.0-alpha.5",
     "@guanghechen/monitor": "^1.0.0-alpha.9",
-    "@guanghechen/task": "^1.0.0-alpha.9",
-    "@guanghechen/types": "^1.0.0-alpha.6"
+    "@guanghechen/task": "^1.0.0-alpha.9"
   },
   "devDependencies": {
-    "@guanghechen/shared": "^1.0.0-alpha.7",
+    "@guanghechen/_shared": "^1.0.0-alpha.0",
     "cross-env": "^7.0.3",
     "jest": "^29.7.0",
     "rimraf": "^5.0.5",

@@ -1,6 +1,6 @@
 // Forked and refactor from: https://github.com/chalk/chalk/blob/f7b29ae8ef4fd2048e08aa361778d290ed10ce7a/source/vendor/supports-color/browser.js#L1
-import { ColorSupportLevelEnum } from '../shared/constant'
-import type { IChalkColorSupport } from '../shared/types'
+import type { IChalkColorSupport } from '@guanghechen/_shared'
+import { ColorSupportLevelEnum } from '@guanghechen/_shared'
 
 const level: ColorSupportLevelEnum = (() => {
   if (typeof window !== 'undefined' && window.navigator) {

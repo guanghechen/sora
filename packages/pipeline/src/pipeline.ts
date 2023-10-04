@@ -1,6 +1,4 @@
-import { PipelineStatusEnum } from '@guanghechen/constant'
-import { Monitor } from '@guanghechen/monitor'
-import { noop } from '@guanghechen/shared'
+import { PipelineStatusEnum, noop } from '@guanghechen/_shared'
 import type {
   IMonitor,
   IPipeline,
@@ -8,7 +6,8 @@ import type {
   IPipelineMonitor,
   IPipelineProduct,
   IUnMonitorPipeline,
-} from '@guanghechen/types'
+} from '@guanghechen/_shared'
+import { Monitor } from '@guanghechen/monitor'
 
 type IParametersOfOnClosed = Parameters<Required<IPipelineMonitor>['onClosed']>
 type IParametersOfOnPushed = Parameters<Required<IPipelineMonitor>['onPushed']>

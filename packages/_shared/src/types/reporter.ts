@@ -1,4 +1,4 @@
-import type { ReporterLevelEnum } from './constant'
+import type { ReporterLevelEnum } from '../constant'
 
 export interface IReporter {
   /**

@@ -1,7 +1,3 @@
-import { ErrorLevelEnum, TaskStatusEnum } from '@guanghechen/constant'
-import { SoraErrorCollector } from '@guanghechen/error'
-import { Monitor } from '@guanghechen/monitor'
-import { noop } from '@guanghechen/shared'
 import type {
   IMonitor,
   ISoraErrorCollector,
@@ -9,7 +5,10 @@ import type {
   ITaskMonitor,
   ITaskState,
   IUnMonitorTask,
-} from '@guanghechen/types'
+} from '@guanghechen/_shared'
+import { ErrorLevelEnum, TaskStatusEnum, noop } from '@guanghechen/_shared'
+import { SoraErrorCollector } from '@guanghechen/error'
+import { Monitor } from '@guanghechen/monitor'
 
 const active: TaskStatusEnum =
   TaskStatusEnum.RUNNING | //

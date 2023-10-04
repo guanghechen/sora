@@ -29,7 +29,6 @@ export default async function () {
       [
         ['global', { branches: 100, functions: 100, lines: 100, statements: 100 }],
         ['packages/pipeline/src/pipeline.ts', { functions: 90 }],
-        ['packages/shared/src/util/noop.ts', { functions: 0 }],
       ]
         .filter(([p]) => !p.startsWith('packages/') || p.startsWith(packageDir))
         .map(([p, val]) => (p.startsWith(packageDir) ? [path.join(__dirname, p), val] : [p, val])),

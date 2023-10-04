@@ -1,5 +1,5 @@
-import { TaskStatusEnum } from '@guanghechen/constant'
-import type { ITask } from '@guanghechen/types'
+import { TaskStatusEnum } from '@guanghechen/_shared'
+import type { ITask } from '@guanghechen/_shared'
 import { TaskState } from './state'
 
 export abstract class AtomicTask extends TaskState implements ITask {

@@ -1,5 +1,5 @@
+import { ColorSupportLevelEnum } from '@guanghechen/_shared'
 import { supportsColor, supportsColorStderr } from './browser/supports-color'
-import { ColorSupportLevelEnum } from './shared/constant'
 import { Chalk } from '.'
 
 export { supportsColor, supportsColorStderr } from './browser/supports-color'

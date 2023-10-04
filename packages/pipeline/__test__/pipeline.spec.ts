@@ -1,5 +1,5 @@
-import { PipelineStatusEnum } from '@guanghechen/constant'
-import type { IPipelineMaterial, IPipelineMonitor } from '@guanghechen/types'
+import { PipelineStatusEnum } from '@guanghechen/_shared'
+import type { IPipelineMaterial, IPipelineMonitor } from '@guanghechen/_shared'
 import { jest } from '@jest/globals'
 import { Pipeline } from '../src'
 
