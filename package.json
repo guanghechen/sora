@@ -34,8 +34,7 @@
     "version": "yarn && ghc-doc-link-rewrite && git stage -u yarn.lock packages/**/package.json packages/**/*.md"
   },
   "workspaces": [
-    "packages/*",
-    "packages-*/*"
+    "packages/*"
   ],
   "dependencies": {
     "dayjs": "^1.11.10",

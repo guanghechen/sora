@@ -5,7 +5,7 @@
     "sourceMap": true,
     "paths": {
       /** shared packages */
-      "@guanghechen/internal": ["packages-shared/internal/src"],
+      "@guanghechen/internal": ["packages/_internal/src"],
 
       /** basic packages */
       "@guanghechen/chalk": ["packages/chalk/src"],
