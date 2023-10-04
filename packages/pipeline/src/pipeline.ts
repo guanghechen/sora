@@ -1,13 +1,14 @@
-import { PipelineStatusEnum, noop } from '@guanghechen/internal'
+import { noop } from '@guanghechen/internal'
+import type { IMonitor } from '@guanghechen/monitor'
+import { Monitor } from '@guanghechen/monitor'
 import type {
-  IMonitor,
   IPipeline,
   IPipelineMaterial,
   IPipelineMonitor,
   IPipelineProduct,
   IUnMonitorPipeline,
-} from '@guanghechen/internal'
-import { Monitor } from '@guanghechen/monitor'
+} from '@guanghechen/pipeline.types'
+import { PipelineStatusEnum } from '@guanghechen/pipeline.types'
 
 type IParametersOfOnClosed = Parameters<Required<IPipelineMonitor>['onClosed']>
 type IParametersOfOnPushed = Parameters<Required<IPipelineMonitor>['onPushed']>

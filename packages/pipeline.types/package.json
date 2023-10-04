@@ -1,17 +1,17 @@
 {
-  "name": "@guanghechen/pipeline",
-  "version": "1.0.0-alpha.9",
-  "description": "Task pipeline",
+  "name": "@guanghechen/pipeline.types",
+  "version": "1.0.0-alpha.0",
+  "description": "types of @guanghechen/pipeline",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline@1.0.0-alpha.9",
-    "directory": "packages/pipeline"
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline.types@1.0.0-alpha.0",
+    "directory": "packages/pipeline.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline@1.0.0-alpha.9/packages/pipeline#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline.types@1.0.0-alpha.0/packages/pipeline.types#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -39,15 +39,9 @@
   ],
   "scripts": {
     "build": "rimraf lib/ && cross-env NODE_ENV=production rollup -c ../../rollup.config.mjs",
-    "prepublishOnly": "yarn build",
-    "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
-  },
-  "dependencies": {
-    "@guanghechen/monitor": "^1.0.0-alpha.9",
-    "@guanghechen/pipeline.types": "^1.0.0-alpha.0"
+    "prepublishOnly": "yarn build"
   },
   "devDependencies": {
-    "@guanghechen/internal": "^1.0.0-alpha.0",
     "cross-env": "^7.0.3",
     "rimraf": "^5.0.5",
     "rollup": "^3.29.4"

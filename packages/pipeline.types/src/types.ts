@@ -1,4 +1,4 @@
-import type { PipelineStatusEnum } from '../constant'
+import type { PipelineStatusEnum } from './constant'
 
 export interface IPipelineMaterial<D> {
   code: number

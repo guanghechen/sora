@@ -1,7 +1,6 @@
-import { PipelineStatusEnum } from '@guanghechen/internal'
-import type { IPipelineMaterial, IPipelineMonitor } from '@guanghechen/internal'
 import { jest } from '@jest/globals'
-import { Pipeline } from '../src'
+import type { IPipelineMaterial, IPipelineMonitor } from '../src'
+import { Pipeline, PipelineStatusEnum } from '../src'
 
 interface IData {
   name: string
