@@ -859,6 +859,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@guanghechen/stream@workspace:packages/stream":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/stream@workspace:packages/stream"
+  dependencies:
+    "@guanghechen/internal": ^1.0.0-alpha.0
+    cross-env: ^7.0.3
+    rimraf: ^5.0.5
+    rollup: ^3.29.4
+  languageName: unknown
+  linkType: soft
+
 "@guanghechen/task.types@^1.0.0-alpha.0, @guanghechen/task.types@workspace:packages/task.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/task.types@workspace:packages/task.types"
