@@ -12,6 +12,7 @@
       "@guanghechen/chalk.types": ["packages/chalk.types/src"],
       "@guanghechen/equal": ["packages/equal/src"],
       "@guanghechen/error": ["packages/error/src"],
+      "@guanghechen/error.types": ["packages/error.types/src"],
       "@guanghechen/monitor": ["packages/monitor/src"],
       "@guanghechen/pipeline": ["packages/pipeline/src"],
       "@guanghechen/reporter": ["packages/reporter/src"],

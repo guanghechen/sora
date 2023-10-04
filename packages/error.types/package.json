@@ -1,21 +1,17 @@
 {
-  "name": "@guanghechen/equal",
+  "name": "@guanghechen/error.types",
   "version": "1.0.0-alpha.0",
-  "description": "The fastest deep equal with ES6 Map, Set and Typed arrays support.",
+  "description": "types of @guanghechen/error",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/equal@1.0.0-alpha.0",
-    "directory": "packages/equal"
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/error.types@1.0.0-alpha.0",
+    "directory": "packages/error.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/equal@1.0.0-alpha.0/packages/equal#readme",
-  "keywords": [
-    "equal",
-    "fast deep equal"
-  ],
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/error.types@1.0.0-alpha.0/packages/error.types#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -43,12 +39,11 @@
   ],
   "scripts": {
     "build": "rimraf lib/ && cross-env NODE_ENV=production rollup -c ../../rollup.config.mjs",
-    "prepublishOnly": "yarn build",
-    "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
+    "prepublishOnly": "yarn build"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "rimraf": "^5.0.1",
-    "rollup": "^3.28.1"
+    "rimraf": "^5.0.5",
+    "rollup": "^3.29.4"
   }
 }

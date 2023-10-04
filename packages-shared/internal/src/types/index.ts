@@ -1,4 +1,3 @@
-export * from './error'
 export * from './misc'
 export * from './monitor'
 export * from './pipeline'

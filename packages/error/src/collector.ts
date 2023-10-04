@@ -1,5 +1,5 @@
-import type { ISoraError, ISoraErrorCollector } from '@guanghechen/internal'
-import { ErrorLevelEnum } from '@guanghechen/internal'
+import type { ISoraError, ISoraErrorCollector } from '@guanghechen/error.types'
+import { ErrorLevelEnum } from '@guanghechen/error.types'
 
 export class SoraErrorCollector implements ISoraErrorCollector {
   public readonly name: string

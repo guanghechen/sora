@@ -13,30 +13,30 @@
   },
   "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/chalk@1.0.0-alpha.3/packages/chalk#readme",
   "type": "module",
-  "main": "./lib/cjs/index.cjs",
-  "module": "./lib/esm/index.mjs",
   "exports": {
     ".": {
+      "source": "./src/index.ts",
       "import": "./lib/esm/index.mjs",
       "require": "./lib/cjs/index.cjs",
-      "source": "./src/index.ts",
       "types": "./lib/types/index.d.ts"
     },
     "./node": {
+      "source": "./src/node.ts",
       "import": "./lib/esm/node.mjs",
       "require": "./lib/cjs/node.cjs",
-      "source": "./src/node.ts",
       "types": "./lib/types/node.d.ts"
     },
     "./browser": {
+      "source": "./src/browser.ts",
       "import": "./lib/esm/browser.mjs",
       "require": "./lib/cjs/browser.cjs",
-      "source": "./src/browser.ts",
       "types": "./lib/types/browser.d.ts"
     }
   },
-  "types": "./lib/types/index.d.ts",
   "source": "./src/index.ts",
+  "main": "./lib/cjs/index.cjs",
+  "module": "./lib/esm/index.mjs",
+  "types": "./lib/types/index.d.ts",
   "license": "MIT",
   "engines": {
     "node": ">= 16.0.0"
