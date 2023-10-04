@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0-alpha.10](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler@6.0.0-alpha.9...@guanghechen/scheduler@6.0.0-alpha.10) (2023-10-04)
+
+
+### Features
+
+* ✨ add @guanghechen/scheduler.types and @guanghechen/task.types ([81fa522](https://github.com/guanghechen/sora/commit/81fa52203ace549fc15da97218bd38a31eda4af9))
+
+
+### Performance Improvements
+
+* fix package.json ([cd2fa69](https://github.com/guanghechen/sora/commit/cd2fa697ddd21890582e41e2d6b1115ec57baedb))
+* :truck:  move @guanghechen/_shared to @guanghechen/internal ([73a08c9](https://github.com/guanghechen/sora/commit/73a08c918d5bf1eeb3c6daa69dc50169198b77bf))
+* 🎨 reorganize files ([0aef7fc](https://github.com/guanghechen/sora/commit/0aef7fce0cca25b2f4c40ba5881a37cdd1bcb40f))
+* ⬆️ upgrade dependencies ([7fcee0d](https://github.com/guanghechen/sora/commit/7fcee0de7b515b1cc9e18758c2be1f38a7374cfb))
+
+
+
+
+
 # [6.0.0-alpha.9](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler@6.0.0-alpha.8...@guanghechen/scheduler@6.0.0-alpha.9) (2023-09-16)
 
 

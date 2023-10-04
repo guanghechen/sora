@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/task.types",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "types of @guanghechen/task",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/task.types@1.0.0-alpha.0",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/task.types@1.0.0-alpha.1",
     "directory": "packages/task.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/task.types@1.0.0-alpha.0/packages/task.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/task@1.0.0-alpha.10/packages/task.types#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -42,7 +42,7 @@
     "prepublishOnly": "yarn build"
   },
   "dependencies": {
-    "@guanghechen/error.types": "^1.0.0-alpha.0"
+    "@guanghechen/error.types": "^1.0.0-alpha.1"
   },
   "devDependencies": {
     "cross-env": "*",

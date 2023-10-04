@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 1.0.0-alpha.1 (2023-10-04)
+
+
+### Features
+
+* ✨ add @guanghechen/viewmodel (migrited from react-kit) ([87ad2f6](https://github.com/guanghechen/sora/commit/87ad2f6147192aea74427e120570be5e0aa73741))
+* ✨ add @guanghechen/viewmodel.types ([7c928c6](https://github.com/guanghechen/sora/commit/7c928c64ada396ce7edef2f1c1afa9be986f3643))
+
+
+### Performance Improvements
+
+* ⬆️ format codes and upgrade devDependencies ([6c6f382](https://github.com/guanghechen/sora/commit/6c6f382a0ac20e4c331778cc259f197d292f0eb3))
+* ⬆️ the version of subpackage devDependencies is not matter ([3287c22](https://github.com/guanghechen/sora/commit/3287c22fb150af6620c1c9f6f4b186498aea815b))
+
+
+
+
+
 # [0.4.0](https://github.com/guanghechen/react-kit/compare/@guanghechen/viewmodel@0.3.0...@guanghechen/viewmodel@0.4.0) (2023-08-30)
 
 

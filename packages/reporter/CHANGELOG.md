@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.8](https://github.com/guanghechen/sora/compare/@guanghechen/reporter@1.0.0-alpha.7...@guanghechen/reporter@1.0.0-alpha.8) (2023-10-04)
+
+
+### Features
+
+* ✨ add @guanghechen/reporter.types ([f777523](https://github.com/guanghechen/sora/commit/f777523d9d84e4f462a9f46dde63918726755185))
+
+
+### Performance Improvements
+
+* :truck:  move @guanghechen/_shared to @guanghechen/internal ([73a08c9](https://github.com/guanghechen/sora/commit/73a08c918d5bf1eeb3c6daa69dc50169198b77bf))
+* ✅ fix tests ([ea22658](https://github.com/guanghechen/sora/commit/ea22658747a2f7175a322c3f336373200fc45baf))
+* 🎨 prefer to not dependent @guanghechen/types ([52f25da](https://github.com/guanghechen/sora/commit/52f25dab612339bc89fc665104dff744bedb6e1b))
+* 🎨 reorganize files ([0aef7fc](https://github.com/guanghechen/sora/commit/0aef7fce0cca25b2f4c40ba5881a37cdd1bcb40f))
+* ⬆️ the version of subpackage devDependencies is not matter ([3287c22](https://github.com/guanghechen/sora/commit/3287c22fb150af6620c1c9f6f4b186498aea815b))
+* ⬆️ upgrade dependencies ([7fcee0d](https://github.com/guanghechen/sora/commit/7fcee0de7b515b1cc9e18758c2be1f38a7374cfb))
+
+
+
+
+
 # [1.0.0-alpha.7](https://github.com/guanghechen/sora/compare/@guanghechen/reporter@1.0.0-alpha.6...@guanghechen/reporter@1.0.0-alpha.7) (2023-09-16)
 
 

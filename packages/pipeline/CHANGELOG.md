@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.10](https://github.com/guanghechen/sora/compare/@guanghechen/pipeline@1.0.0-alpha.9...@guanghechen/pipeline@1.0.0-alpha.10) (2023-10-04)
+
+
+### Features
+
+* ✨ add @guanghechen/pipeline.types ([9ced486](https://github.com/guanghechen/sora/commit/9ced486ad6ad5598968701c87588fe94b4012e9e))
+
+
+### Performance Improvements
+
+* :truck:  move @guanghechen/_shared to @guanghechen/internal ([73a08c9](https://github.com/guanghechen/sora/commit/73a08c918d5bf1eeb3c6daa69dc50169198b77bf))
+* 🎨 reorganize files ([0aef7fc](https://github.com/guanghechen/sora/commit/0aef7fce0cca25b2f4c40ba5881a37cdd1bcb40f))
+* ⬆️ the version of subpackage devDependencies is not matter ([3287c22](https://github.com/guanghechen/sora/commit/3287c22fb150af6620c1c9f6f4b186498aea815b))
+* ⬆️ upgrade dependencies ([7fcee0d](https://github.com/guanghechen/sora/commit/7fcee0de7b515b1cc9e18758c2be1f38a7374cfb))
+
+
+
+
+
 # [1.0.0-alpha.9](https://github.com/guanghechen/sora/compare/@guanghechen/pipeline@1.0.0-alpha.8...@guanghechen/pipeline@1.0.0-alpha.9) (2023-09-16)
 
 

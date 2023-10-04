@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 1.0.0-alpha.1 (2023-10-04)
+
+
+### Features
+
+* ✨ add @guanghechen/cipher, @guanghechen/invariant (migrate from node-scaffolds) ([4a0b99d](https://github.com/guanghechen/sora/commit/4a0b99d97e3bc9a6a772d83aacf86abb09b45ed3))
+
+
+### Performance Improvements
+
+* ⬆️ format codes and upgrade devDependencies ([6c6f382](https://github.com/guanghechen/sora/commit/6c6f382a0ac20e4c331778cc259f197d292f0eb3))
+* 🎨 move @guagnhechen/invariant to @guanghechen/internal ([e8341be](https://github.com/guanghechen/sora/commit/e8341be562e92d08142187d59dad099ac2e4a4e4))
+* ⬆️ the version of subpackage devDependencies is not matter ([3287c22](https://github.com/guanghechen/sora/commit/3287c22fb150af6620c1c9f6f4b186498aea815b))
+
+
+
+
+
 ## [5.0.7](https://github.com/guanghechen/node-scaffolds/compare/@guanghechen/helper-cipher@5.0.6...@guanghechen/helper-cipher@5.0.7) (2023-09-07)
 
 

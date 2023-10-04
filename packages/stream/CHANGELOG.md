@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 1.0.0-alpha.1 (2023-10-04)
+
+
+### Features
+
+* ✨ add @guagnhechen/stream (migrate from node-scaffolds) ([3bc4a6d](https://github.com/guanghechen/sora/commit/3bc4a6d5459a317cadeb7d5e72998445c3efb59b))
+
+
+### Performance Improvements
+
+* ✅ fix tests ([ea22658](https://github.com/guanghechen/sora/commit/ea22658747a2f7175a322c3f336373200fc45baf))
+* 📝 rm meaningless files ([2bc45c9](https://github.com/guanghechen/sora/commit/2bc45c9520c6e147f77727249aa1bd0017d6fadd))
+* ⬆️ the version of subpackage devDependencies is not matter ([3287c22](https://github.com/guanghechen/sora/commit/3287c22fb150af6620c1c9f6f4b186498aea815b))
+
+
+
+
+
 ## [5.0.7](https://github.com/guanghechen/node-scaffolds/compare/@guanghechen/helper-stream@5.0.6...@guanghechen/helper-stream@5.0.7) (2023-09-07)
 
 

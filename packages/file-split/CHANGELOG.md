@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 1.0.0-alpha.1 (2023-10-04)
+
+
+### Features
+
+* ✨ add @guagnhechen/file-split (migrate from @guanghechen/helper-file) ([56ef3f1](https://github.com/guanghechen/sora/commit/56ef3f163dd6ae2e40d93ea78aacecc80886220f))
+
+
+### Performance Improvements
+
+* 🎨 move @guagnhechen/invariant to @guanghechen/internal ([e8341be](https://github.com/guanghechen/sora/commit/e8341be562e92d08142187d59dad099ac2e4a4e4))
+* ⬆️ the version of subpackage devDependencies is not matter ([3287c22](https://github.com/guanghechen/sora/commit/3287c22fb150af6620c1c9f6f4b186498aea815b))
+
+
+
+
+
 ## [5.0.7](https://github.com/guanghechen/node-scaffolds/compare/@guanghechen/helper-file@5.0.6...@guanghechen/helper-file@5.0.7) (2023-09-07)
 
 

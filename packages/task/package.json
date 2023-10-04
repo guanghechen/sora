@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/task",
-  "version": "1.0.0-alpha.9",
+  "version": "1.0.0-alpha.10",
   "description": "Atomic and resumable tasks",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/task@1.0.0-alpha.9",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/task@1.0.0-alpha.10",
     "directory": "packages/task"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/task@1.0.0-alpha.9/packages/task#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/task@1.0.0-alpha.10/packages/task#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -43,9 +43,9 @@
     "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
   },
   "dependencies": {
-    "@guanghechen/error": "^1.0.0-alpha.9",
-    "@guanghechen/monitor": "^1.0.0-alpha.9",
-    "@guanghechen/task.types": "^1.0.0-alpha.0"
+    "@guanghechen/error": "^1.0.0-alpha.10",
+    "@guanghechen/monitor": "^1.0.0-alpha.10",
+    "@guanghechen/task.types": "^1.0.0-alpha.1"
   },
   "devDependencies": {
     "@guanghechen/internal": "^1.0.0-alpha.0",

@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.10](https://github.com/guanghechen/sora/compare/@guanghechen/monitor@1.0.0-alpha.9...@guanghechen/monitor@1.0.0-alpha.10) (2023-10-04)
+
+
+### Features
+
+* ✨ add @guanghechen/monitor.types ([b0ddd4a](https://github.com/guanghechen/sora/commit/b0ddd4a919d25171b4e3d1ef197d9b5c00b4bab4))
+
+
+### Performance Improvements
+
+* :truck:  move @guanghechen/_shared to @guanghechen/internal ([73a08c9](https://github.com/guanghechen/sora/commit/73a08c918d5bf1eeb3c6daa69dc50169198b77bf))
+* ⬆️ format codes and upgrade devDependencies ([6c6f382](https://github.com/guanghechen/sora/commit/6c6f382a0ac20e4c331778cc259f197d292f0eb3))
+* 🎨 reorganize files ([0aef7fc](https://github.com/guanghechen/sora/commit/0aef7fce0cca25b2f4c40ba5881a37cdd1bcb40f))
+* ⬆️ the version of subpackage devDependencies is not matter ([3287c22](https://github.com/guanghechen/sora/commit/3287c22fb150af6620c1c9f6f4b186498aea815b))
+* ⬆️ upgrade dependencies ([7fcee0d](https://github.com/guanghechen/sora/commit/7fcee0de7b515b1cc9e18758c2be1f38a7374cfb))
+
+
+
+
+
 # [1.0.0-alpha.9](https://github.com/guanghechen/sora/compare/@guanghechen/monitor@1.0.0-alpha.8...@guanghechen/monitor@1.0.0-alpha.9) (2023-09-16)
 
 
