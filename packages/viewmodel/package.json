@@ -1,0 +1,49 @@
+{
+  "name": "@guanghechen/viewmodel",
+  "version": "0.4.0",
+  "author": {
+    "name": "guanghechen",
+    "url": "https://github.com/guanghechen/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@0.4.0",
+    "directory": "packages/viewmodel"
+  },
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@0.4.0/packages/viewmodel#readme",
+  "keywords": [
+    "viewmodel"
+  ],
+  "type": "module",
+  "exports": {
+    "types": "./lib/types/index.d.ts",
+    "require": "./lib/cjs/index.cjs",
+    "import": "./lib/esm/index.mjs"
+  },
+  "types": "./lib/types/index.d.ts",
+  "main": "./lib/cjs/index.cjs",
+  "module": "./lib/esm/index.mjs",
+  "source": "./src/index.ts",
+  "license": "MIT",
+  "engines": {
+    "node": ">= 16.0.0"
+  },
+  "files": [
+    "lib/",
+    "!lib/**/*.map",
+    "package.json",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "rimraf lib/ && cross-env NODE_ENV=production rollup -c ../../rollup.config.mjs",
+    "prepublishOnly": "yarn build",
+    "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "rimraf": "^5.0.1",
+    "rollup": "^3.28.1"
+  }
+}

@@ -46,6 +46,7 @@
     "@guanghechen/conventional-changelog": "^5.0.1",
     "@guanghechen/eslint-config": "^5.0.2",
     "@guanghechen/eslint-config-ts": "^5.0.7",
+    "@guanghechen/helper-jest": "^5.0.7",
     "@guanghechen/jest-config": "^5.0.7",
     "@guanghechen/rollup-config": "^5.3.0",
     "@guanghechen/script-doc-link": "^5.0.9",

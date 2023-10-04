@@ -9,12 +9,14 @@
 
       /** basic packages */
       "@guanghechen/chalk": ["packages/chalk/src"],
+      "@guanghechen/equal": ["packages/equal/src"],
       "@guanghechen/error": ["packages/error/src"],
       "@guanghechen/monitor": ["packages/monitor/src"],
       "@guanghechen/pipeline": ["packages/pipeline/src"],
       "@guanghechen/reporter": ["packages/reporter/src"],
       "@guanghechen/scheduler": ["packages/scheduler/src"],
-      "@guanghechen/task": ["packages/task/src"]
+      "@guanghechen/task": ["packages/task/src"],
+      "@guanghechen/viewmodel": ["packages/viewmodel/src"]
     }
   },
   "exclude": ["**/__test__/fixtures"]

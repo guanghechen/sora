@@ -7,6 +7,9 @@
     "parens",
     "pinst",
     "postpublish",
-    "truecolor"
+    "schedulable",
+    "truecolor",
+    "unsubscribable",
+    "viewmodel"
   ]
 }

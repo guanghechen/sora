@@ -571,6 +571,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@guanghechen/helper-jest@npm:^5.0.7":
+  version: 5.0.7
+  resolution: "@guanghechen/helper-jest@npm:5.0.7"
+  dependencies:
+    "@guanghechen/helper-func": ^5.0.7
+    "@guanghechen/helper-is": ^5.0.7
+    "@jest/globals": ^29.6.4
+    jest: ^29.6.4
+  checksum: 263e6d7df003288564d1e60b9376395645e92d56888ad563c12a83bd971b4905ef39df45fed6efad7be69920cc02bd749e08b2d76f37e8d60acb6bbddff3d849
+  languageName: node
+  linkType: hard
+
 "@guanghechen/helper-npm@npm:^5.0.8":
   version: 5.0.8
   resolution: "@guanghechen/helper-npm@npm:5.0.8"
@@ -704,6 +716,7 @@ __metadata:
     "@guanghechen/conventional-changelog": ^5.0.1
     "@guanghechen/eslint-config": ^5.0.2
     "@guanghechen/eslint-config-ts": ^5.0.7
+    "@guanghechen/helper-jest": ^5.0.7
     "@guanghechen/jest-config": ^5.0.7
     "@guanghechen/rollup-config": ^5.3.0
     "@guanghechen/script-doc-link": ^5.0.9
@@ -755,6 +768,16 @@ __metadata:
   checksum: b1d1bbc9b5e132c8c3e071af2380f7dd7182a0ccf1be76ad92dd55e5110d892d8b70996619fc0d5dcfe464eaa74bc89ea5aff58076798110a5ba79cec3954c56
   languageName: node
   linkType: hard
+
+"@guanghechen/viewmodel@workspace:packages/viewmodel":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/viewmodel@workspace:packages/viewmodel"
+  dependencies:
+    cross-env: ^7.0.3
+    rimraf: ^5.0.1
+    rollup: ^3.28.1
+  languageName: unknown
+  linkType: soft
 
 "@humanwhocodes/config-array@npm:^0.11.11":
   version: 0.11.11
@@ -922,7 +945,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jest/globals@npm:^29.7.0":
+"@jest/globals@npm:^29.6.4, @jest/globals@npm:^29.7.0":
   version: 29.7.0
   resolution: "@jest/globals@npm:29.7.0"
   dependencies:
@@ -6049,7 +6072,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest@npm:^29.7.0":
+"jest@npm:^29.6.4, jest@npm:^29.7.0":
   version: 29.7.0
   resolution: "jest@npm:29.7.0"
   dependencies:
