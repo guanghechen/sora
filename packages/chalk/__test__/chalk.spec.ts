@@ -1,5 +1,4 @@
-import { Chalk, } from '../src'
-import { ColorSupportLevelEnum } from '../src/shared/constant'
+import { Chalk, ColorSupportLevelEnum } from '../src'
 
 describe('chalk', () => {
   it("don't output colors when manually disabled", () => {

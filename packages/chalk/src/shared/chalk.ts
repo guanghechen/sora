@@ -1,4 +1,4 @@
-import { ColorSupportLevelEnum } from '@guanghechen/internal'
+import { ColorSupportLevelEnum } from '@guanghechen/chalk.types'
 import { Styles } from './styles'
 
 export class Chalk extends Styles {

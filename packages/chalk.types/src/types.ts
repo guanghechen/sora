@@ -1,4 +1,4 @@
-import type { ColorSupportLevelEnum } from '../constant'
+import type { ColorSupportLevelEnum } from './constant'
 
 export interface IChalkColorSupport {
   /**

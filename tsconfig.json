@@ -9,6 +9,7 @@
 
       /** basic packages */
       "@guanghechen/chalk": ["packages/chalk/src"],
+      "@guanghechen/chalk.types": ["packages/chalk.types/src"],
       "@guanghechen/equal": ["packages/equal/src"],
       "@guanghechen/error": ["packages/error/src"],
       "@guanghechen/monitor": ["packages/monitor/src"],

@@ -1,10 +1,10 @@
-import { ColorSupportLevelEnum } from '@guanghechen/internal'
 import type {
   IChalkBuilder,
   IChalkColor,
   IChalkStyler,
   IChalkStyles,
-} from '@guanghechen/internal'
+} from '@guanghechen/chalk.types'
+import { ColorSupportLevelEnum } from '@guanghechen/chalk.types'
 import {
   ansiStyles,
   backgroundColorNames,
