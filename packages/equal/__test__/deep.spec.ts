@@ -87,7 +87,7 @@ describe('isEqual', () => {
     expect(isEqual(new F(11), new F(12))).toEqual(true)
   })
 
-it('call customized toString', () => {
+  it('call customized toString', () => {
     class F {
       constructor(readonly age: number) {}
 

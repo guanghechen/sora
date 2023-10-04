@@ -3,7 +3,7 @@ import type {
   ICipherFactoryBuilder,
   IPBKDF2Options,
 } from '@guanghechen/cipher.types'
-import { calcMac , destroyBuffer } from '@guanghechen/internal'
+import { calcMac, destroyBuffer } from '@guanghechen/internal'
 import { pbkdf2Sync, randomBytes } from 'node:crypto'
 import { AesGcmCipherFactory } from './factory'
 

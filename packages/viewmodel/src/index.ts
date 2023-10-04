@@ -13,4 +13,3 @@ export * from './util'
 
 // Re-export types and constants
 export * from '@guanghechen/viewmodel.types'
-

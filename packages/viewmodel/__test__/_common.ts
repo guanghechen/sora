@@ -1,4 +1,4 @@
-import type { IImmutableMap, IObservableValue , ISubscriber } from '../src'
+import type { IImmutableMap, IObservableValue, ISubscriber } from '../src'
 
 export function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
