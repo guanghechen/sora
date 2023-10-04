@@ -484,9 +484,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/chalk.types@workspace:packages/chalk.types"
   dependencies:
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -495,9 +495,9 @@ __metadata:
   resolution: "@guanghechen/chalk@workspace:packages/chalk"
   dependencies:
     "@guanghechen/chalk.types": ^1.0.0-alpha.0
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -505,9 +505,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/cipher.types@workspace:packages/cipher.types"
   dependencies:
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -517,9 +517,9 @@ __metadata:
   dependencies:
     "@guanghechen/cipher.types": ^1.0.0-alpha.0
     "@guanghechen/internal": ^1.0.0-alpha.0
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -536,9 +536,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/equal@workspace:packages/equal"
   dependencies:
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -546,9 +546,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/error.types@workspace:packages/error.types"
   dependencies:
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -557,9 +557,9 @@ __metadata:
   resolution: "@guanghechen/error@workspace:packages/error"
   dependencies:
     "@guanghechen/error.types": ^1.0.0-alpha.0
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -593,9 +593,9 @@ __metadata:
   dependencies:
     "@guanghechen/internal": ^1.0.0-alpha.0
     "@guanghechen/stream": ^1.0.0-alpha.0
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -603,9 +603,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/filetree.types@workspace:packages/filetree.types"
   dependencies:
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -614,9 +614,9 @@ __metadata:
   resolution: "@guanghechen/filetree@workspace:packages/filetree"
   dependencies:
     "@guanghechen/filetree.types": ^1.0.0-alpha.0
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -670,9 +670,9 @@ __metadata:
   resolution: "@guanghechen/internal@workspace:packages/_internal"
   dependencies:
     "@guanghechen/reporter.types": ^1.0.0-alpha.0
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -696,9 +696,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/monitor.types@workspace:packages/monitor.types"
   dependencies:
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -708,9 +708,9 @@ __metadata:
   dependencies:
     "@guanghechen/internal": ^1.0.0-alpha.0
     "@guanghechen/monitor.types": ^1.0.0-alpha.0
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -718,9 +718,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/pipeline.types@workspace:packages/pipeline.types"
   dependencies:
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -731,9 +731,9 @@ __metadata:
     "@guanghechen/internal": ^1.0.0-alpha.0
     "@guanghechen/monitor": ^1.0.0-alpha.9
     "@guanghechen/pipeline.types": ^1.0.0-alpha.0
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -741,9 +741,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/reporter.types@workspace:packages/reporter.types"
   dependencies:
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -754,11 +754,11 @@ __metadata:
     "@guanghechen/chalk.types": ^1.0.0-alpha.0
     "@guanghechen/internal": ^1.0.0-alpha.0
     "@guanghechen/reporter.types": ^1.0.0-alpha.0
-    cross-env: ^7.0.3
+    cross-env: "*"
     dayjs: ^1.11.10
     json5: ^2.2.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -785,9 +785,9 @@ __metadata:
   resolution: "@guanghechen/scheduler.types@workspace:packages/scheduler.types"
   dependencies:
     "@guanghechen/task.types": ^1.0.0-alpha.0
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -873,9 +873,9 @@ __metadata:
   resolution: "@guanghechen/stream@workspace:packages/stream"
   dependencies:
     "@guanghechen/internal": ^1.0.0-alpha.0
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -884,9 +884,9 @@ __metadata:
   resolution: "@guanghechen/task.types@workspace:packages/task.types"
   dependencies:
     "@guanghechen/error.types": ^1.0.0-alpha.0
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -898,9 +898,9 @@ __metadata:
     "@guanghechen/internal": ^1.0.0-alpha.0
     "@guanghechen/monitor": ^1.0.0-alpha.9
     "@guanghechen/task.types": ^1.0.0-alpha.0
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -915,9 +915,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/viewmodel.types@workspace:packages/viewmodel.types"
   dependencies:
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -926,9 +926,9 @@ __metadata:
   resolution: "@guanghechen/viewmodel@workspace:packages/viewmodel"
   dependencies:
     "@guanghechen/viewmodel.types": ^1.0.0-alpha.0
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
   languageName: unknown
   linkType: soft
 
@@ -3506,7 +3506,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cross-env@npm:^7.0.3":
+"cross-env@npm:*, cross-env@npm:^7.0.3":
   version: 7.0.3
   resolution: "cross-env@npm:7.0.3"
   dependencies:
@@ -8440,6 +8440,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rimraf@npm:*, rimraf@npm:^5.0.5":
+  version: 5.0.5
+  resolution: "rimraf@npm:5.0.5"
+  dependencies:
+    glob: ^10.3.7
+  bin:
+    rimraf: dist/esm/bin.mjs
+  checksum: d66eef829b2e23b16445f34e73d75c7b7cf4cbc8834b04720def1c8f298eb0753c3d76df77325fad79d0a2c60470525d95f89c2475283ad985fd7441c32732d1
+  languageName: node
+  linkType: hard
+
 "rimraf@npm:^3.0.0, rimraf@npm:^3.0.2":
   version: 3.0.2
   resolution: "rimraf@npm:3.0.2"
@@ -8462,17 +8473,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rimraf@npm:^5.0.5":
-  version: 5.0.5
-  resolution: "rimraf@npm:5.0.5"
-  dependencies:
-    glob: ^10.3.7
-  bin:
-    rimraf: dist/esm/bin.mjs
-  checksum: d66eef829b2e23b16445f34e73d75c7b7cf4cbc8834b04720def1c8f298eb0753c3d76df77325fad79d0a2c60470525d95f89c2475283ad985fd7441c32732d1
-  languageName: node
-  linkType: hard
-
 "rollup-plugin-dts@npm:^6.0.1":
   version: 6.0.2
   resolution: "rollup-plugin-dts@npm:6.0.2"
@@ -8489,7 +8489,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup@npm:^3.29.4":
+"rollup@npm:*, rollup@npm:^3.29.4":
   version: 3.29.4
   resolution: "rollup@npm:3.29.4"
   dependencies:

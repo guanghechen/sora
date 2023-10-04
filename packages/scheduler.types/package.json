@@ -45,8 +45,8 @@
     "@guanghechen/task.types": "^1.0.0-alpha.0"
   },
   "devDependencies": {
-    "cross-env": "^7.0.3",
-    "rimraf": "^5.0.5",
-    "rollup": "^3.29.4"
+    "cross-env": "*",
+    "rimraf": "*",
+    "rollup": "*"
   }
 }

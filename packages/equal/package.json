@@ -47,8 +47,8 @@
     "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
   },
   "devDependencies": {
-    "cross-env": "^7.0.3",
-    "rimraf": "^5.0.5",
-    "rollup": "^3.29.4"
+    "cross-env": "*",
+    "rimraf": "*",
+    "rollup": "*"
   }
 }
