@@ -1,5 +1,5 @@
+import { ColorSupportLevelEnum } from './constant'
 import { Styles } from './styles'
-import { ColorSupportLevelEnum } from './types'
 
 export class Chalk extends Styles {
   private constructor(level: ColorSupportLevelEnum) {

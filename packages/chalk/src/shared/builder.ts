@@ -1,5 +1,5 @@
-import type { IChalkBuilder, IChalkStyler, IChalkStyles } from '@guanghechen/types'
-import { ColorSupportLevelEnum } from './types'
+import { ColorSupportLevelEnum } from './constant'
+import type { IChalkBuilder, IChalkStyler, IChalkStyles } from './types'
 import { stringEncaseCRLFWithFirstIndex } from './util/string'
 
 export function createBuilder(generator: IChalkStyles): IChalkBuilder {

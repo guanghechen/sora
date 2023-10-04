@@ -1,5 +1,6 @@
 import { supportsColor, supportsColorStderr } from './browser/supports-color'
-import { Chalk, ColorSupportLevelEnum } from '.'
+import { ColorSupportLevelEnum } from './shared/constant'
+import { Chalk } from '.'
 
 export { supportsColor, supportsColorStderr } from './browser/supports-color'
 export const chalk = Chalk.create(

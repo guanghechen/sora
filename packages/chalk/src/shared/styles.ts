@@ -1,4 +1,3 @@
-import type { IChalkBuilder, IChalkColor, IChalkStyler, IChalkStyles } from '@guanghechen/types'
 import {
   ansiStyles,
   backgroundColorNames,
@@ -6,8 +5,9 @@ import {
   modifierNames,
 } from './ansi-styles'
 import { createBuilder } from './builder'
+import { ColorSupportLevelEnum } from './constant'
 import { Styler } from './styler'
-import { ColorSupportLevelEnum } from './types'
+import type { IChalkBuilder, IChalkColor, IChalkStyler, IChalkStyles } from './types'
 import { hex2rgb } from './util/hex'
 import { rgb2ansi, rgb2ansi256 } from './util/rgb'
 

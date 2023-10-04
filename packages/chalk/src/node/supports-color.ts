@@ -2,8 +2,8 @@
 import os from 'node:os'
 import process from 'node:process'
 import tty from 'node:tty'
+import { ColorSupportLevelEnum } from '../shared/constant'
 import type { IChalkColorSupport } from '../shared/types'
-import { ColorSupportLevelEnum } from '../shared/types'
 
 const env: IProcessEnv = process.env as unknown as IProcessEnv
 const argv: string[] = (globalThis as any).Deno ? (globalThis as any).Deno.args : process.argv

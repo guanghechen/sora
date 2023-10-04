@@ -484,7 +484,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/chalk@workspace:packages/chalk"
   dependencies:
-    "@guanghechen/types": ^1.0.0-alpha.6
     cross-env: ^7.0.3
     jest: ^29.7.0
     rimraf: ^5.0.5
