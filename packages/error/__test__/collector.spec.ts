@@ -1,5 +1,5 @@
-import { ErrorLevelEnum } from '@guanghechen/_shared'
-import type { ISoraErrorCollector } from '@guanghechen/_shared'
+import { ErrorLevelEnum } from '@guanghechen/internal'
+import type { ISoraErrorCollector } from '@guanghechen/internal'
 import { SoraErrorCollector } from '../src'
 
 describe('SoraErrorCollector', () => {

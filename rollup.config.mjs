@@ -8,7 +8,7 @@ import {
 import replace from '@rollup/plugin-replace'
 import path from 'node:path'
 
-const builtins = new Set(['@guanghechen/_shared'])
+const builtins = new Set(['@guanghechen/internal'])
 const externals = new Set(['./index.mjs'])
 
 export default async function rollupConfig() {

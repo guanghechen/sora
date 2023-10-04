@@ -1,5 +1,5 @@
-import { ReporterLevelEnum } from '@guanghechen/_shared'
-import type { IChalk, IReporter } from '@guanghechen/_shared'
+import { ReporterLevelEnum } from '@guanghechen/internal'
+import type { IChalk, IReporter } from '@guanghechen/internal'
 import dayjs from 'dayjs'
 import { parseOptionsFromArgs } from './args'
 import { normalizeString } from './format'

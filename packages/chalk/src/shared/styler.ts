@@ -1,4 +1,4 @@
-import type { IChalkStyler } from '@guanghechen/_shared'
+import type { IChalkStyler } from '@guanghechen/internal'
 
 export class Styler implements IChalkStyler {
   public readonly open: string

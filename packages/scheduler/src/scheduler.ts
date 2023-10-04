@@ -1,4 +1,4 @@
-import { ErrorLevelEnum, TaskStatusEnum, TaskStrategyEnum, delay } from '@guanghechen/_shared'
+import { ErrorLevelEnum, TaskStatusEnum, TaskStrategyEnum, delay } from '@guanghechen/internal'
 import type {
   IMonitor,
   IMonitorUnsubscribe,
@@ -7,7 +7,7 @@ import type {
   IReporter,
   IScheduler,
   ITask,
-} from '@guanghechen/_shared'
+} from '@guanghechen/internal'
 import { Monitor } from '@guanghechen/monitor'
 import { ResumableTask } from '@guanghechen/task'
 

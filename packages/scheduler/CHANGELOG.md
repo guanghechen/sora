@@ -91,7 +91,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Performance Improvements
 
-* 🎨 reuse codes from @guanghechen/_shared ([52453c8](https://github.com/guanghechen/sora/commit/52453c8251e1da7ba73c0f7f2726fcbfb8bf5fe5))
+* 🎨 reuse codes from @guanghechen/internal ([52453c8](https://github.com/guanghechen/sora/commit/52453c8251e1da7ba73c0f7f2726fcbfb8bf5fe5))
 
 
 

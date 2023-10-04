@@ -1,5 +1,5 @@
 {
-  "name": "@guanghechen/_shared",
+  "name": "@guanghechen/internal",
   "version": "1.0.0-alpha.0",
   "private": true,
   "type": "module",

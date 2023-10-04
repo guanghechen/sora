@@ -1,5 +1,5 @@
-import type { ITask } from '@guanghechen/_shared'
-import { TaskStatusEnum, TaskStrategyEnum } from '@guanghechen/_shared'
+import type { ITask } from '@guanghechen/internal'
+import { TaskStatusEnum, TaskStrategyEnum } from '@guanghechen/internal'
 import { TaskState } from './state'
 
 interface IResumableTaskProps {

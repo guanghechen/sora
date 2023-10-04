@@ -8,7 +8,7 @@ import type {
   IModifier,
   IModifyExcludeColorName,
   IStyleName,
-} from '@guanghechen/_shared'
+} from '@guanghechen/internal'
 
 type IWrapAnsi16 = (offset?: number) => (code: number) => string
 type IWrapAnsi256 = (offset?: number) => (code: number) => string

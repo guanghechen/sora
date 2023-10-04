@@ -4,10 +4,10 @@
     "baseUrl": ".",
     "sourceMap": true,
     "paths": {
-      /** builtin */
-      "@guanghechen/_shared": ["packages/_shared/src"],
+      /** shared packages */
+      "@guanghechen/internal": ["packages-shared/internal/src"],
 
-      /** packages */
+      /** basic packages */
       "@guanghechen/chalk": ["packages/chalk/src"],
       "@guanghechen/error": ["packages/error/src"],
       "@guanghechen/monitor": ["packages/monitor/src"],

@@ -1,4 +1,4 @@
-import { PipelineStatusEnum, noop } from '@guanghechen/_shared'
+import { PipelineStatusEnum, noop } from '@guanghechen/internal'
 import type {
   IMonitor,
   IPipeline,
@@ -6,7 +6,7 @@ import type {
   IPipelineMonitor,
   IPipelineProduct,
   IUnMonitorPipeline,
-} from '@guanghechen/_shared'
+} from '@guanghechen/internal'
 import { Monitor } from '@guanghechen/monitor'
 
 type IParametersOfOnClosed = Parameters<Required<IPipelineMonitor>['onClosed']>

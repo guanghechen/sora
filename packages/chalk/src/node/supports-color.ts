@@ -1,6 +1,6 @@
 // Forked and refactor from: https://github.com/chalk/chalk/blob/f7b29ae8ef4fd2048e08aa361778d290ed10ce7a/source/vendor/supports-color/index.js#L1
-import { ColorSupportLevelEnum } from '@guanghechen/_shared'
-import type { IChalkColorSupport } from '@guanghechen/_shared'
+import { ColorSupportLevelEnum } from '@guanghechen/internal'
+import type { IChalkColorSupport } from '@guanghechen/internal'
 import os from 'node:os'
 import process from 'node:process'
 import tty from 'node:tty'

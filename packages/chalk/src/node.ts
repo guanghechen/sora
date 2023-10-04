@@ -1,4 +1,4 @@
-import { ColorSupportLevelEnum } from '@guanghechen/_shared'
+import { ColorSupportLevelEnum } from '@guanghechen/internal'
 import { supportsColor, supportsColorStderr } from './node/supports-color'
 import { Chalk } from '.'
 
