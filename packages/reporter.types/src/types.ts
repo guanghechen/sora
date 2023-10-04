@@ -1,4 +1,12 @@
-import type { ReporterLevelEnum } from '../constant'
+import type { ReporterLevelEnum } from './constant'
+
+
+export interface IReporterFlights {
+  readonly date: boolean
+  readonly title: boolean
+  readonly inline: boolean
+  readonly colorful: boolean
+}
 
 export interface IReporter {
   /**

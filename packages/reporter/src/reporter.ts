@@ -1,16 +1,10 @@
-import { ReporterLevelEnum } from '@guanghechen/internal'
-import type { IChalk, IReporter } from '@guanghechen/internal'
+import type { IChalk } from '@guanghechen/chalk.types'
+import type { IReporter, IReporterFlights } from '@guanghechen/reporter.types'
+import { ReporterLevelEnum } from '@guanghechen/reporter.types'
 import dayjs from 'dayjs'
 import { parseOptionsFromArgs } from './args'
 import { normalizeString } from './format'
 import type { ILevelStyleMap } from './level'
-
-export interface IReporterFlights {
-  readonly date: boolean
-  readonly title: boolean
-  readonly inline: boolean
-  readonly colorful: boolean
-}
 
 export interface IReporterOptions {
   baseName?: string

@@ -18,6 +18,7 @@
       "@guanghechen/pipeline": ["packages/pipeline/src"],
       "@guanghechen/pipeline.types": ["packages/pipeline.types/src"],
       "@guanghechen/reporter": ["packages/reporter/src"],
+      "@guanghechen/reporter.types": ["packages/reporter.types/src"],
       "@guanghechen/scheduler": ["packages/scheduler/src"],
       "@guanghechen/task": ["packages/task/src"],
       "@guanghechen/viewmodel": ["packages/viewmodel/src"]
