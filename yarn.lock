@@ -637,13 +637,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@guanghechen/monitor.types@^1.0.0-alpha.0, @guanghechen/monitor.types@workspace:packages/monitor.types":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/monitor.types@workspace:packages/monitor.types"
+  dependencies:
+    cross-env: ^7.0.3
+    rimraf: ^5.0.5
+    rollup: ^3.29.4
+  languageName: unknown
+  linkType: soft
+
 "@guanghechen/monitor@^1.0.0-alpha.9, @guanghechen/monitor@workspace:packages/monitor":
   version: 0.0.0-use.local
   resolution: "@guanghechen/monitor@workspace:packages/monitor"
   dependencies:
     "@guanghechen/internal": ^1.0.0-alpha.0
+    "@guanghechen/monitor.types": ^1.0.0-alpha.0
     cross-env: ^7.0.3
-    jest: ^29.7.0
     rimraf: ^5.0.5
     rollup: ^3.29.4
   languageName: unknown

@@ -1,4 +1,5 @@
-// Re-export types and constants
-export type { IMonitor, IMonitorCallback, IMonitorUnsubscribe } from '@guanghechen/internal'
-
 export * from './monitor'
+
+// Re-export types and constants
+export * from '@guanghechen/monitor.types'
+

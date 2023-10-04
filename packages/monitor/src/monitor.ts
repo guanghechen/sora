@@ -1,5 +1,5 @@
-import type { IMonitor, IMonitorCallback } from '@guanghechen/internal'
 import { noop } from '@guanghechen/internal'
+import type { IMonitor, IMonitorCallback } from '@guanghechen/monitor.types'
 
 export class Monitor<P extends any[]> implements IMonitor<P> {
   public readonly name: string
