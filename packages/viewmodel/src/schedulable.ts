@@ -1,5 +1,5 @@
-import { ScheduleTransactionStatus } from './types'
-import type { ISchedulable, IScheduleTransaction } from './types'
+import type { ISchedulable, IScheduleTransaction } from '@guanghechen/viewmodel.types'
+import { ScheduleTransactionStatus } from '@guanghechen/viewmodel.types'
 
 export class Schedulable implements ISchedulable {
   protected _scheduled: boolean

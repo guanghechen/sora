@@ -23,7 +23,8 @@
       "@guanghechen/scheduler.types": ["packages/scheduler.types/src"],
       "@guanghechen/task": ["packages/task/src"],
       "@guanghechen/task.types": ["packages/task.types/src"],
-      "@guanghechen/viewmodel": ["packages/viewmodel/src"]
+      "@guanghechen/viewmodel": ["packages/viewmodel/src"],
+      "@guanghechen/viewmodel.types": ["packages/viewmodel.types/src"]
     }
   },
   "exclude": ["**/__test__/fixtures"]

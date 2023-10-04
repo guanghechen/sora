@@ -1,6 +1,3 @@
-import { Disposable } from './disposable'
-import { Observable } from './observable'
-import { Ticker } from './ticker'
 import type {
   IComputableValue,
   IComputed,
@@ -10,7 +7,10 @@ import type {
   ISubscriber,
   IUnsubscribable,
   IValueList,
-} from './types'
+} from '@guanghechen/viewmodel.types'
+import { Disposable } from './disposable'
+import { Observable } from './observable'
+import { Ticker } from './ticker'
 
 export class Computed<T extends Readonly<IComputableValue>> implements IComputed<T> {
   protected readonly _observable: IObservable<T>

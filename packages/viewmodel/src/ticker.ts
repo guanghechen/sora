@@ -1,6 +1,3 @@
-import { Disposable } from './disposable'
-import { Observable } from './observable'
-import { Schedulable } from './schedulable'
 import type {
   IAsyncCaller,
   IDisposable,
@@ -10,7 +7,10 @@ import type {
   ITicker,
   ITickerOptions,
   ITimer,
-} from './types'
+} from '@guanghechen/viewmodel.types'
+import { Disposable } from './disposable'
+import { Observable } from './observable'
+import { Schedulable } from './schedulable'
 
 export class Ticker extends Observable<number> implements ITicker {
   protected readonly _observes: Set<IObservable<IObservableValue>>

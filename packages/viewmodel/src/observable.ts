@@ -1,5 +1,3 @@
-import { BatchDisposable } from './disposable'
-import { Schedulable } from './schedulable'
 import type {
   IDisposable,
   IEquals,
@@ -9,7 +7,9 @@ import type {
   IScheduleTransaction,
   ISubscriber,
   IUnsubscribable,
-} from './types'
+} from '@guanghechen/viewmodel.types'
+import { BatchDisposable } from './disposable'
+import { Schedulable } from './schedulable'
 import { noopUnsubscribable } from './util'
 
 export class Observable<T extends Readonly<IObservableValue>>

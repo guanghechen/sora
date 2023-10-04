@@ -1,6 +1,6 @@
+import type { IObservableKey, IViewModel, IViewModelTicker } from '@guanghechen/viewmodel.types'
 import { BatchDisposable } from './disposable'
 import { Ticker } from './ticker'
-import type { IObservableKey, IViewModel, IViewModelTicker } from './types'
 import { isDisposable, isObservable } from './util'
 
 export abstract class ViewModel extends BatchDisposable implements IViewModel {

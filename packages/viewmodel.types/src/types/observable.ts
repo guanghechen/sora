@@ -1,4 +1,4 @@
-import type { SchedulableTransaction } from '../schedulable'
+import type { IScheduleTransaction } from './schedulable'
 import type { IBatchDisposable, IEquals, IObservableValue, ISubscribable } from './common'
 
 export interface IObservableOptions<T extends IObservableValue> {
@@ -10,7 +10,7 @@ export interface IObservable<T extends IObservableValue>
     ISubscribable<T> {
   readonly equals: IEquals<T>
   getSnapshot(): T
-  next(value: T, transaction?: SchedulableTransaction): void
+  next(value: T, transaction?: IScheduleTransaction ): void
 }
 
 export type IValueList<T extends Array<IObservable<any>>> = {

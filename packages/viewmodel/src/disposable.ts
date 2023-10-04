@@ -1,4 +1,4 @@
-import type { IBatchDisposable, IDisposable, IUnsubscribable } from './types'
+import type { IBatchDisposable, IDisposable, IUnsubscribable } from '@guanghechen/viewmodel.types'
 import { disposeAll } from './util'
 
 export class BatchDisposable implements IBatchDisposable {

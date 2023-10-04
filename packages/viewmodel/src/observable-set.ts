@@ -1,11 +1,11 @@
-import { ObservableCollection } from './observable-collection'
 import type {
   IImmutableSet,
   IObservableKeyChange,
   IObservablePrimitiveValue,
   IObservableSet,
   IScheduleTransaction,
-} from './types'
+} from '@guanghechen/viewmodel.types'
+import { ObservableCollection } from './observable-collection'
 
 export class ObservableSet<V extends IObservablePrimitiveValue, C extends IImmutableSet<V>>
   extends ObservableCollection<V, V, C>

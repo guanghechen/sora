@@ -1,4 +1,4 @@
-import type { SchedulableTransaction } from '../schedulable'
+import type { IScheduleTransaction } from './schedulable'
 import type { IImmutableCollection, IImmutableMap, IImmutableSet } from './collection'
 import type { IEquals, IObservableValue, ISubscriber, IUnsubscribable } from './common'
 import type { IObservable } from './observable'
@@ -29,16 +29,16 @@ export interface IObservableCollection<
 
 export interface IObservableMap<K, V extends IObservableValue, C extends IImmutableMap<K, V>>
   extends IObservableCollection<K, V, C> {
-  set(key: K, value: V, transaction?: SchedulableTransaction): void
-  delete(key: K, transaction?: SchedulableTransaction): void
-  deleteAll(keys: Iterable<K>, transaction?: SchedulableTransaction): void
-  merge(entries: Iterable<[K, V]>, transaction?: SchedulableTransaction): void
+  set(key: K, value: V, transaction?: IScheduleTransaction): void
+  delete(key: K, transaction?: IScheduleTransaction): void
+  deleteAll(keys: Iterable<K>, transaction?: IScheduleTransaction): void
+  merge(entries: Iterable<[K, V]>, transaction?: IScheduleTransaction): void
 }
 
 export interface IObservableSet<V extends IObservableValue, C extends IImmutableSet<V>>
   extends IObservableCollection<V, V, C> {
-  add(value: V, transaction?: SchedulableTransaction): void
-  addAll(values: Iterable<V>, transaction?: SchedulableTransaction): void
-  delete(value: V, transaction?: SchedulableTransaction): void
-  deleteAll(values: Iterable<V>, transaction?: SchedulableTransaction): void
+  add(value: V, transaction?: IScheduleTransaction): void
+  addAll(values: Iterable<V>, transaction?: IScheduleTransaction): void
+  delete(value: V, transaction?: IScheduleTransaction): void
+  deleteAll(values: Iterable<V>, transaction?: IScheduleTransaction): void
 }

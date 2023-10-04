@@ -1,6 +1,6 @@
+import type { IDisposable, IStatableValue, IState, ISubscriber } from '@guanghechen/viewmodel.types'
 import { Disposable } from './disposable'
 import { Observable } from './observable'
-import type { IDisposable, IStatableValue, IState, ISubscriber } from './types'
 
 export class State<T extends Readonly<IStatableValue>> extends Observable<T> implements IState<T> {
   public override readonly getSnapshot = (): T => {

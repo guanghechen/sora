@@ -1,4 +1,4 @@
-import type { IDisposable, IObservable, IObservableValue } from '../types'
+import type { IDisposable, IObservable, IObservableValue } from '@guanghechen/viewmodel.types'
 
 export function isDisposable(obj: unknown): obj is IDisposable {
   if (obj === null || typeof obj !== 'object') return false

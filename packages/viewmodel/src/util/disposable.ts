@@ -1,4 +1,4 @@
-import type { IDisposable } from '../types'
+import type { IDisposable } from '@guanghechen/viewmodel.types'
 
 export function disposeAll(disposables: Iterable<IDisposable>): void | never {
   const errors: unknown[] = []
