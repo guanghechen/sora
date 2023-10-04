@@ -1,7 +1,6 @@
-import { TaskStatusEnum } from '@guanghechen/internal'
-import type { ITaskMonitor } from '@guanghechen/internal'
 import { jest } from '@jest/globals'
-import { TaskState } from '../src'
+import type { ITaskMonitor } from '../src'
+import { TaskState, TaskStatusEnum } from '../src'
 
 class TaskStateForTest extends TaskState {
   constructor() {

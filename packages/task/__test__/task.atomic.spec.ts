@@ -1,7 +1,8 @@
-import { ErrorLevelEnum, TaskStatusEnum , delay } from '@guanghechen/internal'
-import type { ITaskMonitor } from '@guanghechen/internal'
+import { ErrorLevelEnum } from '@guanghechen/error.types'
+import { delay } from '@guanghechen/internal'
 import { jest } from '@jest/globals'
-import { AtomicTask } from '../src'
+import type { ITaskMonitor } from '../src'
+import { AtomicTask, TaskStatusEnum } from '../src'
 
 type ITaskExecutor = () => Promise<void>
 

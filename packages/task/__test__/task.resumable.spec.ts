@@ -1,7 +1,8 @@
-import { ErrorLevelEnum, TaskStatusEnum, TaskStrategyEnum , delay } from '@guanghechen/internal'
-import type { ITaskMonitor } from '@guanghechen/internal'
+import { ErrorLevelEnum } from '@guanghechen/error.types'
+import { delay } from '@guanghechen/internal'
 import { jest } from '@jest/globals'
-import { ResumableTask } from '../src'
+import type { ITaskMonitor } from '../src'
+import { ResumableTask, TaskStatusEnum, TaskStrategyEnum } from '../src'
 
 type ITaskExecutor = () => IterableIterator<Promise<void>>
 
