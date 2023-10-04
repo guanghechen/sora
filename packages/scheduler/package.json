@@ -46,6 +46,7 @@
     "@guanghechen/monitor": "^1.0.0-alpha.9",
     "@guanghechen/pipeline.types": "^1.0.0-alpha.0",
     "@guanghechen/reporter.types": "^1.0.0-alpha.0",
+    "@guanghechen/scheduler.types": "^1.0.0-alpha.0",
     "@guanghechen/task": "^1.0.0-alpha.9"
   },
   "devDependencies": {
