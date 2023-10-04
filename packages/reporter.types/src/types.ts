@@ -1,6 +1,5 @@
 import type { ReporterLevelEnum } from './constant'
 
-
 export interface IReporterFlights {
   readonly date: boolean
   readonly title: boolean
@@ -17,6 +16,11 @@ export interface IReporter {
    * Reporter level.
    */
   readonly level: ReporterLevelEnum
+  /**
+   * Print text to device.
+   * @param text
+   */
+  write(text: string): void
   /**
    * Print debug messages.
    * @param messageFormat

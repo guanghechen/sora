@@ -1,8 +1,8 @@
-import { assertPromiseThrow, emptyDir, locateFixtures, rm } from 'jest.helper'
+import { assertPromiseThrow, locateFixtures } from 'jest.helper'
 import { randomBytes } from 'node:crypto'
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import { calcMac, calcMacFromFile } from '../src'
+import { calcMac, calcMacFromFile, emptyDir, rm } from '../src'
 
 describe('mac', () => {
   const workspaceDir: string = locateFixtures('__fictitious__.helper-mac')

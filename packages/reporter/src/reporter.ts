@@ -100,6 +100,10 @@ export class Reporter implements IReporter {
     this._divisionName = divisionName
   }
 
+  public write(text: string): void {
+    write(text)
+  }
+
   public debug(messageFormat: string | unknown, ...messages: unknown[]): void {
     this.log(ReporterLevelEnum.DEBUG, messageFormat, ...messages)
   }
@@ -204,9 +208,5 @@ export class Reporter implements IReporter {
   // format a log record part message according its type.
   public formatSingleMessage(message: unknown): string {
     return normalizeString(message ? message : String(message), this.flights.inline)
-  }
-
-  protected write(text: string): void {
-    write(text)
   }
 }

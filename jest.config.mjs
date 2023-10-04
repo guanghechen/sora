@@ -36,6 +36,7 @@ export default async function () {
 
 const coverageMap = {
   '@guanghechen/internal': {
+    'src/util/fs.ts': { branches: 95, lines: 96, statements: 96 },
     'src/util/noop.ts': { functions: 0 },
   },
   //-----------//

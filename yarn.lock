@@ -658,6 +658,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/internal@workspace:packages/_internal"
   dependencies:
+    "@guanghechen/reporter.types": ^1.0.0-alpha.0
     cross-env: ^7.0.3
     rimraf: ^5.0.5
     rollup: ^3.29.4
