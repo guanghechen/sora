@@ -16,6 +16,8 @@
       "@guanghechen/equal": ["packages/equal/src"],
       "@guanghechen/error": ["packages/error/src"],
       "@guanghechen/error.types": ["packages/error.types/src"],
+      "@guanghechen/filetree": ["packages/filetree/src"],
+      "@guanghechen/filetree.types": ["packages/filetree.types/src"],
       "@guanghechen/invariant": ["packages/invariant/src"],
       "@guanghechen/monitor": ["packages/monitor/src"],
       "@guanghechen/monitor.types": ["packages/monitor.types/src"],

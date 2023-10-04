@@ -38,6 +38,17 @@ const coverageMap = {
   '@guanghechen/internal': {
     'src/util/noop.ts': { functions: 0 },
   },
+  //-----------//
+
+  '@guanghechen/filetree': {
+    'src/tree.ts': {
+      branches: 81,
+      functions: 92,
+      lines: 89,
+      statements: 89,
+    },
+    'src/util.ts': { branches: 86 },
+  },
   '@guanghechen/viewmodel': {
     global: {
       branches: 86,

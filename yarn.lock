@@ -588,6 +588,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@guanghechen/filetree.types@^1.0.0-alpha.0, @guanghechen/filetree.types@workspace:packages/filetree.types":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/filetree.types@workspace:packages/filetree.types"
+  dependencies:
+    cross-env: ^7.0.3
+    rimraf: ^5.0.5
+    rollup: ^3.29.4
+  languageName: unknown
+  linkType: soft
+
+"@guanghechen/filetree@workspace:packages/filetree":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/filetree@workspace:packages/filetree"
+  dependencies:
+    "@guanghechen/filetree.types": ^1.0.0-alpha.0
+    cross-env: ^7.0.3
+    rimraf: ^5.0.5
+    rollup: ^3.29.4
+  languageName: unknown
+  linkType: soft
+
 "@guanghechen/helper-fs@npm:^5.0.7":
   version: 5.0.7
   resolution: "@guanghechen/helper-fs@npm:5.0.7"
