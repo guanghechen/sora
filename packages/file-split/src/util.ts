@@ -1,4 +1,4 @@
-import invariant from '@guanghechen/invariant'
+import { invariant } from '@guanghechen/internal'
 import type { IFilePartItem } from './types'
 
 /**

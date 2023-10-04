@@ -23,5 +23,3 @@ export function invariant(
 
   throw new Error(prefix + ': ' + (message instanceof Function ? message() : message))
 }
-
-export default invariant

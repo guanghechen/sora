@@ -19,7 +19,6 @@
       "@guanghechen/file-split": ["packages/file-split/src"],
       "@guanghechen/filetree": ["packages/filetree/src"],
       "@guanghechen/filetree.types": ["packages/filetree.types/src"],
-      "@guanghechen/invariant": ["packages/invariant/src"],
       "@guanghechen/monitor": ["packages/monitor/src"],
       "@guanghechen/monitor.types": ["packages/monitor.types/src"],
       "@guanghechen/pipeline": ["packages/pipeline/src"],

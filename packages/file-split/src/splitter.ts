@@ -1,4 +1,4 @@
-import invariant from '@guanghechen/invariant'
+import { invariant } from '@guanghechen/internal'
 import { consumeStream, consumeStreams } from '@guanghechen/stream'
 import fs from 'node:fs'
 import type { IFilePartItem } from './types'

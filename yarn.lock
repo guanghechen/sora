@@ -517,7 +517,6 @@ __metadata:
   dependencies:
     "@guanghechen/cipher.types": ^1.0.0-alpha.0
     "@guanghechen/internal": ^1.0.0-alpha.0
-    "@guanghechen/invariant": ^5.0.7
     cross-env: ^7.0.3
     rimraf: ^5.0.5
     rollup: ^3.29.4
@@ -592,7 +591,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/file-split@workspace:packages/file-split"
   dependencies:
-    "@guanghechen/invariant": ^5.0.7
+    "@guanghechen/internal": ^1.0.0-alpha.0
     "@guanghechen/stream": ^1.0.0-alpha.0
     cross-env: ^7.0.3
     rimraf: ^5.0.5
@@ -677,15 +676,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/invariant@^5.0.7, @guanghechen/invariant@workspace:packages/invariant":
-  version: 0.0.0-use.local
-  resolution: "@guanghechen/invariant@workspace:packages/invariant"
-  dependencies:
-    cross-env: ^7.0.3
-    rimraf: ^5.0.5
-    rollup: ^3.29.4
-  languageName: unknown
-  linkType: soft
+"@guanghechen/invariant@npm:^5.0.7":
+  version: 5.0.7
+  resolution: "@guanghechen/invariant@npm:5.0.7"
+  checksum: e4ab5b6c4fab5399e2ce0204ee73513803903894a94ce72a7cf44f8d93392c8cea8d203da7764b5fd82b90cd0aeccdf61440a60e74615ae681656529535b3fa2
+  languageName: node
+  linkType: hard
 
 "@guanghechen/jest-config@npm:^5.0.7":
   version: 5.0.7

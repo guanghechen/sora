@@ -48,10 +48,10 @@
     "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
   },
   "dependencies": {
-    "@guanghechen/invariant": "^5.0.7",
     "@guanghechen/stream": "^1.0.0-alpha.0"
   },
   "devDependencies": {
+    "@guanghechen/internal": "^1.0.0-alpha.0",
     "cross-env": "^7.0.3",
     "rimraf": "^5.0.5",
     "rollup": "^3.29.4"
