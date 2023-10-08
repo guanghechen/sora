@@ -714,6 +714,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@guanghechen/path.types@workspace:packages/path.types":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/path.types@workspace:packages/path.types"
+  dependencies:
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
+  languageName: unknown
+  linkType: soft
+
 "@guanghechen/pipeline.types@^1.0.0-alpha.1, @guanghechen/pipeline.types@workspace:packages/pipeline.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/pipeline.types@workspace:packages/pipeline.types"

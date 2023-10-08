@@ -1,17 +1,17 @@
 {
-  "name": "@guanghechen/pipeline.types",
+  "name": "@guanghechen/path.types",
   "version": "1.0.0-alpha.1",
-  "description": "types of @guanghechen/pipeline",
+  "description": "types of @guanghechen/path",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline.types@1.0.0-alpha.1",
-    "directory": "packages/pipeline.types"
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/path.types@1.0.0-alpha.1",
+    "directory": "packages/path.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline.types@1.0.0-alpha.1/packages/pipeline.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/path.types@1.0.0-alpha.1/packages/path.types#readme",
   "type": "module",
   "exports": {
     ".": {

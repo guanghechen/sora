@@ -22,6 +22,8 @@
       "@guanghechen/monitor": ["packages/monitor/src"],
       "@guanghechen/monitor.types": ["packages/monitor.types/src"],
       "@guanghechen/pipeline": ["packages/pipeline/src"],
+      "@guanghechen/path": ["packages/path/src"],
+      "@guanghechen/path.types": ["packages/path.types/src"],
       "@guanghechen/pipeline.types": ["packages/pipeline.types/src"],
       "@guanghechen/reporter": ["packages/reporter/src"],
       "@guanghechen/reporter.types": ["packages/reporter.types/src"],
