@@ -1,6 +1,6 @@
 import { invariant } from '@guanghechen/internal'
 import { consumeStream, consumeStreams } from '@guanghechen/stream'
-import fs from 'node:fs'
+import { createReadStream, createWriteStream } from 'node:fs'
 import type { IFilePartItem } from './types'
 import { calcFilePartNames } from './util'
 
@@ -58,14 +58,14 @@ export class FileSplitter {
       const partFilepath = partFilepaths[i]
 
       // Create a range in the specified range of the file.
-      const reader: NodeJS.ReadableStream = fs.createReadStream(filepath, {
+      const reader: NodeJS.ReadableStream = createReadStream(filepath, {
         encoding: this.#encoding,
         start: part.start,
         end: part.end - 1,
       })
 
       // Save part
-      const writer: NodeJS.WritableStream = fs.createWriteStream(partFilepath)
+      const writer: NodeJS.WritableStream = createWriteStream(partFilepath)
       const task = consumeStream(reader, writer)
 
       // The operation of splitting the source file can be processed in parallel.
@@ -86,9 +86,9 @@ export class FileSplitter {
     invariant(inputFilepaths.length > 0, 'Input file list is empty!')
 
     const readers: NodeJS.ReadableStream[] = inputFilepaths.map(filepath =>
-      fs.createReadStream(filepath, { encoding: this.#encoding }),
+      createReadStream(filepath, { encoding: this.#encoding }),
     )
-    const writer: NodeJS.WritableStream = fs.createWriteStream(outputFilepath, {
+    const writer: NodeJS.WritableStream = createWriteStream(outputFilepath, {
       encoding: this.#encoding,
     })
 
