@@ -85,9 +85,7 @@ describe('empty', () => {
 
 describe('ensureCriticalFilepathExistsSync', () => {
   test('null / undefined', () => {
-    expect(() => void ensureCriticalFilepathExistsSync(null)).toThrow(
-      'Invalid path: null.',
-    )
+    expect(() => void ensureCriticalFilepathExistsSync(null)).toThrow('Invalid path: null.')
   })
 
   test('not found', () => {

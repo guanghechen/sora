@@ -1,5 +1,5 @@
 import type { ICipher, ICipherFactory, ICipherOptions } from '@guanghechen/cipher.types'
-import { destroyBuffer ,invariant} from '@guanghechen/internal'
+import { destroyBuffer, invariant } from '@guanghechen/internal'
 import { AesGcmCipher } from './cipher'
 
 interface IProps {

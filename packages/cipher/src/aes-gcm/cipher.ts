@@ -1,5 +1,5 @@
 import type { ICipher, IDecipher, IDecipherOptions, IEncipher } from '@guanghechen/cipher.types'
-import { destroyBuffer ,invariant} from '@guanghechen/internal'
+import { destroyBuffer, invariant } from '@guanghechen/internal'
 import type { CipherGCM, CipherGCMTypes } from 'node:crypto'
 import { createCipheriv, createDecipheriv } from 'node:crypto'
 import { BaseCipher } from '../BaseCipher'
