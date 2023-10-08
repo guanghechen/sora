@@ -714,10 +714,21 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/path.types@workspace:packages/path.types":
+"@guanghechen/path.types@^1.0.0-alpha.1, @guanghechen/path.types@workspace:packages/path.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/path.types@workspace:packages/path.types"
   dependencies:
+    cross-env: "*"
+    rimraf: "*"
+    rollup: "*"
+  languageName: unknown
+  linkType: soft
+
+"@guanghechen/path@workspace:packages/path":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/path@workspace:packages/path"
+  dependencies:
+    "@guanghechen/path.types": ^1.0.0-alpha.1
     cross-env: "*"
     rimraf: "*"
     rollup: "*"

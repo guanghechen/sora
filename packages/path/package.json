@@ -1,0 +1,53 @@
+{
+  "name": "@guanghechen/path",
+  "version": "1.0.0-alpha.1",
+  "description": "Path utils.",
+  "author": {
+    "name": "guanghechen",
+    "url": "https://github.com/guanghechen/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/path@1.0.0-alpha.1",
+    "directory": "packages/path"
+  },
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/path@1.0.0-alpha.1/packages/path#readme",
+  "type": "module",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "import": "./lib/esm/index.mjs",
+      "require": "./lib/cjs/index.cjs",
+      "types": "./lib/types/index.d.ts"
+    }
+  },
+  "source": "./src/index.ts",
+  "main": "./lib/cjs/index.cjs",
+  "module": "./lib/esm/index.mjs",
+  "types": "./lib/types/index.d.ts",
+  "license": "MIT",
+  "engines": {
+    "node": ">= 16.0.0"
+  },
+  "files": [
+    "lib/",
+    "!lib/**/*.map",
+    "package.json",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "rimraf lib/ && cross-env NODE_ENV=production rollup -c ../../rollup.config.mjs",
+    "prepublishOnly": "yarn build",
+    "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
+  },
+  "dependencies": {
+    "@guanghechen/path.types": "^1.0.0-alpha.1"
+  },
+  "devDependencies": {
+    "cross-env": "*",
+    "rimraf": "*",
+    "rollup": "*"
+  }
+}
