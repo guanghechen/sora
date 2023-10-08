@@ -20,7 +20,8 @@ export class WorkspacePathResolver implements IWorkspacePathResolver {
     const { root, pathResolver } = this
     if (!pathResolver.isAbsolute(filepath)) return true
     if (filepath === root) return true
-    return pathResolver.relative(root, filepath) !== '..'
+    const relativePath: string = pathResolver.relative(root, filepath)
+    return !relativePath.startsWith('..')
   }
 
   public resolve(filepath: string): string | never {
