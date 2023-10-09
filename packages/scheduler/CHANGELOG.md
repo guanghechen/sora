@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0-alpha.11](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler@6.0.0-alpha.10...@guanghechen/scheduler@6.0.0-alpha.11) (2023-10-09)
+
+
+### Performance Improvements
+
+* ⬆️ upgrade dependencies ([eb4451e](https://github.com/guanghechen/sora/commit/eb4451e96c1ecfeb64ec085edf1fadc9774a4c0a))
+
+
+
+
+
 # [6.0.0-alpha.10](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler@6.0.0-alpha.9...@guanghechen/scheduler@6.0.0-alpha.10) (2023-10-04)
 
 

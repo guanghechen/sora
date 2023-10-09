@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.2](https://github.com/guanghechen/sora/compare/@guanghechen/file-split@1.0.0-alpha.1...@guanghechen/file-split@1.0.0-alpha.2) (2023-10-09)
+
+
+### Performance Improvements
+
+* 🎨 make codes tidy ([3ca94af](https://github.com/guanghechen/sora/commit/3ca94af8bb8c3ef1a9bf2995a9f2dd9e4081b6d3))
+
+
+
+
+
 # 1.0.0-alpha.1 (2023-10-04)
 
 

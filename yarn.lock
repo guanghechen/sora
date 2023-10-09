@@ -480,7 +480,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/chalk.types@^1.0.0-alpha.1, @guanghechen/chalk.types@workspace:packages/chalk.types":
+"@guanghechen/chalk.types@^1.0.0-alpha.2, @guanghechen/chalk.types@workspace:packages/chalk.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/chalk.types@workspace:packages/chalk.types"
   dependencies:
@@ -494,14 +494,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/chalk@workspace:packages/chalk"
   dependencies:
-    "@guanghechen/chalk.types": ^1.0.0-alpha.1
+    "@guanghechen/chalk.types": ^1.0.0-alpha.2
     cross-env: "*"
     rimraf: "*"
     rollup: "*"
   languageName: unknown
   linkType: soft
 
-"@guanghechen/cipher.types@^1.0.0-alpha.1, @guanghechen/cipher.types@workspace:packages/cipher.types":
+"@guanghechen/cipher.types@^1.0.0-alpha.2, @guanghechen/cipher.types@workspace:packages/cipher.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/cipher.types@workspace:packages/cipher.types"
   dependencies:
@@ -515,7 +515,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/cipher@workspace:packages/cipher"
   dependencies:
-    "@guanghechen/cipher.types": ^1.0.0-alpha.1
+    "@guanghechen/cipher.types": ^1.0.0-alpha.2
     "@guanghechen/internal": ^1.0.0-alpha.0
     cross-env: "*"
     rimraf: "*"
@@ -542,7 +542,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/error.types@^1.0.0-alpha.1, @guanghechen/error.types@workspace:packages/error.types":
+"@guanghechen/error.types@^1.0.0-alpha.2, @guanghechen/error.types@workspace:packages/error.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/error.types@workspace:packages/error.types"
   dependencies:
@@ -552,11 +552,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/error@^1.0.0-alpha.10, @guanghechen/error@workspace:packages/error":
+"@guanghechen/error@^1.0.0-alpha.11, @guanghechen/error@workspace:packages/error":
   version: 0.0.0-use.local
   resolution: "@guanghechen/error@workspace:packages/error"
   dependencies:
-    "@guanghechen/error.types": ^1.0.0-alpha.1
+    "@guanghechen/error.types": ^1.0.0-alpha.2
     cross-env: "*"
     rimraf: "*"
     rollup: "*"
@@ -592,14 +592,14 @@ __metadata:
   resolution: "@guanghechen/file-split@workspace:packages/file-split"
   dependencies:
     "@guanghechen/internal": ^1.0.0-alpha.0
-    "@guanghechen/stream": ^1.0.0-alpha.1
+    "@guanghechen/stream": ^1.0.0-alpha.2
     cross-env: "*"
     rimraf: "*"
     rollup: "*"
   languageName: unknown
   linkType: soft
 
-"@guanghechen/filetree.types@^1.0.0-alpha.1, @guanghechen/filetree.types@workspace:packages/filetree.types":
+"@guanghechen/filetree.types@^1.0.0-alpha.2, @guanghechen/filetree.types@workspace:packages/filetree.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/filetree.types@workspace:packages/filetree.types"
   dependencies:
@@ -613,7 +613,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/filetree@workspace:packages/filetree"
   dependencies:
-    "@guanghechen/filetree.types": ^1.0.0-alpha.1
+    "@guanghechen/filetree.types": ^1.0.0-alpha.2
     cross-env: "*"
     rimraf: "*"
     rollup: "*"
@@ -692,7 +692,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/monitor.types@^1.0.0-alpha.1, @guanghechen/monitor.types@workspace:packages/monitor.types":
+"@guanghechen/monitor.types@^1.0.0-alpha.2, @guanghechen/monitor.types@workspace:packages/monitor.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/monitor.types@workspace:packages/monitor.types"
   dependencies:
@@ -702,19 +702,19 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/monitor@^1.0.0-alpha.10, @guanghechen/monitor@workspace:packages/monitor":
+"@guanghechen/monitor@^1.0.0-alpha.11, @guanghechen/monitor@workspace:packages/monitor":
   version: 0.0.0-use.local
   resolution: "@guanghechen/monitor@workspace:packages/monitor"
   dependencies:
     "@guanghechen/internal": ^1.0.0-alpha.0
-    "@guanghechen/monitor.types": ^1.0.0-alpha.1
+    "@guanghechen/monitor.types": ^1.0.0-alpha.2
     cross-env: "*"
     rimraf: "*"
     rollup: "*"
   languageName: unknown
   linkType: soft
 
-"@guanghechen/path.types@^1.0.0-alpha.1, @guanghechen/path.types@workspace:packages/path.types":
+"@guanghechen/path.types@^1.0.0-alpha.2, @guanghechen/path.types@workspace:packages/path.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/path.types@workspace:packages/path.types"
   dependencies:
@@ -728,14 +728,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/path@workspace:packages/path"
   dependencies:
-    "@guanghechen/path.types": ^1.0.0-alpha.1
+    "@guanghechen/path.types": ^1.0.0-alpha.2
     cross-env: "*"
     rimraf: "*"
     rollup: "*"
   languageName: unknown
   linkType: soft
 
-"@guanghechen/pipeline.types@^1.0.0-alpha.1, @guanghechen/pipeline.types@workspace:packages/pipeline.types":
+"@guanghechen/pipeline.types@^1.0.0-alpha.2, @guanghechen/pipeline.types@workspace:packages/pipeline.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/pipeline.types@workspace:packages/pipeline.types"
   dependencies:
@@ -750,15 +750,15 @@ __metadata:
   resolution: "@guanghechen/pipeline@workspace:packages/pipeline"
   dependencies:
     "@guanghechen/internal": ^1.0.0-alpha.0
-    "@guanghechen/monitor": ^1.0.0-alpha.10
-    "@guanghechen/pipeline.types": ^1.0.0-alpha.1
+    "@guanghechen/monitor": ^1.0.0-alpha.11
+    "@guanghechen/pipeline.types": ^1.0.0-alpha.2
     cross-env: "*"
     rimraf: "*"
     rollup: "*"
   languageName: unknown
   linkType: soft
 
-"@guanghechen/reporter.types@^1.0.0-alpha.0, @guanghechen/reporter.types@^1.0.0-alpha.1, @guanghechen/reporter.types@workspace:packages/reporter.types":
+"@guanghechen/reporter.types@^1.0.0-alpha.0, @guanghechen/reporter.types@^1.0.0-alpha.2, @guanghechen/reporter.types@workspace:packages/reporter.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/reporter.types@workspace:packages/reporter.types"
   dependencies:
@@ -772,9 +772,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/reporter@workspace:packages/reporter"
   dependencies:
-    "@guanghechen/chalk.types": ^1.0.0-alpha.1
+    "@guanghechen/chalk.types": ^1.0.0-alpha.2
     "@guanghechen/internal": ^1.0.0-alpha.0
-    "@guanghechen/reporter.types": ^1.0.0-alpha.1
+    "@guanghechen/reporter.types": ^1.0.0-alpha.2
     cross-env: "*"
     dayjs: ^1.11.10
     json5: ^2.2.3
@@ -801,11 +801,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/scheduler.types@^1.0.0-alpha.1, @guanghechen/scheduler.types@workspace:packages/scheduler.types":
+"@guanghechen/scheduler.types@^1.0.0-alpha.2, @guanghechen/scheduler.types@workspace:packages/scheduler.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/scheduler.types@workspace:packages/scheduler.types"
   dependencies:
-    "@guanghechen/task.types": ^1.0.0-alpha.1
+    "@guanghechen/task.types": ^1.0.0-alpha.2
     cross-env: "*"
     rimraf: "*"
     rollup: "*"
@@ -816,13 +816,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/scheduler@workspace:packages/scheduler"
   dependencies:
-    "@guanghechen/error.types": ^1.0.0-alpha.1
+    "@guanghechen/error.types": ^1.0.0-alpha.2
     "@guanghechen/internal": ^1.0.0-alpha.0
-    "@guanghechen/monitor": ^1.0.0-alpha.10
-    "@guanghechen/pipeline.types": ^1.0.0-alpha.1
-    "@guanghechen/reporter.types": ^1.0.0-alpha.1
-    "@guanghechen/scheduler.types": ^1.0.0-alpha.1
-    "@guanghechen/task": ^1.0.0-alpha.10
+    "@guanghechen/monitor": ^1.0.0-alpha.11
+    "@guanghechen/pipeline.types": ^1.0.0-alpha.2
+    "@guanghechen/reporter.types": ^1.0.0-alpha.2
+    "@guanghechen/scheduler.types": ^1.0.0-alpha.2
+    "@guanghechen/task": ^1.0.0-alpha.11
     cross-env: ^7.0.3
     jest: ^29.7.0
     rimraf: ^5.0.5
@@ -889,7 +889,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/stream@^1.0.0-alpha.1, @guanghechen/stream@workspace:packages/stream":
+"@guanghechen/stream@^1.0.0-alpha.2, @guanghechen/stream@workspace:packages/stream":
   version: 0.0.0-use.local
   resolution: "@guanghechen/stream@workspace:packages/stream"
   dependencies:
@@ -900,25 +900,25 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/task.types@^1.0.0-alpha.1, @guanghechen/task.types@workspace:packages/task.types":
+"@guanghechen/task.types@^1.0.0-alpha.2, @guanghechen/task.types@workspace:packages/task.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/task.types@workspace:packages/task.types"
   dependencies:
-    "@guanghechen/error.types": ^1.0.0-alpha.1
+    "@guanghechen/error.types": ^1.0.0-alpha.2
     cross-env: "*"
     rimraf: "*"
     rollup: "*"
   languageName: unknown
   linkType: soft
 
-"@guanghechen/task@^1.0.0-alpha.10, @guanghechen/task@workspace:packages/task":
+"@guanghechen/task@^1.0.0-alpha.11, @guanghechen/task@workspace:packages/task":
   version: 0.0.0-use.local
   resolution: "@guanghechen/task@workspace:packages/task"
   dependencies:
-    "@guanghechen/error": ^1.0.0-alpha.10
+    "@guanghechen/error": ^1.0.0-alpha.11
     "@guanghechen/internal": ^1.0.0-alpha.0
-    "@guanghechen/monitor": ^1.0.0-alpha.10
-    "@guanghechen/task.types": ^1.0.0-alpha.1
+    "@guanghechen/monitor": ^1.0.0-alpha.11
+    "@guanghechen/task.types": ^1.0.0-alpha.2
     cross-env: "*"
     rimraf: "*"
     rollup: "*"
@@ -932,7 +932,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/viewmodel.types@^1.0.0-alpha.1, @guanghechen/viewmodel.types@workspace:packages/viewmodel.types":
+"@guanghechen/viewmodel.types@^1.0.0-alpha.2, @guanghechen/viewmodel.types@workspace:packages/viewmodel.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/viewmodel.types@workspace:packages/viewmodel.types"
   dependencies:
@@ -946,7 +946,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/viewmodel@workspace:packages/viewmodel"
   dependencies:
-    "@guanghechen/viewmodel.types": ^1.0.0-alpha.1
+    "@guanghechen/viewmodel.types": ^1.0.0-alpha.2
     cross-env: "*"
     rimraf: "*"
     rollup: "*"

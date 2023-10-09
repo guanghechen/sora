@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/monitor.types",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "types of @guanghechen/monitor",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/monitor.types@1.0.0-alpha.1",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/monitor.types@1.0.0-alpha.2",
     "directory": "packages/monitor.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/monitor.types@1.0.0-alpha.1/packages/monitor.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/monitor@1.0.0-alpha.11/packages/monitor.types#readme",
   "type": "module",
   "exports": {
     ".": {

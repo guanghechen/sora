@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.2](https://github.com/guanghechen/sora/compare/@guanghechen/cipher@1.0.0-alpha.1...@guanghechen/cipher@1.0.0-alpha.2) (2023-10-09)
+
+
+### Performance Improvements
+
+* ⬆️ upgrade dependencies ([eb4451e](https://github.com/guanghechen/sora/commit/eb4451e96c1ecfeb64ec085edf1fadc9774a4c0a))
+
+
+
+
+
 # 1.0.0-alpha.1 (2023-10-04)
 
 

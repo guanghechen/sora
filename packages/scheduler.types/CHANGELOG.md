@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.2](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler.types@1.0.0-alpha.1...@guanghechen/scheduler.types@1.0.0-alpha.2) (2023-10-09)
+
+
+### Features
+
+* ✨ add @guanghechen/path.types ([0cbf969](https://github.com/guanghechen/sora/commit/0cbf969f481a3ba066af66fda72ec8834aa18c52))
+
+
+
+
+
 # 1.0.0-alpha.1 (2023-10-04)
 
 

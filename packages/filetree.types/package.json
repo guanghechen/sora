@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/filetree.types",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "types of @guanghechen/filetree",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/filetree.types@1.0.0-alpha.1",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/filetree.types@1.0.0-alpha.2",
     "directory": "packages/filetree.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/filetree.types@1.0.0-alpha.1/packages/filetree.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/filetree@1.0.0-alpha.2/packages/filetree.types#readme",
   "type": "module",
   "exports": {
     ".": {

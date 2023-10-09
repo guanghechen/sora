@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/filetree",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "file tree",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/filetree@1.0.0-alpha.1",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/filetree@1.0.0-alpha.2",
     "directory": "packages/filetree"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/filetree@1.0.0-alpha.1/packages/filetree#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/filetree@1.0.0-alpha.2/packages/filetree#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -44,7 +44,7 @@
     "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
   },
   "dependencies": {
-    "@guanghechen/filetree.types": "^1.0.0-alpha.1"
+    "@guanghechen/filetree.types": "^1.0.0-alpha.2"
   },
   "devDependencies": {
     "cross-env": "*",

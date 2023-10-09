@@ -1,16 +1,16 @@
 {
   "name": "@guanghechen/viewmodel",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@1.0.0-alpha.1",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@1.0.0-alpha.2",
     "directory": "packages/viewmodel"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@1.0.0-alpha.1/packages/viewmodel#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@1.0.0-alpha.2/packages/viewmodel#readme",
   "keywords": [
     "viewmodel"
   ],
@@ -42,7 +42,7 @@
     "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
   },
   "dependencies": {
-    "@guanghechen/viewmodel.types": "^1.0.0-alpha.1"
+    "@guanghechen/viewmodel.types": "^1.0.0-alpha.2"
   },
   "devDependencies": {
     "cross-env": "*",
