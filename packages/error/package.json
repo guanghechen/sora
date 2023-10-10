@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/error",
-  "version": "1.0.0-alpha.11",
+  "version": "1.0.0-alpha.12",
   "description": "Error utils and collector.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/error@1.0.0-alpha.11",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/error@1.0.0-alpha.12",
     "directory": "packages/error"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/error@1.0.0-alpha.11/packages/error#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/error@1.0.0-alpha.12/packages/error#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -43,7 +43,7 @@
     "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
   },
   "dependencies": {
-    "@guanghechen/error.types": "^1.0.0-alpha.2"
+    "@guanghechen/error.types": "^1.0.0-alpha.3"
   },
   "devDependencies": {
     "cross-env": "*",

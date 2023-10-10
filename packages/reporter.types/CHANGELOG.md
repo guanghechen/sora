@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.3](https://github.com/guanghechen/sora/compare/@guanghechen/reporter.types@1.0.0-alpha.2...@guanghechen/reporter.types@1.0.0-alpha.3) (2023-10-10)
+
+
+### Performance Improvements
+
+* 🔧 fix package homepage link ([831fa2e](https://github.com/guanghechen/sora/commit/831fa2e9bc9ab2d4eb6795d82e6fa7f9a20d1046))
+
+
+
+
+
 # [1.0.0-alpha.2](https://github.com/guanghechen/sora/compare/@guanghechen/reporter.types@1.0.0-alpha.1...@guanghechen/reporter.types@1.0.0-alpha.2) (2023-10-09)
 
 
