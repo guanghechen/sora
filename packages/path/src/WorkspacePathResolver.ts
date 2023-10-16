@@ -19,9 +19,9 @@ export class WorkspacePathResolver implements IWorkspacePathResolver {
     return pathResolver.isSafeRelative(root, filepath)
   }
 
-  public relative(filepath: string): string | never {
+  public relative(filepath: string, preferSlash?: boolean): string | never {
     const { root, pathResolver } = this
-    return pathResolver.safeRelative(root, filepath)
+    return pathResolver.safeRelative(root, filepath, preferSlash)
   }
 
   public resolve(filepath: string): string | never {

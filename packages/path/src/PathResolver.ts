@@ -58,15 +58,17 @@ export class PathResolver implements IPathResolver {
     return this._internalNormalize(filepath)
   }
 
-  public relative(from: string, to: string): string | never {
+  public relative(from: string, to: string, preferSlash: boolean = false): string | never {
     this.ensureAbsolute(from, `[${clazz}.relative] from is not an absolute path: ${from}`)
     this.ensureAbsolute(to, `[${clazz}.relative] to is not an absolute path: ${to}`)
-    return this._internalRelative(from, to)
+    const relativePath: string = this._internalRelative(from, to)
+    return preferSlash ? relativePath.replaceAll('\\', '/') : relativePath
   }
 
-  public safeRelative(root: string, filepath: string): string {
+  public safeRelative(root: string, filepath: string, preferSlash: boolean = false): string {
     this.ensureSafeRelative(root, filepath)
-    return this._internalSafeRelative(root, filepath)
+    const relativePath: string =this._internalSafeRelative(root, filepath)
+    return preferSlash ? relativePath.replaceAll('\\', '/') : relativePath
   }
 
   public safeResolve(root: string, filepath: string): string {

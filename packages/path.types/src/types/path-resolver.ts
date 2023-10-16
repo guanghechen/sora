@@ -62,17 +62,19 @@ export interface IPathResolver {
    * Calc relative path.
    * @param from should be an absolute path.
    * @param to should be an absolute path.
+   * @param preferSlash if enabled, will replace all '\\' to '/'.
    * @throws when the `from` or `to` is not an absolute path.
    */
-  relative(from: string, to: string): string | never
+  relative(from: string, to: string, preferSlash?: boolean): string | never
 
   /**
    * Solve the relative path based on the `root`.
    * @param root should be an absolute path.
    * @param filepath should be an path (not require absolute) under the `root`.
+   * @param preferSlash if enabled, will replace all '\\' to '/'.
    * @throws when the `filepath` is not under the `root`.
    */
-  safeRelative(root: string, filepath: string): string
+  safeRelative(root: string, filepath: string, preferSlash?: boolean): string
 
   /**
    * Resolve the given `filepath` to an absolute path based on the `root`.

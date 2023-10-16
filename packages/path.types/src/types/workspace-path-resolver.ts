@@ -28,9 +28,10 @@ export interface IWorkspacePathResolver {
   /**
    * Solve the relative path based on the `root`.
    * @param filepath should be an absolute path under the `root`.
+   * @param preferSlash if enabled, will replace all '\\' to '/'.
    * @throws when the filepath is an absolute path and under the `root`.
    */
-  relative(filepath: string): string | never
+  relative(filepath: string, preferSlash?: boolean): string | never
 
   /**
    * Resolve the given filepath to an absolute path.
