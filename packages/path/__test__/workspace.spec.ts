@@ -22,13 +22,14 @@ describe('VirtualWorkspacePathResolver', () => {
   test('resolve', () => {
     expect(workspacePathResolver.resolve('a/b/c')).toEqual('/waw/a/b/c')
     expect(workspacePathResolver.resolve('/waw/a/b/c')).toEqual('/waw/a/b/c')
-    expect(() => workspacePathResolver.resolve('/a/b/c')).toThrow(/not an absolute path/)
+    expect(() => workspacePathResolver.resolve('/a/b/c')).toThrow(/not under the root/)
   })
 
   test('relative', () => {
     expect(workspacePathResolver.relative('/waw/a')).toEqual('a')
     expect(workspacePathResolver.relative('/waw/a/b/c')).toEqual('a/b/c')
-    expect(() => workspacePathResolver.relative('/a')).toThrow(/not an absolute path/)
+    expect(() => workspacePathResolver.relative('/a')).toThrow(/not under the root/)
+    expect(() => workspacePathResolver.relative('../a')).toThrow(/not under the root/)
   })
 })
 
@@ -52,13 +53,15 @@ if (path.sep === '/') {
     test('resolve', () => {
       expect(workspacePathResolver.resolve('a/b/c')).toEqual('/waw/a/b/c')
       expect(workspacePathResolver.resolve('/waw/a/b/c')).toEqual('/waw/a/b/c')
-      expect(() => workspacePathResolver.resolve('/a/b/c')).toThrow(/not an absolute path/)
+      expect(() => workspacePathResolver.resolve('/a/b/c')).toThrow(/not under the root/)
+      expect(() => workspacePathResolver.ensureSafePath('/a/b/c')).toThrow(/not under the root/)
     })
 
     test('relative', () => {
       expect(workspacePathResolver.relative('/waw/a')).toEqual('a')
       expect(workspacePathResolver.relative('/waw/a/b/c')).toEqual('a/b/c')
-      expect(() => workspacePathResolver.relative('/a')).toThrow(/not an absolute path/)
+      expect(() => workspacePathResolver.relative('/a')).toThrow(/not under the root/)
+      expect(() => workspacePathResolver.ensureSafePath('/a')).toThrow(/not under the root/)
     })
   })
 }

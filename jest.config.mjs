@@ -43,12 +43,16 @@ const coverageMap = {
 
   '@guanghechen/filetree': {
     'src/tree.ts': {
-      branches: 81,
-      functions: 92,
-      lines: 89,
-      statements: 89,
+      branches: 85,
+      functions: 88,
+      lines: 91,
+      statements: 91,
     },
     'src/util.ts': { branches: 86 },
+  },
+  '@guanghechen/path': {
+    'src/PhysicalPathResolver.ts': { branches: 96 },
+    'src/VirtualPathResolver.ts': { branches: 96 },
   },
   '@guanghechen/viewmodel': {
     global: {

@@ -29,13 +29,41 @@ export interface IRawFileTreeNode {
 
 export type INodeNameCompare = (u: string, v: string) => number
 
+export interface IFileTreePrintOptions {
+  /**
+   * @default ''
+   */
+  ident?: string
+  /**
+   * Collapse empty paths.
+   * @default false
+   */
+  collapse?: boolean
+  /**
+   * @param line
+   * @returns
+   * @default (line: string): void => void console.log(line)
+   */
+  printLine?: (line: string) => void
+}
+
 export interface IFileTree {
+  /**
+   * Draw the file tree.
+   * @param options
+   */
+  draw(options?: Omit<IFileTreePrintOptions, 'printLine'>): string[]
   /**
    * Insert a new tree node.
    * @param paths
    * @param type
    */
   insert(paths: ReadonlyArray<string>, type: FileTreeNodeTypeEnum): FileNodeStatusEnum
+  /**
+   * Print the file tree to device.
+   * @param options
+   */
+  print(options?: IFileTreePrintOptions): void
   /**
    * Remove a tree node by path.
    * @param paths

@@ -3,11 +3,14 @@ import type {
   IFileTree,
   IFileTreeFolderNode,
   IFileTreeNode,
+  IFileTreePrintOptions,
   INodeNameCompare,
   IRawFileTreeNode,
   IReadonlyFileTreeNode,
 } from '@guanghechen/filetree.types'
 import { cloneRecursive, comparePaths, compareTreeNode } from './util'
+
+const clazz: string = 'FileTree'
 
 export class FileTree implements IFileTree {
   protected readonly _nodes: IFileTreeNode[]
@@ -25,7 +28,7 @@ export class FileTree implements IFileTree {
       case FileTreeNodeTypeEnum.FOLDER:
         return { type, name, children: [] }
       default:
-        throw new Error(`[FileTree.buildNode] type(${type}), name(${name}).`)
+        throw new Error(`[${clazz}.buildNode] type(${type}), name(${name}).`)
     }
   }
 
@@ -75,7 +78,7 @@ export class FileTree implements IFileTree {
             })),
           )
           throw new TypeError(
-            `[FileTree.buildTree] received same paths but with different type. ${details}`,
+            `[${clazz}.buildTree] received same paths but with different type. ${details}`,
           )
         }
       }
@@ -86,7 +89,7 @@ export class FileTree implements IFileTree {
             type: items[lft].type,
             path: items[lft].paths.join('/'),
           })
-          throw new TypeError(`[FileTree.buildTree] bad item, expected an folder. ${details}`)
+          throw new TypeError(`[${clazz}.buildTree] bad item, expected an folder. ${details}`)
         }
       }
 
@@ -108,6 +111,13 @@ export class FileTree implements IFileTree {
   ): FileTree {
     const nodes: IFileTreeNode[] = nodes_.map(o => cloneRecursive(o, -1, cmp))
     return new FileTree(nodes, cmp)
+  }
+
+  public draw(options: Omit<IFileTreePrintOptions, 'printLine'> = {}): string[] {
+    const lines: string[] = []
+    const printLine = (line: string): void => void lines.push(line)
+    this.print({ ...options, printLine })
+    return lines
   }
 
   public insert(paths: ReadonlyArray<string>, type: FileTreeNodeTypeEnum): FileNodeStatusEnum {
@@ -138,6 +148,65 @@ export class FileTree implements IFileTree {
       else nodes.splice(idx, 0, node)
     }
     return FileNodeStatusEnum.NONEXISTENT
+  }
+
+  public print(options: IFileTreePrintOptions = {}): void {
+    const {
+      ident: initialIdent = '',
+      collapse = false,
+      printLine = (line: string): void => void console.log(line),
+    } = options
+    for (let i = 0; i < this._nodes.length; ++i) {
+      const tree: IFileTreeNode = this._nodes[i]
+      const isLastChild: boolean = i + 1 === this._nodes.length
+      internalPrintFilepathTree(tree, initialIdent, '', isLastChild, true)
+    }
+
+    function internalPrintFilepathTree(
+      tree: IFileTreeNode,
+      parentIdent: string,
+      pathPrefix: string,
+      isLastChild: boolean,
+      isRootNode: boolean,
+    ): void {
+      // Try to collapse the empty paths.
+      if (collapse && tree.type === FileTreeNodeTypeEnum.FOLDER && tree.children.length === 1) {
+        const nextPathPrefix: string = pathPrefix ? pathPrefix + '/' + tree.name : tree.name
+        internalPrintFilepathTree(
+          tree.children[0],
+          parentIdent,
+          nextPathPrefix,
+          isLastChild,
+          isRootNode,
+        )
+        return
+      }
+
+      // Print current path.
+      {
+        const ident: string = isRootNode ? '' : isLastChild ? '└── ' : '├── '
+        const currentPath: string = pathPrefix ? pathPrefix + '/' + tree.name : tree.name
+        printLine(parentIdent + ident + currentPath)
+      }
+
+      switch (tree.type) {
+        case FileTreeNodeTypeEnum.FOLDER:
+          {
+            const nextParentIdent: string =
+              parentIdent + (isRootNode ? '' : isLastChild ? '    ' : '│   ')
+            for (let i = 0; i < tree.children.length; ++i) {
+              const node = tree.children[i]
+              const isLastGrandchild: boolean = i + 1 === tree.children.length
+              internalPrintFilepathTree(node, nextParentIdent, '', isLastGrandchild, false)
+            }
+          }
+          break
+        case FileTreeNodeTypeEnum.FILE:
+          break
+        default:
+          throw new TypeError(`[${clazz}.print] unknown filetree node type: ${(tree as any).type}.`)
+      }
+    }
   }
 
   public remove(paths: ReadonlyArray<string>, type?: FileTreeNodeTypeEnum): FileNodeStatusEnum {
@@ -183,7 +252,7 @@ export class FileTree implements IFileTree {
           type: node.type,
           path: paths.slice(0, i + 1).join('/'),
         })
-        throw new TypeError(`[FileTree.stat] expected a folder, but got ${details}.`)
+        throw new TypeError(`[${clazz}.stat] expected a folder, but got ${details}.`)
         /* c8 ignore end */
       }
 
@@ -213,7 +282,7 @@ export class FileTree implements IFileTree {
           type: node.type,
           path: paths.slice(0, i + 1).join('/'),
         })
-        throw new TypeError(`[FileTree.touch] expected a folder, but got ${details}.`)
+        throw new TypeError(`[${clazz}.touch] expected a folder, but got ${details}.`)
         /* c8 ignore end */
       }
 

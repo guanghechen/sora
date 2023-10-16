@@ -24,6 +24,55 @@ describe('basic', () => {
     filetree = FileTree.build(rawNodes, (x, y) => x.localeCompare(y))
   })
 
+  test('draw (not collapse)', () => {
+    const lines: string[] = ['', ...filetree.draw({ collapse: false }), '']
+    expect(lines.join('\n')).toMatchInlineSnapshot(`
+      "
+      a
+      ├── b
+      │   ├── b
+      │   │   └── c
+      │   │       ├── d
+      │   │       │   └── f
+      │   │       └── e
+      │   ├── c
+      │   │   ├── d
+      │   │   │   ├── a.md
+      │   │   │   └── e.md
+      │   │   └── a.txt
+      │   └── d
+      │       └── c.md
+      └── d
+          └── c
+              └── b.md
+      d
+      └── c
+          └── a
+      "
+    `)
+  })
+
+  test('draw (collapse)', () => {
+    const lines: string[] = ['', ...filetree.draw({ collapse: true }), '']
+    expect(lines.join('\n')).toMatchInlineSnapshot(`
+      "
+      a
+      ├── b
+      │   ├── b/c
+      │   │   ├── d/f
+      │   │   └── e
+      │   ├── c
+      │   │   ├── d
+      │   │   │   ├── a.md
+      │   │   │   └── e.md
+      │   │   └── a.txt
+      │   └── d/c.md
+      └── d/c/b.md
+      d/c/a
+      "
+    `)
+  })
+
   test('snapshot', () => {
     expect(filetree.snapshot(-1)).toEqual([
       {
