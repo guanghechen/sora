@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.6](https://github.com/guanghechen/sora/compare/@guanghechen/path@1.0.0-alpha.5...@guanghechen/path@1.0.0-alpha.6) (2023-10-16)
+
+
+### Performance Improvements
+
+* :art:  refactor @guanghechen/path ([8952da3](https://github.com/guanghechen/sora/commit/8952da3154a042a10e76b356da7461a1f8ad8582))
+
+
+
+
+
 # [1.0.0-alpha.5](https://github.com/guanghechen/sora/compare/@guanghechen/path@1.0.0-alpha.4...@guanghechen/path@1.0.0-alpha.5) (2023-10-16)
 
 

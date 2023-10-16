@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/path",
-  "version": "1.0.0-alpha.5",
+  "version": "1.0.0-alpha.6",
   "description": "Path utils.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/path@1.0.0-alpha.5",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/path@1.0.0-alpha.6",
     "directory": "packages/path"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/path@1.0.0-alpha.5/packages/path#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/path@1.0.0-alpha.6/packages/path#readme",
   "type": "module",
   "exports": {
     ".": {
