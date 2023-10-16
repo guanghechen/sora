@@ -1,11 +1,11 @@
 import type { IPathResolver } from '@guanghechen/path.types'
-import { VirtualPathResolver } from '../src'
+import { UrlPathResolver } from '../src'
 
-describe('VirtualPathResolver', () => {
+describe('UrlPathResolver', () => {
   let pathResolver: IPathResolver
 
   beforeEach(() => {
-    pathResolver = new VirtualPathResolver()
+    pathResolver = new UrlPathResolver()
   })
 
   test('basename', () => {

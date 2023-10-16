@@ -1,17 +1,15 @@
 import type { IPathResolver } from '@guanghechen/path.types'
-import { PhysicalPathResolver } from './PhysicalPathResolver'
-import { VirtualPathResolver } from './VirtualPathResolver'
+import { PathResolver } from './PathResolver'
+import { UrlPathResolver } from './UrlPathResolver'
 
 export * from './util/locate'
 
-export * from './PhysicalPathResolver'
-export * from './PhysicalWorkspacePathResolver'
-export * from './VirtualPathResolver'
-export * from './VirtualWorkspacePathResolver'
+export * from './PathResolver'
+export * from './UrlPathResolver'
 export * from './WorkspacePathResolver'
 
 // Re-export types and constants
 export * from '@guanghechen/path.types'
 
-export const physicalPathResolver: IPathResolver = new PhysicalPathResolver()
-export const virtualPathResolver: IPathResolver = new VirtualPathResolver()
+export const pathResolver: IPathResolver = new PathResolver()
+export const urlPathResolver: IPathResolver = new UrlPathResolver()

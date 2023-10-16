@@ -1,13 +1,13 @@
 import type { IPathResolver } from '@guanghechen/path.types'
 import path from 'node:path'
-import { PhysicalPathResolver } from '../src'
+import { PathResolver } from '../src'
 
 if (path.sep === '/') {
-  describe('PhysicalPathResolver', () => {
+  describe('PathResolver', () => {
     let pathResolver: IPathResolver
 
     beforeEach(() => {
-      pathResolver = new PhysicalPathResolver()
+      pathResolver = new PathResolver()
     })
 
     test('basename', () => {

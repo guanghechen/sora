@@ -51,8 +51,8 @@ const coverageMap = {
     'src/util.ts': { branches: 86 },
   },
   '@guanghechen/path': {
-    'src/PhysicalPathResolver.ts': { branches: 96 },
-    'src/VirtualPathResolver.ts': { branches: 96 },
+    'src/PathResolver.ts': { branches: 96 },
+    'src/UrlPathResolver.ts': { branches: 96 },
   },
   '@guanghechen/viewmodel': {
     global: {

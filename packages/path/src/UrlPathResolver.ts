@@ -1,13 +1,13 @@
 import type { IPathResolver } from '@guanghechen/path.types'
-import path from 'node:path'
 
-const clazz: string = 'PhysicalPathResolver'
+const clazz: string = 'UrlPathResolver'
 
-export class PhysicalPathResolver implements IPathResolver {
+export class UrlPathResolver implements IPathResolver {
   public basename(filepath: string): string {
     this.ensureAbsolute(filepath)
     const p: string = this.normalize(filepath)
-    return path.basename(p)
+    const i: number = p.lastIndexOf('/')
+    return p.slice(i + 1)
   }
 
   public ensureAbsolute(filepath: string, message?: string | undefined): void | never {
@@ -15,11 +15,7 @@ export class PhysicalPathResolver implements IPathResolver {
     throw new Error(message ?? `[${clazz}] not an absolute path: ${filepath}.`)
   }
 
-  public ensureSafeRelative(
-    root: string,
-    filepath: string,
-    message?: string | undefined,
-  ): void | never {
+  public ensureSafeRelative(root: string, filepath: string, message?: string | undefined): void {
     if (this.isSafeRelative(root, filepath)) return
     throw new Error(
       message ?? `[${clazz}] not under the root path: filepath ${filepath}, root: ${root}.`,
@@ -28,12 +24,13 @@ export class PhysicalPathResolver implements IPathResolver {
 
   public dirname(filepath: string): string | never {
     this.ensureAbsolute(filepath)
-    const p: string = path.dirname(filepath)
-    return this.normalize(p)
+    const p: string = this.normalize(filepath)
+    const i: number = p.lastIndexOf('/')
+    return i <= 0 ? '/' : p.slice(0, i)
   }
 
   public isAbsolute(filepath: string): boolean {
-    return path.isAbsolute(filepath)
+    return filepath.startsWith('/') || filepath.startsWith('\\')
   }
 
   public isSafeRelative(root: string, filepath: string): boolean {
@@ -49,8 +46,7 @@ export class PhysicalPathResolver implements IPathResolver {
         throw new Error(`[${clazz}.join] pathPiece shouldn't be absolute path. ${pathPiece}`)
       }
     }
-    const p: string = path.join(filepath, ...pathPieces)
-    return this.normalize(p)
+    return this._internalJoin(filepath, pathPieces.join('/'))
   }
 
   public normalize(filepath: string): string | never {
@@ -74,19 +70,37 @@ export class PhysicalPathResolver implements IPathResolver {
     return this._internalSafeResolve(root, filepath)
   }
 
+  protected _internalJoin(root: string, relativePath: string): string {
+    const filepath: string = root + '/' + relativePath
+    return this._internalNormalize(filepath)
+  }
+
   protected _internalNormalize(filepath: string): string {
-    const p: string = path
-      .normalize(filepath)
-      .replace(/[/\\]+/g, path.sep)
-      .replace(/[/\\]+$/, '')
-    return p.length <= 0 ? '/' : p
+    const pieces: string[] = []
+    for (const piece of filepath.split(/[/\\]+/g)) {
+      if (!piece) continue
+      if (piece === '.') continue
+      if (piece === '..') {
+        pieces.pop()
+        continue
+      }
+      pieces.push(piece)
+    }
+    return '/' + pieces.join('/')
   }
 
   protected _internalRelative(from_: string, to_: string): string {
     const from: string = this.normalize(from_)
     const to: string = this.normalize(to_)
-    const relativePath: string = path.relative(from, to)
-    return relativePath
+    const fromPieces: string[] = from.split('/')
+    const toPieces: string[] = to.split('/')
+
+    let ci: number = 0
+    const L: number = fromPieces.length < toPieces.length ? fromPieces.length : toPieces.length
+    for (; ci < L; ++ci) {
+      if (fromPieces[ci] !== toPieces[ci]) break
+    }
+    return '../'.repeat(fromPieces.length - ci) + toPieces.slice(ci).join('/')
   }
 
   protected _internalSafeRelative(root_: string, filepath_: string): string {
@@ -97,7 +111,7 @@ export class PhysicalPathResolver implements IPathResolver {
   }
 
   protected _internalSafeResolve(root: string, filepath_: string): string {
-    const filepath: string = this.isAbsolute(filepath_) ? filepath_ : path.join(root, filepath_)
-    return this._internalNormalize(filepath)
+    const filepath: string = this.isAbsolute(filepath_) ? filepath_ : this.join(root, filepath_)
+    return filepath
   }
 }

@@ -1,13 +1,12 @@
 import type { IWorkspacePathResolver } from '@guanghechen/path.types'
 import path from 'node:path'
-import { PhysicalWorkspacePathResolver } from '../src/PhysicalWorkspacePathResolver'
-import { VirtualWorkspacePathResolver } from '../src/VirtualWorkspacePathResolver'
+import { WorkspacePathResolver, pathResolver, urlPathResolver } from '../src'
 
-describe('VirtualWorkspacePathResolver', () => {
+describe('WorkspacePathResolver (url)', () => {
   let workspacePathResolver: IWorkspacePathResolver
 
   beforeEach(() => {
-    workspacePathResolver = new VirtualWorkspacePathResolver('/waw')
+    workspacePathResolver = new WorkspacePathResolver('/waw', urlPathResolver)
   })
 
   test('isSafePath', () => {
@@ -34,11 +33,11 @@ describe('VirtualWorkspacePathResolver', () => {
 })
 
 if (path.sep === '/') {
-  describe('PhysicalWorkspacePathResolver', () => {
+  describe('WorkspacePathResolver', () => {
     let workspacePathResolver: IWorkspacePathResolver
 
     beforeEach(() => {
-      workspacePathResolver = new PhysicalWorkspacePathResolver('/waw')
+      workspacePathResolver = new WorkspacePathResolver('/waw', pathResolver)
     })
 
     test('isSafePath', () => {
