@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.13](https://github.com/guanghechen/sora/compare/@guanghechen/task@1.0.0-alpha.12...@guanghechen/task@1.0.0-alpha.13) (2023-10-16)
+
+
+### Performance Improvements
+
+* 🔧 remove unnecessary devDependencies ([944f3ae](https://github.com/guanghechen/sora/commit/944f3aee64e68ce52ca30237c7d0240a82c9c58f))
+
+
+
+
+
 # [1.0.0-alpha.12](https://github.com/guanghechen/sora/compare/@guanghechen/task@1.0.0-alpha.11...@guanghechen/task@1.0.0-alpha.12) (2023-10-10)
 
 **Note:** Version bump only for package @guanghechen/task

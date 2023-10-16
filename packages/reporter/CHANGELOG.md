@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.11](https://github.com/guanghechen/sora/compare/@guanghechen/reporter@1.0.0-alpha.10...@guanghechen/reporter@1.0.0-alpha.11) (2023-10-16)
+
+
+### Performance Improvements
+
+* 🔧 remove unnecessary devDependencies ([944f3ae](https://github.com/guanghechen/sora/commit/944f3aee64e68ce52ca30237c7d0240a82c9c58f))
+
+
+
+
+
 # [1.0.0-alpha.10](https://github.com/guanghechen/sora/compare/@guanghechen/reporter@1.0.0-alpha.9...@guanghechen/reporter@1.0.0-alpha.10) (2023-10-10)
 
 **Note:** Version bump only for package @guanghechen/reporter

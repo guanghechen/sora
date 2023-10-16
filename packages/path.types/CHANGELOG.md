@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.4](https://github.com/guanghechen/sora/compare/@guanghechen/path.types@1.0.0-alpha.3...@guanghechen/path.types@1.0.0-alpha.4) (2023-10-16)
+
+
+### Performance Improvements
+
+* :art:  refactor @guanghechen/path and @guanghechen/filepath ([5952ac3](https://github.com/guanghechen/sora/commit/5952ac39fee92e807e3cccc8e4b4dfa1aba1fa34))
+* 🔧 remove unnecessary devDependencies ([944f3ae](https://github.com/guanghechen/sora/commit/944f3aee64e68ce52ca30237c7d0240a82c9c58f))
+
+
+
+
+
 # [1.0.0-alpha.3](https://github.com/guanghechen/sora/compare/@guanghechen/path.types@1.0.0-alpha.2...@guanghechen/path.types@1.0.0-alpha.3) (2023-10-10)
 
 

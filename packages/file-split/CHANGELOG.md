@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.4](https://github.com/guanghechen/sora/compare/@guanghechen/file-split@1.0.0-alpha.3...@guanghechen/file-split@1.0.0-alpha.4) (2023-10-16)
+
+
+### Performance Improvements
+
+* 🔧 remove unnecessary devDependencies ([944f3ae](https://github.com/guanghechen/sora/commit/944f3aee64e68ce52ca30237c7d0240a82c9c58f))
+
+
+
+
+
 # [1.0.0-alpha.3](https://github.com/guanghechen/sora/compare/@guanghechen/file-split@1.0.0-alpha.2...@guanghechen/file-split@1.0.0-alpha.3) (2023-10-10)
 
 **Note:** Version bump only for package @guanghechen/file-split
