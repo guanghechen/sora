@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.7](https://github.com/guanghechen/sora/compare/@guanghechen/path@1.0.0-alpha.6...@guanghechen/path@1.0.0-alpha.7) (2023-10-16)
+
+
+### Performance Improvements
+
+* 🎨 support 'preferSlash' option for 'relativexx' funcs ([e59d415](https://github.com/guanghechen/sora/commit/e59d415df8272f6a5b8afed1f57152e4b44c89b8))
+
+
+
+
+
 # [1.0.0-alpha.6](https://github.com/guanghechen/sora/compare/@guanghechen/path@1.0.0-alpha.5...@guanghechen/path@1.0.0-alpha.6) (2023-10-16)
 
 

@@ -683,7 +683,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/path.types@^1.0.0-alpha.4, @guanghechen/path.types@workspace:packages/path.types":
+"@guanghechen/path.types@^1.0.0-alpha.5, @guanghechen/path.types@workspace:packages/path.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/path.types@workspace:packages/path.types"
   languageName: unknown
@@ -693,7 +693,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/path@workspace:packages/path"
   dependencies:
-    "@guanghechen/path.types": ^1.0.0-alpha.4
+    "@guanghechen/path.types": ^1.0.0-alpha.5
   languageName: unknown
   linkType: soft
 
