@@ -466,6 +466,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@guanghechen/byte@workspace:packages/byte":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/byte@workspace:packages/byte"
+  languageName: unknown
+  linkType: soft
+
 "@guanghechen/chalk-logger@npm:^5.0.8":
   version: 5.0.8
   resolution: "@guanghechen/chalk-logger@npm:5.0.8"
