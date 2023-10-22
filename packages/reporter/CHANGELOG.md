@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.12](https://github.com/guanghechen/sora/compare/@guanghechen/reporter@1.0.0-alpha.11...@guanghechen/reporter@1.0.0-alpha.12) (2023-10-22)
+
+**Note:** Version bump only for package @guanghechen/reporter
+
+
+
+
+
 # [1.0.0-alpha.11](https://github.com/guanghechen/sora/compare/@guanghechen/reporter@1.0.0-alpha.10...@guanghechen/reporter@1.0.0-alpha.11) (2023-10-16)
 
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.5](https://github.com/guanghechen/sora/compare/@guanghechen/stream@1.0.0-alpha.4...@guanghechen/stream@1.0.0-alpha.5) (2023-10-22)
+
+
+### Performance Improvements
+
+* 🎨 prefer Uint8Array instead of Buffer ([0789b58](https://github.com/guanghechen/sora/commit/0789b58deb7c8d0f6fc8d2ae1eb0cf2b71390552))
+
+
+
+
+
 # [1.0.0-alpha.4](https://github.com/guanghechen/sora/compare/@guanghechen/stream@1.0.0-alpha.3...@guanghechen/stream@1.0.0-alpha.4) (2023-10-16)
 
 
