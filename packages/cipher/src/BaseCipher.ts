@@ -1,4 +1,4 @@
-import { bytes2text ,destroyBytesList, mergeBytes, text2bytes } from '@guanghechen/byte'
+import { bytes2text, destroyBytesList, mergeBytes, text2bytes } from '@guanghechen/byte'
 import type {
   ICipher,
   IDecipher,

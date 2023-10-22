@@ -67,7 +67,7 @@ export class PathResolver implements IPathResolver {
 
   public safeRelative(root: string, filepath: string, preferSlash: boolean = false): string {
     this.ensureSafeRelative(root, filepath)
-    const relativePath: string =this._internalSafeRelative(root, filepath)
+    const relativePath: string = this._internalSafeRelative(root, filepath)
     return preferSlash ? relativePath.replaceAll('\\', '/') : relativePath
   }
 
