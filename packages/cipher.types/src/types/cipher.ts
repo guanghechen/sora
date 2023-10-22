@@ -5,18 +5,18 @@ export interface IDecipherOptions {
   /**
    * The authentication tag.
    */
-  authTag: Buffer | undefined
+  readonly authTag: Readonly<Uint8Array> | undefined
 }
 
 export interface IEncryptResult {
   /**
    * Encrypted bytes.
    */
-  cryptBytes: Buffer
+  readonly cryptBytes: Readonly<Uint8Array>
   /**
    * The authentication tag.
    */
-  authTag?: Buffer
+  readonly authTag?: Readonly<Uint8Array>
 }
 
 export interface ICipher {
@@ -38,12 +38,12 @@ export interface ICipher {
   /**
    * Encrypt plain data.
    */
-  encrypt(plainBytes: Readonly<Buffer>): IEncryptResult
+  encrypt(plainBytes: Readonly<Uint8Array>): IEncryptResult
 
   /**
    * Decrypt crypt data.
    */
-  decrypt(cipherBytes: Readonly<Buffer>, options?: IDecipherOptions): Buffer
+  decrypt(cipherBytes: Readonly<Uint8Array>, options?: IDecipherOptions): Uint8Array
 
   /**
    * Encrypt plain json data.
@@ -53,7 +53,7 @@ export interface ICipher {
   /**
    * Decrypt crypt json data.
    */
-  decryptJson(cipherBytes: Readonly<Buffer>, options?: IDecipherOptions): unknown
+  decryptJson(cipherBytes: Readonly<Uint8Array>, options?: IDecipherOptions): unknown
 
   /**
    * Destroy secret and sensitive data.

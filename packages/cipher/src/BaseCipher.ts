@@ -1,3 +1,4 @@
+import { bytes2text ,destroyBytesList, mergeBytes, text2bytes } from '@guanghechen/byte'
 import type {
   ICipher,
   IDecipher,
@@ -5,7 +6,6 @@ import type {
   IEncipher,
   IEncryptResult,
 } from '@guanghechen/cipher.types'
-import { destroyBuffers } from '@guanghechen/internal'
 
 export abstract class BaseCipher implements ICipher {
   protected _alive: boolean
@@ -25,38 +25,38 @@ export abstract class BaseCipher implements ICipher {
   public abstract decipher(options?: IDecipherOptions): IDecipher
 
   // override
-  public encrypt(plainBytes: Readonly<Buffer>): IEncryptResult {
+  public encrypt(plainBytes: Readonly<Uint8Array>): IEncryptResult {
     const encipher = this.encipher()
-    const cipherBytesList: Buffer[] = []
+    const cipherBytesList: Uint8Array[] = []
 
-    let cryptBytes: Buffer
-    let authTag: Buffer | undefined
+    let cryptBytes: Uint8Array
+    let authTag: Uint8Array | undefined
     try {
       // Collect and encrypt data
       cipherBytesList.push(encipher.update(plainBytes))
       cipherBytesList.push(encipher.final())
-      cryptBytes = Buffer.concat(cipherBytesList)
+      cryptBytes = mergeBytes(cipherBytesList)
       authTag = encipher.getAuthTag?.()
     } finally {
-      destroyBuffers(cipherBytesList)
+      destroyBytesList(cipherBytesList)
       encipher.destroy()
     }
     return { cryptBytes, authTag }
   }
 
   // override
-  public decrypt(cipherBytes: Readonly<Buffer>, options?: IDecipherOptions): Buffer {
+  public decrypt(cipherBytes: Readonly<Uint8Array>, options?: IDecipherOptions): Uint8Array {
     const decipher = this.decipher(options)
-    const plainBytesList: Buffer[] = []
+    const plainBytesList: Uint8Array[] = []
 
-    let plainBytes: Buffer
+    let plainBytes: Uint8Array
     try {
       // Collect and decrypt data
       plainBytesList.push(decipher.update(cipherBytes))
       plainBytesList.push(decipher.final())
-      plainBytes = Buffer.concat(plainBytesList)
+      plainBytes = mergeBytes(plainBytesList)
     } finally {
-      destroyBuffers(plainBytesList)
+      destroyBytesList(plainBytesList)
       decipher.destroy()
     }
     return plainBytes
@@ -64,15 +64,15 @@ export abstract class BaseCipher implements ICipher {
 
   // override
   public encryptJson(plainData: unknown): IEncryptResult {
-    const jsonContent = JSON.stringify(plainData)
-    const plainBytes = Buffer.from(jsonContent, 'utf8')
+    const jsonContent: string = JSON.stringify(plainData)
+    const plainBytes: Uint8Array = text2bytes(jsonContent, 'utf8')
     return this.encrypt(plainBytes)
   }
 
   // override
-  public decryptJson(cryptBytes: Readonly<Buffer>, options?: IDecipherOptions): unknown {
-    const plainBytes = this.decrypt(cryptBytes, options)
-    const jsonContent: string = plainBytes.toString('utf8')
+  public decryptJson(cryptBytes: Readonly<Uint8Array>, options?: IDecipherOptions): unknown {
+    const plainBytes: Uint8Array = this.decrypt(cryptBytes, options)
+    const jsonContent: string = bytes2text(plainBytes, 'utf8')
     return JSON.parse(jsonContent)
   }
 

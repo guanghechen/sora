@@ -466,7 +466,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/byte@workspace:packages/byte":
+"@guanghechen/byte@^1.0.0-alpha.0, @guanghechen/byte@workspace:packages/byte":
   version: 0.0.0-use.local
   resolution: "@guanghechen/byte@workspace:packages/byte"
   languageName: unknown
@@ -510,6 +510,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/cipher@workspace:packages/cipher"
   dependencies:
+    "@guanghechen/byte": ^1.0.0-alpha.0
     "@guanghechen/cipher.types": ^1.0.0-alpha.4
     "@guanghechen/internal": ^1.0.0-alpha.0
   languageName: unknown
@@ -640,6 +641,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/internal@workspace:packages/_internal"
   dependencies:
+    "@guanghechen/byte": ^1.0.0-alpha.0
     "@guanghechen/reporter.types": ^1.0.0-alpha.0
   languageName: unknown
   linkType: soft
@@ -843,7 +845,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/stream@workspace:packages/stream"
   dependencies:
-    "@guanghechen/internal": ^1.0.0-alpha.0
+    "@guanghechen/byte": ^1.0.0-alpha.0
   languageName: unknown
   linkType: soft
 

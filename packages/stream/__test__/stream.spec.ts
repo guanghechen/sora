@@ -7,8 +7,8 @@ const encoding = 'utf8'
 const filepaths = ['a.txt', 'b.txt', 'c.txt'].map(fp => locateFixtures(fp))
 const loadContent = async (fp: string): Promise<string> => fs.readFileSync(fp, encoding)
 
-const _iv: Buffer = crypto.randomBytes(32)
-const _key: Buffer = crypto.randomBytes(32)
+const _iv: Uint8Array = crypto.randomBytes(32)
+const _key: Uint8Array = crypto.randomBytes(32)
 const getCipher = (): crypto.Cipher => crypto.createCipheriv('aes-256-gcm', _key, _iv)
 
 describe('consumeStream', () => {

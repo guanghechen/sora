@@ -1,3 +1,4 @@
+import { text2bytes } from '@guanghechen/byte'
 import { locateFixtures } from 'jest.helper'
 import fs from 'node:fs'
 import type { ICipher, ICipherFactory } from '../src'
@@ -13,7 +14,7 @@ describe('AesGcmCipher', function () {
 
   describe('buildFromPassword', function () {
     const cipherFactoryBuilder = new AesGcmCipherFactoryBuilder()
-    const password: Buffer = Buffer.from('guanghechen')
+    const password: Uint8Array = text2bytes('guanghechen', 'utf8')
     const cipherFactory = cipherFactoryBuilder.buildFromPassword(password, {
       salt: 'salt',
       iterations: 100000,
@@ -46,7 +47,7 @@ describe('AesGcmCipher', function () {
     const cipherFactory = cipherFactoryBuilder.buildFromSecret(secret)
 
     const originalPlainContent = 'Hello, world!'
-    const originalPlainBytes = Buffer.from(originalPlainContent, 'utf8')
+    const originalPlainBytes = text2bytes(originalPlainContent, 'utf8')
     const cipher1 = cipherFactory.cipher()
     const cryptResult1 = cipher1.encrypt(originalPlainBytes)
     expect(cipher1.encrypt(originalPlainBytes)).toEqual(cryptResult1)
@@ -92,7 +93,7 @@ describe('AesGcmCipher', function () {
   })
 })
 
-function testCipher(cipherFactory: ICipherFactory, getRandomIv: () => Buffer): void {
+function testCipher(cipherFactory: ICipherFactory, getRandomIv: () => Uint8Array): void {
   test('lazy', () => {
     const cipher1 = cipherFactory.cipher()
     const cipher2 = cipherFactory.cipher()
@@ -117,7 +118,7 @@ function testCipher(cipherFactory: ICipherFactory, getRandomIv: () => Buffer): v
 
   describe('encrypt / decrypt', () => {
     const sourceFilepath: string = locateFixtures('basic/big-file.md')
-    const originalPlainBytes: Buffer = fs.readFileSync(sourceFilepath)
+    const originalPlainBytes: Uint8Array = Uint8Array.from(fs.readFileSync(sourceFilepath))
 
     test('default iv', () => {
       const cipher: ICipher = cipherFactory.cipher()
@@ -139,7 +140,7 @@ function testCipher(cipherFactory: ICipherFactory, getRandomIv: () => Buffer): v
     })
 
     test('random iv', () => {
-      const iv: Buffer = getRandomIv()
+      const iv: Uint8Array = getRandomIv()
       const cipher: ICipher = cipherFactory.cipher({ iv })
       const { cryptBytes, authTag } = cipher.encrypt(originalPlainBytes)
       expect(cryptBytes).not.toEqual(originalPlainBytes)
@@ -166,7 +167,7 @@ function testCipher(cipherFactory: ICipherFactory, getRandomIv: () => Buffer): v
       age: 33,
     }
     const originalPlainContent: string = JSON.stringify(originalPlainData)
-    const originalPlainBytes: Buffer = Buffer.from(originalPlainContent, 'utf8')
+    const originalPlainBytes: Uint8Array = text2bytes(originalPlainContent, 'utf8')
 
     test('customize iv', () => {
       const cipher: ICipher = cipherFactory.cipher()
@@ -188,7 +189,7 @@ function testCipher(cipherFactory: ICipherFactory, getRandomIv: () => Buffer): v
     })
 
     test('random iv', () => {
-      const iv: Buffer = getRandomIv()
+      const iv: Uint8Array = getRandomIv()
       const cipher: ICipher = cipherFactory.cipher({ iv })
       const { cryptBytes, authTag } = cipher.encryptJson(originalPlainData)
       expect(cryptBytes).not.toEqual(originalPlainBytes)

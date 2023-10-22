@@ -1,4 +1,4 @@
-import { destroyBuffers } from '@guanghechen/internal'
+import { destroyBytesList } from '@guanghechen/byte'
 import type { ReadableOptions } from 'node:stream'
 import { Readable } from 'node:stream'
 
@@ -75,7 +75,7 @@ export function consumeStreams(
 }
 
 /**
- * Consume read stream and encode the contents into buffer.
+ * Consume read stream and encode the contents into bytes.
  *
  * @param stream
  * @param safe
@@ -87,6 +87,6 @@ export async function stream2buffer(stream: NodeJS.ReadableStream, safe: boolean
     chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk)
   }
   const result = Buffer.concat(chunks)
-  if (safe) destroyBuffers(chunks)
+  if (safe) destroyBytesList(chunks)
   return result
 }

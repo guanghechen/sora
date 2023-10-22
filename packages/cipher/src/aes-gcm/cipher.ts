@@ -1,23 +1,24 @@
+import { destroyBytes } from '@guanghechen/byte'
 import type { ICipher, IDecipher, IDecipherOptions, IEncipher } from '@guanghechen/cipher.types'
-import { destroyBuffer, invariant } from '@guanghechen/internal'
+import { invariant } from '@guanghechen/internal'
 import type { CipherGCM, CipherGCMTypes } from 'node:crypto'
 import { createCipheriv, createDecipheriv } from 'node:crypto'
 import { BaseCipher } from '../BaseCipher'
 
 interface IProps {
-  readonly key: Readonly<Buffer>
-  readonly iv: Readonly<Buffer>
+  readonly key: Readonly<Uint8Array>
+  readonly iv: Readonly<Uint8Array>
 }
 
 export class AesGcmCipher extends BaseCipher implements ICipher {
   readonly #algorithm: CipherGCMTypes = 'aes-256-gcm'
-  readonly #key: Readonly<Buffer>
-  readonly #iv: Readonly<Buffer>
+  readonly #key: Readonly<Uint8Array>
+  readonly #iv: Readonly<Uint8Array>
 
   constructor(options: IProps) {
     super()
-    this.#key = Buffer.from(options.key) // Deep clone.
-    this.#iv = Buffer.from(options.iv) // Deep clone.
+    this.#key = Uint8Array.from(options.key) // Deep clone.
+    this.#iv = Uint8Array.from(options.iv) // Deep clone.
   }
 
   public override encipher(): IEncipher {
@@ -48,7 +49,7 @@ export class AesGcmCipher extends BaseCipher implements ICipher {
 
   public override destroy(): void {
     if (this.alive) {
-      destroyBuffer(this.#key)
+      destroyBytes(this.#key)
       super.destroy()
     }
   }

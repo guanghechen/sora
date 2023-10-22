@@ -13,20 +13,20 @@ export interface ICipherFactoryBuilder {
   /**
    * Create a random initial vector.
    */
-  createRandomIv(): Buffer
+  createRandomIv(): Uint8Array
 
   /**
    * Create a random secret.
    */
-  createRandomSecret(): Buffer
+  createRandomSecret(): Uint8Array
 
   /**
    * Load key/iv of cipher from secret.
    */
-  buildFromSecret(secret: Readonly<Buffer>): ICipherFactory
+  buildFromSecret(secret: Readonly<Uint8Array>): ICipherFactory
 
   /**
    * Load key/iv of cipher from password.
    */
-  buildFromPassword(password: Readonly<Buffer>, options: IPBKDF2Options): ICipherFactory
+  buildFromPassword(password: Readonly<Uint8Array>, options: IPBKDF2Options): ICipherFactory
 }

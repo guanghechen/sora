@@ -19,7 +19,7 @@ export class FileSplitter {
   public readonly partCodePrefix: string
 
   // !!! Don't try to override the encoding. The encoding should always be `undefined`,
-  // !!! so node:fs will return raw buffer instead of any structured or pretreated data.
+  // !!! so node:fs will return raw bytes instead of any structured or pretreated data.
   readonly #encoding: BufferEncoding | undefined = undefined
 
   constructor(options: IProps = {}) {

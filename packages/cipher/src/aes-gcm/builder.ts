@@ -1,21 +1,22 @@
+import { destroyBytes, randomBytes, text2bytes } from '@guanghechen/byte'
 import type {
   ICipherFactory,
   ICipherFactoryBuilder,
   IPBKDF2Options,
 } from '@guanghechen/cipher.types'
-import { calcMac, destroyBuffer } from '@guanghechen/internal'
-import { pbkdf2Sync, randomBytes } from 'node:crypto'
+import { calcMac } from '@guanghechen/internal'
+import { pbkdf2Sync } from 'node:crypto'
 import { AesGcmCipherFactory } from './factory'
 
 interface IProps {
   /**
    * @default 32
    */
-  ivSize?: number
+  readonly ivSize?: number
   /**
    * @default 12
    */
-  keySize?: number
+  readonly keySize?: number
 }
 
 export class AesGcmCipherFactoryBuilder implements ICipherFactoryBuilder {
@@ -27,50 +28,54 @@ export class AesGcmCipherFactoryBuilder implements ICipherFactoryBuilder {
     this.ivSize = options.ivSize ?? 12
   }
 
-  public createRandomIv(): Readonly<Buffer> {
+  public createRandomIv(): Uint8Array {
     return randomBytes(this.ivSize)
   }
 
-  public createRandomSecret(): Buffer {
+  public createRandomSecret(): Uint8Array {
     return randomBytes(this.keySize + this.ivSize)
   }
 
-  public buildFromSecret(secret: Readonly<Buffer>): ICipherFactory {
+  public buildFromSecret(secret: Readonly<Uint8Array>): ICipherFactory {
     const { key, iv } = this._parseSecret(secret)
     return this._build(key, iv)
   }
 
-  public buildFromPassword(password: Readonly<Buffer>, options: IPBKDF2Options): ICipherFactory {
+  public buildFromPassword(
+    password: Readonly<Uint8Array>,
+    options: IPBKDF2Options,
+  ): ICipherFactory {
     const { key, iv } = this._parsePassword(password, options)
     return this._build(key, iv)
   }
 
-  protected _build(key: Buffer, iv: Buffer): ICipherFactory {
+  protected _build(key: Uint8Array, iv: Uint8Array): ICipherFactory {
     const factory = new AesGcmCipherFactory({ key, iv })
-    destroyBuffer(key)
-    destroyBuffer(iv)
+    destroyBytes(key)
+    destroyBytes(iv)
     return factory
   }
 
-  protected _parseSecret(secret: Readonly<Buffer>): { key: Buffer; iv: Buffer } {
+  protected _parseSecret(secret: Readonly<Uint8Array>): {
+    readonly key: Uint8Array
+    readonly iv: Uint8Array
+  } {
     const { keySize: _keySize, ivSize: _ivSize } = this
-    const key: Buffer = Buffer.alloc(_keySize)
-    const iv: Buffer = Buffer.alloc(_ivSize)
-    secret.copy(key, 0, 0, _keySize)
-    secret.copy(iv, 0, _keySize, _keySize + _ivSize)
+    const key: Uint8Array = secret.slice(0, _keySize)
+    const iv: Uint8Array = secret.slice(_keySize, _keySize + _ivSize)
     return { key, iv }
   }
 
   protected _parsePassword(
-    password: Readonly<Buffer>,
+    password: Readonly<Uint8Array>,
     options: IPBKDF2Options,
-  ): { key: Buffer; iv: Buffer } {
+  ): { readonly key: Uint8Array; readonly iv: Uint8Array } {
     const { keySize: _keySize, ivSize: _ivSize } = this
     const { salt, iterations, digest } = options
-    const key: Buffer = pbkdf2Sync(password, salt, iterations, _keySize, digest)
+    const key: Uint8Array = pbkdf2Sync(password, salt, iterations, _keySize, digest)
 
-    const ivPassword = calcMac([password, Buffer.from(salt, 'utf8'), key], digest)
-    const iv: Buffer = pbkdf2Sync(ivPassword, salt, iterations + 137, _ivSize, digest)
+    const ivPassword = calcMac([password, text2bytes(salt, 'utf8'), key], digest)
+    const iv: Uint8Array = pbkdf2Sync(ivPassword, salt, iterations + 137, _ivSize, digest)
     return { key, iv }
   }
 }
