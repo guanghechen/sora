@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.7](https://github.com/guanghechen/sora/compare/@guanghechen/cipher@1.0.0-alpha.6...@guanghechen/cipher@1.0.0-alpha.7) (2023-10-25)
+
+
+### Performance Improvements
+
+* 🎨 prefer Uint8Array instead of Buffer ([c9e795e](https://github.com/guanghechen/sora/commit/c9e795eb4373fcdffeef1ed019b3d97589606d38))
+
+
+
+
+
 # [1.0.0-alpha.6](https://github.com/guanghechen/sora/compare/@guanghechen/cipher@1.0.0-alpha.5...@guanghechen/cipher@1.0.0-alpha.6) (2023-10-25)
 
 
