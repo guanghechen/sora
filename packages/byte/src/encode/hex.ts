@@ -66,7 +66,7 @@ export function hexText2bytes(hexText: string): Uint8Array {
   return bytes
 }
 
-export function bytes2HexText(bytes: Readonly<Uint8Array>): string {
+export function bytes2hexText(bytes: Readonly<Uint8Array>): string {
   const hexText = new Array(bytes.length * 2)
   for (let i = 0, j = 0; i < bytes.length; ++i, j += 2) {
     const high = bytes[i] >>> 4

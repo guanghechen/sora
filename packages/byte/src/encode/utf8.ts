@@ -5,6 +5,6 @@ export function utf8Text2bytes(utf8Text: string): Uint8Array {
   return textEncoder.encode(utf8Text)
 }
 
-export function bytes2Utf8Text(bytes: Readonly<Uint8Array>): string {
+export function bytes2utf8Text(bytes: Readonly<Uint8Array>): string {
   return textDecoder.decode(bytes)
 }

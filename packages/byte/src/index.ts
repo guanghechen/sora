@@ -1,4 +1,5 @@
 export * from './encode'
+export * from './encode/base64'
 export * from './encode/hex'
 export * from './encode/utf8'
 
