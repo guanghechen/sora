@@ -60,9 +60,9 @@ export class AesGcmCipherFactoryBuilder implements ICipherFactoryBuilder {
     readonly key: Uint8Array
     readonly iv: Uint8Array
   } {
-    const { keySize: _keySize, ivSize: _ivSize } = this
-    const key: Uint8Array = secret.slice(0, _keySize)
-    const iv: Uint8Array = secret.slice(_keySize, _keySize + _ivSize)
+    const { keySize, ivSize } = this
+    const key: Uint8Array = secret.slice(0, keySize)
+    const iv: Uint8Array = secret.slice(keySize, keySize + ivSize)
     return { key, iv }
   }
 
@@ -70,12 +70,15 @@ export class AesGcmCipherFactoryBuilder implements ICipherFactoryBuilder {
     password: Readonly<Uint8Array>,
     options: IPBKDF2Options,
   ): { readonly key: Uint8Array; readonly iv: Uint8Array } {
-    const { keySize: _keySize, ivSize: _ivSize } = this
+    const { keySize, ivSize } = this
     const { salt, iterations, digest } = options
-    const key: Uint8Array = pbkdf2Sync(password, salt, iterations, _keySize, digest)
+    const key: Buffer = pbkdf2Sync(password, salt, iterations, keySize, digest)
 
     const ivPassword = calcMac([password, text2bytes(salt, 'utf8'), key], digest)
-    const iv: Uint8Array = pbkdf2Sync(ivPassword, salt, iterations + 137, _ivSize, digest)
-    return { key, iv }
+    const iv: Buffer = pbkdf2Sync(ivPassword, salt, iterations + 137, ivSize, digest)
+    return {
+      key: Uint8Array.from(key),
+      iv: Uint8Array.from(iv),
+    }
   }
 }

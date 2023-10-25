@@ -41,7 +41,11 @@ export abstract class BaseCipher implements ICipher {
       destroyBytesList(cipherBytesList)
       encipher.destroy()
     }
-    return { cryptBytes, authTag }
+    return {
+      cryptBytes,
+      /* c8 ignore next */
+      authTag: authTag ? Uint8Array.from(authTag) : undefined,
+    }
   }
 
   // override
