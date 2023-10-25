@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/reporter",
-  "version": "1.0.0-alpha.12",
+  "version": "1.0.0-alpha.13",
   "description": "A simple colorful reporter",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/reporter@1.0.0-alpha.12",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/reporter@1.0.0-alpha.13",
     "directory": "packages/reporter"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/reporter@1.0.0-alpha.12/packages/reporter#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/reporter@1.0.0-alpha.13/packages/reporter#readme",
   "keywords": [
     "reporter"
   ],

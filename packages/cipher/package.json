@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/cipher",
-  "version": "1.0.0-alpha.5",
+  "version": "1.0.0-alpha.6",
   "description": "Utility functions for cipher contents.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher@1.0.0-alpha.5",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher@1.0.0-alpha.6",
     "directory": "packages/cipher"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher@1.0.0-alpha.5/packages/cipher#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher@1.0.0-alpha.6/packages/cipher#readme",
   "keywords": [
     "cipher",
     "cipher helper"
@@ -47,7 +47,7 @@
     "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
   },
   "dependencies": {
-    "@guanghechen/byte": "^1.0.0-alpha.1",
+    "@guanghechen/byte": "^1.0.0-alpha.2",
     "@guanghechen/cipher.types": "^1.0.0-alpha.5"
   },
   "devDependencies": {

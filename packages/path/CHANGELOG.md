@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.8](https://github.com/guanghechen/sora/compare/@guanghechen/path@1.0.0-alpha.7...@guanghechen/path@1.0.0-alpha.8) (2023-10-25)
+
+
+### Performance Improvements
+
+* ⬆️ ugprade dependencies ([e8e7a92](https://github.com/guanghechen/sora/commit/e8e7a92f58fbeee3afbb04e1ef023a894249c0bc))
+
+
+
+
+
 # [1.0.0-alpha.7](https://github.com/guanghechen/sora/compare/@guanghechen/path@1.0.0-alpha.6...@guanghechen/path@1.0.0-alpha.7) (2023-10-16)
 
 
