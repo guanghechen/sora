@@ -513,6 +513,7 @@ __metadata:
     "@guanghechen/byte": ^1.0.0-alpha.2
     "@guanghechen/cipher.types": ^1.0.0-alpha.5
     "@guanghechen/internal": ^1.0.0-alpha.0
+    "@guanghechen/mac": ^1.0.0-alpha.0
   languageName: unknown
   linkType: soft
 
@@ -661,6 +662,12 @@ __metadata:
   checksum: a527d46851573f3271ae1ce4bee2727b1ac14f89886fb3c5412dd3f2deefe2061646daed9bcc10810514ba7b278b8dd4aaf7be55c3fed4eb0e2725421f0aa41a
   languageName: node
   linkType: hard
+
+"@guanghechen/mac@^1.0.0-alpha.0, @guanghechen/mac@workspace:packages/mac":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/mac@workspace:packages/mac"
+  languageName: unknown
+  linkType: soft
 
 "@guanghechen/middleware.types@^1.0.0-alpha.2, @guanghechen/middleware.types@workspace:packages/middleware.types":
   version: 0.0.0-use.local

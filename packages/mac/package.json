@@ -1,20 +1,20 @@
 {
-  "name": "@guanghechen/cipher",
-  "version": "1.0.0-alpha.8",
-  "description": "Utility functions for cipher contents.",
+  "name": "@guanghechen/mac",
+  "version": "1.0.0-alpha.0",
+  "description": "Utility functions for hash and mac.",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher@1.0.0-alpha.8",
-    "directory": "packages/cipher"
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/mac@1.0.0-alpha.0",
+    "directory": "packages/mac"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher@1.0.0-alpha.8/packages/cipher#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/mac@1.0.0-alpha.0/packages/mac#readme",
   "keywords": [
-    "cipher",
-    "cipher helper"
+    "mac",
+    "hash"
   ],
   "type": "module",
   "exports": {
@@ -45,13 +45,5 @@
     "build": "../../node_modules/.bin/rimraf lib/ && ../../node_modules/.bin/cross-env NODE_ENV=production ../../node_modules/.bin/rollup -c ../../rollup.config.mjs",
     "prepublishOnly": "yarn build",
     "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
-  },
-  "dependencies": {
-    "@guanghechen/byte": "^1.0.0-alpha.2",
-    "@guanghechen/cipher.types": "^1.0.0-alpha.5",
-    "@guanghechen/mac": "^1.0.0-alpha.0"
-  },
-  "devDependencies": {
-    "@guanghechen/internal": "^1.0.0-alpha.0"
   }
 }

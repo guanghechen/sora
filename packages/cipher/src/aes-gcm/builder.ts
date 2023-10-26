@@ -4,8 +4,8 @@ import type {
   ICipherFactoryBuilder,
   IPBKDF2Options,
 } from '@guanghechen/cipher.types'
+import { calcMac } from '@guanghechen/mac'
 import { pbkdf2Sync } from 'node:crypto'
-import { calcMac } from '../util/mac'
 import { AesGcmCipherFactory } from './factory'
 
 interface IProps {
