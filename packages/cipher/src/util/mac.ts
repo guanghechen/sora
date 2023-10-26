@@ -12,10 +12,10 @@ export function calcMac(
   chunks: ReadonlyArray<Readonly<Uint8Array>>,
   algorithm: IHashAlgorithm,
 ): Uint8Array {
-  const sha256 = createHash(algorithm)
-  for (const chunk of chunks) sha256.update(chunk)
-  const mac: Uint8Array = sha256.digest()
-  return mac
+  const hash = createHash(algorithm)
+  for (const chunk of chunks) hash.update(chunk)
+  const mac: Buffer= hash.digest()
+  return Uint8Array.from(mac)
 }
 
 /**
@@ -36,9 +36,9 @@ export async function calcMacFromFile(
     throw new Error(`[calcMacFromFile] filepath is not a file. (${filepath})`)
   }
 
-  const sha256 = createHash(algorithm)
+  const hash = createHash(algorithm)
   const stream = fs.createReadStream(filepath)
-  for await (const chunk of stream) sha256.update(chunk)
-  const mac: Uint8Array = sha256.digest()
-  return mac
+  for await (const chunk of stream) hash.update(chunk)
+  const mac: Buffer = hash.digest()
+  return Uint8Array.from(mac)
 }

@@ -1,8 +1,9 @@
 import { bytes2text, randomBytes, text2bytes } from '@guanghechen/byte'
+import { emptyDir, rm } from '@guanghechen/internal'
 import { assertPromiseThrow, locateFixtures } from 'jest.helper'
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import { calcMac, calcMacFromFile, emptyDir, rm } from '../src'
+import { calcMac, calcMacFromFile } from '../src'
 
 describe('mac', () => {
   const workspaceDir: string = locateFixtures('__fictitious__.helper-mac')
