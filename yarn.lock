@@ -513,7 +513,7 @@ __metadata:
     "@guanghechen/byte": ^1.0.0-alpha.2
     "@guanghechen/cipher.types": ^1.0.0-alpha.5
     "@guanghechen/internal": ^1.0.0-alpha.0
-    "@guanghechen/mac": ^1.0.0-alpha.0
+    "@guanghechen/mac": ^1.0.0-alpha.1
   languageName: unknown
   linkType: soft
 
@@ -663,7 +663,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/mac@^1.0.0-alpha.0, @guanghechen/mac@workspace:packages/mac":
+"@guanghechen/mac@^1.0.0-alpha.1, @guanghechen/mac@workspace:packages/mac":
   version: 0.0.0-use.local
   resolution: "@guanghechen/mac@workspace:packages/mac"
   languageName: unknown
