@@ -14,7 +14,7 @@ export function calcMac(
 ): Uint8Array {
   const hash = createHash(algorithm)
   for (const chunk of chunks) hash.update(chunk)
-  const mac: Buffer= hash.digest()
+  const mac: Buffer = hash.digest()
   return Uint8Array.from(mac)
 }
 
