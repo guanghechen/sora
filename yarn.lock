@@ -524,6 +524,28 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@guanghechen/config.types@^1.0.0-alpha.0, @guanghechen/config.types@workspace:packages/config.types":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/config.types@workspace:packages/config.types"
+  dependencies:
+    "@guanghechen/resource.types": ^1.0.0-alpha.0
+  languageName: unknown
+  linkType: soft
+
+"@guanghechen/config@workspace:packages/config":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/config@workspace:packages/config"
+  dependencies:
+    "@guanghechen/byte": ^1.0.0-alpha.2
+    "@guanghechen/config.types": ^1.0.0-alpha.0
+    "@guanghechen/internal": ^1.0.0-alpha.0
+    "@guanghechen/mac": ^1.0.0-alpha.1
+    "@guanghechen/resource.types": ^1.0.0-alpha.0
+    "@types/semver": ^7.5.4
+    semver: ^7.5.4
+  languageName: unknown
+  linkType: soft
+
 "@guanghechen/conventional-changelog@npm:^5.0.2":
   version: 5.0.2
   resolution: "@guanghechen/conventional-changelog@npm:5.0.2"
@@ -670,7 +692,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/mac@^1.0.0-alpha.2, @guanghechen/mac@workspace:packages/mac":
+"@guanghechen/mac@^1.0.0-alpha.1, @guanghechen/mac@^1.0.0-alpha.2, @guanghechen/mac@workspace:packages/mac":
   version: 0.0.0-use.local
   resolution: "@guanghechen/mac@workspace:packages/mac"
   languageName: unknown
@@ -2219,7 +2241,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/semver@npm:^7.3.12, @types/semver@npm:^7.5.0":
+"@types/semver@npm:^7.3.12, @types/semver@npm:^7.5.0, @types/semver@npm:^7.5.4":
   version: 7.5.4
   resolution: "@types/semver@npm:7.5.4"
   checksum: 120c0189f6fec5f2d12d0d71ac8a4cfa952dc17fa3d842e8afddb82bba8828a4052f8799c1653e2b47ae1977435f38e8985658fde971905ce5afb8e23ee97ecf

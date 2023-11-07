@@ -9,6 +9,7 @@ import path from 'node:path'
 import {
   emptyDir,
   ensureCriticalFilepathExistsSync,
+  isFileSync,
   mkdirsIfNotExists,
   rm,
   writeFile,
@@ -52,9 +53,19 @@ describe('empty', () => {
     expect(existsSync(filepathA)).toEqual(true)
     expect(existsSync(filepathB)).toEqual(true)
     expect(existsSync(filepathC)).toEqual(true)
+    expect(isFileSync(filepathA)).toEqual(true)
+    expect(isFileSync(filepathB)).toEqual(true)
+    expect(isFileSync(filepathC)).toEqual(true)
+    expect(isFileSync(dirpathA)).toEqual(false)
+    expect(isFileSync(dirpathB)).toEqual(false)
 
     mkdirsIfNotExists(dirpathA, true)
     expect(existsSync(dirpathA)).toEqual(true)
+    expect(isFileSync(filepathA)).toEqual(true)
+    expect(isFileSync(filepathB)).toEqual(true)
+    expect(isFileSync(filepathC)).toEqual(true)
+    expect(isFileSync(dirpathA)).toEqual(false)
+    expect(isFileSync(dirpathB)).toEqual(false)
 
     await emptyDir(fictitiousDir, false)
     expect(existsSync(fictitiousDir)).toEqual(true)
@@ -63,6 +74,11 @@ describe('empty', () => {
     expect(existsSync(filepathA)).toEqual(false)
     expect(existsSync(filepathB)).toEqual(false)
     expect(existsSync(filepathC)).toEqual(false)
+    expect(isFileSync(filepathA)).toEqual(false)
+    expect(isFileSync(filepathB)).toEqual(false)
+    expect(isFileSync(filepathC)).toEqual(false)
+    expect(isFileSync(dirpathA)).toEqual(false)
+    expect(isFileSync(dirpathB)).toEqual(false)
   })
 
   test('logger', async () => {

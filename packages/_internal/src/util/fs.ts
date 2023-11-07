@@ -93,3 +93,14 @@ export async function writeFile(
   await fs.mkdir(dirpath, { recursive: true })
   await fs.writeFile(filepath, content, options)
 }
+/**
+ * Check whether if the filepath is a file path. (synchronizing)
+ *
+ * @param filepath   file path
+ */
+export function isFileSync(filepath: string | null): boolean {
+  if (filepath == null) return false
+  if (!existsSync(filepath)) return false
+  const stat = statSync(filepath)
+  return stat.isFile()
+}

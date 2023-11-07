@@ -14,6 +14,8 @@
       "@guanghechen/chalk.types": ["packages/chalk.types/src"],
       "@guanghechen/cipher": ["packages/cipher/src"],
       "@guanghechen/cipher.types": ["packages/cipher.types/src"],
+      "@guanghechen/config": ["packages/config/src"],
+      "@guanghechen/config.types": ["packages/config.types/src"],
       "@guanghechen/equal": ["packages/equal/src"],
       "@guanghechen/error": ["packages/error/src"],
       "@guanghechen/error.types": ["packages/error.types/src"],
