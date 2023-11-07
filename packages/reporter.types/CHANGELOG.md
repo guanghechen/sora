@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.5](https://github.com/guanghechen/sora/compare/@guanghechen/reporter.types@1.0.0-alpha.4...@guanghechen/reporter.types@1.0.0-alpha.5) (2023-11-07)
+
+
+### Performance Improvements
+
+* :bookmark:  release ([a3d2633](https://github.com/guanghechen/sora/commit/a3d26331c6b9fba2afa1d1904d866699d32337a6))
+* :bookmark:  release ([37d7aaa](https://github.com/guanghechen/sora/commit/37d7aaa6820c1e1b12c2409e0d615fe5c2bd33b6))
+* :bookmark:  release ([c62824a](https://github.com/guanghechen/sora/commit/c62824a430a456f7a6c0823d7c32002a24fe738d))
+* 🔧 make tsconfig.json tidy ([809f8cf](https://github.com/guanghechen/sora/commit/809f8cf6b18da2d8fbba1566a5f4a783b52683da))
+
+
+
+
+
 # [1.0.0-alpha.4](https://github.com/guanghechen/sora/compare/@guanghechen/reporter.types@1.0.0-alpha.3...@guanghechen/reporter.types@1.0.0-alpha.4) (2023-10-16)
 
 

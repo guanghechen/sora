@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/path",
-  "version": "1.0.0-alpha.8",
+  "version": "1.0.0-alpha.9",
   "description": "Path utils.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/path@1.0.0-alpha.8",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/path@1.0.0-alpha.9",
     "directory": "packages/path"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/path@1.0.0-alpha.8/packages/path#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/path@1.0.0-alpha.9/packages/path#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -43,6 +43,6 @@
     "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
   },
   "dependencies": {
-    "@guanghechen/path.types": "^1.0.0-alpha.5"
+    "@guanghechen/path.types": "^1.0.0-alpha.6"
   }
 }

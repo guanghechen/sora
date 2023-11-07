@@ -1,16 +1,16 @@
 {
   "name": "@guanghechen/config",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/config@1.0.0-alpha.0",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/config@1.0.0-alpha.1",
     "directory": "packages/config"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/config@1.0.0-alpha.0/packages/config#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/config@1.0.0-alpha.1/packages/config#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -43,9 +43,9 @@
   },
   "dependencies": {
     "@guanghechen/byte": "^1.0.0-alpha.2",
-    "@guanghechen/config.types": "^1.0.0-alpha.0",
+    "@guanghechen/config.types": "^1.0.0-alpha.1",
     "@guanghechen/mac": "^1.0.0-alpha.1",
-    "@guanghechen/resource.types": "^1.0.0-alpha.0",
+    "@guanghechen/resource.types": "^1.0.0-alpha.1",
     "semver": "^7.5.4"
   },
   "devDependencies": {

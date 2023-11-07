@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0-alpha.18](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler@6.0.0-alpha.17...@guanghechen/scheduler@6.0.0-alpha.18) (2023-11-07)
+
+
+### Performance Improvements
+
+* 🔧 make tsconfig.json tidy ([809f8cf](https://github.com/guanghechen/sora/commit/809f8cf6b18da2d8fbba1566a5f4a783b52683da))
+
+
+
+
+
 # [6.0.0-alpha.17](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler@6.0.0-alpha.16...@guanghechen/scheduler@6.0.0-alpha.17) (2023-11-05)
 
 

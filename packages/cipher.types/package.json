@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/cipher.types",
-  "version": "1.0.0-alpha.5",
+  "version": "1.0.0-alpha.6",
   "description": "types of @guanghechen/cipher",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher.types@1.0.0-alpha.5",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher.types@1.0.0-alpha.6",
     "directory": "packages/cipher.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher@1.0.0-alpha.10/packages/cipher.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher@1.0.0-alpha.11/packages/cipher.types#readme",
   "type": "module",
   "exports": {
     ".": {

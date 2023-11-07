@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/chalk",
-  "version": "1.0.0-alpha.7",
+  "version": "1.0.0-alpha.8",
   "description": "Chalk (forked from https://github.com/chalk/chalk)",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/chalk@1.0.0-alpha.7",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/chalk@1.0.0-alpha.8",
     "directory": "packages/chalk"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/chalk@1.0.0-alpha.7/packages/chalk#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/chalk@1.0.0-alpha.8/packages/chalk#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -54,6 +54,6 @@
     "prepublishOnly": "yarn build"
   },
   "dependencies": {
-    "@guanghechen/chalk.types": "^1.0.0-alpha.4"
+    "@guanghechen/chalk.types": "^1.0.0-alpha.5"
   }
 }

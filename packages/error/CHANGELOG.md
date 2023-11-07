@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.14](https://github.com/guanghechen/sora/compare/@guanghechen/error@1.0.0-alpha.13...@guanghechen/error@1.0.0-alpha.14) (2023-11-07)
+
+
+### Performance Improvements
+
+* 🔧 make tsconfig.json tidy ([809f8cf](https://github.com/guanghechen/sora/commit/809f8cf6b18da2d8fbba1566a5f4a783b52683da))
+
+
+
+
+
 # [1.0.0-alpha.13](https://github.com/guanghechen/sora/compare/@guanghechen/error@1.0.0-alpha.12...@guanghechen/error@1.0.0-alpha.13) (2023-10-16)
 
 
