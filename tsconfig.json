@@ -31,6 +31,8 @@
       "@guanghechen/pipeline.types": ["packages/pipeline.types/src"],
       "@guanghechen/reporter": ["packages/reporter/src"],
       "@guanghechen/reporter.types": ["packages/reporter.types/src"],
+      "@guanghechen/resource": ["packages/resource/src"],
+      "@guanghechen/resource.types": ["packages/resource.types/src"],
       "@guanghechen/scheduler": ["packages/scheduler/src"],
       "@guanghechen/scheduler.types": ["packages/scheduler.types/src"],
       "@guanghechen/stream": ["packages/stream/src"],
