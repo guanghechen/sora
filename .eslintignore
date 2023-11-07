@@ -9,6 +9,9 @@
 !.eslintignore
 !.eslintrc
 
+**/resource/
+!packages/resource/
+
 **/.vscode/
 **/__tmp__/
 **/__test__/cases/
@@ -19,5 +22,4 @@
 **/example/
 **/lib/
 **/node_modules/
-**/resource/
 **/test/
