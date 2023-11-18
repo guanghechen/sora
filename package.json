@@ -49,7 +49,7 @@
     "@guanghechen/helper-jest": "^6.0.0-alpha.0",
     "@guanghechen/jest-config": "^6.0.0-alpha.0",
     "@guanghechen/rollup-config": "^6.0.0-alpha.0",
-    "@guanghechen/script-doc-link": "^6.0.0-alpha.0",
+    "@guanghechen/script-doc-link": "^6.0.0-alpha.1",
     "@rollup/plugin-replace": "^5.0.5",
     "@types/jest": "29.5.8",
     "@types/node": "^18.18.9",

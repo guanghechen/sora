@@ -479,17 +479,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/chalk-logger@npm:^6.0.0-alpha.0":
-  version: 6.0.0-alpha.0
-  resolution: "@guanghechen/chalk-logger@npm:6.0.0-alpha.0"
+"@guanghechen/chalk-logger@npm:^6.0.0-alpha.1":
+  version: 6.0.0-alpha.1
+  resolution: "@guanghechen/chalk-logger@npm:6.0.0-alpha.1"
   dependencies:
     "@guanghechen/helper-is": ^6.0.0-alpha.0
     "@guanghechen/invariant": ^6.0.0-alpha.0
-    "@guanghechen/reporter.types": 1.0.0-alpha.5
+    "@guanghechen/reporter.types": 1.0.0-alpha.7
+    "@guanghechen/types": ^1.0.0-alpha.8
     chalk: ^5.3.0
     dayjs: ^1.11.10
     json5: ^2.2.3
-  checksum: 4b1ee328c7f78613990b00a7720d3d0bfd345842c5c4de650d6ac2cb3f2ec1582a91d1834ec2c750d450ad735bd97c2c1d26fb5765c3cf24ec3e1d2c8b0e0bb5
+  checksum: f2760e3ac8f1e000b31d836f79ed7110bd4664a8f00f1d47e0d9f3218eac2c6bb5349022a93605738cc7de16660e6d8cfb31dfa55ce874eeda1c0735026292ec
   languageName: node
   linkType: hard
 
@@ -622,13 +623,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/helper-fs@npm:^6.0.0-alpha.0":
-  version: 6.0.0-alpha.0
-  resolution: "@guanghechen/helper-fs@npm:6.0.0-alpha.0"
+"@guanghechen/helper-fs@npm:^6.0.0-alpha.1":
+  version: 6.0.0-alpha.1
+  resolution: "@guanghechen/helper-fs@npm:6.0.0-alpha.1"
   dependencies:
     "@guanghechen/invariant": ^6.0.0-alpha.0
-    "@guanghechen/reporter.types": ^1.0.0-alpha.5
-  checksum: 81307d1f34f53166f911523130f943983ec45d8f0c38b208561c7900a741cb1bc9dd1078e7309f7f58372557ece088af898908669afc1a0ffad0306d32c26abd
+    "@guanghechen/reporter.types": ^1.0.0-alpha.7
+  checksum: beac5b798dc515313f7dc74d52ec065c24cd4e69ad5fa53adbdcba96fd58953c0265d2f7f2a98ab31bc99d94959b0c7f1a1ceaf41be44abc804288fc19153c23
   languageName: node
   linkType: hard
 
@@ -757,18 +758,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/reporter.types@^1.0.0-alpha.0, @guanghechen/reporter.types@^1.0.0-alpha.5, @guanghechen/reporter.types@^1.0.0-alpha.7, @guanghechen/reporter.types@workspace:packages/reporter.types":
+"@guanghechen/reporter.types@1.0.0-alpha.7, @guanghechen/reporter.types@^1.0.0-alpha.0, @guanghechen/reporter.types@^1.0.0-alpha.7, @guanghechen/reporter.types@workspace:packages/reporter.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/reporter.types@workspace:packages/reporter.types"
   languageName: unknown
   linkType: soft
-
-"@guanghechen/reporter.types@npm:1.0.0-alpha.5":
-  version: 1.0.0-alpha.5
-  resolution: "@guanghechen/reporter.types@npm:1.0.0-alpha.5"
-  checksum: 1996dea4d41223b6ad9923150ddb3173c83099cd4de5b262b9fb73139f4ac3d72a33cc32f18b7bbc3b972ec564b835491e65833967d2f0a7c7f35993432dde3d
-  languageName: node
-  linkType: hard
 
 "@guanghechen/reporter@workspace:packages/reporter":
   version: 0.0.0-use.local
@@ -841,21 +835,21 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/script-doc-link@npm:^6.0.0-alpha.0":
-  version: 6.0.0-alpha.0
-  resolution: "@guanghechen/script-doc-link@npm:6.0.0-alpha.0"
+"@guanghechen/script-doc-link@npm:^6.0.0-alpha.1":
+  version: 6.0.0-alpha.1
+  resolution: "@guanghechen/script-doc-link@npm:6.0.0-alpha.1"
   dependencies:
-    "@guanghechen/chalk-logger": ^6.0.0-alpha.0
-    "@guanghechen/helper-fs": ^6.0.0-alpha.0
+    "@guanghechen/chalk-logger": ^6.0.0-alpha.1
+    "@guanghechen/helper-fs": ^6.0.0-alpha.1
     "@guanghechen/helper-func": ^6.0.0-alpha.0
     "@guanghechen/helper-is": ^6.0.0-alpha.0
     "@guanghechen/invariant": ^6.0.0-alpha.0
-    "@guanghechen/reporter.types": ^1.0.0-alpha.5
+    "@guanghechen/reporter.types": ^1.0.0-alpha.7
     globby: ^14.0.0
     minimist: ^1.2.8
   bin:
     ghc-doc-link-rewrite: lib/esm/cli.mjs
-  checksum: 16607a44a2a5b8043af6d633cf8262196c524555ddcbbfe6fe2a6126bec3b9b7f873945f4b64d2ed21f649b156e730122ed9f806539a55108300579c7094782f
+  checksum: fbe6c7034e2ad10b5a0bd2a6787945ee3a206a63dcf7dd1f53def4c5bc110cf357c3b0d971f590b8d0b06abbbc8f9ba75c0731b8427e24e822f2c2692607763c
   languageName: node
   linkType: hard
 
@@ -870,7 +864,7 @@ __metadata:
     "@guanghechen/helper-jest": ^6.0.0-alpha.0
     "@guanghechen/jest-config": ^6.0.0-alpha.0
     "@guanghechen/rollup-config": ^6.0.0-alpha.0
-    "@guanghechen/script-doc-link": ^6.0.0-alpha.0
+    "@guanghechen/script-doc-link": ^6.0.0-alpha.1
     "@rollup/plugin-replace": ^5.0.5
     "@types/jest": 29.5.8
     "@types/node": ^18.18.9
