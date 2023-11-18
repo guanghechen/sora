@@ -11,7 +11,7 @@
     "url": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler.types@1.0.0-alpha.6",
     "directory": "packages/scheduler.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@6.0.0-alpha.19/packages/scheduler.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@6.0.0-alpha.20/packages/scheduler.types#readme",
   "type": "module",
   "exports": {
     ".": {

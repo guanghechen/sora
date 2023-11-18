@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.17](https://github.com/guanghechen/sora/compare/@guanghechen/reporter@1.0.0-alpha.16...@guanghechen/reporter@1.0.0-alpha.17) (2023-11-18)
+
+
+### Performance Improvements
+
+* 🎨 prefer types from @guanghechen/types instead of @guanghechen/internal ([bf26df4](https://github.com/guanghechen/sora/commit/bf26df45357a874f118e43eedf07d380035fca7c))
+* 🎨 add 'setLevel' method into reporter ([34ed270](https://github.com/guanghechen/sora/commit/34ed27013e414fd527378ee9600fbaed602df2f0))
+
+
+
+
+
 # [1.0.0-alpha.16](https://github.com/guanghechen/sora/compare/@guanghechen/reporter@1.0.0-alpha.15...@guanghechen/reporter@1.0.0-alpha.16) (2023-11-18)
 
 

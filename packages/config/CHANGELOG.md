@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.3](https://github.com/guanghechen/sora/compare/@guanghechen/config@1.0.0-alpha.2...@guanghechen/config@1.0.0-alpha.3) (2023-11-18)
+
+**Note:** Version bump only for package @guanghechen/config
+
+
+
+
+
 # [1.0.0-alpha.2](https://github.com/guanghechen/sora/compare/@guanghechen/config@1.0.0-alpha.1...@guanghechen/config@1.0.0-alpha.2) (2023-11-18)
 
 

@@ -11,7 +11,7 @@
     "url": "https://github.com/guanghechen/sora/tree/@guanghechen/monitor.types@1.0.0-alpha.6",
     "directory": "packages/monitor.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/monitor@1.0.0-alpha.18/packages/monitor.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/monitor@1.0.0-alpha.19/packages/monitor.types#readme",
   "type": "module",
   "exports": {
     ".": {

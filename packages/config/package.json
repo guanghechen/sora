@@ -1,16 +1,16 @@
 {
   "name": "@guanghechen/config",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/config@1.0.0-alpha.2",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/config@1.0.0-alpha.3",
     "directory": "packages/config"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/config@1.0.0-alpha.2/packages/config#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/config@1.0.0-alpha.3/packages/config#readme",
   "type": "module",
   "exports": {
     ".": {

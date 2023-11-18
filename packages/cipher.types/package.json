@@ -11,7 +11,7 @@
     "url": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher.types@1.0.0-alpha.7",
     "directory": "packages/cipher.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher@1.0.0-alpha.12/packages/cipher.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher@1.0.0-alpha.13/packages/cipher.types#readme",
   "type": "module",
   "exports": {
     ".": {
