@@ -9,8 +9,8 @@ export const normalizeString = (
     typeof data === 'function'
       ? data()
       : typeof (data as any)?.toJSON === 'function'
-      ? (data as any).toJSON()
-      : data
+        ? (data as any).toJSON()
+        : data
 
   if (message === null) return 'null'
   if (message === undefined) return 'undefined'

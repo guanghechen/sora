@@ -126,8 +126,8 @@ export abstract class ObservableCollection<
       keySubscribers === undefined
         ? [subscriber]
         : keySubscribers.includes(subscriber)
-        ? keySubscribers
-        : [...keySubscribers, subscriber]
+          ? keySubscribers
+          : [...keySubscribers, subscriber]
     if (keySubscribers !== nextKeySubscribers) this._keySubscribersMap.set(key, nextKeySubscribers)
     return {
       unsubscribe: () => {
