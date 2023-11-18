@@ -11,7 +11,7 @@
     "url": "https://github.com/guanghechen/sora/tree/@guanghechen/chalk.types@1.0.0-alpha.5",
     "directory": "packages/chalk.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/chalk@1.0.0-alpha.8/packages/chalk.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/chalk.types@1.0.0-alpha.5/packages/chalk.types#readme",
   "type": "module",
   "exports": {
     ".": {

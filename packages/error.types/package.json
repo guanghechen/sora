@@ -11,7 +11,7 @@
     "url": "https://github.com/guanghechen/sora/tree/@guanghechen/error.types@1.0.0-alpha.5",
     "directory": "packages/error.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/error@1.0.0-alpha.14/packages/error.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/error.types@1.0.0-alpha.5/packages/error.types#readme",
   "type": "module",
   "exports": {
     ".": {

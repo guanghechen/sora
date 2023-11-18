@@ -10,7 +10,7 @@
     "url": "https://github.com/guanghechen/sora/tree/@guanghechen/resource.types@1.0.0-alpha.1",
     "directory": "packages/resource.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/resource@1.0.0-alpha.1/packages/resource.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/resource.types@1.0.0-alpha.1/packages/resource.types#readme",
   "type": "module",
   "exports": {
     ".": {

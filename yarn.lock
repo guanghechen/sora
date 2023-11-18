@@ -918,6 +918,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@guanghechen/types@workspace:packages/types":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/types@workspace:packages/types"
+  languageName: unknown
+  linkType: soft
+
 "@guanghechen/viewmodel.types@^1.0.0-alpha.5, @guanghechen/viewmodel.types@workspace:packages/viewmodel.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/viewmodel.types@workspace:packages/viewmodel.types"
