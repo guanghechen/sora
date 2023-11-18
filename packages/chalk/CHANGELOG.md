@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.9](https://github.com/guanghechen/sora/compare/@guanghechen/chalk@1.0.0-alpha.8...@guanghechen/chalk@1.0.0-alpha.9) (2023-11-18)
+
+
+### Performance Improvements
+
+* 🔧 upgrade engine version requirement from '>= 16.0.0' to '>= 18.0.0' ([ddb9521](https://github.com/guanghechen/sora/commit/ddb9521b529b2ca838554794339b9e27ac80b8aa))
+
+
+
+
+
 # [1.0.0-alpha.8](https://github.com/guanghechen/sora/compare/@guanghechen/chalk@1.0.0-alpha.7...@guanghechen/chalk@1.0.0-alpha.8) (2023-11-07)
 
 

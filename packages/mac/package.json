@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/mac",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "description": "Utility functions for hash and mac.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/mac@1.0.0-alpha.2",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/mac@1.0.0-alpha.3",
     "directory": "packages/mac"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/mac@1.0.0-alpha.2/packages/mac#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/mac@1.0.0-alpha.3/packages/mac#readme",
   "keywords": [
     "mac",
     "hash"

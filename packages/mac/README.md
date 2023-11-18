@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/mac@1.0.0-alpha.2/packages/mac#readme">@guanghechen/mac</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/mac@1.0.0-alpha.3/packages/mac#readme">@guanghechen/mac</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/mac">
@@ -71,4 +71,4 @@ Utility functions for hash and mac.
 
 ### Overview
 
-[homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/mac@1.0.0-alpha.2/packages/mac#readme
+[homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/mac@1.0.0-alpha.3/packages/mac#readme

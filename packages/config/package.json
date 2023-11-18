@@ -1,16 +1,16 @@
 {
   "name": "@guanghechen/config",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/config@1.0.0-alpha.1",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/config@1.0.0-alpha.2",
     "directory": "packages/config"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/config@1.0.0-alpha.1/packages/config#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/config@1.0.0-alpha.2/packages/config#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -42,10 +42,10 @@
     "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
   },
   "dependencies": {
-    "@guanghechen/byte": "^1.0.0-alpha.2",
-    "@guanghechen/config.types": "^1.0.0-alpha.1",
-    "@guanghechen/mac": "^1.0.0-alpha.1",
-    "@guanghechen/resource.types": "^1.0.0-alpha.1",
+    "@guanghechen/byte": "^1.0.0-alpha.3",
+    "@guanghechen/config.types": "^1.0.0-alpha.2",
+    "@guanghechen/mac": "^1.0.0-alpha.3",
+    "@guanghechen/resource.types": "^1.0.0-alpha.2",
     "semver": "^7.5.4"
   },
   "devDependencies": {

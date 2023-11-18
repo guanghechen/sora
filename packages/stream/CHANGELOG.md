@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.7](https://github.com/guanghechen/sora/compare/@guanghechen/stream@1.0.0-alpha.6...@guanghechen/stream@1.0.0-alpha.7) (2023-11-18)
+
+
+### Performance Improvements
+
+* 🔧 upgrade engine version requirement from '>= 16.0.0' to '>= 18.0.0' ([ddb9521](https://github.com/guanghechen/sora/commit/ddb9521b529b2ca838554794339b9e27ac80b8aa))
+
+
+
+
+
 # [1.0.0-alpha.6](https://github.com/guanghechen/sora/compare/@guanghechen/stream@1.0.0-alpha.5...@guanghechen/stream@1.0.0-alpha.6) (2023-10-25)
 
 **Note:** Version bump only for package @guanghechen/stream
