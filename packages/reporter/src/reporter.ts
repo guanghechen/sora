@@ -1,6 +1,7 @@
 import type { IChalk } from '@guanghechen/chalk.types'
 import type { IReporter, IReporterFlights } from '@guanghechen/reporter.types'
 import { ReporterLevelEnum } from '@guanghechen/reporter.types'
+import type { Mutable } from '@guanghechen/types'
 import dayjs from 'dayjs'
 import { parseOptionsFromArgs } from './args'
 import { normalizeString } from './format'
@@ -13,7 +14,7 @@ export interface IReporterOptions {
   placeholderRegex?: RegExp
 }
 
-const write =
+const defaultWrite =
   typeof process !== 'undefined'
     ? (text: string): void => {
         process.stdout.write(text)
@@ -100,8 +101,14 @@ export class Reporter implements IReporter {
     this._divisionName = divisionName
   }
 
+  public setLevel(level: ReporterLevelEnum | null | undefined): void {
+    if (level == null) return
+    const that = this as Mutable<this>
+    that.level = level
+  }
+
   public write(text: string): void {
-    write(text)
+    defaultWrite(text)
   }
 
   public debug(messageFormat: string | unknown, ...messages: unknown[]): void {

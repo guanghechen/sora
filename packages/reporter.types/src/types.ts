@@ -17,6 +17,11 @@ export interface IReporter {
    */
   readonly level: ReporterLevelEnum
   /**
+   * Update reporter level.
+   * @param level
+   */
+  setLevel(level: ReporterLevelEnum | null | undefined): void
+  /**
    * Print text to device.
    * @param text
    */
