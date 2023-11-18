@@ -1,5 +1,5 @@
-import type { Mutable } from '@guanghechen/internal'
 import type { IReporterFlights } from '@guanghechen/reporter.types'
+import type { Mutable } from '@guanghechen/types'
 import { resolveLevel } from './level'
 import type { IReporterOptions } from './reporter'
 

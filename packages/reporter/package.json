@@ -47,6 +47,7 @@
   "dependencies": {
     "@guanghechen/chalk.types": "^1.0.0-alpha.6",
     "@guanghechen/reporter.types": "^1.0.0-alpha.6",
+    "@guanghechen/types": "^1.0.0-alpha.8",
     "dayjs": "^1.11.10",
     "json5": "^2.2.3"
   },
