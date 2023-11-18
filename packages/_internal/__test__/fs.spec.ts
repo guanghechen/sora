@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { chalk } from '@guanghechen/chalk/node'
-import { createLoggerMock } from '@guanghechen/helper-jest'
+import { createReporterMock } from '@guanghechen/helper-jest'
 import { Reporter, ReporterLevelEnum } from '@guanghechen/reporter'
 import { desensitize, locateFixtures } from 'jest.helper'
 import { existsSync } from 'node:fs'
@@ -81,14 +81,14 @@ describe('empty', () => {
     expect(isFileSync(dirpathB)).toEqual(false)
   })
 
-  test('logger', async () => {
+  test('reporter', async () => {
     const reporter = new Reporter(chalk, {
       level: ReporterLevelEnum.VERBOSE,
       flights: {
         colorful: false,
       },
     })
-    const loggerMock = createLoggerMock({ logger: reporter, desensitize })
+    const loggerMock = createReporterMock({ reporter, desensitize })
 
     await emptyDir(fictitiousDir, undefined, reporter)
     await emptyDir(fictitiousDir, false, reporter)
@@ -147,23 +147,23 @@ describe('mkdirsIfNotExists', () => {
     await rm(dirpath)
   })
 
-  test('mkdirs logger', async () => {
-    const logger = new Reporter(chalk, {
+  test('mkdirs (with reporter)', async () => {
+    const reporter = new Reporter(chalk, {
       level: ReporterLevelEnum.VERBOSE,
       flights: {
         colorful: false,
       },
     })
-    const loggerMock = createLoggerMock({ logger, desensitize })
+    const reporterMock = createReporterMock({ reporter, desensitize })
 
     const dirpath = locateFixtures('basic--non-existed--2')
     expect(existsSync(dirpath)).toBe(false)
-    mkdirsIfNotExists(dirpath, true, logger)
+    mkdirsIfNotExists(dirpath, true, reporter)
     expect(existsSync(dirpath)).toBe(true)
 
     await rm(dirpath)
 
-    expect(loggerMock.getIndiscriminateAll()).toMatchSnapshot()
-    loggerMock.restore()
+    expect(reporterMock.getIndiscriminateAll()).toMatchSnapshot()
+    reporterMock.restore()
   })
 })
