@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.7](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler.types@1.0.0-alpha.6...@guanghechen/scheduler.types@1.0.0-alpha.7) (2023-11-18)
+
+
+### Performance Improvements
+
+* :bookmark:  release ([0cca242](https://github.com/guanghechen/sora/commit/0cca242a08d0fb03180efebfc4629c73f0cc1e02))
+* 📝 fix doc link ([5dd191c](https://github.com/guanghechen/sora/commit/5dd191c935c0b44fa713f283786dfe69608b22ed))
+
+
+
+
+
 # [1.0.0-alpha.6](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler.types@1.0.0-alpha.5...@guanghechen/scheduler.types@1.0.0-alpha.6) (2023-11-18)
 
 

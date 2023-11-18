@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/scheduler",
-  "version": "6.0.0-alpha.20",
+  "version": "6.0.0-alpha.21",
   "description": "Task scheduler",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@6.0.0-alpha.20",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@6.0.0-alpha.21",
     "directory": "packages/scheduler"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@6.0.0-alpha.20/packages/scheduler#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@6.0.0-alpha.21/packages/scheduler#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -42,12 +42,12 @@
     "prepublishOnly": "yarn build"
   },
   "dependencies": {
-    "@guanghechen/error.types": "^1.0.0-alpha.6",
-    "@guanghechen/monitor": "^1.0.0-alpha.19",
-    "@guanghechen/pipeline.types": "^1.0.0-alpha.6",
-    "@guanghechen/reporter.types": "^1.0.0-alpha.7",
-    "@guanghechen/scheduler.types": "^1.0.0-alpha.6",
-    "@guanghechen/task": "^1.0.0-alpha.19"
+    "@guanghechen/error.types": "^1.0.0-alpha.7",
+    "@guanghechen/monitor": "^1.0.0-alpha.20",
+    "@guanghechen/pipeline.types": "^1.0.0-alpha.7",
+    "@guanghechen/reporter.types": "^1.0.0-alpha.8",
+    "@guanghechen/scheduler.types": "^1.0.0-alpha.7",
+    "@guanghechen/task": "^1.0.0-alpha.20"
   },
   "devDependencies": {
     "@guanghechen/internal": "^1.0.0-alpha.0",

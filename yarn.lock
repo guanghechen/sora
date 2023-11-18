@@ -494,7 +494,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/chalk.types@^1.0.0-alpha.6, @guanghechen/chalk.types@workspace:packages/chalk.types":
+"@guanghechen/chalk.types@^1.0.0-alpha.7, @guanghechen/chalk.types@workspace:packages/chalk.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/chalk.types@workspace:packages/chalk.types"
   languageName: unknown
@@ -504,11 +504,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/chalk@workspace:packages/chalk"
   dependencies:
-    "@guanghechen/chalk.types": ^1.0.0-alpha.6
+    "@guanghechen/chalk.types": ^1.0.0-alpha.7
   languageName: unknown
   linkType: soft
 
-"@guanghechen/cipher.types@^1.0.0-alpha.7, @guanghechen/cipher.types@workspace:packages/cipher.types":
+"@guanghechen/cipher.types@^1.0.0-alpha.8, @guanghechen/cipher.types@workspace:packages/cipher.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/cipher.types@workspace:packages/cipher.types"
   languageName: unknown
@@ -519,17 +519,17 @@ __metadata:
   resolution: "@guanghechen/cipher@workspace:packages/cipher"
   dependencies:
     "@guanghechen/byte": ^1.0.0-alpha.3
-    "@guanghechen/cipher.types": ^1.0.0-alpha.7
+    "@guanghechen/cipher.types": ^1.0.0-alpha.8
     "@guanghechen/internal": ^1.0.0-alpha.0
     "@guanghechen/mac": ^1.0.0-alpha.3
   languageName: unknown
   linkType: soft
 
-"@guanghechen/config.types@^1.0.0-alpha.2, @guanghechen/config.types@workspace:packages/config.types":
+"@guanghechen/config.types@^1.0.0-alpha.3, @guanghechen/config.types@workspace:packages/config.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/config.types@workspace:packages/config.types"
   dependencies:
-    "@guanghechen/resource.types": ^1.0.0-alpha.2
+    "@guanghechen/resource.types": ^1.0.0-alpha.3
   languageName: unknown
   linkType: soft
 
@@ -538,10 +538,10 @@ __metadata:
   resolution: "@guanghechen/config@workspace:packages/config"
   dependencies:
     "@guanghechen/byte": ^1.0.0-alpha.3
-    "@guanghechen/config.types": ^1.0.0-alpha.2
+    "@guanghechen/config.types": ^1.0.0-alpha.3
     "@guanghechen/internal": ^1.0.0-alpha.0
     "@guanghechen/mac": ^1.0.0-alpha.3
-    "@guanghechen/resource.types": ^1.0.0-alpha.2
+    "@guanghechen/resource.types": ^1.0.0-alpha.3
     "@types/semver": ^7.5.5
     semver: ^7.5.4
   languageName: unknown
@@ -562,17 +562,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/error.types@^1.0.0-alpha.6, @guanghechen/error.types@workspace:packages/error.types":
+"@guanghechen/error.types@^1.0.0-alpha.7, @guanghechen/error.types@workspace:packages/error.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/error.types@workspace:packages/error.types"
   languageName: unknown
   linkType: soft
 
-"@guanghechen/error@^1.0.0-alpha.15, @guanghechen/error@workspace:packages/error":
+"@guanghechen/error@^1.0.0-alpha.16, @guanghechen/error@workspace:packages/error":
   version: 0.0.0-use.local
   resolution: "@guanghechen/error@workspace:packages/error"
   dependencies:
-    "@guanghechen/error.types": ^1.0.0-alpha.6
+    "@guanghechen/error.types": ^1.0.0-alpha.7
   languageName: unknown
   linkType: soft
 
@@ -609,7 +609,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/filetree.types@^1.0.0-alpha.6, @guanghechen/filetree.types@workspace:packages/filetree.types":
+"@guanghechen/filetree.types@^1.0.0-alpha.7, @guanghechen/filetree.types@workspace:packages/filetree.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/filetree.types@workspace:packages/filetree.types"
   languageName: unknown
@@ -619,7 +619,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/filetree@workspace:packages/filetree"
   dependencies:
-    "@guanghechen/filetree.types": ^1.0.0-alpha.6
+    "@guanghechen/filetree.types": ^1.0.0-alpha.7
   languageName: unknown
   linkType: soft
 
@@ -699,7 +699,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/middleware.types@^1.0.0-alpha.4, @guanghechen/middleware.types@workspace:packages/middleware.types":
+"@guanghechen/middleware.types@^1.0.0-alpha.5, @guanghechen/middleware.types@workspace:packages/middleware.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/middleware.types@workspace:packages/middleware.types"
   languageName: unknown
@@ -709,26 +709,26 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/middleware@workspace:packages/middleware"
   dependencies:
-    "@guanghechen/middleware.types": ^1.0.0-alpha.4
+    "@guanghechen/middleware.types": ^1.0.0-alpha.5
   languageName: unknown
   linkType: soft
 
-"@guanghechen/monitor.types@^1.0.0-alpha.6, @guanghechen/monitor.types@workspace:packages/monitor.types":
+"@guanghechen/monitor.types@^1.0.0-alpha.7, @guanghechen/monitor.types@workspace:packages/monitor.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/monitor.types@workspace:packages/monitor.types"
   languageName: unknown
   linkType: soft
 
-"@guanghechen/monitor@^1.0.0-alpha.19, @guanghechen/monitor@workspace:packages/monitor":
+"@guanghechen/monitor@^1.0.0-alpha.20, @guanghechen/monitor@workspace:packages/monitor":
   version: 0.0.0-use.local
   resolution: "@guanghechen/monitor@workspace:packages/monitor"
   dependencies:
     "@guanghechen/internal": ^1.0.0-alpha.0
-    "@guanghechen/monitor.types": ^1.0.0-alpha.6
+    "@guanghechen/monitor.types": ^1.0.0-alpha.7
   languageName: unknown
   linkType: soft
 
-"@guanghechen/path.types@^1.0.0-alpha.7, @guanghechen/path.types@workspace:packages/path.types":
+"@guanghechen/path.types@^1.0.0-alpha.8, @guanghechen/path.types@workspace:packages/path.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/path.types@workspace:packages/path.types"
   languageName: unknown
@@ -738,11 +738,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/path@workspace:packages/path"
   dependencies:
-    "@guanghechen/path.types": ^1.0.0-alpha.7
+    "@guanghechen/path.types": ^1.0.0-alpha.8
   languageName: unknown
   linkType: soft
 
-"@guanghechen/pipeline.types@^1.0.0-alpha.6, @guanghechen/pipeline.types@workspace:packages/pipeline.types":
+"@guanghechen/pipeline.types@^1.0.0-alpha.7, @guanghechen/pipeline.types@workspace:packages/pipeline.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/pipeline.types@workspace:packages/pipeline.types"
   languageName: unknown
@@ -753,31 +753,38 @@ __metadata:
   resolution: "@guanghechen/pipeline@workspace:packages/pipeline"
   dependencies:
     "@guanghechen/internal": ^1.0.0-alpha.0
-    "@guanghechen/monitor": ^1.0.0-alpha.19
-    "@guanghechen/pipeline.types": ^1.0.0-alpha.6
+    "@guanghechen/monitor": ^1.0.0-alpha.20
+    "@guanghechen/pipeline.types": ^1.0.0-alpha.7
   languageName: unknown
   linkType: soft
 
-"@guanghechen/reporter.types@1.0.0-alpha.7, @guanghechen/reporter.types@^1.0.0-alpha.0, @guanghechen/reporter.types@^1.0.0-alpha.7, @guanghechen/reporter.types@workspace:packages/reporter.types":
+"@guanghechen/reporter.types@^1.0.0-alpha.0, @guanghechen/reporter.types@^1.0.0-alpha.7, @guanghechen/reporter.types@^1.0.0-alpha.8, @guanghechen/reporter.types@workspace:packages/reporter.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/reporter.types@workspace:packages/reporter.types"
   languageName: unknown
   linkType: soft
 
+"@guanghechen/reporter.types@npm:1.0.0-alpha.7":
+  version: 1.0.0-alpha.7
+  resolution: "@guanghechen/reporter.types@npm:1.0.0-alpha.7"
+  checksum: 3ff8ad4c8a87abe64089a7c2b8da47b89dfbc029b1a9858b55d9d96a03da0a6975ff35cf727a8b91df07668e85174f9a11effa6e74375935420341afe034f596
+  languageName: node
+  linkType: hard
+
 "@guanghechen/reporter@workspace:packages/reporter":
   version: 0.0.0-use.local
   resolution: "@guanghechen/reporter@workspace:packages/reporter"
   dependencies:
-    "@guanghechen/chalk.types": ^1.0.0-alpha.6
+    "@guanghechen/chalk.types": ^1.0.0-alpha.7
     "@guanghechen/internal": ^1.0.0-alpha.0
-    "@guanghechen/reporter.types": ^1.0.0-alpha.7
+    "@guanghechen/reporter.types": ^1.0.0-alpha.8
     "@guanghechen/types": ^1.0.0-alpha.8
     dayjs: ^1.11.10
     json5: ^2.2.3
   languageName: unknown
   linkType: soft
 
-"@guanghechen/resource.types@^1.0.0-alpha.2, @guanghechen/resource.types@workspace:packages/resource.types":
+"@guanghechen/resource.types@^1.0.0-alpha.3, @guanghechen/resource.types@workspace:packages/resource.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/resource.types@workspace:packages/resource.types"
   languageName: unknown
@@ -788,7 +795,7 @@ __metadata:
   resolution: "@guanghechen/resource@workspace:packages/resource"
   dependencies:
     "@guanghechen/internal": ^1.0.0-alpha.0
-    "@guanghechen/resource.types": ^1.0.0-alpha.2
+    "@guanghechen/resource.types": ^1.0.0-alpha.3
   languageName: unknown
   linkType: soft
 
@@ -809,11 +816,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/scheduler.types@^1.0.0-alpha.6, @guanghechen/scheduler.types@workspace:packages/scheduler.types":
+"@guanghechen/scheduler.types@^1.0.0-alpha.7, @guanghechen/scheduler.types@workspace:packages/scheduler.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/scheduler.types@workspace:packages/scheduler.types"
   dependencies:
-    "@guanghechen/task.types": ^1.0.0-alpha.6
+    "@guanghechen/task.types": ^1.0.0-alpha.7
   languageName: unknown
   linkType: soft
 
@@ -821,13 +828,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/scheduler@workspace:packages/scheduler"
   dependencies:
-    "@guanghechen/error.types": ^1.0.0-alpha.6
+    "@guanghechen/error.types": ^1.0.0-alpha.7
     "@guanghechen/internal": ^1.0.0-alpha.0
-    "@guanghechen/monitor": ^1.0.0-alpha.19
-    "@guanghechen/pipeline.types": ^1.0.0-alpha.6
-    "@guanghechen/reporter.types": ^1.0.0-alpha.7
-    "@guanghechen/scheduler.types": ^1.0.0-alpha.6
-    "@guanghechen/task": ^1.0.0-alpha.19
+    "@guanghechen/monitor": ^1.0.0-alpha.20
+    "@guanghechen/pipeline.types": ^1.0.0-alpha.7
+    "@guanghechen/reporter.types": ^1.0.0-alpha.8
+    "@guanghechen/scheduler.types": ^1.0.0-alpha.7
+    "@guanghechen/task": ^1.0.0-alpha.20
     cross-env: ^7.0.3
     jest: ^29.7.0
     rimraf: ^5.0.5
@@ -901,22 +908,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/task.types@^1.0.0-alpha.6, @guanghechen/task.types@workspace:packages/task.types":
+"@guanghechen/task.types@^1.0.0-alpha.7, @guanghechen/task.types@workspace:packages/task.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/task.types@workspace:packages/task.types"
   dependencies:
-    "@guanghechen/error.types": ^1.0.0-alpha.6
+    "@guanghechen/error.types": ^1.0.0-alpha.7
   languageName: unknown
   linkType: soft
 
-"@guanghechen/task@^1.0.0-alpha.19, @guanghechen/task@workspace:packages/task":
+"@guanghechen/task@^1.0.0-alpha.20, @guanghechen/task@workspace:packages/task":
   version: 0.0.0-use.local
   resolution: "@guanghechen/task@workspace:packages/task"
   dependencies:
-    "@guanghechen/error": ^1.0.0-alpha.15
+    "@guanghechen/error": ^1.0.0-alpha.16
     "@guanghechen/internal": ^1.0.0-alpha.0
-    "@guanghechen/monitor": ^1.0.0-alpha.19
-    "@guanghechen/task.types": ^1.0.0-alpha.6
+    "@guanghechen/monitor": ^1.0.0-alpha.20
+    "@guanghechen/task.types": ^1.0.0-alpha.7
   languageName: unknown
   linkType: soft
 
@@ -926,7 +933,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/viewmodel.types@^1.0.0-alpha.6, @guanghechen/viewmodel.types@workspace:packages/viewmodel.types":
+"@guanghechen/viewmodel.types@^1.0.0-alpha.7, @guanghechen/viewmodel.types@workspace:packages/viewmodel.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/viewmodel.types@workspace:packages/viewmodel.types"
   languageName: unknown
@@ -936,7 +943,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/viewmodel@workspace:packages/viewmodel"
   dependencies:
-    "@guanghechen/viewmodel.types": ^1.0.0-alpha.6
+    "@guanghechen/viewmodel.types": ^1.0.0-alpha.7
   languageName: unknown
   linkType: soft
 
