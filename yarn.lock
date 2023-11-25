@@ -508,6 +508,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@guanghechen/cipher-workspace.types@workspace:packages/cipher-workspace.types":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/cipher-workspace.types@workspace:packages/cipher-workspace.types"
+  dependencies:
+    "@guanghechen/path.types": ^1.0.0-alpha.8
+  languageName: unknown
+  linkType: soft
+
 "@guanghechen/cipher.types@^1.0.0-alpha.8, @guanghechen/cipher.types@workspace:packages/cipher.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/cipher.types@workspace:packages/cipher.types"

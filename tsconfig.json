@@ -14,6 +14,8 @@
       "@guanghechen/chalk.types": ["packages/chalk.types/src"],
       "@guanghechen/cipher": ["packages/cipher/src"],
       "@guanghechen/cipher.types": ["packages/cipher.types/src"],
+      "@guanghechen/cipher-workspace": ["packages/cipher-workspace/src"],
+      "@guanghechen/cipher-workspace.types": ["packages/cipher-workspace.types/src"],
       "@guanghechen/config": ["packages/config/src"],
       "@guanghechen/config.types": ["packages/config.types/src"],
       "@guanghechen/equal": ["packages/equal/src"],
