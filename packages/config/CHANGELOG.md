@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.5](https://github.com/guanghechen/sora/compare/@guanghechen/config@1.0.0-alpha.4...@guanghechen/config@1.0.0-alpha.5) (2023-11-25)
+
+
+### Performance Improvements
+
+* ⬆️ upgrade devDependencies ([85c97b7](https://github.com/guanghechen/sora/commit/85c97b734e30a44a5016f117862ec0ba1084a054))
+
+
+
+
+
 # [1.0.0-alpha.4](https://github.com/guanghechen/sora/compare/@guanghechen/config@1.0.0-alpha.3...@guanghechen/config@1.0.0-alpha.4) (2023-11-18)
 
 **Note:** Version bump only for package @guanghechen/config

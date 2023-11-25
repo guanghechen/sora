@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0-alpha.22](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler@6.0.0-alpha.21...@guanghechen/scheduler@6.0.0-alpha.22) (2023-11-25)
+
+
+### Performance Improvements
+
+* ⬆️ upgrade devDependencies ([85c97b7](https://github.com/guanghechen/sora/commit/85c97b734e30a44a5016f117862ec0ba1084a054))
+
+
+
+
+
 # [6.0.0-alpha.21](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler@6.0.0-alpha.20...@guanghechen/scheduler@6.0.0-alpha.21) (2023-11-18)
 
 **Note:** Version bump only for package @guanghechen/scheduler
