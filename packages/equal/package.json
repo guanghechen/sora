@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/equal",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-alpha.4",
   "description": "The fastest deep equal with ES6 Map, Set and Typed arrays support.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/equal@1.0.0-alpha.3",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/equal@1.0.0-alpha.4",
     "directory": "packages/equal"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/equal@1.0.0-alpha.3/packages/equal#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/equal@1.0.0-alpha.4/packages/equal#readme",
   "keywords": [
     "equal",
     "fast deep equal"

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.4](https://github.com/guanghechen/sora/compare/@guanghechen/equal@1.0.0-alpha.3...@guanghechen/equal@1.0.0-alpha.4) (2023-11-29)
+
+
+### Performance Improvements
+
+* 🔧 no longer to require node engine version in packages ([6dc2014](https://github.com/guanghechen/sora/commit/6dc2014122dd44bcadc893e2ee98697265e7d61e))
+
+
+
+
+
 # [1.0.0-alpha.3](https://github.com/guanghechen/sora/compare/@guanghechen/equal@1.0.0-alpha.2...@guanghechen/equal@1.0.0-alpha.3) (2023-11-18)
 
 

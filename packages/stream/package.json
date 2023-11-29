@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/stream",
-  "version": "1.0.0-alpha.7",
+  "version": "1.0.0-alpha.8",
   "description": "Utilities for handing node streams.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/stream@1.0.0-alpha.7",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/stream@1.0.0-alpha.8",
     "directory": "packages/stream"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/stream@1.0.0-alpha.7/packages/stream#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/stream@1.0.0-alpha.8/packages/stream#readme",
   "keywords": [
     "stream",
     "concat streams",
@@ -45,6 +45,6 @@
     "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
   },
   "dependencies": {
-    "@guanghechen/byte": "^1.0.0-alpha.3"
+    "@guanghechen/byte": "^1.0.0-alpha.4"
   }
 }

@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0-alpha.23](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler@6.0.0-alpha.22...@guanghechen/scheduler@6.0.0-alpha.23) (2023-11-29)
+
+
+### Performance Improvements
+
+* 🔧 no longer to require node engine version in packages ([6dc2014](https://github.com/guanghechen/sora/commit/6dc2014122dd44bcadc893e2ee98697265e7d61e))
+* ⬆️ upgrade devDependencies ([ff0b21d](https://github.com/guanghechen/sora/commit/ff0b21df523fb2b7c1caa3e5c0ee4a35d9ee6eba))
+
+
+
+
+
 # [6.0.0-alpha.22](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler@6.0.0-alpha.21...@guanghechen/scheduler@6.0.0-alpha.22) (2023-11-25)
 
 

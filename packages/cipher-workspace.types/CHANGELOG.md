@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.2](https://github.com/guanghechen/sora/compare/@guanghechen/cipher-workspace.types@1.0.0-alpha.1...@guanghechen/cipher-workspace.types@1.0.0-alpha.2) (2023-11-29)
+
+
+### Performance Improvements
+
+* 🎨 update ICipherCatalog ([3830afa](https://github.com/guanghechen/sora/commit/3830afa66cba07e876ba5ed9f6638a0c012519e8))
+* 💄 fix lint ([e0bd34a](https://github.com/guanghechen/sora/commit/e0bd34a0410e0834694fddd294a2f61bb70cda40))
+* 🔧 no longer to require node engine version in packages ([6dc2014](https://github.com/guanghechen/sora/commit/6dc2014122dd44bcadc893e2ee98697265e7d61e))
+
+
+
+
+
 # 1.0.0-alpha.1 (2023-11-25)
 
 
