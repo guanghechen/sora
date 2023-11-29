@@ -1,49 +1,16 @@
-import type { ICipherCatalogContext } from './context'
-import { ICatalogDiffItem, IDraftCatalogDiffItem } from './diff-item'
-import { ICatalogItem, IDraftCatalogItem } from './item'
-
-export interface IReadonlyCipherCatalog {
-  readonly context: ICipherCatalogContext
-
-  /**
-   * Generate a catalog item.
-   */
-  calcCatalogItem(plainFilepath: string): Promise<IDraftCatalogItem | never>
-
-  /**
-   * Calc crypt filepath.
-   */
-  calcCryptFilepath(plainFilepath: string): string
-
-  /**
-   * Check crypt files for corruption.
-   */
-  checkCryptIntegrity(plainFilepaths: string[]): Promise<void | never>
-
-  /**
-   * Check plain files for corruption.
-   */
-  checkPlainIntegrity(cryptFilepaths: string[]): Promise<void | never>
-}
+import type { IReadonlyCipherCatalog } from './catalog.readonly'
+import type { ICatalogDiffItem, IDraftCatalogDiffItem } from './diff-item'
+import type { ICatalogItem } from './item'
 
 export interface ICipherCatalog extends IReadonlyCipherCatalog {
-  /**
-   * Get current catalog items.
-   */
-  readonly items: Iterable<ICatalogItem>
-
   /**
    * Apply catalog diffs.
    */
   applyDiff(diffItems: Iterable<ICatalogDiffItem>): void
 
   /**
-   * Clear the catalog items and init with the new given items.
-   */
-  reset(items?: Iterable<ICatalogItem>): void
-
-  /**
    * Calculate diff items with the new catalog items.
+   * @param newItems
    */
   diffFromCatalogItems(newItems: Iterable<ICatalogItem>): ICatalogDiffItem[]
 
@@ -57,4 +24,9 @@ export interface ICipherCatalog extends IReadonlyCipherCatalog {
     plainFilepaths: string[],
     strickCheck: boolean,
   ): Promise<IDraftCatalogDiffItem[]>
+
+  /**
+   * Clear the catalog items and init with the new given items.
+   */
+  reset(items?: Iterable<ICatalogItem>): void
 }
