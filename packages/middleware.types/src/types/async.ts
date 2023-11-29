@@ -2,7 +2,6 @@ export interface IAsyncMiddlewareNext<Output> {
   (embryo: Readonly<Output | null>): Promise<Output | null>
 }
 
-
 export interface IAsyncMiddleware<Input, Output, Api> {
   (
     input: Readonly<Input>,
@@ -11,7 +10,6 @@ export interface IAsyncMiddleware<Input, Output, Api> {
     next: IAsyncMiddlewareNext<Output>,
   ): Promise<Output | null>
 }
-
 
 export interface IAsyncMiddlewares<Input, Output, Api> {
   /**

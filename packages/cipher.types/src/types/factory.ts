@@ -1,7 +1,7 @@
 import type { ICipher } from './cipher'
 
 export interface ICipherOptions {
-  readonly iv: Readonly<Uint8Array>| undefined
+  readonly iv: Readonly<Uint8Array> | undefined
 }
 
 export interface ICipherFactory {

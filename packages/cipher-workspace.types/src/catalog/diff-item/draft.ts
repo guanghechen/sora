@@ -9,7 +9,7 @@ export interface IDraftCatalogDiffItemAdded {
 export interface IDraftCatalogDiffItemModified {
   changeType: FileChangeType.MODIFIED
   oldItem: ICatalogItem
-  newItem:  IDraftCatalogItem
+  newItem: IDraftCatalogItem
 }
 
 export interface IDraftCatalogDiffItemRemoved {

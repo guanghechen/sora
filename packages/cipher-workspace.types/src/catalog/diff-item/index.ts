@@ -1,5 +1,5 @@
 import { FileChangeType } from '../../constant'
-import { ICatalogItem, } from '../item'
+import { ICatalogItem } from '../item'
 
 export * from './deserialized'
 export * from './draft'
@@ -13,7 +13,7 @@ export interface ICatalogDiffItemAdded {
 export interface ICatalogDiffItemModified {
   changeType: FileChangeType.MODIFIED
   oldItem: ICatalogItem
-  newItem:  ICatalogItem
+  newItem: ICatalogItem
 }
 
 export interface ICatalogDiffItemRemoved {
@@ -28,6 +28,6 @@ export type ICatalogDiffItem =
 
 export interface ICatalogDiffItemCombine {
   changeType: FileChangeType
-  newItem?:  ICatalogItem
-  oldItem?:  ICatalogItem
+  newItem?: ICatalogItem
+  oldItem?: ICatalogItem
 }

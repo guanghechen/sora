@@ -10,7 +10,7 @@ export interface IObservable<T extends IObservableValue>
     ISubscribable<T> {
   readonly equals: IEquals<T>
   getSnapshot(): T
-  next(value: T, transaction?: IScheduleTransaction ): void
+  next(value: T, transaction?: IScheduleTransaction): void
 }
 
 export type IValueList<T extends Array<IObservable<any>>> = {

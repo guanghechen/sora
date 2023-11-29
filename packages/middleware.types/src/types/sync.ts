@@ -2,7 +2,7 @@ export interface IMiddlewareNext<Output> {
   (embryo: Readonly<Output | null>): Output | null
 }
 
-export interface IMiddleware<Input, Output, Api,> {
+export interface IMiddleware<Input, Output, Api> {
   (
     input: Readonly<Input>,
     embryo: Readonly<Output> | null,

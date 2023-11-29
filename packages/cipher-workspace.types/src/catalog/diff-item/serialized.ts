@@ -20,4 +20,3 @@ export type ISerializedCatalogDiffItem =
   | ISerializedCatalogDiffItemAdded
   | ISerializedCatalogDiffItemModified
   | ISerializedCatalogDiffItemRemoved
-
