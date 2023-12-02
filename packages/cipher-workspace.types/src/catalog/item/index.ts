@@ -4,11 +4,9 @@ export * from './serialized'
 
 export interface ICatalogItem {
   /**
-   * The path of the plain source file (relative path of the plain root directory).
-   *
-   * The value should be unique in file catalog.
+   * Authenticate tag.
    */
-  plainFilepath: string
+  authTag: Uint8Array | undefined
   /**
    * The path of the encrypted file (relative path of the encrypted root directory).
    */
@@ -25,15 +23,17 @@ export interface ICatalogItem {
    */
   fingerprint: string
   /**
+   * Cipher iv.
+   */
+  iv: Uint8Array | undefined
+  /**
    * Whether if keep plain.
    */
   keepPlain: boolean
   /**
-   * Authenticate tag.
+   * The path of the plain source file (relative path of the plain root directory).
+   *
+   * The value should be unique in file catalog.
    */
-  authTag: Uint8Array | undefined
-  /**
-   * Cipher iv.
-   */
-  iv: Uint8Array | undefined
+  plainFilepath: string
 }

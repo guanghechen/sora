@@ -1,11 +1,5 @@
 export interface IDraftCatalogItem {
   /**
-   * The path of the plain source file (relative path of the plain root directory).
-   *
-   * The value should be unique in file catalog.
-   */
-  plainFilepath: string
-  /**
    * The path of the encrypted file (relative path of the encrypted root directory).
    */
   cryptFilepath: string
@@ -24,4 +18,10 @@ export interface IDraftCatalogItem {
    * Whether if keep plain.
    */
   keepPlain: boolean
+  /**
+   * The path of the plain source file (relative path of the plain root directory).
+   *
+   * The value should be unique in file catalog.
+   */
+  plainFilepath: string
 }

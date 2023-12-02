@@ -1,5 +1,5 @@
 import type { ICipherCatalogContext } from './context'
-import type { ICatalogItem, IDraftCatalogItem } from './item'
+import type { ICatalogItem, IDeserializedCatalogItem, IDraftCatalogItem } from './item'
 
 export interface IReadonlyCipherCatalog {
   /**
@@ -35,6 +35,18 @@ export interface IReadonlyCipherCatalog {
    * @param plainFilepaths
    */
   checkPlainIntegrity(plainFilepaths: string[]): Promise<void | never>
+
+  /**
+   * Flat the deserialized catalog item.
+   * @param item
+   */
+  flatItem(item: IDeserializedCatalogItem): Promise<ICatalogItem>
+
+  /**
+   * Get the iv of the given item.
+   * @param item
+   */
+  getIv(item: IDeserializedCatalogItem | IDraftCatalogItem): Promise<Uint8Array | undefined>
 
   /**
    * Check if the content in the given relativePlainFilepath should be kept plain.
