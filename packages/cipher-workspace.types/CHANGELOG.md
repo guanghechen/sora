@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.4](https://github.com/guanghechen/sora/compare/@guanghechen/cipher-workspace.types@1.0.0-alpha.3...@guanghechen/cipher-workspace.types@1.0.0-alpha.4) (2023-12-02)
+
+
+### Performance Improvements
+
+* :art:  refactor ICipherCatalog ([81460f4](https://github.com/guanghechen/sora/commit/81460f4eb7980328581e2d9cc2084cfde0d0001e))
+
+
+
+
+
 # [1.0.0-alpha.3](https://github.com/guanghechen/sora/compare/@guanghechen/cipher-workspace.types@1.0.0-alpha.2...@guanghechen/cipher-workspace.types@1.0.0-alpha.3) (2023-12-02)
 
 
