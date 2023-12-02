@@ -1,4 +1,4 @@
-import type { IDisposable } from '@guanghechen/disposable';
+import type { IDisposable } from '@guanghechen/disposable'
 import { Disposable } from '@guanghechen/disposable'
 import type {
   IAsyncCaller,

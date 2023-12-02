@@ -42,5 +42,8 @@
     "@guanghechen/disposable": "^1.0.0-alpha.0",
     "@guanghechen/subscribe.types": "^1.0.0-alpha.0",
     "@guanghechen/viewmodel.types": "^1.0.0-alpha.8"
+  },
+  "devDependencies": {
+    "@guanghechen/internal": "^1.0.0-alpha.0"
   }
 }

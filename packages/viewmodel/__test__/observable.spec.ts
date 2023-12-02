@@ -1,6 +1,7 @@
 import type { IConsoleMock } from '@guanghechen/helper-jest'
 import { createConsoleMock } from '@guanghechen/helper-jest'
-import { DisposedObservable, Observable, SchedulableTransaction, noop } from '../src'
+import { noop } from '@guanghechen/internal'
+import { DisposedObservable, Observable, SchedulableTransaction } from '../src'
 import { Subscriber } from './_common'
 
 describe('Observable', () => {

@@ -697,6 +697,7 @@ __metadata:
   dependencies:
     "@guanghechen/byte": ^1.0.0-alpha.0
     "@guanghechen/reporter.types": ^1.0.0-alpha.0
+    "@guanghechen/subscribe.types": ^1.0.0-alpha.0
   languageName: unknown
   linkType: soft
 
@@ -964,6 +965,7 @@ __metadata:
   resolution: "@guanghechen/viewmodel@workspace:packages/viewmodel"
   dependencies:
     "@guanghechen/disposable": ^1.0.0-alpha.0
+    "@guanghechen/internal": ^1.0.0-alpha.0
     "@guanghechen/subscribe.types": ^1.0.0-alpha.0
     "@guanghechen/viewmodel.types": ^1.0.0-alpha.8
   languageName: unknown

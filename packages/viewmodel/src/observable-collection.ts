@@ -1,4 +1,5 @@
 import { BatchDisposable, Disposable } from '@guanghechen/disposable'
+import { noopUnsubscribable } from '@guanghechen/internal'
 import type { ISubscriber, IUnsubscribable } from '@guanghechen/subscribe.types'
 import type {
   IEquals,
@@ -12,7 +13,6 @@ import type {
 } from '@guanghechen/viewmodel.types'
 import { DisposedObservable, Observable } from './observable'
 import { Schedulable } from './schedulable'
-import { noopUnsubscribable } from './util'
 
 export abstract class ObservableCollection<
     K,

@@ -1,6 +1,6 @@
 import type { IBatchDisposable } from '@guanghechen/disposable.types'
 import type { ISubscribable } from '@guanghechen/subscribe.types'
-import type { IEquals, IObservableValue, } from './common'
+import type { IEquals, IObservableValue } from './common'
 import type { IScheduleTransaction } from './schedulable'
 
 export interface IObservableOptions<T extends IObservableValue> {

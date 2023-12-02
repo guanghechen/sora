@@ -1,5 +1,6 @@
 import type { IDisposable } from '@guanghechen/disposable'
 import { BatchDisposable } from '@guanghechen/disposable'
+import { noopUnsubscribable } from '@guanghechen/internal'
 import type { ISubscriber, IUnsubscribable } from '@guanghechen/subscribe.types'
 import type {
   IEquals,
@@ -9,7 +10,6 @@ import type {
   IScheduleTransaction,
 } from '@guanghechen/viewmodel.types'
 import { Schedulable } from './schedulable'
-import { noopUnsubscribable } from './util'
 
 export class Observable<T extends Readonly<IObservableValue>>
   extends BatchDisposable
