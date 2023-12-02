@@ -1,5 +1,5 @@
-import { IDecipher } from './decipher'
-import { IEncipher } from './encipher'
+import type { IDecipher } from './decipher'
+import type { IEncipher } from './encipher'
 
 export interface IDecipherOptions {
   /**

@@ -1,7 +1,7 @@
-import type { IScheduleTransaction } from './schedulable'
 import type { IImmutableCollection, IImmutableMap, IImmutableSet } from './collection'
 import type { IEquals, IObservableValue, ISubscriber, IUnsubscribable } from './common'
 import type { IObservable } from './observable'
+import type { IScheduleTransaction } from './schedulable'
 
 export interface IObservableCollectionOptions<V extends IObservableValue> {
   valueEquals?: IEquals<V | undefined>

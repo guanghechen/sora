@@ -1,5 +1,5 @@
-import { FileChangeType } from '../../constant'
-import { ICatalogItem, IDraftCatalogItem } from '../item'
+import type { FileChangeType } from '../../constant'
+import type { ICatalogItem, IDraftCatalogItem } from '../item'
 
 export interface IDraftCatalogDiffItemAdded {
   changeType: FileChangeType.ADDED

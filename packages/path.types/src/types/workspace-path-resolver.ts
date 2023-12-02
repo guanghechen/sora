@@ -1,4 +1,4 @@
-import { IPathResolver } from './path-resolver'
+import type { IPathResolver } from './path-resolver'
 
 export interface IWorkspacePathResolver {
   /**

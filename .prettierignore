@@ -1,4 +1,14 @@
-**/*.md
+**/*.*
+!**/*.ts
+!**/*.cts
+!**/*.mts
+!**/*.js
+!**/*.cjs
+!**/*.mjs
+!**/*.json
+!**/*.types
+!.eslintignore
+!.eslintrc
 
 **/resource/
 !packages/resource/

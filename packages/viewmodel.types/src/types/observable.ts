@@ -1,5 +1,5 @@
-import type { IScheduleTransaction } from './schedulable'
 import type { IBatchDisposable, IEquals, IObservableValue, ISubscribable } from './common'
+import type { IScheduleTransaction } from './schedulable'
 
 export interface IObservableOptions<T extends IObservableValue> {
   equals?: IEquals<T>

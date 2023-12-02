@@ -1,5 +1,5 @@
-import { FileChangeType } from '../../constant'
-import { ISerializedCatalogItem } from '../item'
+import type { FileChangeType } from '../../constant'
+import type { ISerializedCatalogItem } from '../item'
 
 export interface ISerializedCatalogDiffItemAdded {
   changeType: FileChangeType.ADDED

@@ -1,5 +1,5 @@
-import { FileChangeType } from '../../constant'
-import { ICatalogItem } from '../item'
+import type { FileChangeType } from '../../constant'
+import type { ICatalogItem } from '../item'
 
 export * from './deserialized'
 export * from './draft'

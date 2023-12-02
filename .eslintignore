@@ -6,6 +6,7 @@
 !**/*.cjs
 !**/*.mjs
 !**/*.json
+!**/*.types
 !.eslintignore
 !.eslintrc
 
