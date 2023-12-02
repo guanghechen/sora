@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/subscribe.types",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "Subscribe related types.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/subscribe.types@1.0.0-alpha.0",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/subscribe.types@1.0.0-alpha.1",
     "directory": "packages/subscribe.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/subscribe.types@1.0.0-alpha.0/packages/subscribe.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/subscribe.types@1.0.0-alpha.1/packages/subscribe.types#readme",
   "type": "module",
   "exports": {
     ".": {

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.10](https://github.com/guanghechen/sora/compare/@guanghechen/cipher.types@1.0.0-alpha.9...@guanghechen/cipher.types@1.0.0-alpha.10) (2023-12-02)
+
+
+### Performance Improvements
+
+* ⬆️ upgrade devDependencies & fix lint ([98a4e4e](https://github.com/guanghechen/sora/commit/98a4e4e9309805f19a606bc7cc599774d5642f1b))
+
+
+
+
+
 # [1.0.0-alpha.9](https://github.com/guanghechen/sora/compare/@guanghechen/cipher.types@1.0.0-alpha.8...@guanghechen/cipher.types@1.0.0-alpha.9) (2023-11-29)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/task",
-  "version": "1.0.0-alpha.21",
+  "version": "1.0.0-alpha.22",
   "description": "Atomic and resumable tasks",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/task@1.0.0-alpha.21",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/task@1.0.0-alpha.22",
     "directory": "packages/task"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/task@1.0.0-alpha.21/packages/task#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/task@1.0.0-alpha.22/packages/task#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@guanghechen/error": "^1.0.0-alpha.17",
-    "@guanghechen/monitor": "^1.0.0-alpha.21",
+    "@guanghechen/monitor": "^1.0.0-alpha.22",
     "@guanghechen/task.types": "^1.0.0-alpha.8"
   },
   "devDependencies": {

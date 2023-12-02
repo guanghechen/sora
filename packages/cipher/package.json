@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/cipher",
-  "version": "1.0.0-alpha.15",
+  "version": "1.0.0-alpha.16",
   "description": "Utility functions for cipher contents.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher@1.0.0-alpha.15",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher@1.0.0-alpha.16",
     "directory": "packages/cipher"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher@1.0.0-alpha.15/packages/cipher#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher@1.0.0-alpha.16/packages/cipher#readme",
   "keywords": [
     "cipher",
     "cipher helper"
@@ -45,7 +45,7 @@
   },
   "dependencies": {
     "@guanghechen/byte": "^1.0.0-alpha.4",
-    "@guanghechen/cipher.types": "^1.0.0-alpha.9",
+    "@guanghechen/cipher.types": "^1.0.0-alpha.10",
     "@guanghechen/mac": "^1.0.0-alpha.4"
   },
   "devDependencies": {
