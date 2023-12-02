@@ -4,12 +4,9 @@
     "baseUrl": ".",
     "sourceMap": true,
     "paths": {
-      /** shared packages */
       "@guanghechen/internal": ["packages/_internal/src"],
       "jest.helper": ["jest.helper.mts"],
-
-      /** basic packages */
-      "@guanghechen/bytes": ["packages/bytes/src"],
+      "@guanghechen/byte": ["packages/byte/src"],
       "@guanghechen/chalk": ["packages/chalk/src"],
       "@guanghechen/chalk.types": ["packages/chalk.types/src"],
       "@guanghechen/cipher": ["packages/cipher/src"],

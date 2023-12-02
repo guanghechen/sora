@@ -29,6 +29,7 @@
     "postinstall:dev": "is-ci || husky install",
     "postpublish": "pinst --enable",
     "rebuild": "run-s clean build",
+    "run:ts": "node --loader ts-node/esm",
     "test": "lerna run test --concurrency 1",
     "test:coverage": "lerna run --concurrency 1 test -- --coverage",
     "test:update": "lerna run --concurrency 1 test -- -u",
