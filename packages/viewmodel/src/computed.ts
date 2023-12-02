@@ -1,14 +1,12 @@
+import { Disposable, type IDisposable } from '@guanghechen/disposable'
+import type { ISubscriber, IUnsubscribable } from '@guanghechen/subscribe.types'
 import type {
   IComputableValue,
   IComputed,
-  IDisposable,
   IObservable,
   IObservableOptions,
-  ISubscriber,
-  IUnsubscribable,
   IValueList,
 } from '@guanghechen/viewmodel.types'
-import { Disposable } from './disposable'
 import { Observable } from './observable'
 import { Ticker } from './ticker'
 

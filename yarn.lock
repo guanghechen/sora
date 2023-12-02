@@ -564,6 +564,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@guanghechen/disposable.types@^1.0.0-alpha.0, @guanghechen/disposable.types@workspace:packages/disposable.types":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/disposable.types@workspace:packages/disposable.types"
+  languageName: unknown
+  linkType: soft
+
+"@guanghechen/disposable@^1.0.0-alpha.0, @guanghechen/disposable@workspace:packages/disposable":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/disposable@workspace:packages/disposable"
+  dependencies:
+    "@guanghechen/disposable.types": ^1.0.0-alpha.0
+    "@guanghechen/subscribe.types": ^1.0.0-alpha.0
+  languageName: unknown
+  linkType: soft
+
 "@guanghechen/equal@workspace:packages/equal":
   version: 0.0.0-use.local
   resolution: "@guanghechen/equal@workspace:packages/equal"
@@ -908,6 +923,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@guanghechen/subscribe.types@^1.0.0-alpha.0, @guanghechen/subscribe.types@workspace:packages/subscribe.types":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/subscribe.types@workspace:packages/subscribe.types"
+  languageName: unknown
+  linkType: soft
+
 "@guanghechen/task.types@^1.0.0-alpha.8, @guanghechen/task.types@workspace:packages/task.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/task.types@workspace:packages/task.types"
@@ -936,6 +957,9 @@ __metadata:
 "@guanghechen/viewmodel.types@^1.0.0-alpha.8, @guanghechen/viewmodel.types@workspace:packages/viewmodel.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/viewmodel.types@workspace:packages/viewmodel.types"
+  dependencies:
+    "@guanghechen/disposable.types": ^1.0.0-alpha.0
+    "@guanghechen/subscribe.types": ^1.0.0-alpha.0
   languageName: unknown
   linkType: soft
 
@@ -943,6 +967,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/viewmodel@workspace:packages/viewmodel"
   dependencies:
+    "@guanghechen/disposable": ^1.0.0-alpha.0
+    "@guanghechen/subscribe.types": ^1.0.0-alpha.0
     "@guanghechen/viewmodel.types": ^1.0.0-alpha.8
   languageName: unknown
   linkType: soft

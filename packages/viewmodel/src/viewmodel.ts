@@ -1,7 +1,7 @@
+import { BatchDisposable, isDisposable } from '@guanghechen/disposable'
 import type { IObservableKey, IViewModel, IViewModelTicker } from '@guanghechen/viewmodel.types'
-import { BatchDisposable } from './disposable'
 import { Ticker } from './ticker'
-import { isDisposable, isObservable } from './util'
+import { isObservable } from './util'
 
 export abstract class ViewModel extends BatchDisposable implements IViewModel {
   protected readonly _tickerMap: Map<string, IViewModelTicker>

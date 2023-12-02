@@ -1,6 +1,7 @@
+import type { IDisposable } from '@guanghechen/disposable';
+import { Disposable } from '@guanghechen/disposable'
 import type {
   IAsyncCaller,
-  IDisposable,
   IObservable,
   IObservableValue,
   IScheduleTransaction,
@@ -8,7 +9,6 @@ import type {
   ITickerOptions,
   ITimer,
 } from '@guanghechen/viewmodel.types'
-import { Disposable } from './disposable'
 import { Observable } from './observable'
 import { Schedulable } from './schedulable'
 

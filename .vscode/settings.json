@@ -13,6 +13,7 @@
     "pinst",
     "postpublish",
     "schedulable",
+    "schedulables",
     "truecolor",
     "unsubscribable",
     "viewmodel"

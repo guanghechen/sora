@@ -1,5 +1,7 @@
-import type { IDisposable, IStatableValue, IState, ISubscriber } from '@guanghechen/viewmodel.types'
-import { Disposable } from './disposable'
+import type { IDisposable } from '@guanghechen/disposable'
+import { Disposable } from '@guanghechen/disposable'
+import type { ISubscriber } from '@guanghechen/subscribe.types'
+import type { IStatableValue, IState } from '@guanghechen/viewmodel.types'
 import { Observable } from './observable'
 
 export class State<T extends Readonly<IStatableValue>> extends Observable<T> implements IState<T> {

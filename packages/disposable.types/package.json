@@ -1,17 +1,17 @@
 {
-  "name": "@guanghechen/viewmodel.types",
-  "version": "1.0.0-alpha.8",
-  "description": "types of @guanghechen/viewmodel",
+  "name": "@guanghechen/disposable.types",
+  "version": "1.0.0-alpha.0",
+  "description": "Disposable related types.",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel.types@1.0.0-alpha.8",
-    "directory": "packages/viewmodel.types"
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/disposable.types@1.0.0-alpha.0",
+    "directory": "packages/disposable.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel.types@1.0.0-alpha.8/packages/viewmodel.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/disposable.types@1.0.0-alpha.0/packages/disposable.types#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -37,9 +37,5 @@
   "scripts": {
     "build": "../../node_modules/.bin/rimraf lib/ && ../../node_modules/.bin/cross-env NODE_ENV=production ../../node_modules/.bin/rollup -c ../../rollup.config.mjs",
     "prepublishOnly": "yarn build"
-  },
-  "dependencies": {
-    "@guanghechen/disposable.types": "^1.0.0-alpha.0",
-    "@guanghechen/subscribe.types": "^1.0.0-alpha.0"
   }
 }

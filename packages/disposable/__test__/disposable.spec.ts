@@ -1,0 +1,253 @@
+import type { IBatchDisposable } from '../src'
+import { BatchDisposable, Disposable, disposeAll, isDisposable } from '../src'
+
+test('isDisposable', () => {
+  expect(isDisposable(null)).toEqual(false)
+  expect(isDisposable(undefined)).toEqual(false)
+  expect(isDisposable({})).toEqual(false)
+  expect(isDisposable({ dispose: () => {} })).toEqual(false)
+  expect(isDisposable({ disposed: false })).toEqual(false)
+  expect(isDisposable({ dispose: () => {}, disposed: false })).toEqual(true)
+  expect(isDisposable({ dispose: () => {}, disposed: true })).toEqual(true)
+  expect(isDisposable(Disposable.fromCallback(() => {}))).toEqual(true)
+  expect(isDisposable(Disposable.fromUnsubscribable({ unsubscribe: () => {} }))).toEqual(true)
+  expect(isDisposable(new BatchDisposable())).toEqual(true)
+})
+
+describe('disposeAll', () => {
+  test('no error', () => {
+    const disposable1 = Disposable.fromCallback(() => {})
+    const disposable2 = Disposable.fromCallback(() => {})
+    const disposable3 = Disposable.fromCallback(() => {})
+    const disposable4 = Disposable.fromCallback(() => {})
+    const disposable5 = Disposable.fromCallback(() => {})
+
+    expect(disposable1.disposed).toEqual(false)
+    expect(disposable2.disposed).toEqual(false)
+    expect(disposable3.disposed).toEqual(false)
+    expect(disposable4.disposed).toEqual(false)
+    expect(disposable5.disposed).toEqual(false)
+
+    disposeAll([disposable1, disposable2, disposable3, disposable4, disposable5])
+    expect(disposable1.disposed).toEqual(true)
+    expect(disposable2.disposed).toEqual(true)
+    expect(disposable3.disposed).toEqual(true)
+    expect(disposable4.disposed).toEqual(true)
+    expect(disposable5.disposed).toEqual(true)
+
+    disposeAll([disposable1, disposable2, disposable3, disposable4, disposable5])
+    expect(disposable1.disposed).toEqual(true)
+    expect(disposable2.disposed).toEqual(true)
+    expect(disposable3.disposed).toEqual(true)
+    expect(disposable4.disposed).toEqual(true)
+    expect(disposable5.disposed).toEqual(true)
+  })
+
+  test('one error', () => {
+    const disposable1 = Disposable.fromCallback(() => {})
+    const disposable2 = Disposable.fromCallback(() => {
+      throw new Error('waw')
+    })
+    const disposable3 = Disposable.fromCallback(() => {})
+    const disposable4 = Disposable.fromCallback(() => {})
+    const disposable5 = Disposable.fromCallback(() => {})
+
+    expect(disposable1.disposed).toEqual(false)
+    expect(disposable2.disposed).toEqual(false)
+    expect(disposable3.disposed).toEqual(false)
+    expect(disposable4.disposed).toEqual(false)
+    expect(disposable5.disposed).toEqual(false)
+
+    expect(() =>
+      disposeAll([disposable1, disposable2, disposable3, disposable4, disposable5]),
+    ).toThrow('waw')
+    expect(disposable1.disposed).toEqual(true)
+    expect(disposable2.disposed).toEqual(true)
+    expect(disposable3.disposed).toEqual(true)
+    expect(disposable4.disposed).toEqual(true)
+    expect(disposable5.disposed).toEqual(true)
+
+    disposeAll([disposable1, disposable2, disposable3, disposable4, disposable5])
+    expect(disposable1.disposed).toEqual(true)
+    expect(disposable2.disposed).toEqual(true)
+    expect(disposable3.disposed).toEqual(true)
+    expect(disposable4.disposed).toEqual(true)
+    expect(disposable5.disposed).toEqual(true)
+  })
+
+  test('multiple errors', () => {
+    const disposable1 = Disposable.fromCallback(() => {})
+    const disposable2 = Disposable.fromCallback(() => {
+      throw new Error('waw1')
+    })
+    const disposable3 = Disposable.fromCallback(() => {})
+    const disposable4 = Disposable.fromCallback(() => {
+      throw new Error('waw2')
+    })
+    const disposable5 = Disposable.fromCallback(() => {})
+
+    expect(disposable1.disposed).toEqual(false)
+    expect(disposable2.disposed).toEqual(false)
+    expect(disposable3.disposed).toEqual(false)
+    expect(disposable4.disposed).toEqual(false)
+    expect(disposable5.disposed).toEqual(false)
+
+    expect(() =>
+      disposeAll([disposable1, disposable2, disposable3, disposable4, disposable5]),
+    ).toThrow('Encountered errors while disposing')
+    expect(disposable1.disposed).toEqual(true)
+    expect(disposable2.disposed).toEqual(true)
+    expect(disposable3.disposed).toEqual(true)
+    expect(disposable4.disposed).toEqual(true)
+    expect(disposable5.disposed).toEqual(true)
+
+    disposeAll([disposable1, disposable2, disposable3, disposable4, disposable5])
+    expect(disposable1.disposed).toEqual(true)
+    expect(disposable2.disposed).toEqual(true)
+    expect(disposable3.disposed).toEqual(true)
+    expect(disposable4.disposed).toEqual(true)
+    expect(disposable5.disposed).toEqual(true)
+  })
+})
+
+describe('BatchDisposable', () => {
+  test('no error', () => {
+    const disposable: IBatchDisposable = new BatchDisposable()
+    const disposable1 = Disposable.fromCallback(() => {})
+    const disposable2 = Disposable.fromCallback(() => {})
+    const disposable3 = Disposable.fromCallback(() => {})
+    const disposable4 = Disposable.fromCallback(() => {})
+    const disposable5 = Disposable.fromCallback(() => {})
+    const disposable6 = Disposable.fromCallback(() => {})
+    disposable5.dispose()
+    disposable.registerDisposable(disposable1)
+    disposable.registerDisposable(disposable2)
+    disposable.registerDisposable(disposable3)
+    disposable.registerDisposable(disposable4)
+    disposable.registerDisposable(disposable5)
+
+    expect(disposable.disposed).toEqual(false)
+    expect(disposable1.disposed).toEqual(false)
+    expect(disposable2.disposed).toEqual(false)
+    expect(disposable3.disposed).toEqual(false)
+    expect(disposable4.disposed).toEqual(false)
+    expect(disposable5.disposed).toEqual(true)
+    expect(disposable6.disposed).toEqual(false)
+
+    disposable.dispose()
+    expect(disposable.disposed).toEqual(true)
+    expect(disposable1.disposed).toEqual(true)
+    expect(disposable2.disposed).toEqual(true)
+    expect(disposable3.disposed).toEqual(true)
+    expect(disposable4.disposed).toEqual(true)
+    expect(disposable5.disposed).toEqual(true)
+    expect(disposable6.disposed).toEqual(false)
+
+    disposable.registerDisposable(disposable6)
+    expect(disposable6.disposed).toEqual(true)
+
+    disposable.dispose()
+    expect(disposable.disposed).toEqual(true)
+    expect(disposable1.disposed).toEqual(true)
+    expect(disposable2.disposed).toEqual(true)
+    expect(disposable3.disposed).toEqual(true)
+    expect(disposable4.disposed).toEqual(true)
+    expect(disposable5.disposed).toEqual(true)
+    expect(disposable6.disposed).toEqual(true)
+  })
+
+  test('one error', () => {
+    const disposable: IBatchDisposable = new BatchDisposable()
+    const disposable1 = Disposable.fromCallback(() => {})
+    const disposable2 = Disposable.fromCallback(() => {
+      throw new Error('waw')
+    })
+    const disposable3 = Disposable.fromCallback(() => {})
+    const disposable4 = Disposable.fromCallback(() => {})
+    const disposable5 = Disposable.fromCallback(() => {})
+    const disposable6 = Disposable.fromCallback(() => {})
+    disposable5.dispose()
+    disposable.registerDisposable(disposable1)
+    disposable.registerDisposable(disposable2)
+    disposable.registerDisposable(disposable3)
+    disposable.registerDisposable(disposable4)
+    disposable.registerDisposable(disposable5)
+
+    expect(disposable.disposed).toEqual(false)
+    expect(disposable1.disposed).toEqual(false)
+    expect(disposable2.disposed).toEqual(false)
+    expect(disposable3.disposed).toEqual(false)
+    expect(disposable4.disposed).toEqual(false)
+    expect(disposable5.disposed).toEqual(true)
+    expect(disposable6.disposed).toEqual(false)
+
+    expect(() => disposable.dispose()).toThrow('waw')
+    expect(disposable.disposed).toEqual(true)
+    expect(disposable1.disposed).toEqual(true)
+    expect(disposable2.disposed).toEqual(true)
+    expect(disposable3.disposed).toEqual(true)
+    expect(disposable4.disposed).toEqual(true)
+    expect(disposable5.disposed).toEqual(true)
+    expect(disposable6.disposed).toEqual(false)
+
+    disposable.registerDisposable(disposable6)
+    expect(disposable6.disposed).toEqual(true)
+
+    disposable.dispose()
+    expect(disposable.disposed).toEqual(true)
+    expect(disposable1.disposed).toEqual(true)
+    expect(disposable2.disposed).toEqual(true)
+    expect(disposable3.disposed).toEqual(true)
+    expect(disposable4.disposed).toEqual(true)
+    expect(disposable5.disposed).toEqual(true)
+    expect(disposable6.disposed).toEqual(true)
+  })
+
+  test('multiple errors', () => {
+    const disposable: IBatchDisposable = new BatchDisposable()
+    const disposable1 = Disposable.fromCallback(() => {})
+    const disposable2 = Disposable.fromCallback(() => {
+      throw new Error('waw1')
+    })
+    const disposable3 = Disposable.fromCallback(() => {})
+    const disposable4 = Disposable.fromCallback(() => {
+      throw new Error('waw2')
+    })
+    const disposable5 = Disposable.fromCallback(() => {})
+    const disposable6 = Disposable.fromCallback(() => {})
+    disposable5.dispose()
+    disposable.registerDisposable(disposable1)
+    disposable.registerDisposable(disposable2)
+    disposable.registerDisposable(disposable3)
+    disposable.registerDisposable(disposable4)
+    disposable.registerDisposable(disposable5)
+
+    expect(disposable.disposed).toEqual(false)
+    expect(disposable1.disposed).toEqual(false)
+    expect(disposable2.disposed).toEqual(false)
+    expect(disposable3.disposed).toEqual(false)
+    expect(disposable4.disposed).toEqual(false)
+    expect(disposable5.disposed).toEqual(true)
+    expect(disposable6.disposed).toEqual(false)
+
+    expect(() => disposable.dispose()).toThrow('Encountered errors while disposing')
+    expect(disposable.disposed).toEqual(true)
+    expect(disposable1.disposed).toEqual(true)
+    expect(disposable2.disposed).toEqual(true)
+    expect(disposable3.disposed).toEqual(true)
+    expect(disposable4.disposed).toEqual(true)
+    expect(disposable5.disposed).toEqual(true)
+
+    disposable.registerDisposable(disposable6)
+    expect(disposable6.disposed).toEqual(true)
+
+    disposable.dispose()
+    expect(disposable.disposed).toEqual(true)
+    expect(disposable1.disposed).toEqual(true)
+    expect(disposable2.disposed).toEqual(true)
+    expect(disposable3.disposed).toEqual(true)
+    expect(disposable4.disposed).toEqual(true)
+    expect(disposable5.disposed).toEqual(true)
+    expect(disposable6.disposed).toEqual(true)
+  })
+})

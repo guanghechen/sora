@@ -1,5 +1,6 @@
+import type { ISubscriber, IUnsubscribable } from '@guanghechen/subscribe.types'
 import type { IImmutableCollection, IImmutableMap, IImmutableSet } from './collection'
-import type { IEquals, IObservableValue, ISubscriber, IUnsubscribable } from './common'
+import type { IEquals, IObservableValue} from './common'
 import type { IObservable } from './observable'
 import type { IScheduleTransaction } from './schedulable'
 

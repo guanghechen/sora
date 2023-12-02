@@ -1,3 +1,5 @@
+import { BatchDisposable, Disposable } from '@guanghechen/disposable'
+import type { ISubscriber, IUnsubscribable } from '@guanghechen/subscribe.types'
 import type {
   IEquals,
   IImmutableCollection,
@@ -7,10 +9,7 @@ import type {
   IObservableKeyChange,
   IObservableValue,
   IScheduleTransaction,
-  ISubscriber,
-  IUnsubscribable,
 } from '@guanghechen/viewmodel.types'
-import { BatchDisposable, Disposable } from './disposable'
 import { DisposedObservable, Observable } from './observable'
 import { Schedulable } from './schedulable'
 import { noopUnsubscribable } from './util'

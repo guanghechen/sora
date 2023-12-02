@@ -1,4 +1,6 @@
-import type { IBatchDisposable, IObservableValue, ISubscribable } from './common'
+import type { IBatchDisposable } from '@guanghechen/disposable.types'
+import type { ISubscribable } from '@guanghechen/subscribe.types'
+import type { IObservableValue } from './common'
 
 export type IComputableValue = IObservableValue
 

@@ -1,5 +1,4 @@
 export * from './computed'
-export * from './disposable'
 export * from './observable'
 export * from './observable-collection'
 export * from './observable-map'

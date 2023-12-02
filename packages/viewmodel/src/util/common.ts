@@ -1,4 +1,4 @@
-import type { IUnsubscribable } from '@guanghechen/viewmodel.types'
+import type { IUnsubscribable } from '@guanghechen/subscribe.types'
 
 export const noop: (...args: any) => void = (): void => {}
 

@@ -1,18 +1,18 @@
 {
-  "name": "@guanghechen/viewmodel",
-  "version": "1.0.0-alpha.8",
+  "name": "@guanghechen/disposable",
+  "version": "1.0.0-alpha.0",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@1.0.0-alpha.8",
-    "directory": "packages/viewmodel"
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/disposable@1.0.0-alpha.0",
+    "directory": "packages/disposable"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@1.0.0-alpha.8/packages/viewmodel#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/disposable@1.0.0-alpha.0/packages/disposable#readme",
   "keywords": [
-    "viewmodel"
+    "disposable"
   ],
   "type": "module",
   "exports": {
@@ -39,8 +39,7 @@
     "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
   },
   "dependencies": {
-    "@guanghechen/disposable": "^1.0.0-alpha.0",
-    "@guanghechen/subscribe.types": "^1.0.0-alpha.0",
-    "@guanghechen/viewmodel.types": "^1.0.0-alpha.8"
+    "@guanghechen/disposable.types": "^1.0.0-alpha.0",
+    "@guanghechen/subscribe.types": "^1.0.0-alpha.0"
   }
 }

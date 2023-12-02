@@ -1,4 +1,5 @@
-import type { IBatchDisposable, IDisposable, ISubscribable } from './common'
+import type { IBatchDisposable, IDisposable } from '@guanghechen/disposable.types'
+import type { ISubscribable } from '@guanghechen/subscribe.types'
 import type { IObservableKey } from './observable'
 
 export interface IViewModelTicker {
