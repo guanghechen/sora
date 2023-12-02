@@ -479,9 +479,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/chalk-logger@npm:^6.0.0-alpha.4":
-  version: 6.0.0-alpha.4
-  resolution: "@guanghechen/chalk-logger@npm:6.0.0-alpha.4"
+"@guanghechen/chalk-logger@npm:^6.0.0-alpha.5":
+  version: 6.0.0-alpha.5
+  resolution: "@guanghechen/chalk-logger@npm:6.0.0-alpha.5"
   dependencies:
     "@guanghechen/helper-is": ^6.0.0-alpha.0
     "@guanghechen/invariant": ^6.0.0-alpha.0
@@ -490,7 +490,7 @@ __metadata:
     chalk: ^5.3.0
     dayjs: ^1.11.10
     json5: ^2.2.3
-  checksum: 72784423af0afc901b27a887693328ea7f2bc35e040a7c038020bb0f7fcd212852842632d5ce2a9d34b803431264b696ee3471bc52492ae43e00865a9320da2b
+  checksum: 8633ebcda3021bdc4690182f50bc98fd5114a0662afa3b575cfe1bfea44472580ca45aec17d9e5121356ed33e94374cac2b0632ca20c3ac28fb5760a5460022f
   languageName: node
   linkType: hard
 
@@ -855,11 +855,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/script-doc-link@npm:^6.0.0-alpha.4":
-  version: 6.0.0-alpha.4
-  resolution: "@guanghechen/script-doc-link@npm:6.0.0-alpha.4"
+"@guanghechen/script-doc-link@npm:^6.0.0-alpha.5":
+  version: 6.0.0-alpha.5
+  resolution: "@guanghechen/script-doc-link@npm:6.0.0-alpha.5"
   dependencies:
-    "@guanghechen/chalk-logger": ^6.0.0-alpha.4
+    "@guanghechen/chalk-logger": ^6.0.0-alpha.5
     "@guanghechen/helper-fs": ^6.0.0-alpha.3
     "@guanghechen/helper-func": ^6.0.0-alpha.0
     "@guanghechen/helper-is": ^6.0.0-alpha.0
@@ -869,7 +869,7 @@ __metadata:
     minimist: ^1.2.8
   bin:
     ghc-doc-link-rewrite: lib/esm/cli.mjs
-  checksum: c87391d789dd32ddb2c6013063ada38532f60b4318c9fbab24dbbf88205fb8e41e9a7e48e7d222c63e6d306a4826667c7278044b9c45ea8ecefee3e324b564ec
+  checksum: 30b6fbb1915b81b50d23fb6387e72194a24cd0eb0d997bb78910057bd49b347ac064159461c1d9d22882b5c65236d4e0170715f6f2c6368f93a40cae96c53bb9
   languageName: node
   linkType: hard
 
@@ -884,7 +884,7 @@ __metadata:
     "@guanghechen/helper-jest": ^6.0.0-alpha.0
     "@guanghechen/jest-config": ^6.0.0-alpha.0
     "@guanghechen/rollup-config": ^6.0.0-alpha.0
-    "@guanghechen/script-doc-link": ^6.0.0-alpha.4
+    "@guanghechen/script-doc-link": ^6.0.0-alpha.5
     "@rollup/plugin-replace": ^5.0.5
     "@types/jest": 29.5.10
     "@types/node": ^18.19.1
@@ -892,7 +892,7 @@ __metadata:
     cross-env: ^7.0.3
     dayjs: ^1.11.10
     eslint: 8.55.0
-    eslint-config-prettier: 9.0.0
+    eslint-config-prettier: 9.1.0
     eslint-plugin-jest: 27.6.0
     eslint-plugin-prettier: 5.0.1
     husky: 8.0.3
@@ -4207,14 +4207,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-prettier@npm:9.0.0":
-  version: 9.0.0
-  resolution: "eslint-config-prettier@npm:9.0.0"
+"eslint-config-prettier@npm:9.1.0":
+  version: 9.1.0
+  resolution: "eslint-config-prettier@npm:9.1.0"
   peerDependencies:
     eslint: ">=7.0.0"
   bin:
     eslint-config-prettier: bin/cli.js
-  checksum: 362e991b6cb343f79362bada2d97c202e5303e6865888918a7445c555fb75e4c078b01278e90be98aa98ae22f8597d8e93d48314bec6824f540f7efcab3ce451
+  checksum: 9229b768c879f500ee54ca05925f31b0c0bafff3d9f5521f98ff05127356de78c81deb9365c86a5ec4efa990cb72b74df8612ae15965b14136044c73e1f6a907
   languageName: node
   linkType: hard
 
