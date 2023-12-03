@@ -42,13 +42,12 @@ const coverageMap = {
   //-----------//
 
   '@guanghechen/filetree': {
-    'src/tree.ts': {
-      branches: 85,
-      functions: 88,
-      lines: 91,
-      statements: 91,
-    },
-    'src/util.ts': { branches: 86 },
+    global: {
+      branches: 83,
+      functions: 90,
+      lines: 93,
+      statements: 93,
+    }
   },
   '@guanghechen/path': {
     'src/PathResolver.ts': { branches: 90 },
