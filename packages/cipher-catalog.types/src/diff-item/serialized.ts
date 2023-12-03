@@ -1,4 +1,4 @@
-import type { FileChangeType } from '../../constant'
+import type { FileChangeType } from '../constant'
 import type { ISerializedCatalogItem } from '../item'
 
 export interface ISerializedCatalogDiffItemAdded {

@@ -1,17 +1,17 @@
 {
-  "name": "@guanghechen/cipher-workspace.types",
-  "version": "1.0.0-alpha.4",
-  "description": "types of @guanghechen/cipher-workspace",
+  "name": "@guanghechen/cipher-catalog.types",
+  "version": "1.0.0-alpha.0",
+  "description": "types of @guanghechen/cipher-catalog",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher-workspace.types@1.0.0-alpha.4",
-    "directory": "packages/cipher-workspace.types"
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/packages/cipher-catalog.types@1.0.0-alpha.0",
+    "directory": "packages/packages/cipher-catalog.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher-workspace.types@1.0.0-alpha.4/packages/cipher-workspace.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/packages/cipher-catalog.types@1.0.0-alpha.0/packages/packages/cipher-catalog.types#readme",
   "type": "module",
   "exports": {
     ".": {

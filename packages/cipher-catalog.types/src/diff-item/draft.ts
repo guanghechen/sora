@@ -1,4 +1,4 @@
-import type { FileChangeType } from '../../constant'
+import type { FileChangeType } from '../constant'
 import type { ICatalogItem, IDraftCatalogItem } from '../item'
 
 export interface IDraftCatalogDiffItemAdded {

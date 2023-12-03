@@ -1,4 +1,4 @@
-import type { FileChangeType } from '../../constant'
+import type { FileChangeType } from '../constant'
 import type { ICatalogItem } from '../item'
 
 export * from './deserialized'
