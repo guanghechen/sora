@@ -21,3 +21,9 @@ export enum VfsFileType {
   SYMBOLIC = 'symbolic',
   UNKNOWN = 'unknown',
 }
+
+export function isVfsOperationSucceed<T extends Exclude<unknown, VfsErrorCode>>(
+  codeOrResult: T | VfsErrorCode,
+): codeOrResult is T{
+  return typeof codeOrResult !== 'number'
+}

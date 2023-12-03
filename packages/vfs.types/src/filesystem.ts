@@ -1,4 +1,5 @@
 import type { IDisposable } from '@guanghechen/disposable.types'
+import type { IWorkspacePathResolver } from '@guanghechen/path.types'
 import type { ReadStream, WriteStream } from 'node:fs'
 import type { VfsErrorCode } from './constant'
 import type { IVfsFileStat } from './stat'
@@ -13,15 +14,22 @@ export interface IVfsFileWatchOptions {
 
 export interface IVirtualFileSystem extends IDisposable {
   /**
+   * To resolve the virtual path under the workspace root.
+   */
+  readonly workspacePathResolver: IWorkspacePathResolver
+
+  /**
    * Copy files or folders, speedup the copy operation.
    * @param sourceVirtualPath
    * @param targetVirtualPath
    * @param overwrite
+   * @param recursive
    */
   copy(
     sourceVirtualPath: string,
     targetVirtualPath: string,
     overwrite: boolean,
+    recursive: boolean,
   ): Promise<
     | VfsErrorCode.SOURCE_NOT_FOUND // When `sourceVirtualPath` doesn't exist.
     | VfsErrorCode.PARENT_TARGET_NOT_FOUND // When parent of `targetVirtualPath` doesn't exist.
@@ -62,10 +70,28 @@ export interface IVirtualFileSystem extends IDisposable {
   >
 
   /**
+   * Check if the path exists.
+   * @param virtualPath
+   */
+  isExist(virtualPath: string): Promise<boolean>
+
+  /**
+   * Check if the path exists and it is a directory.
+   * @param virtualPath
+   */
+  isDirectory(virtualPath: string): Promise<boolean>
+
+  /**
+   * Check if the path exists and it is a file.
+   * @param virtualPath
+   */
+  isFile(virtualPath: string): Promise<boolean>
+
+  /**
    * Create a new directory (Note, that new files are created via `write`-calls).
    * @param virtualPath
    */
-  mkdir(virtualPath: string): Promise<
+  mkdir(virtualPath: string, recursive: boolean): Promise<
     | VfsErrorCode.PARENT_SOURCE_NOT_FOUND // When the parent of `virtualPath` doesn't exist.
     | VfsErrorCode.PARENT_SOURCE_NOT_DIRECTORY // When the parent of `virtualPath` is a directory.
     | VfsErrorCode.SOURCE_EXIST // When `virtualPath` already exists.

@@ -44,6 +44,7 @@
       "@guanghechen/task.types": ["packages/task.types/src"],
       "@guanghechen/types": ["packages/types/src"],
       "@guanghechen/vfs.types": ["packages/vfs.types/src"],
+      "@guanghechen/vfs-local": ["packages/vfs-local/src"],
       "@guanghechen/viewmodel": ["packages/viewmodel/src"],
       "@guanghechen/viewmodel.types": ["packages/viewmodel.types/src"]
     }
