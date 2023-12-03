@@ -508,11 +508,21 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/cipher-catalog.types@workspace:packages/cipher-catalog.types":
+"@guanghechen/cipher-catalog.types@^1.0.0-alpha.1, @guanghechen/cipher-catalog.types@workspace:packages/cipher-catalog.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/cipher-catalog.types@workspace:packages/cipher-catalog.types"
   dependencies:
     "@guanghechen/path.types": ^1.0.0-alpha.10
+  languageName: unknown
+  linkType: soft
+
+"@guanghechen/cipher-catalog@workspace:packages/cipher-catalog":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/cipher-catalog@workspace:packages/cipher-catalog"
+  dependencies:
+    "@guanghechen/byte": ^1.0.0-alpha.4
+    "@guanghechen/cipher-catalog.types": ^1.0.0-alpha.1
+    "@guanghechen/internal": ^1.0.0-alpha.0
   languageName: unknown
   linkType: soft
 
