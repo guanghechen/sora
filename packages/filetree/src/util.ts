@@ -68,7 +68,7 @@ export function cloneRecursive(
     /* c8 ignore start */
     default:
       throw new TypeError(`[cloneRecursive] bad node type ${(node as any).type}.`)
-    /* c8 ignore end */
+    /* c8 ignore stop */
   }
 }
 
@@ -89,6 +89,6 @@ export function cloneZeroDepth(node: IReadonlyFileTreeNode): IFileTreeNode {
     /* c8 ignore start */
     default:
       throw new TypeError(`[cloneOneDepth] bad node type ${(node as any).type}.`)
-    /* c8 ignore end */
+    /* c8 ignore stop */
   }
 }

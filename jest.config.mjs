@@ -1,6 +1,9 @@
 import { tsMonorepoConfig } from '@guanghechen/jest-config'
+import { createRequire } from 'node:module'
 import path from 'node:path'
 import url from 'node:url'
+
+const require = createRequire(import.meta.url)
 
 export default async function () {
   const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
@@ -26,6 +29,7 @@ export default async function () {
       ...coverageMap[manifest.name],
     },
     extensionsToTreatAsEsm: ['.ts', '.mts'],
+    prettierPath: require.resolve('prettier-2'),
   }
   return config
 }

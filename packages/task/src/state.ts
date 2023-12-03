@@ -128,7 +128,7 @@ export class TaskState implements ITaskState {
       /* c8 ignore start */
       default:
         return false
-      /* c8 ignore end */
+      /* c8 ignore stop */
     }
   }
 

@@ -5,8 +5,7 @@ import type {
   IReadonlyCipherCatalog,
 } from '@guanghechen/cipher-catalog.types'
 import { FileChangeType } from '@guanghechen/cipher-catalog.types'
-import { isFileSync } from '@guanghechen/helper-fs'
-import { invariant } from '@guanghechen/internal'
+import { invariant, isFileSync } from '@guanghechen/internal'
 import { areSameDraftCatalogItem } from './areSameDraftCatalogItem'
 
 /**

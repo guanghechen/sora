@@ -253,7 +253,7 @@ export class FileTree implements IFileTree {
           path: paths.slice(0, i + 1).join('/'),
         })
         throw new TypeError(`[${clazz}.stat] expected a folder, but got ${details}.`)
-        /* c8 ignore end */
+        /* c8 ignore stop */
       }
 
       nodes = node.children
@@ -283,7 +283,7 @@ export class FileTree implements IFileTree {
           path: paths.slice(0, i + 1).join('/'),
         })
         throw new TypeError(`[${clazz}.touch] expected a folder, but got ${details}.`)
-        /* c8 ignore end */
+        /* c8 ignore stop */
       }
 
       nodes = node.children

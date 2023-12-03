@@ -34,6 +34,6 @@ export const resolveLevel = (level: string): ReporterLevelEnum | undefined => {
     /* c8 ignore start */
     default:
       return undefined
-    /* c8 ignore end */
+    /* c8 ignore stop */
   }
 }

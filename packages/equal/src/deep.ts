@@ -39,9 +39,8 @@ export function isEqual(x: any, y: any): boolean {
       // React-specific: avoid traversing React elements' _owner.
       //  _owner contains circular references
       // and is not needed when comparing the actual elements (and not their owners)
-      /* c8 ignore start */
+      /* c8 ignore next */
       if (key === '_owner' && x.$$typeof) continue
-      /* c8 ignore end */
 
       if (!isEqual(x[key], y[key])) return false
     }
