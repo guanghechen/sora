@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.14](https://github.com/guanghechen/sora/compare/@guanghechen/file-split@1.0.0-alpha.13...@guanghechen/file-split@1.0.0-alpha.14) (2023-12-03)
+
+**Note:** Version bump only for package @guanghechen/file-split
+
+
+
+
+
 # [1.0.0-alpha.13](https://github.com/guanghechen/sora/compare/@guanghechen/file-split@1.0.0-alpha.12...@guanghechen/file-split@1.0.0-alpha.13) (2023-12-02)
 
 **Note:** Version bump only for package @guanghechen/file-split

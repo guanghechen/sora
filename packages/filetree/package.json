@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/filetree",
-  "version": "1.0.0-alpha.8",
+  "version": "1.0.0-alpha.9",
   "description": "file tree",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/filetree@1.0.0-alpha.8",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/filetree@1.0.0-alpha.9",
     "directory": "packages/filetree"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/filetree@1.0.0-alpha.8/packages/filetree#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/filetree@1.0.0-alpha.9/packages/filetree#readme",
   "type": "module",
   "exports": {
     ".": {

@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/vfs-local",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "An implementation of virtual file system based on local os.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/vfs-local@1.0.0-alpha.0",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/vfs-local@1.0.0-alpha.1",
     "directory": "packages/vfs-local"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/vfs-local@1.0.0-alpha.0/packages/vfs-local#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/vfs-local@1.0.0-alpha.1/packages/vfs-local#readme",
   "keywords": [
     "vfs-local",
     "vfs-local helper"
@@ -47,7 +47,7 @@
     "@guanghechen/disposable": "^1.0.0-alpha.1",
     "@guanghechen/path": "^1.0.0-alpha.13",
     "@guanghechen/reporter.types": "1.0.0-alpha.9",
-    "@guanghechen/vfs.types": "^1.0.0-alpha.0",
+    "@guanghechen/vfs.types": "^1.0.0-alpha.2",
     "chokidar": "^3.5.3"
   }
 }
