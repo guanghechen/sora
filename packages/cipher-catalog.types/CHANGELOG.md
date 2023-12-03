@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 1.0.0-alpha.1 (2023-12-03)
+
+
+### Performance Improvements
+
+* 🚚 rename @guanghechen/cipher-workspace.types to @guanghechen/cipher-catalog.types ([eb46d48](https://github.com/guanghechen/sora/commit/eb46d481e2b1247f53d9b680791ab9c5c9791fd0))
+
+
+
+
+
 # [1.0.0-alpha.4](https://github.com/guanghechen/sora/compare/@guanghechen/cipher-workspace.types@1.0.0-alpha.3...@guanghechen/cipher-workspace.types@1.0.0-alpha.4) (2023-12-02)
 
 
