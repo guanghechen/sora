@@ -951,6 +951,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@guanghechen/vfs.types@workspace:packages/vfs.types":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/vfs.types@workspace:packages/vfs.types"
+  dependencies:
+    "@guanghechen/disposable.types": ^1.0.0-alpha.1
+    "@guanghechen/path.types": ^1.0.0-alpha.10
+  languageName: unknown
+  linkType: soft
+
 "@guanghechen/viewmodel.types@^1.0.0-alpha.9, @guanghechen/viewmodel.types@workspace:packages/viewmodel.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/viewmodel.types@workspace:packages/viewmodel.types"
