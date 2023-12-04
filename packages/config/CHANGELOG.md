@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.9](https://github.com/guanghechen/sora/compare/@guanghechen/config@1.0.0-alpha.8...@guanghechen/config@1.0.0-alpha.9) (2023-12-04)
+
+
+### Performance Improvements
+
+* 🔧 fix circular dependencies ([fc2a82d](https://github.com/guanghechen/sora/commit/fc2a82d6e5376c722f347f6765cc8df7ff6fd31f))
+* 💄 fix lint ([ad8c6ed](https://github.com/guanghechen/sora/commit/ad8c6edbcb04a5db1740bfeb64ef2173abf06311))
+
+
+
+
+
 # [1.0.0-alpha.8](https://github.com/guanghechen/sora/compare/@guanghechen/config@1.0.0-alpha.7...@guanghechen/config@1.0.0-alpha.8) (2023-12-03)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/path.types",
-  "version": "1.0.0-alpha.10",
+  "version": "1.0.0-alpha.11",
   "description": "types of @guanghechen/path",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/path.types@1.0.0-alpha.10",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/path.types@1.0.0-alpha.11",
     "directory": "packages/path.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/path.types@1.0.0-alpha.10/packages/path.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/path.types@1.0.0-alpha.11/packages/path.types#readme",
   "type": "module",
   "exports": {
     ".": {

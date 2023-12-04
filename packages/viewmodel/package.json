@@ -1,16 +1,16 @@
 {
   "name": "@guanghechen/viewmodel",
-  "version": "1.0.0-alpha.10",
+  "version": "1.0.0-alpha.11",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@1.0.0-alpha.10",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@1.0.0-alpha.11",
     "directory": "packages/viewmodel"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@1.0.0-alpha.10/packages/viewmodel#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@1.0.0-alpha.11/packages/viewmodel#readme",
   "keywords": [
     "viewmodel"
   ],

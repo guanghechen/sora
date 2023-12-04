@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.3](https://github.com/guanghechen/sora/compare/@guanghechen/vfs.types@1.0.0-alpha.2...@guanghechen/vfs.types@1.0.0-alpha.3) (2023-12-04)
+
+
+### Performance Improvements
+
+* 🎨 add IVfsPathResolver and rename constant ([bd636d1](https://github.com/guanghechen/sora/commit/bd636d173d337eaeb1b871799ed64fd066f5c875))
+* 💄 fix lint ([ad8c6ed](https://github.com/guanghechen/sora/commit/ad8c6edbcb04a5db1740bfeb64ef2173abf06311))
+
+
+
+
+
 # [1.0.0-alpha.2](https://github.com/guanghechen/sora/compare/@guanghechen/vfs.types@1.0.0-alpha.1...@guanghechen/vfs.types@1.0.0-alpha.2) (2023-12-03)
 
 
