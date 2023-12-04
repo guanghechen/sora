@@ -11,6 +11,12 @@ import path from 'node:path'
 const builtins = new Set(['@guanghechen/internal'])
 const externals = new Set(['./index.mjs'])
 
+const uselessImports = ['node:fs', 'node:fs/promises', 'node:path'].join('|')
+const uselessImportRegex = new RegExp(
+  `\n(?:import '(?:${uselessImports})'|require\\('(?:${uselessImports})'\\));`,
+  'g',
+)
+
 export default async function rollupConfig() {
   const { default: manifest } = await import(path.resolve('package.json'), {
     assert: { type: 'json' },
@@ -34,6 +40,10 @@ export default async function rollupConfig() {
               [`} from '.';`]: `} from './index.mjs';`,
             },
           }),
+          {
+            ...modify({ modify: (_filename, code) => code.replace(uselessImportRegex, '') }),
+            name: '@guanghechen/rollup-plugin-modify/customized',
+          },
           modify(),
         ],
       }),

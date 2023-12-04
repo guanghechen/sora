@@ -1,8 +1,8 @@
 import type { IReporter } from '@guanghechen/reporter.types'
 import type { WriteFileOptions } from 'node:fs'
 import { existsSync, mkdirSync, statSync } from 'node:fs'
-import fs from 'node:fs/promises'
-import path from 'node:path'
+import { mkdir as fsMkdir, rm as fsRm, writeFile as fsWriteFile } from 'node:fs/promises'
+import { dirname as pathDirname } from 'node:path'
 
 /**
  * Remove file/folder recursively.
@@ -10,7 +10,7 @@ import path from 'node:path'
  */
 export async function rm(fileOrDirPath: string): Promise<void> {
   if (existsSync(fileOrDirPath)) {
-    await fs.rm(fileOrDirPath, { recursive: true, force: true })
+    await fsRm(fileOrDirPath, { recursive: true, force: true })
   }
 }
 
@@ -35,9 +35,9 @@ export async function emptyDir(
     reporter?.verbose?.('[emptyDir] emptying: {}', dirpath)
 
     await rm(dirpath)
-    await fs.mkdir(dirpath, { recursive: true })
+    await fsMkdir(dirpath, { recursive: true })
   } else {
-    if (createIfNotExist) await fs.mkdir(dirpath, { recursive: true })
+    if (createIfNotExist) await fsMkdir(dirpath, { recursive: true })
   }
 }
 
@@ -68,7 +68,7 @@ export function ensureCriticalFilepathExistsSync(filepath: string | null): void 
  * @param reporter
  */
 export function mkdirsIfNotExists(filepath: string, isDir: boolean, reporter?: IReporter): void {
-  const dirpath = isDir ? filepath : path.dirname(filepath)
+  const dirpath = isDir ? filepath : pathDirname(filepath)
   if (existsSync(dirpath)) return
 
   // Print verbose log.
@@ -89,9 +89,9 @@ export async function writeFile(
   content: string | NodeJS.ArrayBufferView,
   options?: WriteFileOptions,
 ): Promise<void> {
-  const dirpath = path.dirname(filepath)
-  await fs.mkdir(dirpath, { recursive: true })
-  await fs.writeFile(filepath, content, options)
+  const dirpath = pathDirname(filepath)
+  await fsMkdir(dirpath, { recursive: true })
+  await fsWriteFile(filepath, content, options)
 }
 /**
  * Check whether if the filepath is a file path. (synchronizing)
