@@ -12,18 +12,18 @@ export interface IWorkspacePathResolver {
   readonly pathResolver: IPathResolver
 
   /**
-   * Ensure the given filepath is an absolute filepath and under the `root`.
-   * @param filepath should be an absolute path.
+   * Ensure the given filepath is under the `root`.
+   * @param filepath
    * @param message error message to throw when the given filepath is not an absolute path.
-   * @throws when the filepath is not an absolute path under the `root`.
+   * @throws when the filepath is not an absolute path and not under the `root`.
    */
   ensureSafePath(filepath: string, message?: string): void | never
 
   /**
-   * Check if the given filepath is an absolute filepath and under the `root`.
+   * Check if the given filepath is under the `root`.
    * @param filepath
    */
-  isSafePath(filepath: string): boolean | never
+  isSafePath(filepath: string): boolean
 
   /**
    * Solve the relative path based on the `root`.
