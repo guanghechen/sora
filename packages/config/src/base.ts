@@ -4,7 +4,7 @@ import { invariant } from '@guanghechen/internal'
 import type { IHashAlgorithm } from '@guanghechen/mac'
 import { calcMac } from '@guanghechen/mac'
 import type { ITextResource } from '@guanghechen/resource.types'
-import semver from 'semver'
+import satisfies from 'semver/functions/satisfies'
 
 export interface IBaseConfigKeeperProps {
   /**
@@ -60,7 +60,7 @@ export abstract class BaseConfigKeeper<Instance, Data> implements IConfigKeeper<
   }
 
   public compatible(version: string): boolean {
-    return semver.satisfies(version, this.__compatible_version__, {
+    return satisfies(version, this.__compatible_version__, {
       loose: false,
       includePrerelease: true,
     })
@@ -122,3 +122,4 @@ export abstract class BaseConfigKeeper<Instance, Data> implements IConfigKeeper<
     this._instance = undefined
   }
 }
+
