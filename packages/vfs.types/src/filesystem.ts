@@ -88,7 +88,10 @@ export interface IVirtualFileSystem extends IDisposable {
    * Create a new directory (Note, that new files are created via `write`-calls).
    * @param virtualPath
    */
-  mkdir(virtualPath: string, recursive: boolean): Promise<
+  mkdir(
+    virtualPath: string,
+    recursive: boolean,
+  ): Promise<
     | VfsErrorCode.SOURCE_PARENT_NOT_FOUND // When the parent of `virtualPath` doesn't exist.
     | VfsErrorCode.SOURCE_PARENT_NOT_DIRECTORY // When the parent of `virtualPath` is a directory.
     | VfsErrorCode.SOURCE_EXIST // When `virtualPath` already exists.

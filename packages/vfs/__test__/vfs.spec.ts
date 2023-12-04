@@ -28,7 +28,7 @@ describe('LocalVirtualFileSystem', () => {
   const FILEPATH_1 = 'a/b/c.md'
   const FILEPATH_2 = 'a/d.md'
   const CONTENT_1 = text2bytes('Content c.\n', 'utf8')
-  const CONTENT_2 = text2bytes('Content d.\n', 'utf8')
+  // const CONTENT_2 = text2bytes('Content d.\n', 'utf8')
 
   const src1: string = path.join(FIXTURE_SOURCE_DIR, FILEPATH_1)
   const src2: string = path.join(FIXTURE_SOURCE_DIR, FILEPATH_2)
@@ -50,7 +50,9 @@ describe('LocalVirtualFileSystem', () => {
 
   beforeEach(async () => {
     vfs = new LocalVirtualFileSystem({
-      root: FIXTURE_DIR, reporter })
+      root: FIXTURE_DIR,
+      reporter,
+    })
     await rm(FIXTURE_TARGET_DIR)
   })
 

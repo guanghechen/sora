@@ -47,7 +47,7 @@ const coverageMap = {
       functions: 90,
       lines: 93,
       statements: 93,
-    }
+    },
   },
   '@guanghechen/path': {
     'src/PathResolver.ts': { branches: 90 },

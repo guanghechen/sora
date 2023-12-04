@@ -122,4 +122,3 @@ export abstract class BaseConfigKeeper<Instance, Data> implements IConfigKeeper<
     this._instance = undefined
   }
 }
-
