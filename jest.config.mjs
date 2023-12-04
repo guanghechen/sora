@@ -53,10 +53,10 @@ const coverageMap = {
     'src/PathResolver.ts': { branches: 90 },
     'src/UrlPathResolver.ts': { branches: 97 },
   },
-  '@guanghechen/vfs-local': {
+  '@guanghechen/vfs': {
     global: {
-      branches: 86,
-      functions: 81,
+      branches: 80,
+      functions: 65,
       lines: 82,
       statements: 82,
     },

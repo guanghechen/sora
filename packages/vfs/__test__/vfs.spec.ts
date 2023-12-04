@@ -49,7 +49,8 @@ describe('LocalVirtualFileSystem', () => {
   })
 
   beforeEach(async () => {
-    vfs = new LocalVirtualFileSystem({ root: FIXTURE_DIR, reporter })
+    vfs = new LocalVirtualFileSystem({
+      root: FIXTURE_DIR, reporter })
     await rm(FIXTURE_TARGET_DIR)
   })
 
@@ -83,7 +84,7 @@ describe('LocalVirtualFileSystem', () => {
       {
         const result: VfsErrorCode | void = await vfs.copy(src1, dst1, true, false)
         expect(isVfsOperationSucceed(result)).toEqual(false)
-        expect(result).toEqual(VfsErrorCode.PARENT_TARGET_NOT_FOUND)
+        expect(result).toEqual(VfsErrorCode.TARGET_PARENT_NOT_FOUND)
 
         expect(await vfs.isExist(src1)).toEqual(true)
         expect(await vfs.isExist(src2)).toEqual(true)
@@ -132,23 +133,23 @@ describe('LocalVirtualFileSystem', () => {
   })
 
   describe('mkdir', () => {
-    it('parent source is not found', async () => {
+    it('source parent is not found', async () => {
       const p: string = path.join(FIXTURE_TARGET_DIR, 'a/b/c/d/e/f/g')
       expect(await vfs.isExist(p)).toEqual(false)
 
       const result: VfsErrorCode | void = await vfs.mkdir(p, false)
       expect(isVfsOperationSucceed(result)).toEqual(false)
-      expect(result).toEqual(VfsErrorCode.PARENT_SOURCE_NOT_FOUND)
+      expect(result).toEqual(VfsErrorCode.SOURCE_PARENT_NOT_FOUND)
       expect(reporterMock.getIndiscriminateAll()).toMatchInlineSnapshot(`[]`)
     })
 
-    it('parent source is not directory', async () => {
+    it('source parent is not directory', async () => {
       const p: string = path.join(FIXTURE_SOURCE_DIR, FILEPATH_1, 'a')
       expect(await vfs.isExist(p)).toEqual(false)
 
       const result: VfsErrorCode | void = await vfs.mkdir(p, false)
       expect(isVfsOperationSucceed(result)).toEqual(false)
-      expect(result).toEqual(VfsErrorCode.PARENT_SOURCE_NOT_DIRECTORY)
+      expect(result).toEqual(VfsErrorCode.SOURCE_PARENT_NOT_DIRECTORY)
       expect(reporterMock.getIndiscriminateAll()).toMatchInlineSnapshot(`[]`)
     })
 
@@ -299,7 +300,7 @@ describe('LocalVirtualFileSystem', () => {
       }
     })
 
-    test('parent target is not found', async () => {
+    test('target parent is not found', async () => {
       const src: string = path.join(FIXTURE_SOURCE_DIR, FILEPATH_1)
       const p1: string = path.join(FIXTURE_TARGET_DIR, 'tmp/a.md')
       const p2: string = path.join(FIXTURE_TARGET_DIR, 'tmp/b/c.md')
@@ -324,7 +325,7 @@ describe('LocalVirtualFileSystem', () => {
       {
         const result: VfsErrorCode | void = await vfs.rename(p1, p2, false)
         expect(isVfsOperationSucceed(result)).toEqual(false)
-        expect(result).toEqual(VfsErrorCode.PARENT_TARGET_NOT_FOUND)
+        expect(result).toEqual(VfsErrorCode.TARGET_PARENT_NOT_FOUND)
         expect(await vfs.isFile(src)).toEqual(true)
         expect(await vfs.isExist(p1)).toEqual(true)
         expect(await vfs.isExist(p2)).toEqual(false)
@@ -333,14 +334,14 @@ describe('LocalVirtualFileSystem', () => {
       {
         const result: VfsErrorCode | void = await vfs.rename(p1, p2, true)
         expect(isVfsOperationSucceed(result)).toEqual(false)
-        expect(result).toEqual(VfsErrorCode.PARENT_TARGET_NOT_FOUND)
+        expect(result).toEqual(VfsErrorCode.TARGET_PARENT_NOT_FOUND)
         expect(await vfs.isFile(src)).toEqual(true)
         expect(await vfs.isExist(p1)).toEqual(true)
         expect(await vfs.isExist(p2)).toEqual(false)
       }
     })
 
-    test('parent target is not directory', async () => {
+    test('target parent is not directory', async () => {
       const src: string = path.join(FIXTURE_SOURCE_DIR, FILEPATH_1)
       const p1: string = path.join(FIXTURE_TARGET_DIR, 'tmp/a.md')
       const p2: string = path.join(FIXTURE_TARGET_DIR, 'tmp/b/c.md')
@@ -373,7 +374,7 @@ describe('LocalVirtualFileSystem', () => {
       {
         const result: VfsErrorCode | void = await vfs.rename(p1, p2, false)
         expect(isVfsOperationSucceed(result)).toEqual(false)
-        expect(result).toEqual(VfsErrorCode.PARENT_TARGET_NOT_DIRECTORY)
+        expect(result).toEqual(VfsErrorCode.TARGET_PARENT_NOT_DIRECTORY)
         expect(await vfs.isFile(src)).toEqual(true)
         expect(await vfs.isExist(p1)).toEqual(true)
         expect(await vfs.isExist(p2)).toEqual(false)
@@ -382,7 +383,7 @@ describe('LocalVirtualFileSystem', () => {
       {
         const result: VfsErrorCode | void = await vfs.rename(p1, p2, true)
         expect(isVfsOperationSucceed(result)).toEqual(false)
-        expect(result).toEqual(VfsErrorCode.PARENT_TARGET_NOT_DIRECTORY)
+        expect(result).toEqual(VfsErrorCode.TARGET_PARENT_NOT_DIRECTORY)
         expect(await vfs.isFile(src)).toEqual(true)
         expect(await vfs.isExist(p1)).toEqual(true)
         expect(await vfs.isExist(p2)).toEqual(false)
@@ -503,7 +504,7 @@ describe('LocalVirtualFileSystem', () => {
       expect(await vfs.isDirectory(p1)).toEqual(true)
       expect(await vfs.isExist(p2)).toEqual(false)
 
-      const mkdirResult2: VfsErrorCode | void = await vfs.mkdir(path.dirname(p2) , true)
+      const mkdirResult2: VfsErrorCode | void = await vfs.mkdir(path.dirname(p2), true)
       expect(isVfsOperationSucceed(mkdirResult2)).toEqual(true)
 
       expect(await vfs.isDirectory(parentOfSrc)).toEqual(true)
@@ -597,26 +598,26 @@ describe('LocalVirtualFileSystem', () => {
       expect(reporterMock.getIndiscriminateAll()).toMatchInlineSnapshot(`[]`)
     })
 
-    it('parent source is not found', async () => {
+    it('source parent is not found', async () => {
       const p: string = path.join(FIXTURE_TARGET_DIR, 'non-exist', 'a.md')
       expect(await vfs.isExist(path.dirname(p))).toEqual(false)
 
       {
         const result: VfsErrorCode | void = await vfs.write(p, content, true, true)
         expect(isVfsOperationSucceed(result)).toEqual(false)
-        expect(result).toEqual(VfsErrorCode.PARENT_SOURCE_NOT_FOUND)
+        expect(result).toEqual(VfsErrorCode.SOURCE_PARENT_NOT_FOUND)
       }
 
       {
         const result: VfsErrorCode | void = await vfs.write(p, content, true, false)
         expect(isVfsOperationSucceed(result)).toEqual(false)
-        expect(result).toEqual(VfsErrorCode.PARENT_SOURCE_NOT_FOUND)
+        expect(result).toEqual(VfsErrorCode.SOURCE_PARENT_NOT_FOUND)
       }
 
       expect(reporterMock.getIndiscriminateAll()).toMatchInlineSnapshot(`[]`)
     })
 
-    it('parent source is not directory', async () => {
+    it('source parent is not directory', async () => {
       const p: string = path.join(FIXTURE_SOURCE_DIR, FILEPATH_1, 'a.md')
       expect(await vfs.isExist(path.dirname(p))).toEqual(true)
       expect(await vfs.isFile(path.dirname(p))).toEqual(true)
@@ -624,13 +625,13 @@ describe('LocalVirtualFileSystem', () => {
       {
         const result: VfsErrorCode | void = await vfs.write(p, content, true, true)
         expect(isVfsOperationSucceed(result)).toEqual(false)
-        expect(result).toEqual(VfsErrorCode.PARENT_SOURCE_NOT_DIRECTORY)
+        expect(result).toEqual(VfsErrorCode.SOURCE_PARENT_NOT_DIRECTORY)
       }
 
       {
         const result: VfsErrorCode | void = await vfs.write(p, content, true, false)
         expect(isVfsOperationSucceed(result)).toEqual(false)
-        expect(result).toEqual(VfsErrorCode.PARENT_SOURCE_NOT_DIRECTORY)
+        expect(result).toEqual(VfsErrorCode.SOURCE_PARENT_NOT_DIRECTORY)
       }
 
       {

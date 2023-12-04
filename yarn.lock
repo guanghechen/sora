@@ -962,24 +962,24 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/vfs-local@workspace:packages/vfs-local":
-  version: 0.0.0-use.local
-  resolution: "@guanghechen/vfs-local@workspace:packages/vfs-local"
-  dependencies:
-    "@guanghechen/disposable": ^1.0.0-alpha.1
-    "@guanghechen/path": ^1.0.0-alpha.13
-    "@guanghechen/reporter.types": 1.0.0-alpha.9
-    "@guanghechen/vfs.types": ^1.0.0-alpha.2
-    chokidar: ^3.5.3
-  languageName: unknown
-  linkType: soft
-
 "@guanghechen/vfs.types@^1.0.0-alpha.2, @guanghechen/vfs.types@workspace:packages/vfs.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/vfs.types@workspace:packages/vfs.types"
   dependencies:
     "@guanghechen/disposable.types": ^1.0.0-alpha.1
     "@guanghechen/path.types": ^1.0.0-alpha.10
+  languageName: unknown
+  linkType: soft
+
+"@guanghechen/vfs@workspace:packages/vfs":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/vfs@workspace:packages/vfs"
+  dependencies:
+    "@guanghechen/disposable": ^1.0.0-alpha.1
+    "@guanghechen/path": ^1.0.0-alpha.13
+    "@guanghechen/reporter.types": 1.0.0-alpha.9
+    "@guanghechen/vfs.types": ^1.0.0-alpha.2
+    chokidar: ^3.5.3
   languageName: unknown
   linkType: soft
 
