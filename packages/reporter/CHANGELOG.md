@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.23](https://github.com/guanghechen/sora/compare/@guanghechen/reporter@1.0.0-alpha.22...@guanghechen/reporter@1.0.0-alpha.23) (2023-12-05)
+
+
+### Performance Improvements
+
+* ✅ add test suites ([3074c08](https://github.com/guanghechen/sora/commit/3074c08159a01e9f28aa8cdb78eb77662eca4086))
+
+
+
+
+
 # [1.0.0-alpha.22](https://github.com/guanghechen/sora/compare/@guanghechen/reporter@1.0.0-alpha.21...@guanghechen/reporter@1.0.0-alpha.22) (2023-12-04)
 
 **Note:** Version bump only for package @guanghechen/reporter
