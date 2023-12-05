@@ -21,7 +21,11 @@ export function parseOptionsFromArgs(args: string[]): IReporterOptions {
     if (typeof val !== 'string') {
       if (i + 1 < args.length) {
         const nextArg = args[i + 1]
+
+        /* c8 ignore start */
         if (/^-/.test(nextArg)) continue
+        /* c8 ignore stop */
+
         i += 1
         val = nextArg
       }

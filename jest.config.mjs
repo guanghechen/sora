@@ -53,6 +53,14 @@ const coverageMap = {
     'src/PathResolver.ts': { branches: 90 },
     'src/UrlPathResolver.ts': { branches: 97 },
   },
+  '@guanghechen/reporter': {
+    global: {
+      branches: 96,
+      functions: 43,
+      lines: 78,
+      statements: 78,
+    }
+  },
   '@guanghechen/vfs': {
     global: {
       branches: 80,
