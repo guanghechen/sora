@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.3](https://github.com/guanghechen/sora/compare/@guanghechen/cipher-catalog@1.0.0-alpha.2...@guanghechen/cipher-catalog@1.0.0-alpha.3) (2023-12-06)
+
+
+### Performance Improvements
+
+* ✅ add tests ([838e035](https://github.com/guanghechen/sora/commit/838e035a388ad2e9c2d29b5ebab609aee6c5d690))
+
+
+
+
+
 # [1.0.0-alpha.2](https://github.com/guanghechen/sora/compare/@guanghechen/cipher-catalog@1.0.0-alpha.1...@guanghechen/cipher-catalog@1.0.0-alpha.2) (2023-12-04)
 
 **Note:** Version bump only for package @guanghechen/cipher-catalog
