@@ -41,6 +41,14 @@ const coverageMap = {
   },
   //-----------//
 
+  '@guanghechen/cipher-catalog': {
+    global: {
+      branches: 96,
+      functions: 63,
+      lines: 45,
+      statements: 45,
+    }
+  },
   '@guanghechen/filetree': {
     global: {
       branches: 83,
