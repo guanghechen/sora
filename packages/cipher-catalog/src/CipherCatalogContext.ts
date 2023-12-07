@@ -16,7 +16,7 @@ export interface ICipherCatalogContextProps {
   readonly partCodePrefix: string
   readonly pathHashAlgorithm: IHashAlgorithm
   readonly plainPathResolver: IWorkspacePathResolver
-  readonly calcIv: (infos: ReadonlyArray<Uint8Array>) => Promise<Readonly<Uint8Array> | undefined>
+  readonly calcIvFromBytes: (byteList: Iterable<Uint8Array>) => Promise<Uint8Array | undefined>
   readonly isKeepPlain: (relativePlainFilepath: string) => boolean
 }
 
@@ -30,9 +30,9 @@ export class CipherCatalogContext implements ICipherCatalogContext {
   public readonly pathHashAlgorithm: IHashAlgorithm
   public readonly plainPathResolver: IWorkspacePathResolver
   public readonly isKeepPlain: (relativePlainFilepath: string) => boolean
-  protected readonly _calcIv: (
-    infos: ReadonlyArray<Uint8Array>,
-  ) => Promise<Readonly<Uint8Array> | undefined>
+  protected readonly calcIvFromBytes: (
+    byteList: Iterable<Uint8Array>,
+  ) => Promise<Uint8Array | undefined>
 
   constructor(props: ICipherCatalogContextProps) {
     const {
@@ -42,7 +42,7 @@ export class CipherCatalogContext implements ICipherCatalogContext {
       partCodePrefix,
       pathHashAlgorithm,
       isKeepPlain,
-      calcIv,
+      calcIvFromBytes: calcIv,
     } = props
     const { cryptPathResolver, plainPathResolver } = props
     const cryptFilesDir = cryptPathResolver.relative(props.cryptFilesDir)
@@ -56,13 +56,13 @@ export class CipherCatalogContext implements ICipherCatalogContext {
     this.pathHashAlgorithm = pathHashAlgorithm
     this.plainPathResolver = plainPathResolver
     this.isKeepPlain = isKeepPlain
-    this._calcIv = calcIv
+    this.calcIvFromBytes = calcIv
   }
 
-  public async getIv(
+  public async calcIv(
     item: IDeserializedCatalogItem | IDraftCatalogItem,
   ): Promise<Readonly<Uint8Array> | undefined> {
-    return this._calcIv([
+    return this.calcIvFromBytes([
       text2bytes(item.plainFilepath, 'utf8'),
       text2bytes(item.fingerprint, 'hex'),
     ])

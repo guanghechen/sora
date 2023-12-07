@@ -14,10 +14,10 @@ export interface ICipherCatalogContext {
   readonly plainPathResolver: IWorkspacePathResolver
 
   /**
-   * Get the iv of the given item.
+   * Calc the iv of the given item.
    * @param item
    */
-  getIv(item: IDeserializedCatalogItem | IDraftCatalogItem): Promise<Uint8Array | undefined>
+  calcIv(item: IDeserializedCatalogItem | IDraftCatalogItem): Promise<Uint8Array | undefined>
 
   /**
    * Check if the plain file should be kept plain.
