@@ -37,6 +37,12 @@ export interface IReadonlyCipherCatalog {
   checkPlainIntegrity(plainFilepaths: string[]): Promise<void | never>
 
   /**
+   * Find a catalog item which matched the given filter.
+   * @param filter
+   */
+  find(filter: (item: ICatalogItem) => boolean): ICatalogItem | undefined
+
+  /**
    * Flat the deserialized catalog item.
    * @param item
    */
@@ -47,6 +53,12 @@ export interface IReadonlyCipherCatalog {
    * @param item
    */
   getIv(item: IDeserializedCatalogItem | IDraftCatalogItem): Promise<Uint8Array | undefined>
+
+  /**
+   * Check if the given plain filepath is existed in the catalog.
+   * @param plainFilepath
+   */
+  has(plainFilepath: string): boolean
 
   /**
    * Check if the content in the given relativePlainFilepath should be kept plain.
