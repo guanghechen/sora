@@ -25,6 +25,12 @@ export interface IReadonlyCipherCatalog {
   calcCryptFilepath(plainFilepath: string): string
 
   /**
+   * Calc the iv of the given item.
+   * @param item
+   */
+  calcIv(item: IDeserializedCatalogItem | IDraftCatalogItem): Promise<Uint8Array | undefined>
+
+  /**
    * Check crypt files for corruption.
    * @param cryptFilepaths
    */
@@ -53,12 +59,6 @@ export interface IReadonlyCipherCatalog {
    * @param plainFilepath
    */
   get(plainFilepath: string): ICatalogItem | undefined
-
-  /**
-   * Get the iv of the given item.
-   * @param item
-   */
-  getIv(item: IDeserializedCatalogItem | IDraftCatalogItem): Promise<Uint8Array | undefined>
 
   /**
    * Check if the given plain filepath is existed in the catalog.
