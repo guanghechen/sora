@@ -49,6 +49,12 @@ export interface IReadonlyCipherCatalog {
   flatItem(item: IDeserializedCatalogItem): Promise<ICatalogItem>
 
   /**
+   * Get the catalog item by plain filepath.
+   * @param plainFilepath
+   */
+  get(plainFilepath: string): ICatalogItem | undefined
+
+  /**
    * Get the iv of the given item.
    * @param item
    */
