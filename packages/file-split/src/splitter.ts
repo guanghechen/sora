@@ -1,7 +1,7 @@
 import { invariant } from '@guanghechen/internal'
 import { consumeStream, consumeStreams } from '@guanghechen/stream'
 import { createReadStream, createWriteStream } from 'node:fs'
-import type { IFilePartItem } from './types'
+import type { IFilePartItem, IFileSplitter } from './types'
 import { calcFilePartNames } from './util'
 
 interface IProps {
@@ -15,7 +15,7 @@ interface IProps {
 /**
  * Inspired by https://github.com/tomvlk/node-split-file.
  */
-export class FileSplitter {
+export class FileSplitter implements IFileSplitter {
   public readonly partCodePrefix: string
 
   // !!! Don't try to override the encoding. The encoding should always be `undefined`,
@@ -26,13 +26,6 @@ export class FileSplitter {
     this.partCodePrefix = options.partCodePrefix ?? '.ghc-part'
   }
 
-  /**
-   * Calculate the name of parts of sourcefile respectively.
-   *
-   * @param filepath
-   * @param parts
-   * @returns
-   */
   public calcPartFilepaths(filepath: string, parts: IFilePartItem[]): string[] {
     if (parts.length <= 1) return [filepath]
 
@@ -40,9 +33,6 @@ export class FileSplitter {
     return partNames.map(partName => filepath + partName)
   }
 
-  /**
-   * Split file with part descriptions.
-   */
   public async split(
     filepath: string,
     parts: IFilePartItem[],
@@ -76,12 +66,6 @@ export class FileSplitter {
     return partFilepaths
   }
 
-  /**
-   * Merge files
-   *
-   * @param inputFilepaths
-   * @param outputFilepath
-   */
   public async merge(inputFilepaths: string[], outputFilepath: string): Promise<void> {
     invariant(inputFilepaths.length > 0, 'Input file list is empty!')
 
