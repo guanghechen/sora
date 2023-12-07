@@ -1,6 +1,7 @@
 import type { IReporter } from '@guanghechen/reporter.types'
 import type { IVirtualFileSystem } from '@guanghechen/vfs.types'
 import { VirtualFileSystem } from './filesystem'
+import { VfsPathResolver } from './path'
 
 interface IProps {
   root: string
@@ -12,12 +13,7 @@ interface IProps {
 export class LocalVirtualFileSystem extends VirtualFileSystem implements IVirtualFileSystem {
   constructor(props: IProps) {
     const { root, reporter, encode, decode } = props
-    super({
-      physicalRoot: root,
-      virtualRoot: root,
-      reporter,
-      encode,
-      decode,
-    })
+    const pathResolver = new VfsPathResolver({ physicalRoot: root, virtualRoot: root })
+    super({ reporter, pathResolver, encode, decode })
   }
 }

@@ -22,12 +22,6 @@ export interface IVfsPathResolver {
   dirVirtualPath(virtualPath: string): string
 
   /**
-   * Check if the physical path existed.
-   * @param physicalPath
-   */
-  isPhysicalPathExist(physicalPath: string): boolean
-
-  /**
    * Check if the filepath is a physical path.
    * @param filepath
    */
@@ -38,6 +32,12 @@ export interface IVfsPathResolver {
    * @param filepath
    */
   isVirtualPath(filepath: string): boolean
+
+  /**
+   * Check if the given virtual path exists.
+   * @param virtualPath
+   */
+  isVirtualPathExist(virtualPath: string): boolean
 
   /**
    * Join the physical path.

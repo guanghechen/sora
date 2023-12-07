@@ -13,12 +13,10 @@ import chokidar from 'chokidar'
 import type { ReadStream, WriteStream } from 'fs'
 import { createReadStream, createWriteStream } from 'node:fs'
 import fs from 'node:fs/promises'
-import { VfsPathResolver } from './path'
 
 interface IProps {
-  physicalRoot: string
-  virtualRoot: string
   reporter: IReporter
+  pathResolver: IVfsPathResolver
   encode?: (content: Uint8Array, virtualPath: string) => Promise<Uint8Array>
   decode?: (content: Uint8Array, virtualPath: string) => Promise<Uint8Array>
 }
@@ -32,9 +30,7 @@ export class VirtualFileSystem extends BatchDisposable implements IVirtualFileSy
   protected readonly decode: (content: Uint8Array, virtualPath: string) => Promise<Uint8Array>
 
   constructor(props: IProps) {
-    const { physicalRoot, virtualRoot, reporter, encode, decode } = props
-    const pathResolver: IVfsPathResolver = new VfsPathResolver({ physicalRoot, virtualRoot })
-
+    const { pathResolver, reporter, encode, decode } = props
     super()
 
     this.pathResolver = pathResolver
@@ -179,10 +175,7 @@ export class VirtualFileSystem extends BatchDisposable implements IVirtualFileSy
   }
 
   public async isExist(virtualPath: string): Promise<boolean> {
-    const { pathResolver } = this
-    const physicalPath: string = pathResolver.locatePhysicalPath(virtualPath)
-    const isExist: boolean = this.pathResolver.isPhysicalPathExist(physicalPath)
-    return isExist
+    return this.pathResolver.isVirtualPathExist(virtualPath)
   }
 
   public async isFile(virtualPath: string): Promise<boolean> {
@@ -412,10 +405,10 @@ export class VirtualFileSystem extends BatchDisposable implements IVirtualFileSy
     | VfsErrorCode.SOURCE_NOT_FOUND // When `virtualPath` doesn't exist.
     | IDisposable /* Dispose the watcher. // When the operation is executed successfully. */ {
     const { pathResolver } = this
-    const physicalPath: string = pathResolver.locatePhysicalPath(virtualPath)
-    const isExist: boolean = pathResolver.isPhysicalPathExist(physicalPath)
+    const isExist: boolean = pathResolver.isVirtualPathExist(virtualPath)
     if (!isExist) return VfsErrorCode.SOURCE_NOT_FOUND
 
+    const physicalPath: string = pathResolver.locatePhysicalPath(virtualPath)
     const { recursive, excludes, onChanged, onCreated, onDeleted } = options
     const watcher = chokidar.watch(physicalPath, {
       cwd: pathResolver.physicalRoot,

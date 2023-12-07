@@ -48,21 +48,17 @@ export class VfsPathResolver implements IVfsPathResolver {
     return physicalParentPath
   }
 
-  public isPhysicalPathExist(physicalPath: string): boolean {
-    if (!this.physical.isSafePath(physicalPath)) {
-      throw new Error(
-        `[${clazz}.isPhysicalPathExist] not a physical path. Received: ${physicalPath}`,
-      )
-    }
-    return existsSync(physicalPath)
-  }
-
   public isPhysicalPath(filepath: string): boolean {
     return this.physical.isSafePath(filepath)
   }
 
   public isVirtualPath(filepath: string): boolean {
     return this.virtual.isSafePath(filepath)
+  }
+
+  public isVirtualPathExist(virtualPath: string): boolean {
+    const physicalPath: string = this.locatePhysicalPath(virtualPath)
+    return existsSync(physicalPath)
   }
 
   public joinPhysicalPath(physicalPath: string, ...pathPieces: string[]): string {
