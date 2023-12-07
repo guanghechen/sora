@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.4](https://github.com/guanghechen/sora/compare/@guanghechen/cipher-catalog.types@1.0.0-alpha.3...@guanghechen/cipher-catalog.types@1.0.0-alpha.4) (2023-12-07)
+
+
+### Performance Improvements
+
+* 🎨 add two new method 'get' to IReadonlyCipherCatalog ([e26ca77](https://github.com/guanghechen/sora/commit/e26ca776712ae66f713546a6c9d7755e06ae0774))
+* 🎨 rename getIv to calcIv ([2cbf743](https://github.com/guanghechen/sora/commit/2cbf7439c05b33d2b16f706c27e2a32d2f9d8e89))
+
+
+
+
+
 # [1.0.0-alpha.3](https://github.com/guanghechen/sora/compare/@guanghechen/cipher-catalog.types@1.0.0-alpha.2...@guanghechen/cipher-catalog.types@1.0.0-alpha.3) (2023-12-07)
 
 
