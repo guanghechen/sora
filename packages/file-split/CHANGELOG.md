@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.16](https://github.com/guanghechen/sora/compare/@guanghechen/file-split@1.0.0-alpha.15...@guanghechen/file-split@1.0.0-alpha.16) (2023-12-07)
+
+
+### Performance Improvements
+
+* 🎨 add interface for FileSplitter ([0aefc92](https://github.com/guanghechen/sora/commit/0aefc92678d981d10e5cef4bab9227d1c0fc9d7d))
+
+
+
+
+
 # [1.0.0-alpha.15](https://github.com/guanghechen/sora/compare/@guanghechen/file-split@1.0.0-alpha.14...@guanghechen/file-split@1.0.0-alpha.15) (2023-12-04)
 
 **Note:** Version bump only for package @guanghechen/file-split

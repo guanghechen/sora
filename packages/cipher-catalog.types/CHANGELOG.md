@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.3](https://github.com/guanghechen/sora/compare/@guanghechen/cipher-catalog.types@1.0.0-alpha.2...@guanghechen/cipher-catalog.types@1.0.0-alpha.3) (2023-12-07)
+
+
+### Performance Improvements
+
+* 🎨 add two new method 'find' and 'has' to IReadonlyCipherCatalog ([a265060](https://github.com/guanghechen/sora/commit/a265060cdc7fcface2cfcae047237ce32458c02b))
+
+
+
+
+
 # [1.0.0-alpha.2](https://github.com/guanghechen/sora/compare/@guanghechen/cipher-catalog.types@1.0.0-alpha.1...@guanghechen/cipher-catalog.types@1.0.0-alpha.2) (2023-12-04)
 
 **Note:** Version bump only for package @guanghechen/cipher-catalog.types
