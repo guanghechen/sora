@@ -41,7 +41,16 @@ export default async function rollupConfig() {
             },
           }),
           {
-            ...modify({ modify: (_filename, code) => code.replace(uselessImportRegex, '') }),
+            ...modify({
+              modify: (_filename, code) => {
+                return code
+                  .replace(uselessImportRegex, '')
+                  .replace(
+                    `import satisfies from 'semver/functions/satisfies';`,
+                    `import satisfies from 'semver/functions/satisfies.js';`,
+                  )
+              },
+            }),
             name: '@guanghechen/rollup-plugin-modify/customized',
           },
           modify(),
