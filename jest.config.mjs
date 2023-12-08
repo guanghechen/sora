@@ -47,7 +47,7 @@ const coverageMap = {
       functions: 63,
       lines: 45,
       statements: 45,
-    }
+    },
   },
   '@guanghechen/filetree': {
     global: {
@@ -67,7 +67,7 @@ const coverageMap = {
       functions: 43,
       lines: 78,
       statements: 78,
-    }
+    },
   },
   '@guanghechen/vfs': {
     global: {

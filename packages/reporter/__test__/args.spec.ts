@@ -16,10 +16,10 @@ describe('command funcs', () => {
           '--log-flight',
           'no-colorful',
           '--log-basename=waw',
-          '--log-fake=alice'
+          '--log-fake=alice',
         ]),
       ).toEqual({
-        baseName: "waw",
+        baseName: 'waw',
         level: ReporterLevelEnum.DEBUG,
         flights: {
           date: true,
