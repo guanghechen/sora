@@ -5,6 +5,7 @@
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
+  "description": "Utilities for defining config followed by semantic version.",
   "repository": {
     "type": "git",
     "url": "https://github.com/guanghechen/sora/tree/@guanghechen/config@1.0.0-alpha.9",
