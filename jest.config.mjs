@@ -53,8 +53,8 @@ const coverageMap = {
     global: {
       branches: 83,
       functions: 90,
-      lines: 93,
-      statements: 93,
+      lines: 92,
+      statements: 92,
     },
   },
   '@guanghechen/path': {

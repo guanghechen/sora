@@ -16,8 +16,8 @@ export class FileTree implements IFileTree {
   protected readonly _nodes: IFileTreeNode[]
   protected readonly _cmp: INodeNameCompare
 
-  private constructor(nodes: IFileTreeNode[], cmp: INodeNameCompare) {
-    this._nodes = nodes
+  private constructor(nodes: Iterable<IFileTreeNode>, cmp: INodeNameCompare) {
+    this._nodes = Array.from(nodes)
     this._cmp = cmp
   }
 
@@ -32,10 +32,12 @@ export class FileTree implements IFileTree {
     }
   }
 
-  public static build(rawNodes: IRawFileTreeNode[], cmp: INodeNameCompare): FileTree {
-    const items: IRawFileTreeNode[] = rawNodes
-      .filter(x => x.paths.length > 0)
-      .sort((u, v) => comparePaths(u.paths, v.paths, cmp))
+  public static build(rawNodes: Iterable<IRawFileTreeNode>, cmp: INodeNameCompare): FileTree {
+    const items: IRawFileTreeNode[] = []
+    for (const rawNode of rawNodes) {
+      if (rawNode.paths.length > 0) items.push(rawNode)
+    }
+    items.sort((u, v) => comparePaths(u.paths, v.paths, cmp))
 
     const buildChildren = (lft: number, rht: number, cur: number): IFileTreeNode[] => {
       if (lft >= rht) return []
@@ -105,11 +107,12 @@ export class FileTree implements IFileTree {
     return new FileTree(results, cmp)
   }
 
-  public static from(
-    nodes_: ReadonlyArray<IReadonlyFileTreeNode>,
-    cmp: INodeNameCompare,
-  ): FileTree {
-    const nodes: IFileTreeNode[] = nodes_.map(o => cloneRecursive(o, -1, cmp))
+  public static from(nodes_: Iterable<IReadonlyFileTreeNode>, cmp: INodeNameCompare): FileTree {
+    const nodes: IFileTreeNode[] = []
+    for (const o of nodes_) {
+      const node: IFileTreeNode = cloneRecursive(o, -1, cmp)
+      nodes.push(node)
+    }
     return new FileTree(nodes, cmp)
   }
 
