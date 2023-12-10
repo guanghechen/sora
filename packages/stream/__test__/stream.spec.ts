@@ -1,7 +1,7 @@
 import crypto from 'crypto'
 import { locateFixtures, unlinkSync } from 'jest.helper'
 import fs from 'node:fs'
-import { consumeStream, consumeStreams, stream2buffer } from '../src'
+import { consumeStream, consumeStreams, stream2buffer, stream2bytes } from '../src'
 
 const encoding = 'utf8'
 const filepaths = ['a.txt', 'b.txt', 'c.txt'].map(fp => locateFixtures(fp))
@@ -107,6 +107,26 @@ describe('stream2buffer', function () {
     for (const fp of filepaths) {
       const reader = fs.createReadStream(fp, encoding)
       const buffer = await stream2buffer(reader, false)
+      expect(buffer.toString(encoding)).toEqual(await loadContent(fp))
+    }
+  })
+})
+
+describe('stream2bytes', function () {
+  test('basic', async () => {
+    for (const fp of filepaths) {
+      const reader = fs.createReadStream(fp)
+      const bytes: Uint8Array = await stream2bytes(reader, true)
+      const buffer = Buffer.from(bytes)
+      expect(buffer.toString(encoding)).toEqual(await loadContent(fp))
+    }
+  })
+
+  test('string stream', async () => {
+    for (const fp of filepaths) {
+      const reader = fs.createReadStream(fp, encoding)
+      const bytes: Uint8Array = await stream2bytes(reader, false)
+      const buffer = Buffer.from(bytes)
       expect(buffer.toString(encoding)).toEqual(await loadContent(fp))
     }
   })
