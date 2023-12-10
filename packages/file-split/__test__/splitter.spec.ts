@@ -1,4 +1,4 @@
-import { calcFilePartItemsBySize } from '@guanghechen/filepart'
+import { DEFAULT_FILEPART_CODE_PREFIX, calcFilePartItemsBySize } from '@guanghechen/filepart'
 import type { IFilePartItem } from '@guanghechen/filepart'
 import { emptyDir, rm, writeFile } from '@guanghechen/internal'
 import { locateFixtures } from 'jest.helper'
@@ -10,7 +10,7 @@ describe('splitter', () => {
   const workspaceDir: string = locateFixtures('__fictitious__.BigFileHelper')
   const encoding: BufferEncoding = 'utf8'
   const maxTargetFileSize = 1024
-  const partCodePrefix = '.ghc-part'
+  const partCodePrefix = DEFAULT_FILEPART_CODE_PREFIX
   const fileHelper = new FileSplitter({ partCodePrefix })
 
   const filepathA = path.join(workspaceDir, 'A.txt')

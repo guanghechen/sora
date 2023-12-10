@@ -1,5 +1,5 @@
 import type { IFilePartItem } from '@guanghechen/filepart'
-import { calcFilePartNames } from '@guanghechen/filepart'
+import { DEFAULT_FILEPART_CODE_PREFIX, calcFilePartNames } from '@guanghechen/filepart'
 import { invariant } from '@guanghechen/internal'
 import { consumeStream, consumeStreams } from '@guanghechen/stream'
 import { createReadStream, createWriteStream } from 'node:fs'
@@ -8,7 +8,6 @@ import type { IFileSplitter } from './types'
 interface IProps {
   /**
    * The suffix name of a file part.
-   * @default '.ghc-part'
    */
   readonly partCodePrefix?: string
 }
@@ -24,7 +23,7 @@ export class FileSplitter implements IFileSplitter {
   readonly #encoding: BufferEncoding | undefined = undefined
 
   constructor(options: IProps = {}) {
-    this.partCodePrefix = options.partCodePrefix ?? '.ghc-part'
+    this.partCodePrefix = options.partCodePrefix ?? DEFAULT_FILEPART_CODE_PREFIX
   }
 
   public calcPartFilepaths(filepath: string, parts: IFilePartItem[]): string[] {

@@ -1,4 +1,4 @@
-import type { IFilePartItem } from '@guanghechen/filepart.types'
+import { DEFAULT_FILEPART_CODE_PREFIX, type IFilePartItem } from '@guanghechen/filepart.types'
 import { invariant } from '@guanghechen/internal'
 
 /**
@@ -70,7 +70,7 @@ export function calcFilePartItemsByCount(fileSize: number, partTotal: number): I
  */
 export function calcFilePartNames(
   parts: ReadonlyArray<Pick<IFilePartItem, 'sid'>>,
-  partCodePrefix: string,
+  partCodePrefix: string = DEFAULT_FILEPART_CODE_PREFIX,
 ): string[] {
   if (parts.length === 0) return []
   if (parts.length === 1) return ['']

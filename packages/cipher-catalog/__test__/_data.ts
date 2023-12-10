@@ -5,6 +5,7 @@ import type {
   ICatalogItem,
   IDraftCatalogItem,
 } from '@guanghechen/cipher-catalog.types'
+import { DEFAULT_FILEPART_CODE_PREFIX } from '@guanghechen/filepart.types'
 import type { IHashAlgorithm } from '@guanghechen/mac'
 
 type ISymbol = 'A' | 'A2' | 'B' | 'C' | 'D'
@@ -110,6 +111,6 @@ export const contentTable: Record<ISymbol, string> = {
 export const encoding: BufferEncoding = 'utf8'
 export const cryptFilesDir = 'kirito'
 export const maxTargetFileSize = 1024
-export const partCodePrefix = '.ghc-part'
+export const partCodePrefix = DEFAULT_FILEPART_CODE_PREFIX
 export const contentHashAlgorithm: IHashAlgorithm = 'sha256'
 export const pathHashAlgorithm: IHashAlgorithm = 'sha256'
