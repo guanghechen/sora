@@ -107,26 +107,6 @@ describe('simple', () => {
     expect(() => pathResolver.locatePhysicalPath(p4)).toThrow('bad virtual path.')
   })
 
-  it('locateVirtualPath', () => {
-    const v1: string = path.join(FIXTURE_VIRTUAL_DIR, FILEPATH_1)
-    const v2: string = path.join(FIXTURE_VIRTUAL_DIR, FILEPATH_2)
-    const v3: string = path.join(FIXTURE_VIRTUAL_DIR, FILEPATH_1 + 'non-exist')
-    const v4: string = path.join(FIXTURE_VIRTUAL_DIR, FILEPATH_2 + 'non-exist')
-    const p1: string = path.join(FIXTURE_PHYSICAL_DIR, FILEPATH_1)
-    const p2: string = path.join(FIXTURE_PHYSICAL_DIR, FILEPATH_2)
-    const p3: string = path.join(FIXTURE_PHYSICAL_DIR, FILEPATH_1 + 'non-exist')
-    const p4: string = path.join(FIXTURE_PHYSICAL_DIR, FILEPATH_2 + 'non-exist')
-
-    expect(() => pathResolver.locateVirtualPath(v1)).toThrow('bad physical path.')
-    expect(() => pathResolver.locateVirtualPath(v2)).toThrow('bad physical path.')
-    expect(() => pathResolver.locateVirtualPath(v3)).toThrow('bad physical path.')
-    expect(() => pathResolver.locateVirtualPath(v4)).toThrow('bad physical path.')
-    expect(pathResolver.locateVirtualPath(p1)).toEqual(v1)
-    expect(pathResolver.locateVirtualPath(p2)).toEqual(v2)
-    expect(pathResolver.locateVirtualPath(p3)).toEqual(v3)
-    expect(pathResolver.locateVirtualPath(p4)).toEqual(v4)
-  })
-
   it('normalizePhysicalPath', () => {
     const v1: string = path.join(FIXTURE_VIRTUAL_DIR, FILEPATH_1)
     const v2: string = path.join(FIXTURE_VIRTUAL_DIR, FILEPATH_2)

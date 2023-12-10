@@ -105,15 +105,6 @@ export class VfsPathResolver implements IVfsPathResolver {
     return { physicalPath, partTotal }
   }
 
-  public locateVirtualPath(physicalPath: string): string {
-    if (!this.isPhysicalPath(physicalPath)) {
-      throw new Error(`[${clazz}.locateVirtualPath] bad physical path. Received: ${physicalPath}`)
-    }
-    const relativePath: string = this.physical.relative(physicalPath)
-    const virtualPath: string = this.virtual.resolve(relativePath)
-    return virtualPath
-  }
-
   public normalizePhysicalPath(physicalPath: string): string {
     if (!this.isPhysicalPath(physicalPath)) {
       throw new Error(

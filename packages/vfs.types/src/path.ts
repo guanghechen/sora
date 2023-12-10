@@ -68,12 +68,6 @@ export interface IVfsPathResolver {
   locatePhysicalPath(virtualPath: string): { physicalPath: string; partTotal: number }
 
   /**
-   * Locate the absolute virtual filepath by the physicalPath.
-   * @param physicalPath
-   */
-  locateVirtualPath(physicalPath: string): string
-
-  /**
    * Normalize the physical path (the given physicalPath should be an valid physicalPath).
    * @param physicalPath
    */
