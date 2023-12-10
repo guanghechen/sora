@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.6](https://github.com/guanghechen/sora/compare/@guanghechen/cipher-catalog.types@1.0.0-alpha.5...@guanghechen/cipher-catalog.types@1.0.0-alpha.6) (2023-12-10)
+
+
+### Performance Improvements
+
+* 🎨 support to subscribe catalog change ([3b19eba](https://github.com/guanghechen/sora/commit/3b19ebadf74434a1a35e88429c6b11c4a4fc824e))
+
+
+
+
+
 # [1.0.0-alpha.5](https://github.com/guanghechen/sora/compare/@guanghechen/cipher-catalog.types@1.0.0-alpha.4...@guanghechen/cipher-catalog.types@1.0.0-alpha.5) (2023-12-07)
 
 

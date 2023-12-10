@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.10](https://github.com/guanghechen/sora/compare/@guanghechen/filetree@1.0.0-alpha.9...@guanghechen/filetree@1.0.0-alpha.10) (2023-12-10)
+
+
+### Performance Improvements
+
+* 🎨 use Iterable instead of ReadonlyArray ([b88ba1f](https://github.com/guanghechen/sora/commit/b88ba1f6cae5c44f9df74584d18d890984451804))
+
+
+
+
+
 # [1.0.0-alpha.9](https://github.com/guanghechen/sora/compare/@guanghechen/filetree@1.0.0-alpha.8...@guanghechen/filetree@1.0.0-alpha.9) (2023-12-03)
 
 

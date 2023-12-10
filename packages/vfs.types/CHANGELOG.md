@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.6](https://github.com/guanghechen/sora/compare/@guanghechen/vfs.types@1.0.0-alpha.5...@guanghechen/vfs.types@1.0.0-alpha.6) (2023-12-10)
+
+
+### Performance Improvements
+
+* 🎨 remove locateVirtualPath cause it's not needed ([e0cea7d](https://github.com/guanghechen/sora/commit/e0cea7d1acaa13bfcd37fb9e77d7c43ee615d0d1))
+
+
+
+
+
 # [1.0.0-alpha.5](https://github.com/guanghechen/sora/compare/@guanghechen/vfs.types@1.0.0-alpha.4...@guanghechen/vfs.types@1.0.0-alpha.5) (2023-12-10)
 
 
