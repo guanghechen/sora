@@ -1,5 +1,4 @@
 import type { IDisposable } from '@guanghechen/disposable.types'
-import type { ReadStream, WriteStream } from 'node:fs'
 import type { VfsErrorCode } from './constant'
 import type { IVfsFileStat } from './stat'
 
@@ -12,6 +11,24 @@ export interface IVfsFileWatchOptions {
 }
 
 export interface IVirtualFileSystem extends IDisposable {
+  /**
+   * Maximum size of each file part.
+   * -1 represent not to split the physical file.
+   */
+  readonly FILEPART_MAX_SIZE: number | -1
+
+  /**
+   * Specify the prefix of the part file name suffix.
+   *
+   * eg: 'ghc-part' --> f1.ghc-part01, f1.ghc-part02
+   */
+  readonly FILEPART_CODE_PREFIX: string
+
+  /**
+   * Whether if we should handle the contents carefully.
+   */
+  readonly HIGH_SECURITY: boolean
+
   /**
    * Copy files or folders, speedup the copy operation.
    * @param sourceVirtualPath
@@ -39,44 +56,46 @@ export interface IVirtualFileSystem extends IDisposable {
   /**
    * Create a readable stream to read the entire contents of a file.
    * @param virtualPath
-   * @param options
    */
-  createReadStream(
-    virtualPath: string,
-    options?: BufferEncoding,
-  ): Promise<
+  createReadStream(virtualPath: string): Promise<
     | VfsErrorCode.SOURCE_NOT_FOUND // When `virtualPath` doesn't exist.
     | VfsErrorCode.SOURCE_IS_DIRECTORY // When the `virtualPath` is a directory.
-    | VfsErrorCode.SOURCE_NO_PERMISSION
-    | ReadStream // When the operation is executed successfully.
+    | VfsErrorCode.SOURCE_NO_PERMISSION // When permissions aren't sufficient.
+    | NodeJS.ReadableStream // When the operation is executed successfully.
   >
 
   /**
    * Create a writable stream to write data to a file, replacing its entire contents.
    * @param virtualPath
-   * @param options
+   * @param create
+   * @param overwrite
+   * @param byteLength
    */
   createWriteStream(
     virtualPath: string,
-    options?: BufferEncoding,
+    create: boolean,
+    overwrite: boolean,
+    byteLength: number,
   ): Promise<
-    | VfsErrorCode.SOURCE_PARENT_NOT_FOUND // When the parent of `virtualPath` doesn't exist.
-    | VfsErrorCode.SOURCE_PARENT_NOT_DIRECTORY // When the parent of `virtualPath` is not a directory.
-    | VfsErrorCode.SOURCE_NO_PERMISSION
-    | WriteStream // When the operation is executed successfully.
+    | VfsErrorCode.SOURCE_NOT_FOUND // When the `virtualPath` doesn't exist and `create` is not `true`.
+    | VfsErrorCode.SOURCE_PARENT_NOT_FOUND // When the parent of `virtualPath` doesn't exist and `create` is `true`.
+    | VfsErrorCode.SOURCE_PARENT_NOT_DIRECTORY // When the parent of `virtualPath` is not a directory
+    | VfsErrorCode.SOURCE_EXIST // When the `virtualPath` already exists, `create` is set but `overwrite` is not `true`.
+    | VfsErrorCode.SOURCE_NO_PERMISSION // When permissions aren't sufficient.
+    | NodeJS.WritableStream // When the operation is executed successfully.
   >
-
-  /**
-   * Check if the path exists.
-   * @param virtualPath
-   */
-  isExist(virtualPath: string): Promise<boolean>
 
   /**
    * Check if the path exists and it is a directory.
    * @param virtualPath
    */
   isDirectory(virtualPath: string): Promise<boolean>
+
+  /**
+   * Check if the path exists.
+   * @param virtualPath
+   */
+  isExist(virtualPath: string): Promise<boolean>
 
   /**
    * Check if the path exists and it is a file.
@@ -147,12 +166,12 @@ export interface IVirtualFileSystem extends IDisposable {
     overwrite: boolean,
   ): Promise<
     | VfsErrorCode.SOURCE_NOT_FOUND // When `sourceVirtualPath` doesn't exist.
-    | VfsErrorCode.SOURCE_NO_PERMISSION // When permissions aren't sufficient.
     | VfsErrorCode.TARGET_PARENT_NOT_FOUND // When parent of `targetVirtualPath` doesn't exist.
     | VfsErrorCode.TARGET_PARENT_NOT_DIRECTORY // When parent of `targetVirtualPath` is not a directory.
     | VfsErrorCode.TARGET_EXIST // When `targetVirtualPath` exists and when the `overwrite` is not `true`.
     | VfsErrorCode.TARGET_IS_DIRECTORY // When `sourceVirtualPath` is not a directory but `targetVirtualPath` is a directory.
     | VfsErrorCode.TARGET_NOT_DIRECTORY // When `sourceVirtualPath` is a directory but `targetVirtualPath` is not a directory.
+    | VfsErrorCode.SOURCE_NO_PERMISSION // When permissions aren't sufficient.
     | VfsErrorCode.TARGET_NO_PERMISSION // When permissions aren't sufficient.
     | void // When the operation is executed successfully.
   >

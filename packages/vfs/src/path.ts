@@ -5,25 +5,29 @@ import {
   urlPathResolver as virtualPathResolver,
 } from '@guanghechen/path'
 import type { IVfsPathResolver } from '@guanghechen/vfs.types'
-import { existsSync } from 'node:fs'
+import { existsSync, readdirSync, statSync } from 'node:fs'
 
 interface IProps {
-  physicalRoot: string
-  virtualRoot: string
+  readonly FILEPART_CODE_PREFIX: string
+  readonly physicalRoot: string
+  readonly virtualRoot: string
 }
 
 const clazz: string = 'VfsPathResolver'
 
 export class VfsPathResolver implements IVfsPathResolver {
+  protected readonly FILEPART_CODE_PREFIX: string
   protected readonly physical: IWorkspacePathResolver
   protected readonly virtual: IWorkspacePathResolver
 
   constructor(props: IProps) {
+    const { FILEPART_CODE_PREFIX } = props
     const physicalRoot: string = physicalPathResolver.normalize(props.physicalRoot)
     const virtualRoot: string = virtualPathResolver.normalize(props.virtualRoot)
     const physical = new WorkspacePathResolver(physicalRoot, physicalPathResolver)
     const virtual = new WorkspacePathResolver(virtualRoot, virtualPathResolver)
 
+    this.FILEPART_CODE_PREFIX = FILEPART_CODE_PREFIX
     this.physical = physical
     this.virtual = virtual
   }
@@ -52,13 +56,17 @@ export class VfsPathResolver implements IVfsPathResolver {
     return this.physical.isSafePath(filepath)
   }
 
+  public isPhysicalPathExist(physicalPath: string): boolean {
+    return existsSync(physicalPath)
+  }
+
   public isVirtualPath(filepath: string): boolean {
     return this.virtual.isSafePath(filepath)
   }
 
   public isVirtualPathExist(virtualPath: string): boolean {
-    const physicalPath: string = this.locatePhysicalPath(virtualPath)
-    return existsSync(physicalPath)
+    const { partTotal } = this.locatePhysicalPath(virtualPath)
+    return partTotal > 0
   }
 
   public joinPhysicalPath(physicalPath: string, ...pathPieces: string[]): string {
@@ -69,13 +77,32 @@ export class VfsPathResolver implements IVfsPathResolver {
     return this.virtual.pathResolver.join(virtualPath, ...pathPieces)
   }
 
-  public locatePhysicalPath(virtualPath: string): string {
+  public locatePhysicalPath(virtualPath: string): { physicalPath: string; partTotal: number } {
     if (!this.isVirtualPath(virtualPath)) {
       throw new Error(`[${clazz}.locatePhysicalPath] bad virtual path. Received: ${virtualPath}`)
     }
     const relativePath: string = this.virtual.relative(virtualPath)
     const physicalPath: string = this.physical.resolve(relativePath)
-    return physicalPath
+    if (this.isPhysicalPathExist(physicalPath)) return { physicalPath, partTotal: 1 }
+
+    const dirname: string = this.physical.pathResolver.dirname(physicalPath)
+    if (!this.isPhysicalPathExist(dirname)) return { physicalPath, partTotal: 0 }
+    if (!statSync(dirname).isDirectory()) return { physicalPath, partTotal: 0 }
+
+    const filenames: string[] = readdirSync(dirname)
+    const filePartNamePrefix: string =
+      this.physical.pathResolver.basename(physicalPath) + this.FILEPART_CODE_PREFIX
+
+    let partTotal: number = 0
+    for (const filename of filenames) {
+      if (
+        filename.startsWith(filePartNamePrefix) &&
+        /^\d+$/.test(filename.slice(filePartNamePrefix.length))
+      ) {
+        partTotal += 1
+      }
+    }
+    return { physicalPath, partTotal }
   }
 
   public locateVirtualPath(physicalPath: string): string {

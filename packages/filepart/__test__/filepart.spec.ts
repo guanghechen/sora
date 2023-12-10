@@ -19,7 +19,9 @@ describe('util', () => {
   const contentG: string = readFileSync(locateFixtures('g.md'), encoding)
 
   test('calcFilePartItemsBySize', () => {
-    expect(() => [...calcFilePartItemsBySize(100, 0)]).toThrow('Part size should be a positive integer!')
+    expect(() => [...calcFilePartItemsBySize(100, 0)]).toThrow(
+      'Part size should be a positive integer!',
+    )
     expect(() => [...calcFilePartItemsBySize(100, Number.NEGATIVE_INFINITY)]).toThrow(
       'Part size should be a positive integer!',
     )
@@ -30,8 +32,12 @@ describe('util', () => {
     expect([...calcFilePartItemsBySize(100, Number.MAX_SAFE_INTEGER)]).toEqual([
       { sid: 1, start: 0, end: 100 },
     ])
-    expect([...calcFilePartItemsBySize(contentA.length, 1024)]).toEqual([{ sid: 1, start: 0, end: 9 }])
-    expect([...calcFilePartItemsBySize(contentB.length, 1024)]).toEqual([{ sid: 1, start: 0, end: 315 }])
+    expect([...calcFilePartItemsBySize(contentA.length, 1024)]).toEqual([
+      { sid: 1, start: 0, end: 9 },
+    ])
+    expect([...calcFilePartItemsBySize(contentB.length, 1024)]).toEqual([
+      { sid: 1, start: 0, end: 315 },
+    ])
     expect([...calcFilePartItemsBySize(contentC.length, 1024)]).toEqual([
       { sid: 1, start: 0, end: 1024 },
       { sid: 2, start: 1024, end: 2048 },
@@ -55,7 +61,9 @@ describe('util', () => {
       { sid: 11, start: 10240, end: 11264 },
       { sid: 12, start: 11264, end: 12150 },
     ])
-    expect([...calcFilePartItemsBySize(contentE.length, 1024)]).toEqual([{ sid: 1, start: 0, end: 0 }])
+    expect([...calcFilePartItemsBySize(contentE.length, 1024)]).toEqual([
+      { sid: 1, start: 0, end: 0 },
+    ])
     expect([...calcFilePartItemsBySize(contentF.length, 1024)]).toEqual([
       { sid: 1, start: 0, end: 1024 },
       { sid: 2, start: 1024, end: 2048 },
@@ -64,7 +72,9 @@ describe('util', () => {
       { sid: 5, start: 4096, end: 5120 },
       { sid: 6, start: 5120, end: 5395 },
     ])
-    expect([...calcFilePartItemsBySize(contentG.length, 1024)]).toEqual([{ sid: 1, start: 0, end: 0 }])
+    expect([...calcFilePartItemsBySize(contentG.length, 1024)]).toEqual([
+      { sid: 1, start: 0, end: 0 },
+    ])
   })
 
   test('calcFilePartItemsByCount', () => {
@@ -75,7 +85,9 @@ describe('util', () => {
       'Total of part should be a positive integer!',
     )
 
-    expect([...calcFilePartItemsByCount(contentA.length, 1)]).toEqual([{ sid: 1, start: 0, end: 9 }])
+    expect([...calcFilePartItemsByCount(contentA.length, 1)]).toEqual([
+      { sid: 1, start: 0, end: 9 },
+    ])
     expect([...calcFilePartItemsByCount(contentB.length, 3)]).toEqual([
       { sid: 1, start: 0, end: 105 },
       { sid: 2, start: 105, end: 210 },
@@ -100,7 +112,9 @@ describe('util', () => {
       { sid: 7, start: 9114, end: 10633 },
       { sid: 8, start: 10633, end: 12150 },
     ])
-    expect([...calcFilePartItemsByCount(contentE.length, 2)]).toEqual([{ sid: 1, start: 0, end: 0 }])
+    expect([...calcFilePartItemsByCount(contentE.length, 2)]).toEqual([
+      { sid: 1, start: 0, end: 0 },
+    ])
     expect([...calcFilePartItemsByCount(contentF.length, 7)]).toEqual([
       { sid: 1, start: 0, end: 771 },
       { sid: 2, start: 771, end: 1542 },
@@ -110,7 +124,9 @@ describe('util', () => {
       { sid: 6, start: 3855, end: 4626 },
       { sid: 7, start: 4626, end: 5395 },
     ])
-    expect([...calcFilePartItemsByCount(contentG.length, 3)]).toEqual([{ sid: 1, start: 0, end: 0 }])
+    expect([...calcFilePartItemsByCount(contentG.length, 3)]).toEqual([
+      { sid: 1, start: 0, end: 0 },
+    ])
   })
 
   test('calcFilePartNames', () => {

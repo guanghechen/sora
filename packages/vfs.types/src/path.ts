@@ -28,6 +28,12 @@ export interface IVfsPathResolver {
   isPhysicalPath(filepath: string): boolean
 
   /**
+   * Check if the given physical path exists. (only check the path directly, don't consider the file parts)
+   * @param physicalPath
+   */
+  isPhysicalPathExist(physicalPath: string): boolean
+
+  /**
    * Check if the filepath is a virtual path.
    * @param filepath
    */
@@ -54,10 +60,12 @@ export interface IVfsPathResolver {
   joinVirtualPath(virtualPath: string, ...pathPieces: string[]): string
 
   /**
-   * Locate the absolute physical filepath by the virtualPath.
+   * Locate the absolute physical filepath by the virtualPath. Since the content could be splitted
+   * into multiple files, so we need to known how many parts exist when try to resolve the physical
+   * path.
    * @param virtualPath
    */
-  locatePhysicalPath(virtualPath: string): string
+  locatePhysicalPath(virtualPath: string): { physicalPath: string; partTotal: number }
 
   /**
    * Locate the absolute virtual filepath by the physicalPath.
