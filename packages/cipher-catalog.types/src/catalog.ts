@@ -1,8 +1,9 @@
+import type { IBatchDisposable } from '@guanghechen/disposable.types'
 import type { IReadonlyCipherCatalog } from './catalog.readonly'
 import type { ICatalogDiffItem, IDraftCatalogDiffItem } from './diff-item'
 import type { ICatalogItem } from './item'
 
-export interface ICipherCatalog extends IReadonlyCipherCatalog {
+export interface ICipherCatalog extends IReadonlyCipherCatalog, IBatchDisposable {
   /**
    * Apply catalog diffs.
    */
