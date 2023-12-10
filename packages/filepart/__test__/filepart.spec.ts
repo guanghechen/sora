@@ -1,7 +1,12 @@
 import { locateFixtures } from 'jest.helper'
 import { readFileSync } from 'node:fs'
 import type { IFilePartItem } from '../src'
-import { calcFilePartItemsByCount, calcFilePartItemsBySize, calcFilePartNames } from '../src'
+import {
+  calcFilePartItemsByCount,
+  calcFilePartItemsBySize,
+  calcFilePartNames,
+  calcFilePartNamesByCount,
+} from '../src'
 
 describe('util', () => {
   const encoding: BufferEncoding = 'utf8'
@@ -136,6 +141,34 @@ describe('util', () => {
       { sid: 12, start: 11264, end: 12150 },
     ]
     expect(calcFilePartNames(parts, '.part.')).toEqual([
+      '.part.01',
+      '.part.02',
+      '.part.03',
+      '.part.04',
+      '.part.05',
+      '.part.06',
+      '.part.07',
+      '.part.08',
+      '.part.09',
+      '.part.10',
+      '.part.11',
+      '.part.12',
+    ])
+  })
+
+  test('calcFilePartNamesByCount', () => {
+    // empty
+    expect(calcFilePartNamesByCount(0, '')).toEqual([])
+    expect(calcFilePartNamesByCount(-1, '.part')).toEqual([])
+
+    // single part
+    expect(calcFilePartNamesByCount(1, '')).toEqual([''])
+    expect(calcFilePartNamesByCount(1, '.part')).toEqual([''])
+
+    // multiple part
+    expect(calcFilePartNamesByCount(2, '')).toEqual(['1', '2'])
+    expect(calcFilePartNamesByCount(2, '.part')).toEqual(['.part1', '.part2'])
+    expect(calcFilePartNamesByCount(12, '.part.')).toEqual([
       '.part.01',
       '.part.02',
       '.part.03',

@@ -80,17 +80,35 @@ export function calcFilePartNames(
   // ex. if original file is split into 4 files, then it will be 1
   // ex. if original file is split into 14 files, then it will be 2
   // etc.
-  const maxPaddingCount = String(parts.length).length
+  const maxPaddingCount: number = String(parts.length).length
 
-  const partNames = parts.map(part => {
+  const partNames: string[] = parts.map(part => {
     // construct part number for current file part, e.g. (assume the partCodePrefix is ".ghc-part")
     //
     //    .ghc-part01
     //    ...
     //    .ghc-part14
-    const partCode = String(part.sid).padStart(maxPaddingCount, '0')
-    return partCodePrefix + partCode
+    const partCode: string = String(part.sid).padStart(maxPaddingCount, '0')
+    const partName: string = partCodePrefix + partCode
+    return partName
   })
 
+  return partNames
+}
+
+export function calcFilePartNamesByCount(
+  partTotal: number,
+  partCodePrefix: string = DEFAULT_FILEPART_CODE_PREFIX,
+): string[] {
+  if (partTotal <= 0) return []
+  if (partTotal === 1) return ['']
+
+  const maxPaddingCount = String(partTotal).length
+  const partNames: string[] = []
+  for (let sid = 1; sid <= partTotal; ++sid) {
+    const partCode: string = String(sid).padStart(maxPaddingCount, '0')
+    const partName: string = partCodePrefix + partCode
+    partNames.push(partName)
+  }
   return partNames
 }
