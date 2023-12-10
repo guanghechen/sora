@@ -18,8 +18,11 @@ describe('util', () => {
     expect(() => calcFilePartItemsBySize(100, Number.NEGATIVE_INFINITY)).toThrow(
       'Part size should be a positive integer!',
     )
+    expect(() => calcFilePartItemsBySize(100, Number.MIN_SAFE_INTEGER)).toThrow(
+      'Part size should be a positive integer!',
+    )
 
-    expect(calcFilePartItemsBySize(100, Number.POSITIVE_INFINITY)).toEqual([
+    expect(calcFilePartItemsBySize(100, Number.MAX_SAFE_INTEGER)).toEqual([
       { sid: 1, start: 0, end: 100 },
     ])
     expect(calcFilePartItemsBySize(contentA.length, 1024)).toEqual([{ sid: 1, start: 0, end: 9 }])

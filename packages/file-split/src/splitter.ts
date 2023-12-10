@@ -1,8 +1,9 @@
+import type { IFilePartItem } from '@guanghechen/filepart'
+import { calcFilePartNames } from '@guanghechen/filepart'
 import { invariant } from '@guanghechen/internal'
 import { consumeStream, consumeStreams } from '@guanghechen/stream'
 import { createReadStream, createWriteStream } from 'node:fs'
-import type { IFilePartItem, IFileSplitter } from './types'
-import { calcFilePartNames } from './util'
+import type { IFileSplitter } from './types'
 
 interface IProps {
   /**

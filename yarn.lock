@@ -621,8 +621,24 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/file-split@workspace:packages/file-split"
   dependencies:
+    "@guanghechen/filepart": ^1.0.0-alpha.0
     "@guanghechen/internal": ^1.0.0-alpha.0
     "@guanghechen/stream": ^1.0.0-alpha.8
+  languageName: unknown
+  linkType: soft
+
+"@guanghechen/filepart.types@^1.0.0-alpha.0, @guanghechen/filepart.types@workspace:packages/filepart.types":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/filepart.types@workspace:packages/filepart.types"
+  languageName: unknown
+  linkType: soft
+
+"@guanghechen/filepart@^1.0.0-alpha.0, @guanghechen/filepart@workspace:packages/filepart":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/filepart@workspace:packages/filepart"
+  dependencies:
+    "@guanghechen/filepart.types": ^1.0.0-alpha.0
+    "@guanghechen/internal": ^1.0.0-alpha.0
   languageName: unknown
   linkType: soft
 

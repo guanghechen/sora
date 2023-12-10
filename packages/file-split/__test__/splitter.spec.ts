@@ -1,9 +1,10 @@
+import { calcFilePartItemsBySize } from '@guanghechen/filepart'
+import type { IFilePartItem } from '@guanghechen/filepart'
 import { emptyDir, rm, writeFile } from '@guanghechen/internal'
 import { locateFixtures } from 'jest.helper'
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
-import type { IFilePartItem } from '../src'
-import { FileSplitter, calcFilePartItemsBySize } from '../src'
+import { FileSplitter } from '../src'
 
 describe('splitter', () => {
   const workspaceDir: string = locateFixtures('__fictitious__.BigFileHelper')

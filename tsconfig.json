@@ -23,6 +23,8 @@
       "@guanghechen/file-split": ["packages/file-split/src"],
       "@guanghechen/filetree": ["packages/filetree/src"],
       "@guanghechen/filetree.types": ["packages/filetree.types/src"],
+      "@guanghechen/filepart": ["packages/filepart/src"],
+      "@guanghechen/filepart.types": ["packages/filepart.types/src"],
       "@guanghechen/mac": ["packages/mac/src"],
       "@guanghechen/middleware": ["packages/middleware/src"],
       "@guanghechen/middleware.types": ["packages/middleware.types/src"],

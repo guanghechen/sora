@@ -1,5 +1,5 @@
+import type { IFilePartItem } from '@guanghechen/filepart.types'
 import { invariant } from '@guanghechen/internal'
-import type { IFilePartItem } from './types'
 
 /**
  * Generate file part items by part size.
@@ -8,13 +8,12 @@ import type { IFilePartItem } from './types'
  * @param _partSize
  * @returns
  */
-export function calcFilePartItemsBySize(fileSize: number, _partSize: number): IFilePartItem[] {
-  invariant(_partSize >= 1, 'Part size should be a positive integer!')
+export function calcFilePartItemsBySize(fileSize: number, partSize: number): IFilePartItem[] {
+  invariant(partSize >= 1 && Number.isInteger(partSize), 'Part size should be a positive integer!')
 
   if (fileSize <= 0) return [{ sid: 1, start: 0, end: 0 }]
-  if (fileSize <= _partSize) return [{ sid: 1, start: 0, end: fileSize }]
+  if (fileSize <= partSize) return [{ sid: 1, start: 0, end: fileSize }]
 
-  const partSize = Math.round(_partSize)
   const partTotal = Math.ceil(fileSize / partSize)
   invariant(partTotal > 0, 'Part size is too small!')
 
@@ -39,12 +38,14 @@ export function calcFilePartItemsBySize(fileSize: number, _partSize: number): IF
  * @param _partTotal
  * @returns
  */
-export function calcFilePartItemsByCount(fileSize: number, _partTotal: number): IFilePartItem[] {
-  invariant(_partTotal >= 1, 'Total of part should be a positive integer!')
+export function calcFilePartItemsByCount(fileSize: number, partTotal: number): IFilePartItem[] {
+  invariant(
+    partTotal >= 1 && Number.isInteger(partTotal),
+    'Total of part should be a positive integer!',
+  )
 
   if (fileSize <= 0) return [{ sid: 1, start: 0, end: 0 }]
 
-  const partTotal = Math.round(_partTotal)
   const partSize = Math.ceil(fileSize / partTotal)
   const parts: IFilePartItem[] = []
   for (let i = 0; i < partTotal; ++i) {

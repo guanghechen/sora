@@ -1,22 +1,17 @@
 {
-  "name": "@guanghechen/file-split",
-  "version": "1.0.0-alpha.16",
-  "description": "File helper",
+  "name": "@guanghechen/filepart.types",
+  "version": "1.0.0-alpha.0",
+  "description": "types of @guanghechen/filepart",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/file-split@1.0.0-alpha.16",
-    "directory": "packages/file-split"
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/filepart.types@1.0.0-alpha.0",
+    "directory": "packages/filepart.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/file-split@1.0.0-alpha.16/packages/file-split#readme",
-  "keywords": [
-    "file helper",
-    "split file",
-    "merge streams"
-  ],
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/filepart.types@1.0.0-alpha.0/packages/filepart.types#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -41,14 +36,6 @@
   ],
   "scripts": {
     "build": "../../node_modules/.bin/rimraf lib/ && ../../node_modules/.bin/cross-env NODE_ENV=production ../../node_modules/.bin/rollup -c ../../rollup.config.mjs",
-    "prepublishOnly": "yarn build",
-    "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
-  },
-  "dependencies": {
-    "@guanghechen/filepart": "^1.0.0-alpha.0",
-    "@guanghechen/stream": "^1.0.0-alpha.8"
-  },
-  "devDependencies": {
-    "@guanghechen/internal": "^1.0.0-alpha.0"
+    "prepublishOnly": "yarn build"
   }
 }
