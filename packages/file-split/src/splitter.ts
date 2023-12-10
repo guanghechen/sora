@@ -29,8 +29,12 @@ export class FileSplitter implements IFileSplitter {
   public calcPartFilepaths(filepath: string, parts: IFilePartItem[]): string[] {
     if (parts.length <= 1) return [filepath]
 
-    const partNames = calcFilePartNames(parts, this.partCodePrefix)
-    return partNames.map(partName => filepath + partName)
+    const partFilepaths: string[] = []
+    for (const partName of calcFilePartNames(parts, this.partCodePrefix)) {
+      const partFilepath: string = filepath + partName
+      partFilepaths.push(partFilepath)
+    }
+    return partFilepaths
   }
 
   public async split(

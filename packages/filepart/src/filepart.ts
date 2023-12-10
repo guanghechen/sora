@@ -1,4 +1,4 @@
-import { DEFAULT_FILEPART_CODE_PREFIX, type IFilePartItem } from '@guanghechen/filepart.types'
+import type { IFilePartItem } from '@guanghechen/filepart.types'
 import { invariant } from '@guanghechen/internal'
 
 /**
@@ -8,57 +8,72 @@ import { invariant } from '@guanghechen/internal'
  * @param _partSize
  * @returns
  */
-export function calcFilePartItemsBySize(fileSize: number, partSize: number): IFilePartItem[] {
+export function* calcFilePartItemsBySize(
+  fileSize: number,
+  partSize: number,
+): IterableIterator<IFilePartItem> {
   invariant(partSize >= 1 && Number.isInteger(partSize), 'Part size should be a positive integer!')
 
-  if (fileSize <= 0) return [{ sid: 1, start: 0, end: 0 }]
-  if (fileSize <= partSize) return [{ sid: 1, start: 0, end: fileSize }]
+  if (fileSize <= 0) {
+    yield { sid: 1, start: 0, end: 0 }
+    return
+  }
+
+  if (fileSize <= partSize) {
+    yield { sid: 1, start: 0, end: fileSize }
+    return
+  }
 
   const partTotal = Math.ceil(fileSize / partSize)
   invariant(partTotal > 0, 'Part size is too small!')
 
-  const parts: IFilePartItem[] = []
   for (let i = 0; i < partTotal; ++i) {
-    parts.push({
+    const part: IFilePartItem = {
       sid: i + 1,
       start: i * partSize,
-      end: (i + 1) * partSize,
-    })
+      end: i + 1 === partTotal ? fileSize : (i + 1) * partSize,
+    }
+    yield part
   }
-
-  // Resize the size of the last part.
-  parts[parts.length - 1].end = fileSize
-  return parts
 }
 
 /**
  * Generate file part items by total of parts.
  *
  * @param filepath
- * @param _partTotal
+ * @param partTotal
  * @returns
  */
-export function calcFilePartItemsByCount(fileSize: number, partTotal: number): IFilePartItem[] {
+export function* calcFilePartItemsByCount(
+  fileSize: number,
+  partTotal: number,
+): IterableIterator<IFilePartItem> {
   invariant(
     partTotal >= 1 && Number.isInteger(partTotal),
     'Total of part should be a positive integer!',
   )
 
-  if (fileSize <= 0) return [{ sid: 1, start: 0, end: 0 }]
-
-  const partSize = Math.ceil(fileSize / partTotal)
-  const parts: IFilePartItem[] = []
-  for (let i = 0; i < partTotal; ++i) {
-    parts.push({
-      sid: i + 1,
-      start: i * partSize,
-      end: (i + 1) * partSize,
-    })
+  if (fileSize <= 0) {
+    yield { sid: 1, start: 0, end: 0 }
+    return
   }
 
-  // Resize the size of the last part.
-  parts[parts.length - 1].end = fileSize
-  return parts
+  if (partTotal === 1) {
+    yield { sid: 1, start: 0, end: fileSize }
+    return
+  }
+
+  const partSize = Math.ceil(fileSize / partTotal)
+  invariant(partSize > 0, 'Part size is too small!')
+
+  for (let i = 0; i < partTotal; ++i) {
+    const part: IFilePartItem = {
+      sid: i + 1,
+      start: i * partSize,
+      end: i + 1 === partTotal ? fileSize : (i + 1) * partSize,
+    }
+    yield part
+  }
 }
 
 /**
@@ -68,12 +83,15 @@ export function calcFilePartItemsByCount(fileSize: number, partTotal: number): I
  * @param partCodePrefix
  * @returns
  */
-export function calcFilePartNames(
+export function* calcFilePartNames(
   parts: ReadonlyArray<Pick<IFilePartItem, 'sid'>>,
-  partCodePrefix: string = DEFAULT_FILEPART_CODE_PREFIX,
-): string[] {
-  if (parts.length === 0) return []
-  if (parts.length === 1) return ['']
+  partCodePrefix: string,
+): IterableIterator<string> {
+  if (parts.length === 0) return
+  if (parts.length === 1) {
+    yield ''
+    return
+  }
 
   // Part name (file name of part)
   // get the max number of digits to generate for part number
@@ -82,7 +100,7 @@ export function calcFilePartNames(
   // etc.
   const maxPaddingCount: number = String(parts.length).length
 
-  const partNames: string[] = parts.map(part => {
+  for (const part of parts) {
     // construct part number for current file part, e.g. (assume the partCodePrefix is ".ghc-part")
     //
     //    .ghc-part01
@@ -90,25 +108,24 @@ export function calcFilePartNames(
     //    .ghc-part14
     const partCode: string = String(part.sid).padStart(maxPaddingCount, '0')
     const partName: string = partCodePrefix + partCode
-    return partName
-  })
-
-  return partNames
+    yield partName
+  }
 }
 
-export function calcFilePartNamesByCount(
+export function* calcFilePartNamesByCount(
   partTotal: number,
-  partCodePrefix: string = DEFAULT_FILEPART_CODE_PREFIX,
-): string[] {
-  if (partTotal <= 0) return []
-  if (partTotal === 1) return ['']
+  partCodePrefix: string,
+): IterableIterator<string> {
+  if (partTotal <= 0) return
+  if (partTotal === 1) {
+    yield ''
+    return
+  }
 
   const maxPaddingCount = String(partTotal).length
-  const partNames: string[] = []
   for (let sid = 1; sid <= partTotal; ++sid) {
     const partCode: string = String(sid).padStart(maxPaddingCount, '0')
     const partName: string = partCodePrefix + partCode
-    partNames.push(partName)
+    yield partName
   }
-  return partNames
 }

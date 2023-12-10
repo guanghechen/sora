@@ -37,13 +37,13 @@ describe('splitter', () => {
   const contentF: string = readFileSync(locateFixtures('f.md'), encoding)
   const contentG: string = readFileSync(locateFixtures('g.md'), encoding)
 
-  const partsA: IFilePartItem[] = calcFilePartItemsBySize(contentA.length, maxTargetFileSize)
-  const partsB: IFilePartItem[] = calcFilePartItemsBySize(contentB.length, maxTargetFileSize)
-  const partsC: IFilePartItem[] = calcFilePartItemsBySize(contentC.length, maxTargetFileSize)
-  const partsD: IFilePartItem[] = calcFilePartItemsBySize(contentD.length, maxTargetFileSize)
-  const partsE: IFilePartItem[] = calcFilePartItemsBySize(contentE.length, maxTargetFileSize)
-  const partsF: IFilePartItem[] = calcFilePartItemsBySize(contentF.length, maxTargetFileSize)
-  const partsG: IFilePartItem[] = calcFilePartItemsBySize(contentG.length, maxTargetFileSize)
+  const partsA: IFilePartItem[] = [...calcFilePartItemsBySize(contentA.length, maxTargetFileSize)]
+  const partsB: IFilePartItem[] = [...calcFilePartItemsBySize(contentB.length, maxTargetFileSize)]
+  const partsC: IFilePartItem[] = [...calcFilePartItemsBySize(contentC.length, maxTargetFileSize)]
+  const partsD: IFilePartItem[] = [...calcFilePartItemsBySize(contentD.length, maxTargetFileSize)]
+  const partsE: IFilePartItem[] = [...calcFilePartItemsBySize(contentE.length, maxTargetFileSize)]
+  const partsF: IFilePartItem[] = [...calcFilePartItemsBySize(contentF.length, maxTargetFileSize)]
+  const partsG: IFilePartItem[] = [...calcFilePartItemsBySize(contentG.length, maxTargetFileSize)]
 
   const partsAFilepaths: string[] = ['1', '2', '3', '4'].map(p => filepathA + partCodePrefix + p)
   const partsBFilepaths: string[] = [filepathB]
