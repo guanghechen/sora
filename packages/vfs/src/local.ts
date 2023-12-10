@@ -10,8 +10,8 @@ interface IProps {
   readonly HIGH_SECURITY?: boolean
   readonly root: string
   readonly reporter: IReporter
-  readonly encode?: (virtualPath: string) => NodeJS.ReadWriteStream
-  readonly decode?: (virtualPath: string) => NodeJS.ReadWriteStream
+  readonly encode?: (virtualPath: string) => Promise<NodeJS.ReadWriteStream>
+  readonly decode?: (virtualPath: string) => Promise<NodeJS.ReadWriteStream>
 }
 
 export class LocalVirtualFileSystem extends VirtualFileSystem implements IVirtualFileSystem {

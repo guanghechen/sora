@@ -22,8 +22,8 @@ interface IProps {
   readonly HIGH_SECURITY: boolean
   readonly reporter: IReporter
   readonly pathResolver: IVfsPathResolver
-  readonly encode?: (virtualPath: string) => NodeJS.ReadWriteStream
-  readonly decode?: (virtualPath: string) => NodeJS.ReadWriteStream
+  readonly encode?: (virtualPath: string) => Promise<NodeJS.ReadWriteStream>
+  readonly decode?: (virtualPath: string) => Promise<NodeJS.ReadWriteStream>
 }
 
 const clazz: string = 'VirtualFileSystem'
@@ -35,8 +35,8 @@ export class VirtualFileSystem extends BatchDisposable implements IVirtualFileSy
 
   protected readonly pathResolver: IVfsPathResolver
   protected readonly reporter: IReporter
-  protected readonly encode?: (virtualPath: string) => NodeJS.ReadWriteStream
-  protected readonly decode?: (virtualPath: string) => NodeJS.ReadWriteStream
+  protected readonly encode?: (virtualPath: string) => Promise<NodeJS.ReadWriteStream>
+  protected readonly decode?: (virtualPath: string) => Promise<NodeJS.ReadWriteStream>
 
   constructor(props: IProps) {
     const {
@@ -168,7 +168,7 @@ export class VirtualFileSystem extends BatchDisposable implements IVirtualFileSy
         streams.push(stream)
       }
       const readable: NodeJS.ReadableStream = mergeStreams(streams)
-      return decode ? readable.pipe(decode(virtualPath)) : readable
+      return decode ? readable.pipe(await decode(virtualPath)) : readable
     } catch (error) {
       /* c8 ignore start */
       this.reporter.error('[{}.createReadStream] failed.', clazz, {
@@ -262,7 +262,7 @@ export class VirtualFileSystem extends BatchDisposable implements IVirtualFileSy
             .catch(err => callback(err))
         },
       })
-      return encode ? encode(virtualPath).pipe(writable) : writable
+      return encode ? (await encode(virtualPath)).pipe(writable) : writable
     } catch (error) {
       /* c8 ignore start */
       this.reporter.error('[{}.createWriteStream] failed.', clazz, { virtualPath })
