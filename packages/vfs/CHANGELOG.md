@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.4](https://github.com/guanghechen/sora/compare/@guanghechen/vfs@1.0.0-alpha.3...@guanghechen/vfs@1.0.0-alpha.4) (2023-12-10)
+
+
+### Performance Improvements
+
+* 🎨 make encode/decode async ([42a30c1](https://github.com/guanghechen/sora/commit/42a30c1e4252a0d5542f083a05019a66484bb743))
+
+
+
+
+
 # [1.0.0-alpha.3](https://github.com/guanghechen/sora/compare/@guanghechen/vfs@1.0.0-alpha.2...@guanghechen/vfs@1.0.0-alpha.3) (2023-12-10)
 
 
