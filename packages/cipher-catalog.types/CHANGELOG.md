@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.8](https://github.com/guanghechen/sora/compare/@guanghechen/cipher-catalog.types@1.0.0-alpha.7...@guanghechen/cipher-catalog.types@1.0.0-alpha.8) (2023-12-10)
+
+
+### Performance Improvements
+
+* 🎨 let ICipherCatalog to inherit IBatchDisposable ([8e959b5](https://github.com/guanghechen/sora/commit/8e959b5b1b240b90c7d0f6d25cd15e7654e9bf8a))
+
+
+
+
+
 # [1.0.0-alpha.7](https://github.com/guanghechen/sora/compare/@guanghechen/cipher-catalog.types@1.0.0-alpha.6...@guanghechen/cipher-catalog.types@1.0.0-alpha.7) (2023-12-10)
 
 
