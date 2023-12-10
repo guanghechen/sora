@@ -1,8 +1,6 @@
 import type { ICipherCatalogContext } from './context'
-import type { ICatalogDiffItem } from './diff-item'
 import type { ICatalogItem, IDeserializedCatalogItem, IDraftCatalogItem } from './item'
-
-export type IOnCatalogChange = (diffItems: ReadonlyArray<ICatalogDiffItem>) => void
+import type { ICipherCatalogMonitor, IUnMonitorCipherCatalog } from './monitor'
 
 export interface IReadonlyCipherCatalog {
   /**
@@ -76,14 +74,14 @@ export interface IReadonlyCipherCatalog {
   isKeepPlain(relativePlainFilepath: string): boolean
 
   /**
+   * Monitor the catalog change.
+   * @param monitor
+   */
+  monitor(monitor: Partial<ICipherCatalogMonitor>): IUnMonitorCipherCatalog
+
+  /**
    * Normalize the given plainFilepath to get a stable string across platforms.
    * @param plainFilepath
    */
   normalizePlainFilepath(plainFilepath: string): string
-
-  /**
-   * Subscribe the catalog change.
-   * @param fn
-   */
-  subscribeCatalogChange(fn: IOnCatalogChange): void
 }
