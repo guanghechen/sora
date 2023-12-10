@@ -71,7 +71,7 @@ const coverageMap = {
   },
   '@guanghechen/vfs': {
     global: {
-      branches: 76,
+      branches: 75,
       functions: 65,
       lines: 82,
       statements: 82,

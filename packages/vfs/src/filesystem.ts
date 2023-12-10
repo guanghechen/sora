@@ -22,8 +22,8 @@ interface IProps {
   readonly HIGH_SECURITY: boolean
   readonly reporter: IReporter
   readonly pathResolver: IVfsPathResolver
-  readonly encode?: (virtualPath: string) => Promise<NodeJS.ReadWriteStream>
-  readonly decode?: (virtualPath: string) => Promise<NodeJS.ReadWriteStream>
+  readonly encode?: (virtualPath: string) => Promise<NodeJS.ReadWriteStream | undefined>
+  readonly decode?: (virtualPath: string) => Promise<NodeJS.ReadWriteStream | undefined>
 }
 
 const clazz: string = 'VirtualFileSystem'
@@ -35,8 +35,8 @@ export class VirtualFileSystem extends BatchDisposable implements IVirtualFileSy
 
   protected readonly pathResolver: IVfsPathResolver
   protected readonly reporter: IReporter
-  protected readonly encode?: (virtualPath: string) => Promise<NodeJS.ReadWriteStream>
-  protected readonly decode?: (virtualPath: string) => Promise<NodeJS.ReadWriteStream>
+  protected readonly encode?: (virtualPath: string) => Promise<NodeJS.ReadWriteStream | undefined>
+  protected readonly decode?: (virtualPath: string) => Promise<NodeJS.ReadWriteStream | undefined>
 
   constructor(props: IProps) {
     const {
@@ -168,7 +168,8 @@ export class VirtualFileSystem extends BatchDisposable implements IVirtualFileSy
         streams.push(stream)
       }
       const readable: NodeJS.ReadableStream = mergeStreams(streams)
-      return decode ? readable.pipe(await decode(virtualPath)) : readable
+      const transformer: NodeJS.ReadWriteStream | undefined = await decode?.(virtualPath)
+      return transformer ? readable.pipe(transformer) : readable
     } catch (error) {
       /* c8 ignore start */
       this.reporter.error('[{}.createReadStream] failed.', clazz, {
@@ -262,7 +263,9 @@ export class VirtualFileSystem extends BatchDisposable implements IVirtualFileSy
             .catch(err => callback(err))
         },
       })
-      return encode ? (await encode(virtualPath)).pipe(writable) : writable
+
+      const transformer: NodeJS.ReadWriteStream | undefined = await encode?.(virtualPath)
+      return transformer ? transformer.pipe(writable) : writable
     } catch (error) {
       /* c8 ignore start */
       this.reporter.error('[{}.createWriteStream] failed.', clazz, { virtualPath })
