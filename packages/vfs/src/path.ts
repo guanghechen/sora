@@ -40,16 +40,16 @@ export class VfsPathResolver implements IVfsPathResolver {
     return this.virtual.root
   }
 
-  public dirVirtualPath(virtualPath: string): string {
-    const absoluteVirtualPath: string = this.virtual.resolve(virtualPath)
-    const virtualParentPath: string = this.virtual.pathResolver.dirname(absoluteVirtualPath)
-    return virtualParentPath
-  }
-
   public dirPhysicalPath(physicalPath: string): string {
     const absolutePhysicalPath: string = this.physical.resolve(physicalPath)
     const physicalParentPath: string = this.physical.pathResolver.dirname(absolutePhysicalPath)
     return physicalParentPath
+  }
+
+  public dirVirtualPath(virtualPath: string): string {
+    const absoluteVirtualPath: string = this.virtual.resolve(virtualPath)
+    const virtualParentPath: string = this.virtual.pathResolver.dirname(absoluteVirtualPath)
+    return virtualParentPath
   }
 
   public isPhysicalPath(filepath: string): boolean {
