@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.9](https://github.com/guanghechen/sora/compare/@guanghechen/stream@1.0.0-alpha.8...@guanghechen/stream@1.0.0-alpha.9) (2023-12-10)
+
+
+### Performance Improvements
+
+* 🎨 support new method 'stream2bytes' ([381428f](https://github.com/guanghechen/sora/commit/381428ffdf17abf08ddeaf9cc31c88f82c8a1a18))
+
+
+
+
+
 # [1.0.0-alpha.8](https://github.com/guanghechen/sora/compare/@guanghechen/stream@1.0.0-alpha.7...@guanghechen/stream@1.0.0-alpha.8) (2023-11-29)
 
 

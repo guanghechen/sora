@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/stream",
-  "version": "1.0.0-alpha.8",
+  "version": "1.0.0-alpha.9",
   "description": "Utilities for handing node streams.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/stream@1.0.0-alpha.8",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/stream@1.0.0-alpha.9",
     "directory": "packages/stream"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/stream@1.0.0-alpha.8/packages/stream#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/stream@1.0.0-alpha.9/packages/stream#readme",
   "keywords": [
     "stream",
     "concat streams",

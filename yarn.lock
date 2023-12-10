@@ -621,23 +621,23 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/file-split@workspace:packages/file-split"
   dependencies:
-    "@guanghechen/filepart": ^1.0.0-alpha.0
+    "@guanghechen/filepart": ^1.0.0-alpha.1
     "@guanghechen/internal": ^1.0.0-alpha.0
-    "@guanghechen/stream": ^1.0.0-alpha.8
+    "@guanghechen/stream": ^1.0.0-alpha.9
   languageName: unknown
   linkType: soft
 
-"@guanghechen/filepart.types@^1.0.0-alpha.0, @guanghechen/filepart.types@workspace:packages/filepart.types":
+"@guanghechen/filepart.types@^1.0.0-alpha.1, @guanghechen/filepart.types@workspace:packages/filepart.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/filepart.types@workspace:packages/filepart.types"
   languageName: unknown
   linkType: soft
 
-"@guanghechen/filepart@^1.0.0-alpha.0, @guanghechen/filepart@workspace:packages/filepart":
+"@guanghechen/filepart@^1.0.0-alpha.1, @guanghechen/filepart@workspace:packages/filepart":
   version: 0.0.0-use.local
   resolution: "@guanghechen/filepart@workspace:packages/filepart"
   dependencies:
-    "@guanghechen/filepart.types": ^1.0.0-alpha.0
+    "@guanghechen/filepart.types": ^1.0.0-alpha.1
     "@guanghechen/internal": ^1.0.0-alpha.0
   languageName: unknown
   linkType: soft
@@ -924,7 +924,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/stream@^1.0.0-alpha.1, @guanghechen/stream@^1.0.0-alpha.8, @guanghechen/stream@workspace:packages/stream":
+"@guanghechen/stream@^1.0.0-alpha.9, @guanghechen/stream@workspace:packages/stream":
   version: 0.0.0-use.local
   resolution: "@guanghechen/stream@workspace:packages/stream"
   dependencies:
@@ -963,7 +963,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/vfs.types@^1.0.0-alpha.4, @guanghechen/vfs.types@workspace:packages/vfs.types":
+"@guanghechen/vfs.types@^1.0.0-alpha.5, @guanghechen/vfs.types@workspace:packages/vfs.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/vfs.types@workspace:packages/vfs.types"
   dependencies:
@@ -977,11 +977,11 @@ __metadata:
   resolution: "@guanghechen/vfs@workspace:packages/vfs"
   dependencies:
     "@guanghechen/disposable": ^1.0.0-alpha.1
-    "@guanghechen/filepart": ^1.0.0-alpha.0
+    "@guanghechen/filepart": ^1.0.0-alpha.1
     "@guanghechen/path": ^1.0.0-alpha.14
     "@guanghechen/reporter.types": ^1.0.0-alpha.9
-    "@guanghechen/stream": ^1.0.0-alpha.1
-    "@guanghechen/vfs.types": ^1.0.0-alpha.4
+    "@guanghechen/stream": ^1.0.0-alpha.9
+    "@guanghechen/vfs.types": ^1.0.0-alpha.5
     chokidar: ^3.5.3
   languageName: unknown
   linkType: soft

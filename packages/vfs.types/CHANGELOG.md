@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.5](https://github.com/guanghechen/sora/compare/@guanghechen/vfs.types@1.0.0-alpha.4...@guanghechen/vfs.types@1.0.0-alpha.5) (2023-12-10)
+
+
+### Performance Improvements
+
+* 🎨 refactor virtual file system to support filesplit case ([d520715](https://github.com/guanghechen/sora/commit/d520715e1195169914e9a4563fc8c2b1cd035b27))
+
+
+
+
+
 # [1.0.0-alpha.4](https://github.com/guanghechen/sora/compare/@guanghechen/vfs.types@1.0.0-alpha.3...@guanghechen/vfs.types@1.0.0-alpha.4) (2023-12-07)
 
 
