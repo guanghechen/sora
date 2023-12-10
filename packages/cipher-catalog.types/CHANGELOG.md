@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.7](https://github.com/guanghechen/sora/compare/@guanghechen/cipher-catalog.types@1.0.0-alpha.6...@guanghechen/cipher-catalog.types@1.0.0-alpha.7) (2023-12-10)
+
+
+### Performance Improvements
+
+* 🎨 add ICipherCatalogMonitor ([597855e](https://github.com/guanghechen/sora/commit/597855e70ad11d5e240c57ee6bbf8197040453db))
+
+
+
+
+
 # [1.0.0-alpha.6](https://github.com/guanghechen/sora/compare/@guanghechen/cipher-catalog.types@1.0.0-alpha.5...@guanghechen/cipher-catalog.types@1.0.0-alpha.6) (2023-12-10)
 
 
