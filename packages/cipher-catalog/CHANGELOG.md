@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.10](https://github.com/guanghechen/sora/compare/@guanghechen/cipher-catalog@1.0.0-alpha.9...@guanghechen/cipher-catalog@1.0.0-alpha.10) (2023-12-11)
+
+
+### Performance Improvements
+
+* 🎨 rename FileChangeType to FileChangeTypeEnum ([9dbdfa1](https://github.com/guanghechen/sora/commit/9dbdfa18cbb8c6bb3de420d9eb6d9e8015cfc80e))
+
+
+
+
+
 # [1.0.0-alpha.9](https://github.com/guanghechen/sora/compare/@guanghechen/cipher-catalog@1.0.0-alpha.8...@guanghechen/cipher-catalog@1.0.0-alpha.9) (2023-12-10)
 
 **Note:** Version bump only for package @guanghechen/cipher-catalog
