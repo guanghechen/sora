@@ -1,4 +1,4 @@
-import type { FileChangeType } from '../constant'
+import type { FileChangeTypeEnum } from '../constant'
 import type { ICatalogItem } from '../item'
 
 export * from './deserialized'
@@ -6,18 +6,18 @@ export * from './draft'
 export * from './serialized'
 
 export interface ICatalogDiffItemAdded {
-  changeType: FileChangeType.ADDED
+  changeType: FileChangeTypeEnum.ADDED
   newItem: ICatalogItem
 }
 
 export interface ICatalogDiffItemModified {
-  changeType: FileChangeType.MODIFIED
+  changeType: FileChangeTypeEnum.MODIFIED
   oldItem: ICatalogItem
   newItem: ICatalogItem
 }
 
 export interface ICatalogDiffItemRemoved {
-  changeType: FileChangeType.REMOVED
+  changeType: FileChangeTypeEnum.REMOVED
   oldItem: ICatalogItem
 }
 
@@ -27,7 +27,7 @@ export type ICatalogDiffItem =
   | ICatalogDiffItemRemoved
 
 export interface ICatalogDiffItemCombine {
-  changeType: FileChangeType
+  changeType: FileChangeTypeEnum
   newItem?: ICatalogItem
   oldItem?: ICatalogItem
 }

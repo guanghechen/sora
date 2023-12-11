@@ -1,19 +1,19 @@
 import type { IDraftCatalogDiffItem } from '@guanghechen/cipher-catalog.types'
-import { FileChangeType } from '@guanghechen/cipher-catalog.types'
+import { FileChangeTypeEnum } from '@guanghechen/cipher-catalog.types'
 import { collectAffectedCryptFilepaths, collectAffectedPlainFilepaths } from '../src'
 import { itemTable } from './_data'
 
 const diffItems: IDraftCatalogDiffItem[] = [
   {
-    changeType: FileChangeType.ADDED,
+    changeType: FileChangeTypeEnum.ADDED,
     newItem: itemTable.A,
   },
   {
-    changeType: FileChangeType.REMOVED,
+    changeType: FileChangeTypeEnum.REMOVED,
     oldItem: itemTable.B,
   },
   {
-    changeType: FileChangeType.MODIFIED,
+    changeType: FileChangeTypeEnum.MODIFIED,
     oldItem: itemTable.C,
     newItem: {
       plainFilepath: 'c.txt',

@@ -1,5 +1,5 @@
 import type { ICatalogDiffItem, ICatalogItem } from '@guanghechen/cipher-catalog.types'
-import { FileChangeType } from '@guanghechen/cipher-catalog.types'
+import { FileChangeTypeEnum } from '@guanghechen/cipher-catalog.types'
 import { iterable2map, mapIterable } from '@guanghechen/internal'
 import { areSameCatalogItem } from './areSameCatalogItem'
 
@@ -13,13 +13,13 @@ export function diffFromCatalogItems(
   newItems: Iterable<ICatalogItem>,
 ): ICatalogDiffItem[] {
   if (oldItemMap.size < 1) {
-    return mapIterable(newItems, newItem => ({ changeType: FileChangeType.ADDED, newItem }))
+    return mapIterable(newItems, newItem => ({ changeType: FileChangeTypeEnum.ADDED, newItem }))
   }
 
   const newItemMap: Map<string, ICatalogItem> = iterable2map(newItems, item => item.plainFilepath)
   if (newItemMap.size < 1) {
     return mapIterable(oldItemMap.values(), oldItem => ({
-      changeType: FileChangeType.REMOVED,
+      changeType: FileChangeTypeEnum.REMOVED,
       oldItem,
     }))
   }
@@ -33,13 +33,13 @@ export function diffFromCatalogItems(
     const newItem = newItemMap.get(oldItem.plainFilepath)
     if (newItem === undefined) {
       removedItems.push({
-        changeType: FileChangeType.REMOVED,
+        changeType: FileChangeTypeEnum.REMOVED,
         oldItem,
       })
     } else {
       if (!areSameCatalogItem(oldItem, newItem)) {
         modifiedItems.push({
-          changeType: FileChangeType.MODIFIED,
+          changeType: FileChangeTypeEnum.MODIFIED,
           oldItem,
           newItem,
         })
@@ -51,7 +51,7 @@ export function diffFromCatalogItems(
   for (const newItem of newItemMap.values()) {
     if (!oldItemMap.has(newItem.plainFilepath)) {
       addedItems.push({
-        changeType: FileChangeType.ADDED,
+        changeType: FileChangeTypeEnum.ADDED,
         newItem,
       })
     }

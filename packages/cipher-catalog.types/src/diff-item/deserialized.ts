@@ -1,18 +1,18 @@
-import type { FileChangeType } from '../constant'
+import type { FileChangeTypeEnum } from '../constant'
 import type { IDeserializedCatalogItem } from '../item'
 
 export interface IDeserializedCatalogDiffItemAdded {
-  changeType: FileChangeType.ADDED
+  changeType: FileChangeTypeEnum.ADDED
   newItem: IDeserializedCatalogItem
 }
 
 export interface IDeserializedCatalogDiffItemModified {
-  changeType: FileChangeType.MODIFIED
+  changeType: FileChangeTypeEnum.MODIFIED
   oldItem: IDeserializedCatalogItem
   newItem: IDeserializedCatalogItem
 }
 export interface IDeserializedCatalogDiffItemRemoved {
-  changeType: FileChangeType.REMOVED
+  changeType: FileChangeTypeEnum.REMOVED
   oldItem: IDeserializedCatalogItem
 }
 

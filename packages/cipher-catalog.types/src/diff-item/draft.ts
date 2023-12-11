@@ -1,19 +1,19 @@
-import type { FileChangeType } from '../constant'
+import type { FileChangeTypeEnum } from '../constant'
 import type { ICatalogItem, IDraftCatalogItem } from '../item'
 
 export interface IDraftCatalogDiffItemAdded {
-  changeType: FileChangeType.ADDED
+  changeType: FileChangeTypeEnum.ADDED
   newItem: IDraftCatalogItem
 }
 
 export interface IDraftCatalogDiffItemModified {
-  changeType: FileChangeType.MODIFIED
+  changeType: FileChangeTypeEnum.MODIFIED
   oldItem: ICatalogItem
   newItem: IDraftCatalogItem
 }
 
 export interface IDraftCatalogDiffItemRemoved {
-  changeType: FileChangeType.REMOVED
+  changeType: FileChangeTypeEnum.REMOVED
   oldItem: ICatalogItem
 }
 

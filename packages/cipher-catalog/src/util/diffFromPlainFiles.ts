@@ -4,7 +4,7 @@ import type {
   IDraftCatalogItem,
   IReadonlyCipherCatalog,
 } from '@guanghechen/cipher-catalog.types'
-import { FileChangeType } from '@guanghechen/cipher-catalog.types'
+import { FileChangeTypeEnum } from '@guanghechen/cipher-catalog.types'
 import { invariant, isFileSync } from '@guanghechen/internal'
 import { areSameDraftCatalogItem } from './areSameDraftCatalogItem'
 
@@ -38,14 +38,14 @@ export async function diffFromPlainFiles(
       const newItem: IDraftCatalogItem = await catalog.calcCatalogItem(plainFilepath)
       if (oldItem) {
         if (!areSameDraftCatalogItem(oldItem, newItem)) {
-          modifiedItems.push({ changeType: FileChangeType.MODIFIED, oldItem, newItem })
+          modifiedItems.push({ changeType: FileChangeTypeEnum.MODIFIED, oldItem, newItem })
         }
       } else {
-        addedItems.push({ changeType: FileChangeType.ADDED, newItem })
+        addedItems.push({ changeType: FileChangeTypeEnum.ADDED, newItem })
       }
     } else {
       if (oldItem) {
-        removedItems.push({ changeType: FileChangeType.REMOVED, oldItem })
+        removedItems.push({ changeType: FileChangeTypeEnum.REMOVED, oldItem })
       }
 
       if (strickCheck) {
