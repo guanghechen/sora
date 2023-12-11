@@ -7,7 +7,7 @@ export interface ICipherCatalog extends IReadonlyCipherCatalog, IBatchDisposable
   /**
    * Apply catalog diffs.
    */
-  applyDiff(diffItems: Iterable<ICatalogDiffItem>): void
+  applyDiff(diffItems: ReadonlyArray<ICatalogDiffItem>): void
 
   /**
    * Calculate diff items with the new catalog items.
