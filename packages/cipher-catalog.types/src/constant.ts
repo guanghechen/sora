@@ -3,3 +3,8 @@ export enum FileChangeTypeEnum {
   MODIFIED = 'modified',
   REMOVED = 'removed',
 }
+
+export enum CatalogItemChangeType {
+  RESET = 'reset',
+  APPLY_DIFF = 'apply-diff',
+}
