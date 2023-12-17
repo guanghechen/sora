@@ -486,7 +486,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/cipher-catalog.types@^1.0.0-alpha.10, @guanghechen/cipher-catalog.types@workspace:packages/cipher-catalog.types":
+"@guanghechen/cipher-catalog.types@^1.0.0-alpha.11, @guanghechen/cipher-catalog.types@workspace:packages/cipher-catalog.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/cipher-catalog.types@workspace:packages/cipher-catalog.types"
   dependencies:
@@ -499,7 +499,7 @@ __metadata:
   resolution: "@guanghechen/cipher-catalog@workspace:packages/cipher-catalog"
   dependencies:
     "@guanghechen/byte": ^1.0.0-alpha.4
-    "@guanghechen/cipher-catalog.types": ^1.0.0-alpha.10
+    "@guanghechen/cipher-catalog.types": ^1.0.0-alpha.11
     "@guanghechen/internal": ^1.0.0-alpha.0
   languageName: unknown
   linkType: soft
@@ -635,7 +635,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/filetree.types@^1.0.0-alpha.8, @guanghechen/filetree.types@workspace:packages/filetree.types":
+"@guanghechen/filetree.types@^1.0.0-alpha.9, @guanghechen/filetree.types@workspace:packages/filetree.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/filetree.types@workspace:packages/filetree.types"
   languageName: unknown
@@ -645,7 +645,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/filetree@workspace:packages/filetree"
   dependencies:
-    "@guanghechen/filetree.types": ^1.0.0-alpha.8
+    "@guanghechen/filetree.types": ^1.0.0-alpha.9
     uuid: ^9.0.1
   languageName: unknown
   linkType: soft
