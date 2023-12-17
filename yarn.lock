@@ -646,6 +646,7 @@ __metadata:
   resolution: "@guanghechen/filetree@workspace:packages/filetree"
   dependencies:
     "@guanghechen/filetree.types": ^1.0.0-alpha.8
+    uuid: ^9.0.1
   languageName: unknown
   linkType: soft
 
@@ -893,6 +894,7 @@ __metadata:
     "@types/jest": 29.5.11
     "@types/node": ^18.19.3
     "@types/semver": ^7.5.6
+    "@types/uuid": ^9.0.7
     ci-info: ^4.0.0
     cross-env: ^7.0.3
     dayjs: ^1.11.10
@@ -2330,6 +2332,13 @@ __metadata:
   version: 2.0.3
   resolution: "@types/stack-utils@npm:2.0.3"
   checksum: 72576cc1522090fe497337c2b99d9838e320659ac57fa5560fcbdcbafcf5d0216c6b3a0a8a4ee4fdb3b1f5e3420aa4f6223ab57b82fef3578bec3206425c6cf5
+  languageName: node
+  linkType: hard
+
+"@types/uuid@npm:^9.0.7":
+  version: 9.0.7
+  resolution: "@types/uuid@npm:9.0.7"
+  checksum: c7321194aeba9ea173efd1e721403bdf4e7ae6945f8f8cdbc87c791f4b505ccf3dbc4a8883d90b394ef13b7c2dc778045792b05dbb23b3c746f8ea347804d448
   languageName: node
   linkType: hard
 
@@ -10163,7 +10172,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^9.0.0":
+"uuid@npm:^9.0.0, uuid@npm:^9.0.1":
   version: 9.0.1
   resolution: "uuid@npm:9.0.1"
   bin:

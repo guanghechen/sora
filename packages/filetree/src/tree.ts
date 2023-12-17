@@ -1,306 +1,175 @@
-import { FileNodeStatusEnum, FileTreeNodeTypeEnum } from '@guanghechen/filetree.types'
 import type {
   IFileTree,
+  IFileTreeDrawOptions,
   IFileTreeFolderNode,
-  IFileTreeNode,
-  IFileTreePrintOptions,
+  IFileTreeFolderNodeInstance,
+  IFileTreeNodeInstance,
+  IFileTreeNodeStat,
+  IFileTreeRootNodeInstance,
   INodeNameCompare,
   IRawFileTreeNode,
-  IReadonlyFileTreeNode,
 } from '@guanghechen/filetree.types'
-import { cloneRecursive, comparePaths, compareTreeNode } from './util'
-
-const clazz: string = 'FileTree'
+import { FileTreeErrorCodeEnum, FileTreeNodeTypeEnum } from '@guanghechen/filetree.types'
+import { FileTreeRootNode } from './node'
+import { isFileTreeOperationFailed } from './util/is'
 
 export class FileTree implements IFileTree {
-  protected readonly _nodes: IFileTreeNode[]
+  #root: IFileTreeRootNodeInstance
   protected readonly _cmp: INodeNameCompare
 
-  private constructor(nodes: Iterable<IFileTreeNode>, cmp: INodeNameCompare) {
-    this._nodes = Array.from(nodes)
+  private constructor(root: IFileTreeRootNodeInstance, cmp: INodeNameCompare) {
+    this.#root = root
     this._cmp = cmp
   }
 
-  protected static buildNode(type: FileTreeNodeTypeEnum, name: string): IFileTreeNode {
-    switch (type) {
-      case FileTreeNodeTypeEnum.FILE:
-        return { type, name }
-      case FileTreeNodeTypeEnum.FOLDER:
-        return { type, name, children: [] }
-      default:
-        throw new Error(`[${clazz}.buildNode] type(${type}), name(${name}).`)
-    }
+  public static fromRawNodes(
+    rawNodes: ReadonlyArray<IRawFileTreeNode>,
+    cmp: INodeNameCompare,
+  ):
+    | FileTreeErrorCodeEnum.NODE_TYPE_CONFLICT
+    | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER
+    | FileTree {
+    const errorCodeOrRoot = FileTreeRootNode.fromRawNodes(rawNodes, cmp)
+    if (isFileTreeOperationFailed(errorCodeOrRoot)) return errorCodeOrRoot
+    return new FileTree(errorCodeOrRoot, cmp)
   }
 
-  public static build(rawNodes: Iterable<IRawFileTreeNode>, cmp: INodeNameCompare): FileTree {
-    const items: IRawFileTreeNode[] = []
-    for (const rawNode of rawNodes) {
-      if (rawNode.paths.length > 0) items.push(rawNode)
-    }
-    items.sort((u, v) => comparePaths(u.paths, v.paths, cmp))
-
-    const buildChildren = (lft: number, rht: number, cur: number): IFileTreeNode[] => {
-      if (lft >= rht) return []
-
-      const nodes: IFileTreeNode[] = []
-      for (let i = lft, j: number; i < rht; i = j) {
-        const x: string = items[i].paths[cur]
-        for (j = i + 1; j < rht; ++j) {
-          const y: string = items[j].paths[cur]
-          if (cmp(x, y) !== 0) break
-        }
-        const node: IFileTreeNode = buildNode(i, j, cur)
-        nodes.push(node)
-      }
-      return nodes.sort((u, v) => compareTreeNode(u, v, cmp))
-    }
-
-    const buildNode = (lft: number, rht: number, cur: number): IFileTreeNode => {
-      const type: FileTreeNodeTypeEnum = items[lft].type
-      const name: string = items[lft].paths[cur]
-
-      if (lft + 1 === rht) {
-        if (cur + 1 === items[lft].paths.length) return this.buildNode(type, name)
-
-        const node: IFileTreeNode = {
-          type: FileTreeNodeTypeEnum.FOLDER,
-          name,
-          children: [buildNode(lft, rht, cur + 1)],
-        }
-        return node
-      }
-
-      let t: number = lft
-      for (; t < rht && items[t].paths.length === cur + 1; ++t) {
-        if (items[t].type !== type) {
-          const details: string = JSON.stringify(
-            items.slice(lft, rht).map(item => ({
-              type: item.type,
-              path: item.paths.join('/'),
-            })),
-          )
-          throw new TypeError(
-            `[${clazz}.buildTree] received same paths but with different type. ${details}`,
-          )
-        }
-      }
-
-      if (t > lft) {
-        if (type !== FileTreeNodeTypeEnum.FOLDER) {
-          const details: string = JSON.stringify({
-            type: items[lft].type,
-            path: items[lft].paths.join('/'),
-          })
-          throw new TypeError(`[${clazz}.buildTree] bad item, expected an folder. ${details}`)
-        }
-      }
-
-      const node: IFileTreeFolderNode = {
-        type: FileTreeNodeTypeEnum.FOLDER,
-        name,
-        children: buildChildren(t, rht, cur + 1),
-      }
-      return node
-    }
-
-    const results: IFileTreeNode[] = buildChildren(0, items.length, 0)
-    return new FileTree(results, cmp)
+  public get root(): IFileTreeRootNodeInstance {
+    return this.#root
   }
 
-  public static from(nodes_: Iterable<IReadonlyFileTreeNode>, cmp: INodeNameCompare): FileTree {
-    const nodes: IFileTreeNode[] = []
-    for (const o of nodes_) {
-      const node: IFileTreeNode = cloneRecursive(o, -1, cmp)
-      nodes.push(node)
-    }
-    return new FileTree(nodes, cmp)
+  public attach(folder: IFileTreeFolderNodeInstance): void {
+    const newRoot: IFileTreeRootNodeInstance = this.#root.attach(folder)
+    this.#root = newRoot
   }
 
-  public draw(options: Omit<IFileTreePrintOptions, 'printLine'> = {}): string[] {
-    const lines: string[] = []
-    const printLine = (line: string): void => void lines.push(line)
-    this.print({ ...options, printLine })
-    return lines
+  public copy(
+    srcPathFromRoot: ReadonlyArray<string>,
+    dstPathFromRoot: ReadonlyArray<string>,
+    overwrite: boolean,
+    recursive: boolean,
+  ):
+    | FileTreeErrorCodeEnum.DST_ANCESTOR_NOT_FOLDER
+    | FileTreeErrorCodeEnum.DST_NODE_EXIST
+    | FileTreeErrorCodeEnum.DST_NODE_IS_FOLDER
+    | FileTreeErrorCodeEnum.NODE_TYPE_CONFLICT
+    | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT
+    | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER
+    | FileTreeErrorCodeEnum.SRC_CHILDREN_NOT_EMPTY
+    | void {
+    const copyResult = this.#root.copy(srcPathFromRoot, dstPathFromRoot, overwrite, recursive)
+    if (isFileTreeOperationFailed(copyResult)) return copyResult
+
+    const newRoot: IFileTreeRootNodeInstance = copyResult
+    this.#root = newRoot
   }
 
-  public insert(paths: ReadonlyArray<string>, type: FileTreeNodeTypeEnum): FileNodeStatusEnum {
-    if (paths.length <= 0) return FileNodeStatusEnum.EXIST
-
-    const fileType: FileTreeNodeTypeEnum | null = this.stat(paths)
-    if (fileType === type) return FileNodeStatusEnum.EXIST
-    if (fileType !== null) return FileNodeStatusEnum.CONFLICT
-
-    let nodes: IFileTreeNode[] = this._nodes
-    for (let i = 0; i + 1 < paths.length; ++i) {
-      const name: string = paths[i]
-      let node: IFileTreeNode | undefined = nodes.find(o => o.name === name)
-      if (node === undefined) {
-        node = FileTree.buildNode(FileTreeNodeTypeEnum.FOLDER, name)
-        const idx: number = nodes.findIndex(o => this._compare(o, node!) > 0)
-        if (idx < 0) nodes.push(node)
-        else nodes.splice(idx, 0, node)
-      }
-      nodes = (node as IFileTreeFolderNode).children
-    }
-
-    {
-      const name: string = paths[paths.length - 1]
-      const idx: number = nodes.findIndex(o => this._compare(o, node!) > 0)
-      const node: IFileTreeNode = FileTree.buildNode(type, name)
-      if (idx < 0) nodes.push(node)
-      else nodes.splice(idx, 0, node)
-    }
-    return FileNodeStatusEnum.NONEXISTENT
+  public draw(options?: IFileTreeDrawOptions | undefined): string[] {
+    return this.#root.draw(options)
   }
 
-  public print(options: IFileTreePrintOptions = {}): void {
-    const {
-      ident: initialIdent = '',
-      collapse = false,
-      printLine = (line: string): void => void console.log(line),
-    } = options
-    for (let i = 0; i < this._nodes.length; ++i) {
-      const tree: IFileTreeNode = this._nodes[i]
-      const isLastChild: boolean = i + 1 === this._nodes.length
-      internalPrintFilepathTree(tree, initialIdent, '', isLastChild, true)
-    }
+  public insert(
+    rawNode: IRawFileTreeNode,
+    overwrite: boolean,
+  ):
+    | FileTreeErrorCodeEnum.SRC_NODE_EXIST // When the node existed but overwrite set to false.
+    | FileTreeErrorCodeEnum.NODE_TYPE_CONFLICT // When the node existed but the type is different.
+    | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER // When the parent node is not a directory.
+    | void {
+    const insertResult = this.#root.insert(rawNode, overwrite)
+    if (isFileTreeOperationFailed(insertResult)) return insertResult
 
-    function internalPrintFilepathTree(
-      tree: IFileTreeNode,
-      parentIdent: string,
-      pathPrefix: string,
-      isLastChild: boolean,
-      isRootNode: boolean,
-    ): void {
-      // Try to collapse the empty paths.
-      if (collapse && tree.type === FileTreeNodeTypeEnum.FOLDER && tree.children.length === 1) {
-        const nextPathPrefix: string = pathPrefix ? pathPrefix + '/' + tree.name : tree.name
-        internalPrintFilepathTree(
-          tree.children[0],
-          parentIdent,
-          nextPathPrefix,
-          isLastChild,
-          isRootNode,
-        )
-        return
-      }
-
-      // Print current path.
-      {
-        const ident: string = isRootNode ? '' : isLastChild ? '└── ' : '├── '
-        const currentPath: string = pathPrefix ? pathPrefix + '/' + tree.name : tree.name
-        printLine(parentIdent + ident + currentPath)
-      }
-
-      switch (tree.type) {
-        case FileTreeNodeTypeEnum.FOLDER:
-          {
-            const nextParentIdent: string =
-              parentIdent + (isRootNode ? '' : isLastChild ? '    ' : '│   ')
-            for (let i = 0; i < tree.children.length; ++i) {
-              const node = tree.children[i]
-              const isLastGrandchild: boolean = i + 1 === tree.children.length
-              internalPrintFilepathTree(node, nextParentIdent, '', isLastGrandchild, false)
-            }
-          }
-          break
-        case FileTreeNodeTypeEnum.FILE:
-          break
-        default:
-          throw new TypeError(`[${clazz}.print] unknown filetree node type: ${(tree as any).type}.`)
-      }
-    }
+    const newRoot: IFileTreeRootNodeInstance = insertResult
+    this.#root = newRoot
   }
 
-  public remove(paths: ReadonlyArray<string>, type?: FileTreeNodeTypeEnum): FileNodeStatusEnum {
-    if (paths.length <= 0) return FileNodeStatusEnum.EXIST
+  public readdir(
+    pathFromRoot: ReadonlyArray<string>,
+  ):
+    | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER
+    | FileTreeErrorCodeEnum.SRC_NODE_IS_NOT_FOLDER
+    | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT
+    | string[] {
+    const findResult = this.#root.find(pathFromRoot)
+    if (isFileTreeOperationFailed(findResult)) return findResult
 
-    let nodes: IFileTreeNode[] = this._nodes
-    for (let i = 0; i + 1 < paths.length; ++i) {
-      const name: string = paths[i]
-      const node: IFileTreeNode | undefined = nodes.find(o => o.name === name)
-      if (node === undefined) return FileNodeStatusEnum.NONEXISTENT
-      if (node.type !== FileTreeNodeTypeEnum.FOLDER) return FileNodeStatusEnum.CONFLICT
-      nodes = node.children
+    const node: IFileTreeNodeInstance | undefined = findResult
+    if (node === undefined) return FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT
+    if (node.type !== FileTreeNodeTypeEnum.FOLDER) {
+      return FileTreeErrorCodeEnum.SRC_NODE_IS_NOT_FOLDER
     }
-
-    {
-      const name: string = paths[paths.length - 1]
-      const idx: number = nodes.findIndex(o => o.name === name)
-      const node: IFileTreeNode | undefined = idx >= 0 ? nodes[idx] : undefined
-      if (node === undefined) return FileNodeStatusEnum.NONEXISTENT
-      if (type !== undefined && node.type !== type) return FileNodeStatusEnum.CONFLICT
-
-      nodes.splice(idx, 1)
-      return FileNodeStatusEnum.EXIST
-    }
+    return node.children.map(item => item.name)
   }
 
-  public snapshot(depth: number): IFileTreeNode[] {
-    return this._nodes.map(o => cloneRecursive(o, depth))
+  public remove(
+    pathFromRoot: ReadonlyArray<string>,
+    recursive: boolean,
+  ):
+    | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER
+    | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT
+    | FileTreeErrorCodeEnum.SRC_CHILDREN_NOT_EMPTY
+    | void {
+    const removeResult = this.#root.remove(pathFromRoot, recursive)
+    if (isFileTreeOperationFailed(removeResult)) return removeResult
+
+    const newRoot: IFileTreeRootNodeInstance = removeResult
+    this.#root = newRoot
   }
 
-  public stat(paths: ReadonlyArray<string>): FileTreeNodeTypeEnum | null {
-    if (paths.length <= 0) return null
+  public rename(
+    srcPathFromRoot: ReadonlyArray<string>,
+    dstPathFromRoot: ReadonlyArray<string>,
+    overwrite: boolean,
+    recursive: boolean,
+  ):
+    | FileTreeErrorCodeEnum.DST_ANCESTOR_NOT_FOLDER
+    | FileTreeErrorCodeEnum.DST_NODE_EXIST
+    | FileTreeErrorCodeEnum.DST_NODE_IS_FOLDER
+    | FileTreeErrorCodeEnum.NODE_TYPE_CONFLICT
+    | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT
+    | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER
+    | FileTreeErrorCodeEnum.SRC_CHILDREN_NOT_EMPTY
+    | void {
+    const moveResult = this.#root.move(srcPathFromRoot, dstPathFromRoot, overwrite, recursive)
+    if (isFileTreeOperationFailed(moveResult)) return moveResult
 
-    let nodes: IFileTreeNode[] = this._nodes
-    for (let i = 0; i + 1 < paths.length; ++i) {
-      const name: string = paths[i]
-      const node: IFileTreeNode | undefined = nodes.find(o => o.name === name)
-      if (node === undefined) return null
-
-      if (node.type !== FileTreeNodeTypeEnum.FOLDER) {
-        /* c8 ignore start */
-        const details: string = JSON.stringify({
-          type: node.type,
-          path: paths.slice(0, i + 1).join('/'),
-        })
-        throw new TypeError(`[${clazz}.stat] expected a folder, but got ${details}.`)
-        /* c8 ignore stop */
-      }
-
-      nodes = node.children
-    }
-
-    {
-      const name: string = paths[paths.length - 1]
-      const node: IFileTreeNode | undefined = nodes.find(o => o.name === name)
-      if (node === undefined) return null
-      return node.type
-    }
+    const newRoot: IFileTreeRootNodeInstance = moveResult
+    this.#root = newRoot
   }
 
-  public touch(paths: ReadonlyArray<string>, depth: number): IFileTreeNode | null {
-    if (paths.length <= 0) return null
-
-    let nodes: IFileTreeNode[] = this._nodes
-    for (let i = 0; i + 1 < paths.length; ++i) {
-      const name: string = paths[i]
-      const node: IFileTreeNode | undefined = nodes.find(o => o.name === name)
-      if (node === undefined) return null
-
-      if (node.type !== FileTreeNodeTypeEnum.FOLDER) {
-        /* c8 ignore start */
-        const details: string = JSON.stringify({
-          type: node.type,
-          path: paths.slice(0, i + 1).join('/'),
-        })
-        throw new TypeError(`[${clazz}.touch] expected a folder, but got ${details}.`)
-        /* c8 ignore stop */
-      }
-
-      nodes = node.children
-    }
-
-    {
-      const name: string = paths[paths.length - 1]
-      const node: IFileTreeNode | undefined = nodes.find(o => o.name === name)
-      if (node === undefined) return null
-      return cloneRecursive(node, depth)
-    }
+  public reset(
+    rawNodes: ReadonlyArray<IRawFileTreeNode>,
+  ):
+    | FileTreeErrorCodeEnum.NODE_TYPE_CONFLICT
+    | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER
+    | void {
+    const errorCodeOrRoot = FileTreeRootNode.fromRawNodes(rawNodes, this._cmp)
+    if (isFileTreeOperationFailed(errorCodeOrRoot)) return errorCodeOrRoot
+    this.#root = errorCodeOrRoot
   }
 
-  protected _compare(u: Readonly<IFileTreeNode>, v: Readonly<IFileTreeNode>): number {
-    return compareTreeNode(u, v, this._cmp)
+  public stat(
+    pathFromRoot: ReadonlyArray<string>,
+  ):
+    | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER
+    | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT
+    | IFileTreeNodeStat {
+    const findResult = this.#root.find(pathFromRoot)
+    if (isFileTreeOperationFailed(findResult)) return findResult
+
+    const node: IFileTreeNodeInstance | undefined = findResult
+    if (node === undefined) return FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT
+
+    const stat: IFileTreeNodeStat = {
+      type: node.type,
+      ctime: node.ctime,
+      mtime: node.mtime,
+      size: node.size,
+    }
+    return stat
+  }
+
+  public toJSON(): IFileTreeFolderNode {
+    return this.#root.toJSON()
   }
 }

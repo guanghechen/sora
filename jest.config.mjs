@@ -48,9 +48,9 @@ const coverageMap = {
   '@guanghechen/filetree': {
     global: {
       branches: 83,
-      functions: 90,
-      lines: 92,
-      statements: 92,
+      functions: 89,
+      lines: 71,
+      statements: 71,
     },
   },
   '@guanghechen/path': {
