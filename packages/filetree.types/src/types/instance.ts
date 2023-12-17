@@ -1,5 +1,5 @@
 import type { FileTreeErrorCodeEnum } from '../constant'
-import type { IFileTreeDrawOptions } from './misc'
+import type { IFileTreeDrawOptions, INodeNameCompare } from './misc'
 import type { IFileTreeFileNode, IFileTreeFolderNode } from './node'
 import type { IRawFileTreeNode } from './raw'
 
@@ -59,11 +59,16 @@ export interface IFileTreeRootNodeInstance {
   readonly node: IFileTreeFolderNodeInstance
 
   /**
-   * Return a new root node instance which based on the given folder as the root.
+   * A method to compare the node name.
+   */
+  readonly cmp: INodeNameCompare
+
+  /**
+   * Use the given folder node as the new root node.
    *
    * @param folder
    */
-  attach(folder: IFileTreeFolderNodeInstance): IFileTreeRootNodeInstance
+  attach(folder: IFileTreeFolderNodeInstance): void
 
   /**
    * Copy the srcPathFromRoot to dstPathFromRoot.
@@ -86,7 +91,7 @@ export interface IFileTreeRootNodeInstance {
     | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT // When the src node does not exist.
     | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER // When any ancestor node of the src node is not a folder.
     | FileTreeErrorCodeEnum.SRC_CHILDREN_NOT_EMPTY // When the src node is a folder with at least one child and the recursive is not set.
-    | IFileTreeRootNodeInstance // When succeed.
+    | IFileTreeFolderNodeInstance // When succeed.
 
   /**
    * Draw the folder node and its descendants.
@@ -117,7 +122,14 @@ export interface IFileTreeRootNodeInstance {
     | FileTreeErrorCodeEnum.NODE_TYPE_CONFLICT // When the node existed but the type is different.
     | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER // When any ancestor node is not a folder.
     | FileTreeErrorCodeEnum.SRC_NODE_EXIST // When the node existed but overwrite set to false.
-    | IFileTreeRootNodeInstance // When succeed.
+    | IFileTreeFolderNodeInstance // When succeed.
+
+  /**
+   * Return a new root node instance which based on the given folder as the root.
+   *
+   * @param folder
+   */
+  launch(folder: IFileTreeFolderNodeInstance): IFileTreeRootNodeInstance
 
   /**
    * Locate the path from the root to the target tree node by the given path.
@@ -128,6 +140,14 @@ export interface IFileTreeRootNodeInstance {
     | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER // When any ancestor node is not a folder.
     | { idxList: number[]; node: IFileTreeNodeInstance | undefined } // When succeed.
 
+  /**
+   * Modify the content in the given path.
+   *
+   * @param pathFromRoot
+   * @param ctime
+   * @param mtime
+   * @param size
+   */
   modify(
     pathFromRoot: Iterable<string>,
     ctime: number,
@@ -137,7 +157,7 @@ export interface IFileTreeRootNodeInstance {
     | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER // When any ancestor node is not a folder.
     | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT // When the path is not exist.
     | FileTreeErrorCodeEnum.SRC_NODE_IS_NOT_FILE // When the path is not a file.
-    | IFileTreeRootNodeInstance // When succeed.
+    | IFileTreeFolderNodeInstance // When succeed.
 
   /**
    * Move the srcPathFromRoot to dstPathFromRoot.
@@ -160,7 +180,7 @@ export interface IFileTreeRootNodeInstance {
     | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT // When the src node does not exist.
     | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER // When any ancestor node of the src node is not a folder.
     | FileTreeErrorCodeEnum.SRC_CHILDREN_NOT_EMPTY // When the src node is a folder with at least one child and the recursive is not set.
-    | IFileTreeRootNodeInstance // When succeed.
+    | IFileTreeFolderNodeInstance // When succeed.
 
   /**
    * Remove the node located by the given path, and return the new FileTreeRootNodeInstance.
@@ -176,7 +196,7 @@ export interface IFileTreeRootNodeInstance {
     | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER // When any ancestor node is not a folder.
     | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT // When the node does not exist.
     | FileTreeErrorCodeEnum.SRC_CHILDREN_NOT_EMPTY // When the node is a folder with at least one child and the recursive is not set.
-    | IFileTreeRootNodeInstance // When succeed.
+    | IFileTreeFolderNodeInstance // When succeed.
 
   /**
    * Get the plain object.

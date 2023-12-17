@@ -15,11 +15,9 @@ import { isFileTreeOperationFailed } from './util/is'
 
 export class FileTree implements IFileTree {
   #root: IFileTreeRootNodeInstance
-  protected readonly _cmp: INodeNameCompare
 
-  private constructor(root: IFileTreeRootNodeInstance, cmp: INodeNameCompare) {
+  private constructor(root: IFileTreeRootNodeInstance) {
     this.#root = root
-    this._cmp = cmp
   }
 
   public static fromRawNodes(
@@ -31,16 +29,11 @@ export class FileTree implements IFileTree {
     | FileTree {
     const errorCodeOrRoot = FileTreeRootNode.fromRawNodes(rawNodes, cmp)
     if (isFileTreeOperationFailed(errorCodeOrRoot)) return errorCodeOrRoot
-    return new FileTree(errorCodeOrRoot, cmp)
+    return new FileTree(errorCodeOrRoot)
   }
 
   public get root(): IFileTreeRootNodeInstance {
     return this.#root
-  }
-
-  public attach(folder: IFileTreeFolderNodeInstance): void {
-    const newRoot: IFileTreeRootNodeInstance = this.#root.attach(folder)
-    this.#root = newRoot
   }
 
   public copy(
@@ -60,8 +53,8 @@ export class FileTree implements IFileTree {
     const copyResult = this.#root.copy(srcPathFromRoot, dstPathFromRoot, overwrite, recursive)
     if (isFileTreeOperationFailed(copyResult)) return copyResult
 
-    const newRoot: IFileTreeRootNodeInstance = copyResult
-    this.#root = newRoot
+    const newRootNode: IFileTreeFolderNodeInstance = copyResult
+    this.#root.attach(newRootNode)
   }
 
   public draw(options?: IFileTreeDrawOptions | undefined): string[] {
@@ -79,8 +72,25 @@ export class FileTree implements IFileTree {
     const insertResult = this.#root.insert(rawNode, overwrite)
     if (isFileTreeOperationFailed(insertResult)) return insertResult
 
-    const newRoot: IFileTreeRootNodeInstance = insertResult
-    this.#root = newRoot
+    const newRootNode: IFileTreeFolderNodeInstance = insertResult
+    this.#root.attach(newRootNode)
+  }
+
+  public modify(
+    pathFromRoot: Iterable<string>,
+    ctime: number,
+    mtime: number,
+    size: number,
+  ):
+    | void
+    | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER
+    | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT
+    | FileTreeErrorCodeEnum.SRC_NODE_IS_NOT_FILE {
+    const modifyResult = this.#root.modify(pathFromRoot, ctime, mtime, size)
+    if (isFileTreeOperationFailed(modifyResult)) return modifyResult
+
+    const newRootNode: IFileTreeFolderNodeInstance = modifyResult
+    this.#root.attach(newRootNode)
   }
 
   public readdir(
@@ -112,8 +122,8 @@ export class FileTree implements IFileTree {
     const removeResult = this.#root.remove(pathFromRoot, recursive)
     if (isFileTreeOperationFailed(removeResult)) return removeResult
 
-    const newRoot: IFileTreeRootNodeInstance = removeResult
-    this.#root = newRoot
+    const newRootNode: IFileTreeFolderNodeInstance = removeResult
+    this.#root.attach(newRootNode)
   }
 
   public rename(
@@ -133,8 +143,8 @@ export class FileTree implements IFileTree {
     const moveResult = this.#root.move(srcPathFromRoot, dstPathFromRoot, overwrite, recursive)
     if (isFileTreeOperationFailed(moveResult)) return moveResult
 
-    const newRoot: IFileTreeRootNodeInstance = moveResult
-    this.#root = newRoot
+    const newRootNode: IFileTreeFolderNodeInstance = moveResult
+    this.#root.attach(newRootNode)
   }
 
   public reset(
@@ -143,7 +153,7 @@ export class FileTree implements IFileTree {
     | FileTreeErrorCodeEnum.NODE_TYPE_CONFLICT
     | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER
     | void {
-    const errorCodeOrRoot = FileTreeRootNode.fromRawNodes(rawNodes, this._cmp)
+    const errorCodeOrRoot = FileTreeRootNode.fromRawNodes(rawNodes, this.#root.cmp)
     if (isFileTreeOperationFailed(errorCodeOrRoot)) return errorCodeOrRoot
     this.#root = errorCodeOrRoot
   }

@@ -17,8 +17,8 @@ import { makeFileTreeLeafNode } from '../util/make'
 import { FileTreeFolderNode } from './folder'
 
 export class FileTreeRootNode implements IFileTreeRootNodeInstance {
-  readonly #root: IFileTreeFolderNodeInstance
   readonly #cmp: INodeNameCompare
+  #root: IFileTreeFolderNodeInstance
 
   private constructor(children: ReadonlyArray<IFileTreeNodeInstance>, cmp: INodeNameCompare) {
     this.#root = FileTreeFolderNode.create('.', children)
@@ -120,9 +120,12 @@ export class FileTreeRootNode implements IFileTreeRootNodeInstance {
     return this.#root
   }
 
-  public attach(folder: IFileTreeFolderNodeInstance): IFileTreeRootNodeInstance {
-    const cmp: INodeNameCompare = this.#cmp
-    return new FileTreeRootNode(folder.children, cmp)
+  public get cmp(): INodeNameCompare {
+    return this.#cmp
+  }
+
+  public attach(folder: IFileTreeFolderNodeInstance): void {
+    this.#root = folder
   }
 
   public copy(
@@ -138,9 +141,9 @@ export class FileTreeRootNode implements IFileTreeRootNodeInstance {
     | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER
     | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT
     | FileTreeErrorCodeEnum.SRC_CHILDREN_NOT_EMPTY
-    | IFileTreeRootNodeInstance {
+    | IFileTreeFolderNodeInstance {
     const cmp: INodeNameCompare = this.#cmp
-    if (comparePathFromRoot(srcPathFromRoot, dstPathFromRoot, cmp) === 0) return this
+    if (comparePathFromRoot(srcPathFromRoot, dstPathFromRoot, cmp) === 0) return this.#root
 
     const srcLocateResult = this.locate(srcPathFromRoot)
     if (srcLocateResult === FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER) {
@@ -178,8 +181,7 @@ export class FileTreeRootNode implements IFileTreeRootNodeInstance {
     }
 
     cNode = insert(cNode, cNode.name, cIdx + 1)
-    const newRoot: IFileTreeFolderNodeInstance = maintain(this.#root, 0)
-    return newRoot === this.#root ? this : new FileTreeRootNode(newRoot.children, cmp)
+    return maintain(this.#root, 0)
 
     function insert(
       folder: IFileTreeFolderNodeInstance | undefined,
@@ -265,9 +267,9 @@ export class FileTreeRootNode implements IFileTreeRootNodeInstance {
     | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER
     | FileTreeErrorCodeEnum.SRC_NODE_EXIST
     | FileTreeErrorCodeEnum.NODE_TYPE_CONFLICT
-    | IFileTreeRootNodeInstance {
+    | IFileTreeFolderNodeInstance {
     // If the path is empty, it's means insert at the root node which is not allowed.
-    if (rawNode.pathFromRoot.length <= 0) return this
+    if (rawNode.pathFromRoot.length <= 0) return this.#root
 
     // If the last idx is a non-negative number, it's means the path is already exist.
     const locateResult = this.find(rawNode.pathFromRoot)
@@ -279,13 +281,12 @@ export class FileTreeRootNode implements IFileTreeRootNodeInstance {
       if (node.type !== rawNode.type) return FileTreeErrorCodeEnum.NODE_TYPE_CONFLICT
 
       // If the rawNode is a folder and the folder has been existed, then just return the current root.
-      if (rawNode.type === FileTreeNodeTypeEnum.FOLDER) return this
+      if (rawNode.type === FileTreeNodeTypeEnum.FOLDER) return this.#root
     }
 
     const cmp: INodeNameCompare = this.#cmp
     const N: number = rawNode.pathFromRoot.length
-    const newRoot: IFileTreeFolderNodeInstance = insert(this.#root, this.#root.name, 0)
-    return newRoot === this.#root ? this : new FileTreeRootNode(newRoot.children, cmp)
+    return insert(this.#root, this.#root.name, 0)
 
     function insert(
       folder: IFileTreeFolderNodeInstance | undefined,
@@ -313,6 +314,11 @@ export class FileTreeRootNode implements IFileTreeRootNodeInstance {
           : immutableReplace(folder.children, idx, child)
       return FileTreeFolderNode.create(folderName, children)
     }
+  }
+
+  public launch(folder: IFileTreeFolderNodeInstance): IFileTreeRootNodeInstance {
+    const cmp: INodeNameCompare = this.#cmp
+    return new FileTreeRootNode(folder.children, cmp)
   }
 
   public locate(
@@ -348,7 +354,7 @@ export class FileTreeRootNode implements IFileTreeRootNodeInstance {
     | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER
     | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT
     | FileTreeErrorCodeEnum.SRC_NODE_IS_NOT_FILE
-    | IFileTreeRootNodeInstance {
+    | IFileTreeFolderNodeInstance {
     const locateResult = this.locate(pathFromRoot)
     if (isFileTreeOperationFailed(locateResult)) return locateResult
 
@@ -357,9 +363,7 @@ export class FileTreeRootNode implements IFileTreeRootNodeInstance {
 
     if (node.type !== FileTreeNodeTypeEnum.FILE) return FileTreeErrorCodeEnum.SRC_NODE_IS_NOT_FILE
 
-    const cmp: INodeNameCompare = this.#cmp
-    const newRoot: IFileTreeFolderNodeInstance = modify(this.#root, 0)
-    return newRoot === this.#root ? this : new FileTreeRootNode(newRoot.children, cmp)
+    return modify(this.#root, 0)
 
     function modify(folder: IFileTreeFolderNodeInstance, dep: number): IFileTreeFolderNodeInstance {
       const idx: number = idxList[dep]
@@ -392,9 +396,9 @@ export class FileTreeRootNode implements IFileTreeRootNodeInstance {
     | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER
     | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT
     | FileTreeErrorCodeEnum.SRC_CHILDREN_NOT_EMPTY
-    | IFileTreeRootNodeInstance {
+    | IFileTreeFolderNodeInstance {
     const cmp: INodeNameCompare = this.#cmp
-    if (comparePathFromRoot(srcPathFromRoot, dstPathFromRoot, cmp) === 0) return this
+    if (comparePathFromRoot(srcPathFromRoot, dstPathFromRoot, cmp) === 0) return this.#root
 
     const srcLocateResult = this.locate(srcPathFromRoot)
     if (srcLocateResult === FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER) {
@@ -433,8 +437,7 @@ export class FileTreeRootNode implements IFileTreeRootNodeInstance {
 
     cNode = remove(cNode, cIdx + 1)
     cNode = insert(cNode, cNode.name, cIdx + 1)
-    const newRoot: IFileTreeFolderNodeInstance = maintain(this.#root, 0)
-    return newRoot === this.#root ? this : new FileTreeRootNode(newRoot.children, cmp)
+    return maintain(this.#root, 0)
 
     function remove(folder: IFileTreeFolderNodeInstance, dep: number): IFileTreeFolderNodeInstance {
       const idx: number = srcIdxList[dep]
@@ -509,7 +512,7 @@ export class FileTreeRootNode implements IFileTreeRootNodeInstance {
     | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER
     | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT
     | FileTreeErrorCodeEnum.SRC_CHILDREN_NOT_EMPTY
-    | IFileTreeRootNodeInstance {
+    | IFileTreeFolderNodeInstance {
     const trackResult = this.locate(pathFromRoot)
     if (isFileTreeOperationFailed(trackResult)) return trackResult
     const { idxList, node: targetNode } = trackResult
@@ -527,11 +530,10 @@ export class FileTreeRootNode implements IFileTreeRootNodeInstance {
     }
 
     // If the path is empty, it's means remove the whole root node.
-    if (idxList.length <= 0) return new FileTreeRootNode([], this.#cmp)
+    if (idxList.length <= 0) return FileTreeFolderNode.create(this.#root.name, [])
 
     const N = idxList.length
-    const newRoot: IFileTreeFolderNodeInstance = remove(this.#root, 0)
-    return newRoot === this.#root ? this : new FileTreeRootNode(newRoot.children, this.#cmp)
+    return remove(this.#root, 0)
 
     function remove(folder: IFileTreeFolderNodeInstance, dep: number): IFileTreeFolderNodeInstance {
       const idx: number = idxList[dep]

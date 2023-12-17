@@ -1,4 +1,5 @@
 import type {
+  IFileTreeFolderNodeInstance,
   IFileTreeNodeInstance,
   IFileTreeRootNodeInstance,
   IRawFileTreeNode,
@@ -239,7 +240,7 @@ describe('FileTreeRootNode', () => {
         throw new Error('[from scratch] failed to create empty node.')
       }
 
-      let noob: IFileTreeRootNodeInstance = errorCodeOrEmptyRoot
+      const noob: IFileTreeRootNodeInstance = errorCodeOrEmptyRoot
       for (const rawNode of rawNodes) {
         const result = noob.insert(rawNode, true)
         if (isFileTreeOperationFailed(result)) {
@@ -247,7 +248,7 @@ describe('FileTreeRootNode', () => {
             `[from scratch] failed to insert rawNode. ${rawNode.pathFromRoot.join('/')}`,
           )
         }
-        noob = result
+        noob.attach(result)
       }
 
       expect('\n' + noob.draw().join('\n') + '\n').toMatchInlineSnapshot(`
@@ -376,10 +377,10 @@ describe('FileTreeRootNode', () => {
       test('same', () => {
         const srcPathFromRoot = fPathFromRoot1
         const dstPathFromRoot = fPathFromRoot1
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(root)
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, false, true)).toBe(root)
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, true, false)).toBe(root)
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, true, true)).toBe(root)
+        expect(root.move(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(root.node)
+        expect(root.move(srcPathFromRoot, dstPathFromRoot, false, true)).toBe(root.node)
+        expect(root.move(srcPathFromRoot, dstPathFromRoot, true, false)).toBe(root.node)
+        expect(root.move(srcPathFromRoot, dstPathFromRoot, true, true)).toBe(root.node)
       })
 
       test('new', () => {
@@ -397,7 +398,9 @@ describe('FileTreeRootNode', () => {
             expect(root.find(srcPathFromRoot)).toBe(originalSrcNode)
             expect(root.find(dstPathFromRoot)).toBe(undefined)
 
-            const root2 = result as IFileTreeRootNodeInstance
+            const root2: IFileTreeRootNodeInstance = root.launch(
+              result as IFileTreeFolderNodeInstance,
+            )
             expect('\n' + root2.draw().join('\n') + '\n').toMatchInlineSnapshot(`
               "
               .
@@ -456,7 +459,9 @@ describe('FileTreeRootNode', () => {
           expect(root.find(srcPathFromRoot)).toBe(originalSrcNode)
           expect(root.find(dstPathFromRoot)).toBe(originalDstNode)
 
-          const root2 = result as IFileTreeRootNodeInstance
+          const root2: IFileTreeRootNodeInstance = root.launch(
+            result as IFileTreeFolderNodeInstance,
+          )
           expect('\n' + root2.draw().join('\n') + '\n').toMatchInlineSnapshot(`
             "
             .
@@ -627,10 +632,10 @@ describe('FileTreeRootNode', () => {
       ]
 
       for (const pathFromRoot of pathFromRoots) {
-        expect(root.move(pathFromRoot, pathFromRoot, false, false)).toBe(root)
-        expect(root.move(pathFromRoot, pathFromRoot, false, true)).toBe(root)
-        expect(root.move(pathFromRoot, pathFromRoot, true, false)).toBe(root)
-        expect(root.move(pathFromRoot, pathFromRoot, true, true)).toBe(root)
+        expect(root.move(pathFromRoot, pathFromRoot, false, false)).toBe(root.node)
+        expect(root.move(pathFromRoot, pathFromRoot, false, true)).toBe(root.node)
+        expect(root.move(pathFromRoot, pathFromRoot, true, false)).toBe(root.node)
+        expect(root.move(pathFromRoot, pathFromRoot, true, true)).toBe(root.node)
       }
     })
   })
@@ -658,17 +663,17 @@ describe('FileTreeRootNode', () => {
         const result = root.remove(pathFromRoot, true)
         expect(isFileTreeOperationFailed(result)).toEqual(false)
 
-        const root2 = result as IFileTreeRootNodeInstance
+        const root2: IFileTreeRootNodeInstance = root.launch(result as IFileTreeFolderNodeInstance)
         expect(root2.find(pathFromRoot)).toBeUndefined()
       }
     })
 
     test('remove all', () => {
-      let newRoot: IFileTreeRootNodeInstance = root
+      const newRoot: IFileTreeRootNodeInstance = root.launch(root.node)
       for (const rawNode of rawFileNodes) {
         const result = newRoot.remove(rawNode.pathFromRoot, true)
         expect([result, isFileTreeOperationFailed(result)]).toEqual([result, false])
-        newRoot = result as IFileTreeRootNodeInstance
+        newRoot.attach(result as IFileTreeFolderNodeInstance)
       }
 
       expect('\n' + newRoot.draw().join('\n') + '\n').toMatchInlineSnapshot(`
@@ -695,7 +700,7 @@ describe('FileTreeRootNode', () => {
       for (const rawNode of rawFolderNodes) {
         const result = newRoot.remove(rawNode.pathFromRoot, false)
         expect(isFileTreeOperationFailed(result)).toEqual(false)
-        newRoot = result as IFileTreeRootNodeInstance
+        newRoot.attach(result as IFileTreeFolderNodeInstance)
       }
 
       expect('\n' + newRoot.draw().join('\n') + '\n').toMatchInlineSnapshot(`

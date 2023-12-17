@@ -1,18 +1,11 @@
 import type { FileTreeErrorCodeEnum } from '../constant'
-import type { IFileTreeFolderNodeInstance, IFileTreeRootNodeInstance } from './instance'
+import type { IFileTreeRootNodeInstance } from './instance'
 import type { IFileTreeDrawOptions } from './misc'
 import type { IFileTreeFolderNode, IFileTreeNodeStat } from './node'
 import type { IRawFileTreeNode } from './raw'
 
 export interface IFileTree {
   readonly root: IFileTreeRootNodeInstance
-
-  /**
-   * Return a new root node instance which based on the given folder as the root.
-   *
-   * @param folder
-   */
-  attach(folder: IFileTreeFolderNodeInstance): void
 
   /**
    * Copy the srcPathFromRoot to dstPathFromRoot.
@@ -57,6 +50,25 @@ export interface IFileTree {
     | FileTreeErrorCodeEnum.NODE_TYPE_CONFLICT // When the node existed but the type is different.
     | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER // When any ancestor node is not a folder.
     | FileTreeErrorCodeEnum.SRC_NODE_EXIST // When the node existed but overwrite set to false.
+    | void // When succeed.
+
+  /**
+   * Modify the content in the given path.
+   *
+   * @param pathFromRoot
+   * @param ctime
+   * @param mtime
+   * @param size
+   */
+  modify(
+    pathFromRoot: Iterable<string>,
+    ctime: number,
+    mtime: number,
+    size: number,
+  ):
+    | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER // When any ancestor node is not a folder.
+    | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT // When the path is not exist.
+    | FileTreeErrorCodeEnum.SRC_NODE_IS_NOT_FILE // When the path is not a file.
     | void // When succeed.
 
   /**
