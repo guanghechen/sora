@@ -36,4 +36,16 @@ export interface ICatalogItem {
    * The value should be unique in file catalog.
    */
   plainFilepath: string
+  /**
+   * File create time.
+   */
+  ctime: number
+  /**
+   * File modify time.
+   */
+  mtime: number
+  /**
+   * File size.
+   */
+  size: number
 }

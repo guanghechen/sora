@@ -22,4 +22,16 @@ export interface IDeserializedCatalogItem {
    * The path of the plain source file (relative to the plain root directory, encrypted, base64 string).
    */
   plainFilepath: string
+  /**
+   * File create time.
+   */
+  ctime: number
+  /**
+   * File modify time.
+   */
+  mtime: number
+  /**
+   * File size.
+   */
+  size: number
 }
