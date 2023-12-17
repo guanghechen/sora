@@ -17,6 +17,9 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
     cryptFilepathParts: [],
     fingerprint: '4e26698e6bebd87fc210bec49fea4da6210b5769dbff50b3479effa16799120f',
     keepPlain: true,
+    ctime: 0,
+    mtime: 0,
+    size: 10,
   },
   A2: {
     plainFilepath: 'a.txt',
@@ -24,6 +27,9 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
     cryptFilepathParts: [],
     fingerprint: '70b47f9cc28ad379043b328d7d058097c69e7bb38d766ecca2655cd3afb6b5fa',
     keepPlain: true,
+    ctime: 0,
+    mtime: 0,
+    size: 20,
   },
   B: {
     plainFilepath: 'b.txt',
@@ -31,6 +37,9 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
     cryptFilepathParts: [],
     fingerprint: '6fee185efd0ffc7c51f986dcd2eb513e0ce0b63249d9a3bb51efe0c1ed2cb615',
     keepPlain: false,
+    ctime: 0,
+    mtime: 0,
+    size: 30,
   },
   C: {
     plainFilepath: 'c.txt',
@@ -38,6 +47,9 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
     cryptFilepathParts: ['.ghc-part1', '.ghc-part2', '.ghc-part3', '.ghc-part4'],
     fingerprint: 'b835f16cc543838431fa5bbeceb8906c667c16af9f98779f54541aeae0ccdce2',
     keepPlain: false,
+    ctime: 0,
+    mtime: 0,
+    size: 50,
   },
   D: {
     plainFilepath: 'd.txt',
@@ -45,6 +57,9 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
     cryptFilepathParts: ['.ghc-part1', '.ghc-part2', '.ghc-part3', '.ghc-part4'],
     fingerprint: '40cb73b4c02d34812f38a5ca3a3f95d377285e83d7bb499573b918e1862bcf13',
     keepPlain: false,
+    ctime: 0,
+    mtime: 0,
+    size: 60,
   },
 }
 

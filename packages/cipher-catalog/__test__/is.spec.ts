@@ -11,6 +11,9 @@ test('areSameDraftCatalogItem', () => {
     cryptFilepathParts: [],
     fingerprint: '',
     keepPlain: false,
+    ctime: 0,
+    mtime: 0,
+    size: 60,
   }
 
   expect(areSameDraftCatalogItem(basicItem, basicItem)).toEqual(true)
@@ -42,6 +45,9 @@ test('areSameCatalogItem', () => {
     keepPlain: false,
     iv: text2bytes('dddef89d89c3fe3ca704d5fd', 'hex'),
     authTag: undefined,
+    ctime: 0,
+    mtime: 0,
+    size: 60,
   }
 
   expect(areSameCatalogItem(basicItem, basicItem)).toEqual(true)

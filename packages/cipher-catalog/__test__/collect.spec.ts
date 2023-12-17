@@ -21,6 +21,9 @@ const diffItems: IDraftCatalogDiffItem[] = [
       cryptFilepathParts: ['.ghc-part1', '.ghc-part2', '.ghc-part3', '.ghc-part4'],
       fingerprint: '40cb73b4c02d34812f38a5ca3a3f95d377285e83d7bb499573b918e1862bcf13',
       keepPlain: true,
+      ctime: 0,
+      mtime: 0,
+      size: 60,
     },
   },
 ]
