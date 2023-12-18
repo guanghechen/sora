@@ -1,22 +1,22 @@
 import type {
+  IFileTree,
   IFileTreeDrawOptions,
   IFileTreeFileNodeInstance,
   IFileTreeFolderNode,
   IFileTreeFolderNodeInstance,
   IFileTreeNodeInstance,
-  IFileTreeRootNodeInstance,
   INodeNameCompare,
   IRawFileTreeNode,
 } from '@guanghechen/filetree.types'
 import { FileTreeErrorCodeEnum, FileTreeNodeTypeEnum } from '@guanghechen/filetree.types'
-import { comparePathFromRoot } from '../util/compare'
-import { drawFileTree } from '../util/draw'
-import { isFileTreeOperationFailed } from '../util/is'
-import { immutableInsert, immutableRemove, immutableReplace } from '../util/list'
-import { makeFileTreeLeafNode } from '../util/make'
-import { FileTreeFolderNode } from './folder'
+import { FileTreeFolderNode } from './node/folder'
+import { comparePathFromRoot } from './util/compare'
+import { drawFileTree } from './util/draw'
+import { isFileTreeOperationFailed } from './util/is'
+import { immutableInsert, immutableRemove, immutableReplace } from './util/list'
+import { makeFileTreeLeafNode } from './util/make'
 
-export class FileTreeRootNode implements IFileTreeRootNodeInstance {
+export class FileTree implements IFileTree {
   readonly #cmp: INodeNameCompare
   #root: IFileTreeFolderNodeInstance
 
@@ -31,18 +31,18 @@ export class FileTreeRootNode implements IFileTreeRootNodeInstance {
   ):
     | FileTreeErrorCodeEnum.NODE_TYPE_CONFLICT
     | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER
-    | IFileTreeRootNodeInstance {
+    | IFileTree {
     const items: IRawFileTreeNode[] = []
     for (const rawNode of rawNodes) {
       if (rawNode.pathFromRoot.length > 0) items.push(rawNode)
     }
-    if (items.length <= 0) return new FileTreeRootNode([], cmp)
+    if (items.length <= 0) return new FileTree([], cmp)
 
     items.sort((u, v) => comparePathFromRoot(u.pathFromRoot, v.pathFromRoot, cmp))
 
     const errorCodeOrNodes = buildChildren(0, items.length, 0)
     if (isFileTreeOperationFailed(errorCodeOrNodes)) return errorCodeOrNodes
-    return new FileTreeRootNode(errorCodeOrNodes, cmp)
+    return new FileTree(errorCodeOrNodes, cmp)
 
     function buildChildren(
       lft: number,
@@ -116,7 +116,7 @@ export class FileTreeRootNode implements IFileTreeRootNodeInstance {
     }
   }
 
-  public get node(): IFileTreeFolderNodeInstance {
+  public get root(): IFileTreeFolderNodeInstance {
     return this.#root
   }
 
@@ -316,9 +316,9 @@ export class FileTreeRootNode implements IFileTreeRootNodeInstance {
     }
   }
 
-  public launch(folder: IFileTreeFolderNodeInstance): IFileTreeRootNodeInstance {
+  public launch(folder: IFileTreeFolderNodeInstance): IFileTree {
     const cmp: INodeNameCompare = this.#cmp
-    return new FileTreeRootNode(folder.children, cmp)
+    return new FileTree(folder.children, cmp)
   }
 
   public locate(
@@ -383,7 +383,7 @@ export class FileTreeRootNode implements IFileTreeRootNodeInstance {
     }
   }
 
-  public move(
+  public rename(
     srcPathFromRoot: ReadonlyArray<string>,
     dstPathFromRoot: ReadonlyArray<string>,
     overwrite: boolean,

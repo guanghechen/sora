@@ -1,6 +1,7 @@
 import type { IFileTreeNodeInstance, IRawFileTreeNode } from '@guanghechen/filetree.types'
 import { FileTreeNodeTypeEnum } from '@guanghechen/filetree.types'
-import { FileTreeFileNode, FileTreeFolderNode } from '../node'
+import { FileTreeFileNode } from '../node/file'
+import { FileTreeFolderNode } from '../node/folder'
 
 export function makeFileTreeLeafNode(
   name: string,

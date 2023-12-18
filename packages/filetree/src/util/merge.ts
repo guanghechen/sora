@@ -4,7 +4,7 @@ import type {
   INodeNameCompare,
 } from '@guanghechen/filetree.types'
 import { FileTreeErrorCodeEnum, FileTreeNodeTypeEnum } from '@guanghechen/filetree.types'
-import { FileTreeFolderNode } from '../node'
+import { FileTreeFolderNode } from '../node/folder'
 import { isFileTreeOperationSucceed } from './is'
 
 /**

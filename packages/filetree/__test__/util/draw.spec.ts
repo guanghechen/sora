@@ -1,32 +1,27 @@
-import type { IFileTreeRootNodeInstance, IRawFileTreeNode } from '@guanghechen/filetree.types'
-import {
-  FileTreeRootNode,
-  caseSensitiveCmp,
-  drawFileTree,
-  isFileTreeOperationFailed,
-} from '../../src'
+import type { IFileTree, IRawFileTreeNode } from '@guanghechen/filetree.types'
+import { FileTree, caseSensitiveCmp, drawFileTree, isFileTreeOperationFailed } from '../../src'
 import { fileTreeSerializer, getRawFileTreeNodes1 } from '../_suites'
 
 expect.addSnapshotSerializer(fileTreeSerializer)
 
 describe('drawFileTree', () => {
-  let root: IFileTreeRootNodeInstance
+  let filetree: IFileTree
 
   beforeEach(() => {
     const { files, folders } = getRawFileTreeNodes1()
     const rawNodes: IRawFileTreeNode[] = [...files, ...folders]
-    const result = FileTreeRootNode.fromRawNodes(rawNodes, caseSensitiveCmp)
+    const result = FileTree.fromRawNodes(rawNodes, caseSensitiveCmp)
     if (isFileTreeOperationFailed(result)) {
       throw new Error(`Failed to build tree. code: ${result}`)
     }
-    root = result
+    filetree = result
   })
 
   test('not collapsed', () => {
     const lines: string[] = [
       '',
       ...drawFileTree(
-        root.node,
+        filetree.root,
         {
           ident: '',
           collapse: false,
@@ -68,7 +63,7 @@ describe('drawFileTree', () => {
     const lines: string[] = [
       '',
       ...drawFileTree(
-        root.node,
+        filetree.root,
         {
           ident: '',
           collapse: true,
@@ -103,7 +98,7 @@ describe('drawFileTree', () => {
     const lines: string[] = [
       '',
       ...drawFileTree(
-        root.node,
+        filetree.root,
         {
           ident: '',
           collapse: false,
@@ -135,7 +130,7 @@ describe('drawFileTree', () => {
     const lines: string[] = [
       '',
       ...drawFileTree(
-        root.node,
+        filetree.root,
         {
           ident: '',
           collapse: true,
@@ -161,7 +156,7 @@ describe('drawFileTree', () => {
     const lines: string[] = [
       '',
       ...drawFileTree(
-        root.node,
+        filetree.root,
         {
           ident: '',
           collapse: false,
@@ -193,7 +188,7 @@ describe('drawFileTree', () => {
     const lines: string[] = [
       '',
       ...drawFileTree(
-        root.node,
+        filetree.root,
         {
           ident: '',
           collapse: true,

@@ -1,13 +1,13 @@
 import type {
+  IFileTree,
   IFileTreeFolderNodeInstance,
   IFileTreeNodeInstance,
-  IFileTreeRootNodeInstance,
   IRawFileTreeNode,
 } from '@guanghechen/filetree.types'
 import {
+  FileTree,
   FileTreeErrorCodeEnum,
   FileTreeNodeTypeEnum,
-  FileTreeRootNode,
   caseSensitiveCmp,
   isFileTreeOperationFailed,
   isFileTreeOperationSucceed,
@@ -16,10 +16,10 @@ import { fileTreeSerializer, getRawFileTreeNodes1 } from './_suites'
 
 expect.addSnapshotSerializer(fileTreeSerializer)
 
-describe('FileTreeRootNode', () => {
-  let BASELINE_ROOT: IFileTreeRootNodeInstance
+describe('FileTree', () => {
+  let BASELINE_ROOT: IFileTree
 
-  let root: IFileTreeRootNodeInstance
+  let filetree: IFileTree
   let rawNodes: IRawFileTreeNode[]
   let rawFileNodes: IRawFileTreeNode[]
   let rawFolderNodes: IRawFileTreeNode[]
@@ -38,7 +38,7 @@ describe('FileTreeRootNode', () => {
   beforeAll(() => {
     const { files, folders } = getRawFileTreeNodes1()
     const rawNodes = [...files, ...folders]
-    const result = FileTreeRootNode.fromRawNodes(rawNodes, caseSensitiveCmp)
+    const result = FileTree.fromRawNodes(rawNodes, caseSensitiveCmp)
     if (isFileTreeOperationFailed(result)) {
       throw new Error(`Failed to build tree. code: ${result}`)
     }
@@ -58,16 +58,16 @@ describe('FileTreeRootNode', () => {
     dPathFromRoot1 = rawFolderNodes[0].pathFromRoot.slice()
     dPathFromRoot2 = rawFolderNodes[1].pathFromRoot.slice()
 
-    const result = FileTreeRootNode.fromRawNodes(rawNodes, caseSensitiveCmp)
+    const result = FileTree.fromRawNodes(rawNodes, caseSensitiveCmp)
     if (isFileTreeOperationFailed(result)) {
       throw new Error(`Failed to build tree. code: ${result}`)
     }
-    root = result
+    filetree = result
   })
 
   afterEach(() => {
     // eslint-disable-next-line jest/no-standalone-expect
-    expect(root.node).toBe(BASELINE_ROOT.node)
+    expect(filetree.root).toBe(BASELINE_ROOT.root)
   })
 
   describe('fromRawNodes', () => {
@@ -82,7 +82,7 @@ describe('FileTreeRootNode', () => {
         },
       ]
 
-      const errorCode = FileTreeRootNode.fromRawNodes(badRawFileTreeNodes, caseSensitiveCmp)
+      const errorCode = FileTree.fromRawNodes(badRawFileTreeNodes, caseSensitiveCmp)
       expect(isFileTreeOperationFailed(errorCode)).toEqual(true)
       expect(errorCode).toEqual(FileTreeErrorCodeEnum.NODE_TYPE_CONFLICT)
     })
@@ -98,20 +98,20 @@ describe('FileTreeRootNode', () => {
         },
       ]
 
-      const errorCode = FileTreeRootNode.fromRawNodes(badRawFileTreeNodes, caseSensitiveCmp)
+      const errorCode = FileTree.fromRawNodes(badRawFileTreeNodes, caseSensitiveCmp)
       expect(isFileTreeOperationFailed(errorCode)).toEqual(true)
       expect(errorCode).toEqual(FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER)
     })
   })
 
   test('cache', () => {
-    expect(root.node).toBe(BASELINE_ROOT.node)
+    expect(filetree.root).toBe(BASELINE_ROOT.root)
   })
 
   test('draw', () => {
     const lines: string[] = [
       '',
-      ...root.draw({
+      ...filetree.draw({
         ident: '',
         collapse: false,
         depth: Number.MAX_SAFE_INTEGER,
@@ -149,7 +149,7 @@ describe('FileTreeRootNode', () => {
   describe('insert', () => {
     test('SRC_NODE_EXIST', () => {
       {
-        const result = root.insert(
+        const result = filetree.insert(
           {
             type: FileTreeNodeTypeEnum.FILE,
             pathFromRoot: rawFileNodes[0].pathFromRoot,
@@ -164,7 +164,7 @@ describe('FileTreeRootNode', () => {
       }
 
       {
-        const result = root.insert(
+        const result = filetree.insert(
           {
             type: FileTreeNodeTypeEnum.FOLDER,
             pathFromRoot: rawFileNodes[0].pathFromRoot,
@@ -178,7 +178,7 @@ describe('FileTreeRootNode', () => {
 
     test('NODE_TYPE_CONFLICT', () => {
       {
-        const result = root.insert(
+        const result = filetree.insert(
           {
             type: FileTreeNodeTypeEnum.FILE,
             pathFromRoot: rawFolderNodes[0].pathFromRoot,
@@ -193,7 +193,7 @@ describe('FileTreeRootNode', () => {
       }
 
       {
-        const result = root.insert(
+        const result = filetree.insert(
           {
             type: FileTreeNodeTypeEnum.FOLDER,
             pathFromRoot: rawFileNodes[0].pathFromRoot,
@@ -207,7 +207,7 @@ describe('FileTreeRootNode', () => {
 
     test('SRC_ANCESTOR_NOT_FOLDER', () => {
       {
-        const result = root.insert(
+        const result = filetree.insert(
           {
             type: FileTreeNodeTypeEnum.FILE,
             pathFromRoot: rawFileNodes[0].pathFromRoot.concat('c/d/alice.md'),
@@ -222,7 +222,7 @@ describe('FileTreeRootNode', () => {
       }
 
       {
-        const result = root.insert(
+        const result = filetree.insert(
           {
             type: FileTreeNodeTypeEnum.FOLDER,
             pathFromRoot: rawFileNodes[0].pathFromRoot.concat('c/d/alice.md'),
@@ -235,12 +235,12 @@ describe('FileTreeRootNode', () => {
     })
 
     test('from scratch', () => {
-      const errorCodeOrEmptyRoot = FileTreeRootNode.fromRawNodes([], caseSensitiveCmp)
-      if (isFileTreeOperationFailed(errorCodeOrEmptyRoot)) {
+      const errorCodeOrFileTree = FileTree.fromRawNodes([], caseSensitiveCmp)
+      if (isFileTreeOperationFailed(errorCodeOrFileTree)) {
         throw new Error('[from scratch] failed to create empty node.')
       }
 
-      const noob: IFileTreeRootNodeInstance = errorCodeOrEmptyRoot
+      const noob: IFileTree = errorCodeOrFileTree
       for (const rawNode of rawNodes) {
         const result = noob.insert(rawNode, true)
         if (isFileTreeOperationFailed(result)) {
@@ -276,7 +276,7 @@ describe('FileTreeRootNode', () => {
                 └── a
         "
       `)
-      expect(noob.node).toBe(root.node)
+      expect(noob.root).toBe(filetree.root)
     })
   })
 
@@ -286,19 +286,19 @@ describe('FileTreeRootNode', () => {
         const srcPathFromRoot: string[] = fPathFromRoot1
         const dstPathFromRoot: string[] = aPathFromRoot
 
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(
           FileTreeErrorCodeEnum.DST_ANCESTOR_NOT_FOLDER,
         )
 
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, false, true)).toBe(
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, false, true)).toBe(
           FileTreeErrorCodeEnum.DST_ANCESTOR_NOT_FOLDER,
         )
 
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, true, false)).toBe(
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, true, false)).toBe(
           FileTreeErrorCodeEnum.DST_ANCESTOR_NOT_FOLDER,
         )
 
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, true, true)).toBe(
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, true, true)).toBe(
           FileTreeErrorCodeEnum.DST_ANCESTOR_NOT_FOLDER,
         )
       })
@@ -307,21 +307,21 @@ describe('FileTreeRootNode', () => {
         const srcPathFromRoot: string[] = fPathFromRoot1
         const dstPathFromRoot: string[] = fPathFromRoot2
 
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(
           FileTreeErrorCodeEnum.DST_NODE_EXIST,
         )
 
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, false, true)).toBe(
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, false, true)).toBe(
           FileTreeErrorCodeEnum.DST_NODE_EXIST,
         )
 
         // Once the overwrite has been set, then the DST_NODE_EXIST will be ignored.
 
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, true, false)).not.toBe(
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, true, false)).not.toBe(
           FileTreeErrorCodeEnum.DST_NODE_EXIST,
         )
 
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, true, true)).not.toBe(
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, true, true)).not.toBe(
           FileTreeErrorCodeEnum.DST_NODE_EXIST,
         )
       })
@@ -334,19 +334,19 @@ describe('FileTreeRootNode', () => {
         const srcPathFromRoot: string[] = aPathFromRoot
         const dstPathFromRoot: string[] = fPathFromRoot1
 
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(
           FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER,
         )
 
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, false, true)).toBe(
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, false, true)).toBe(
           FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER,
         )
 
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, true, false)).toBe(
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, true, false)).toBe(
           FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER,
         )
 
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, true, true)).toBe(
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, true, true)).toBe(
           FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER,
         )
       })
@@ -355,19 +355,19 @@ describe('FileTreeRootNode', () => {
         const srcPathFromRoot: string[] = nPathFromRoot
         const dstPathFromRoot: string[] = fPathFromRoot1
 
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(
           FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT,
         )
 
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, false, true)).toBe(
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, false, true)).toBe(
           FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT,
         )
 
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, true, false)).toBe(
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, true, false)).toBe(
           FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT,
         )
 
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, true, true)).toBe(
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, true, true)).toBe(
           FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT,
         )
       })
@@ -377,31 +377,29 @@ describe('FileTreeRootNode', () => {
       test('same', () => {
         const srcPathFromRoot = fPathFromRoot1
         const dstPathFromRoot = fPathFromRoot1
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(root.node)
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, false, true)).toBe(root.node)
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, true, false)).toBe(root.node)
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, true, true)).toBe(root.node)
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(filetree.root)
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, false, true)).toBe(filetree.root)
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, true, false)).toBe(filetree.root)
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, true, true)).toBe(filetree.root)
       })
 
       test('new', () => {
         const srcPathFromRoot = fPathFromRoot1
         const dstPathFromRoot = nPathFromRoot
-        const originalSrcNode = root.find(srcPathFromRoot) as IFileTreeNodeInstance
+        const originalSrcNode = filetree.find(srcPathFromRoot) as IFileTreeNodeInstance
 
         expect(isFileTreeOperationSucceed(originalSrcNode)).toBe(true)
         expect(originalSrcNode).not.toBe(undefined)
 
         for (const overwrite of [false, true]) {
           for (const recursive of [false, true]) {
-            const result = root.move(srcPathFromRoot, dstPathFromRoot, overwrite, recursive)
+            const result = filetree.rename(srcPathFromRoot, dstPathFromRoot, overwrite, recursive)
             expect(isFileTreeOperationSucceed(result)).toBe(true)
-            expect(root.find(srcPathFromRoot)).toBe(originalSrcNode)
-            expect(root.find(dstPathFromRoot)).toBe(undefined)
+            expect(filetree.find(srcPathFromRoot)).toBe(originalSrcNode)
+            expect(filetree.find(dstPathFromRoot)).toBe(undefined)
 
-            const root2: IFileTreeRootNodeInstance = root.launch(
-              result as IFileTreeFolderNodeInstance,
-            )
-            expect('\n' + root2.draw().join('\n') + '\n').toMatchInlineSnapshot(`
+            const filetree2: IFileTree = filetree.launch(result as IFileTreeFolderNodeInstance)
+            expect('\n' + filetree2.draw().join('\n') + '\n').toMatchInlineSnapshot(`
               "
               .
               ├── a
@@ -428,8 +426,8 @@ describe('FileTreeRootNode', () => {
               "
             `)
 
-            expect(root2.find(srcPathFromRoot)).toBe(undefined)
-            expect(root2.find(dstPathFromRoot)).toBe(
+            expect(filetree2.find(srcPathFromRoot)).toBe(undefined)
+            expect(filetree2.find(dstPathFromRoot)).toBe(
               originalSrcNode.rename(dstPathFromRoot[dstPathFromRoot.length - 1]),
             )
           }
@@ -440,29 +438,27 @@ describe('FileTreeRootNode', () => {
         const srcPathFromRoot = fPathFromRoot1
         const dstPathFromRoot = fPathFromRoot2
 
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(
           FileTreeErrorCodeEnum.DST_NODE_EXIST,
         )
 
-        expect(root.move(srcPathFromRoot, dstPathFromRoot, false, true)).toBe(
+        expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, false, true)).toBe(
           FileTreeErrorCodeEnum.DST_NODE_EXIST,
         )
 
-        const originalSrcNode = root.find(srcPathFromRoot) as IFileTreeNodeInstance
-        const originalDstNode = root.find(dstPathFromRoot) as IFileTreeNodeInstance
+        const originalSrcNode = filetree.find(srcPathFromRoot) as IFileTreeNodeInstance
+        const originalDstNode = filetree.find(dstPathFromRoot) as IFileTreeNodeInstance
         expect(isFileTreeOperationSucceed(originalSrcNode)).not.toBeUndefined()
         expect(isFileTreeOperationSucceed(originalDstNode)).not.toBeUndefined()
 
         for (const recursive of [false, true]) {
-          const result = root.move(srcPathFromRoot, dstPathFromRoot, true, recursive)
+          const result = filetree.rename(srcPathFromRoot, dstPathFromRoot, true, recursive)
           expect(isFileTreeOperationSucceed(result)).toBe(true)
-          expect(root.find(srcPathFromRoot)).toBe(originalSrcNode)
-          expect(root.find(dstPathFromRoot)).toBe(originalDstNode)
+          expect(filetree.find(srcPathFromRoot)).toBe(originalSrcNode)
+          expect(filetree.find(dstPathFromRoot)).toBe(originalDstNode)
 
-          const root2: IFileTreeRootNodeInstance = root.launch(
-            result as IFileTreeFolderNodeInstance,
-          )
-          expect('\n' + root2.draw().join('\n') + '\n').toMatchInlineSnapshot(`
+          const filetree2: IFileTree = filetree.launch(result as IFileTreeFolderNodeInstance)
+          expect('\n' + filetree2.draw().join('\n') + '\n').toMatchInlineSnapshot(`
             "
             .
             ├── a
@@ -487,8 +483,8 @@ describe('FileTreeRootNode', () => {
             "
           `)
 
-          expect(root2.find(srcPathFromRoot)).toBe(undefined)
-          expect(root2.find(dstPathFromRoot)).toBe(
+          expect(filetree2.find(srcPathFromRoot)).toBe(undefined)
+          expect(filetree2.find(dstPathFromRoot)).toBe(
             originalSrcNode.rename(dstPathFromRoot[dstPathFromRoot.length - 1]),
           )
         }
@@ -505,19 +501,19 @@ describe('FileTreeRootNode', () => {
       const srcPathFromRoot: string[] = rawFileNodes[0].pathFromRoot.slice()
       const dstPathFromRoot: string[] = rawFileNodes[1].pathFromRoot.concat('c/d/alice.md')
 
-      expect(root.move(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(
+      expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(
         FileTreeErrorCodeEnum.DST_ANCESTOR_NOT_FOLDER,
       )
 
-      expect(root.move(srcPathFromRoot, dstPathFromRoot, false, true)).toBe(
+      expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, false, true)).toBe(
         FileTreeErrorCodeEnum.DST_ANCESTOR_NOT_FOLDER,
       )
 
-      expect(root.move(srcPathFromRoot, dstPathFromRoot, true, false)).toBe(
+      expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, true, false)).toBe(
         FileTreeErrorCodeEnum.DST_ANCESTOR_NOT_FOLDER,
       )
 
-      expect(root.move(srcPathFromRoot, dstPathFromRoot, true, true)).toBe(
+      expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, true, true)).toBe(
         FileTreeErrorCodeEnum.DST_ANCESTOR_NOT_FOLDER,
       )
     })
@@ -554,12 +550,12 @@ describe('FileTreeRootNode', () => {
 
       for (let i = 0; i < suites.length; ++i) {
         const { srcPathFromRoot, dstPathFromRoot } = suites[i]
-        expect([i, root.move(srcPathFromRoot, dstPathFromRoot, false, false)]).toEqual([
+        expect([i, filetree.rename(srcPathFromRoot, dstPathFromRoot, false, false)]).toEqual([
           i,
           FileTreeErrorCodeEnum.DST_NODE_EXIST,
         ])
 
-        expect([i, root.move(srcPathFromRoot, dstPathFromRoot, false, true)]).toEqual([
+        expect([i, filetree.rename(srcPathFromRoot, dstPathFromRoot, false, true)]).toEqual([
           i,
           FileTreeErrorCodeEnum.DST_NODE_EXIST,
         ])
@@ -574,19 +570,19 @@ describe('FileTreeRootNode', () => {
       const srcPathFromRoot: string[] = rawFileNodes[0].pathFromRoot.concat('c/d/alice.md')
       const dstPathFromRoot: string[] = rawFileNodes[1].pathFromRoot.slice()
 
-      expect(root.move(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(
+      expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(
         FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER,
       )
 
-      expect(root.move(srcPathFromRoot, dstPathFromRoot, false, true)).toBe(
+      expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, false, true)).toBe(
         FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER,
       )
 
-      expect(root.move(srcPathFromRoot, dstPathFromRoot, true, false)).toBe(
+      expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, true, false)).toBe(
         FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER,
       )
 
-      expect(root.move(srcPathFromRoot, dstPathFromRoot, true, true)).toBe(
+      expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, true, true)).toBe(
         FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER,
       )
     })
@@ -595,19 +591,19 @@ describe('FileTreeRootNode', () => {
       const srcPathFromRoot: string[] = rawFolderNodes[0].pathFromRoot.concat('non-exit/alice.txt')
       const dstPathFromRoot: string[] = rawFolderNodes[0].pathFromRoot.concat('alice.txt')
 
-      expect(root.move(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(
+      expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(
         FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT,
       )
 
-      expect(root.move(srcPathFromRoot, dstPathFromRoot, false, true)).toBe(
+      expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, false, true)).toBe(
         FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT,
       )
 
-      expect(root.move(srcPathFromRoot, dstPathFromRoot, true, false)).toBe(
+      expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, true, false)).toBe(
         FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT,
       )
 
-      expect(root.move(srcPathFromRoot, dstPathFromRoot, true, true)).toBe(
+      expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, true, true)).toBe(
         FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT,
       )
     })
@@ -616,11 +612,11 @@ describe('FileTreeRootNode', () => {
       const srcPathFromRoot: string[] = rawFileNodes[0].pathFromRoot.slice(0, -1)
       const dstPathFromRoot: string[] = rawFolderNodes[0].pathFromRoot.concat('alice')
 
-      expect(root.move(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(
+      expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, false, false)).toBe(
         FileTreeErrorCodeEnum.SRC_CHILDREN_NOT_EMPTY,
       )
 
-      expect(root.move(srcPathFromRoot, dstPathFromRoot, true, false)).toBe(
+      expect(filetree.rename(srcPathFromRoot, dstPathFromRoot, true, false)).toBe(
         FileTreeErrorCodeEnum.SRC_CHILDREN_NOT_EMPTY,
       )
     })
@@ -632,10 +628,10 @@ describe('FileTreeRootNode', () => {
       ]
 
       for (const pathFromRoot of pathFromRoots) {
-        expect(root.move(pathFromRoot, pathFromRoot, false, false)).toBe(root.node)
-        expect(root.move(pathFromRoot, pathFromRoot, false, true)).toBe(root.node)
-        expect(root.move(pathFromRoot, pathFromRoot, true, false)).toBe(root.node)
-        expect(root.move(pathFromRoot, pathFromRoot, true, true)).toBe(root.node)
+        expect(filetree.rename(pathFromRoot, pathFromRoot, false, false)).toBe(filetree.root)
+        expect(filetree.rename(pathFromRoot, pathFromRoot, false, true)).toBe(filetree.root)
+        expect(filetree.rename(pathFromRoot, pathFromRoot, true, false)).toBe(filetree.root)
+        expect(filetree.rename(pathFromRoot, pathFromRoot, true, true)).toBe(filetree.root)
       }
     })
   })
@@ -643,40 +639,46 @@ describe('FileTreeRootNode', () => {
   describe('remove', () => {
     test('SRC_ANCESTOR_NOT_FOLDER', () => {
       const pathFromRoot: string[] = rawFileNodes[0].pathFromRoot.concat('c/d')
-      expect(root.remove(pathFromRoot, false)).toBe(FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER)
-      expect(root.remove(pathFromRoot, true)).toBe(FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER)
+      expect(filetree.remove(pathFromRoot, false)).toBe(
+        FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER,
+      )
+      expect(filetree.remove(pathFromRoot, true)).toBe(
+        FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER,
+      )
     })
 
     test('SRC_NODE_NONEXISTENT', () => {
       const pathFromRoot: string[] = rawFolderNodes[0].pathFromRoot.concat('c/d/alice.md')
-      expect(root.remove(pathFromRoot, false)).toBe(FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT)
-      expect(root.remove(pathFromRoot, true)).toBe(FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT)
+      expect(filetree.remove(pathFromRoot, false)).toBe(FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT)
+      expect(filetree.remove(pathFromRoot, true)).toBe(FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT)
     })
 
     test('SRC_CHILDREN_NOT_EMPTY', () => {
       const pathFromRoot: string[] = rawFileNodes[0].pathFromRoot.slice(0, -1)
-      expect(root.find(pathFromRoot)).not.toBeUndefined()
-      expect(root.remove(pathFromRoot, false)).toBe(FileTreeErrorCodeEnum.SRC_CHILDREN_NOT_EMPTY)
-      expect(root.find(pathFromRoot)).not.toBeUndefined()
+      expect(filetree.find(pathFromRoot)).not.toBeUndefined()
+      expect(filetree.remove(pathFromRoot, false)).toBe(
+        FileTreeErrorCodeEnum.SRC_CHILDREN_NOT_EMPTY,
+      )
+      expect(filetree.find(pathFromRoot)).not.toBeUndefined()
 
       {
-        const result = root.remove(pathFromRoot, true)
+        const result = filetree.remove(pathFromRoot, true)
         expect(isFileTreeOperationFailed(result)).toEqual(false)
 
-        const root2: IFileTreeRootNodeInstance = root.launch(result as IFileTreeFolderNodeInstance)
-        expect(root2.find(pathFromRoot)).toBeUndefined()
+        const filetree2: IFileTree = filetree.launch(result as IFileTreeFolderNodeInstance)
+        expect(filetree2.find(pathFromRoot)).toBeUndefined()
       }
     })
 
     test('remove all', () => {
-      const newRoot: IFileTreeRootNodeInstance = root.launch(root.node)
+      const newFiletree: IFileTree = filetree.launch(filetree.root)
       for (const rawNode of rawFileNodes) {
-        const result = newRoot.remove(rawNode.pathFromRoot, true)
+        const result = newFiletree.remove(rawNode.pathFromRoot, true)
         expect([result, isFileTreeOperationFailed(result)]).toEqual([result, false])
-        newRoot.attach(result as IFileTreeFolderNodeInstance)
+        newFiletree.attach(result as IFileTreeFolderNodeInstance)
       }
 
-      expect('\n' + newRoot.draw().join('\n') + '\n').toMatchInlineSnapshot(`
+      expect('\n' + newFiletree.draw().join('\n') + '\n').toMatchInlineSnapshot(`
         "
         .
         ├── a
@@ -698,12 +700,12 @@ describe('FileTreeRootNode', () => {
       `)
 
       for (const rawNode of rawFolderNodes) {
-        const result = newRoot.remove(rawNode.pathFromRoot, false)
+        const result = newFiletree.remove(rawNode.pathFromRoot, false)
         expect(isFileTreeOperationFailed(result)).toEqual(false)
-        newRoot.attach(result as IFileTreeFolderNodeInstance)
+        newFiletree.attach(result as IFileTreeFolderNodeInstance)
       }
 
-      expect('\n' + newRoot.draw().join('\n') + '\n').toMatchInlineSnapshot(`
+      expect('\n' + newFiletree.draw().join('\n') + '\n').toMatchInlineSnapshot(`
         "
         .
         ├── a
@@ -723,7 +725,7 @@ describe('FileTreeRootNode', () => {
   })
 
   test('toJSON', () => {
-    const json = root.toJSON()
+    const json = filetree.toJSON()
     expect(json).toMatchInlineSnapshot(`
       {
         "type": "FOLDER",

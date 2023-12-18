@@ -1,11 +1,26 @@
 import type { FileTreeErrorCodeEnum } from '../constant'
-import type { IFileTreeRootNodeInstance } from './instance'
-import type { IFileTreeDrawOptions } from './misc'
-import type { IFileTreeFolderNode, IFileTreeNodeStat } from './node'
+import type { IFileTreeFolderNodeInstance, IFileTreeNodeInstance } from './instance'
+import type { IFileTreeDrawOptions, INodeNameCompare } from './misc'
+import type { IFileTreeFolderNode } from './node'
 import type { IRawFileTreeNode } from './raw'
 
 export interface IFileTree {
-  readonly root: IFileTreeRootNodeInstance
+  /**
+   * The filetree root node.
+   */
+  readonly root: IFileTreeFolderNodeInstance
+
+  /**
+   * A method to compare the node name.
+   */
+  readonly cmp: INodeNameCompare
+
+  /**
+   * Use the given folder node as the new root node.
+   *
+   * @param folder
+   */
+  attach(folder: IFileTreeFolderNodeInstance): void
 
   /**
    * Copy the srcPathFromRoot to dstPathFromRoot.
@@ -28,20 +43,29 @@ export interface IFileTree {
     | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT // When the src node does not exist.
     | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER // When any ancestor node of the src node is not a folder.
     | FileTreeErrorCodeEnum.SRC_CHILDREN_NOT_EMPTY // When the src node is a folder with at least one child and the recursive is not set.
-    | void // When succeed.
+    | IFileTreeFolderNodeInstance // When succeed.
 
   /**
-   * Draw the file tree.
-   *
+   * Draw the folder node and its descendants.
    * @param options
    */
   draw(options?: IFileTreeDrawOptions): string[]
 
   /**
+   * Find the tree node by the given path.
+   *
+   * @param pathFromRoot
+   */
+  find(pathFromRoot: Iterable<string>):
+    | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER // When any ancestor node is not a folder.
+    | IFileTreeNodeInstance // When succeed and the node is exist.
+    | undefined // When succeed but the node is not exist.
+
+  /**
    * Insert a new tree node.
    *
    * @param rawNode
-   * @param overwrite whether if overwrite if the node existed.
+   * @param overwrite
    */
   insert(
     rawNode: IRawFileTreeNode,
@@ -50,7 +74,23 @@ export interface IFileTree {
     | FileTreeErrorCodeEnum.NODE_TYPE_CONFLICT // When the node existed but the type is different.
     | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER // When any ancestor node is not a folder.
     | FileTreeErrorCodeEnum.SRC_NODE_EXIST // When the node existed but overwrite set to false.
-    | void // When succeed.
+    | IFileTreeFolderNodeInstance // When succeed.
+
+  /**
+   * Return a new root node instance which based on the given folder as the root.
+   *
+   * @param folder
+   */
+  launch(folder: IFileTreeFolderNodeInstance): IFileTree
+
+  /**
+   * Locate the path from the root to the target tree node by the given path.
+   *
+   * @param pathFromRoot
+   */
+  locate(pathFromRoot: Iterable<string>):
+    | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER // When any ancestor node is not a folder.
+    | { idxList: number[]; node: IFileTreeNodeInstance | undefined } // When succeed.
 
   /**
    * Modify the content in the given path.
@@ -69,37 +109,26 @@ export interface IFileTree {
     | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER // When any ancestor node is not a folder.
     | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT // When the path is not exist.
     | FileTreeErrorCodeEnum.SRC_NODE_IS_NOT_FILE // When the path is not a file.
-    | void // When succeed.
+    | IFileTreeFolderNodeInstance // When succeed.
 
   /**
-   * Return the names of the children of node located at the given path.
-   *
-   * @param pathFromRoot
-   */
-  readdir(pathFromRoot: ReadonlyArray<string>):
-    | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER // When any ancestor node is not a folder.
-    | FileTreeErrorCodeEnum.SRC_NODE_IS_NOT_FOLDER // When the node is not a folder.
-    | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT // When the node does not exist.
-    | string[] // When succeed.
-
-  /**
-   * Remove a tree node by path.
+   * Remove the node located by the given path, and return the new FileTreeRootNodeInstance.
+   * If the path is not valid, return the current instance.
    *
    * @param pathFromRoot
    * @param recursive
-   * @returns the status of the path before insert.
    */
   remove(
-    pathFromRoot: ReadonlyArray<string>,
+    pathFromRoot: Iterable<string>,
     recursive: boolean,
   ):
     | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER // When any ancestor node is not a folder.
     | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT // When the node does not exist.
     | FileTreeErrorCodeEnum.SRC_CHILDREN_NOT_EMPTY // When the node is a folder with at least one child and the recursive is not set.
-    | void // When succeed.
+    | IFileTreeFolderNodeInstance // When succeed.
 
   /**
-   * Rename srcPathFromRoot to dstPathFromRoot.
+   * Move the srcPathFromRoot to dstPathFromRoot.
    *
    * @param srcPathFromRoot
    * @param dstPathFromRoot
@@ -119,27 +148,7 @@ export interface IFileTree {
     | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT // When the src node does not exist.
     | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER // When any ancestor node of the src node is not a folder.
     | FileTreeErrorCodeEnum.SRC_CHILDREN_NOT_EMPTY // When the src node is a folder with at least one child and the recursive is not set.
-    | void // When succeed.
-
-  /**
-   * Reset the file tree with the given rawNodes.
-   *
-   * @param rawNodes
-   */
-  reset(rawNodes: ReadonlyArray<IRawFileTreeNode>):
-    | FileTreeErrorCodeEnum.NODE_TYPE_CONFLICT // When there are at least two nodes with same path but with different type.
-    | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER // When there is a file node is an ancestor of another node.
-    | void
-
-  /**
-   * Get the path type.
-   *
-   * @param pathFromRoot
-   */
-  stat(pathFromRoot: ReadonlyArray<string>):
-    | FileTreeErrorCodeEnum.SRC_ANCESTOR_NOT_FOLDER // When any ancestor node is not a folder.
-    | FileTreeErrorCodeEnum.SRC_NODE_NONEXISTENT // When the node does not exist.
-    | IFileTreeNodeStat // When succeed.
+    | IFileTreeFolderNodeInstance // When succeed.
 
   /**
    * Get the plain object.
