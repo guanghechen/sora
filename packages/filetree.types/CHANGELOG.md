@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.11](https://github.com/guanghechen/sora/compare/@guanghechen/filetree.types@1.0.0-alpha.10...@guanghechen/filetree.types@1.0.0-alpha.11) (2023-12-18)
+
+
+### Performance Improvements
+
+* :art:  refactor filetree ([7e1a79c](https://github.com/guanghechen/sora/commit/7e1a79ce5e294eba68307e9d633102b3e7932713))
+
+
+
+
+
 # [1.0.0-alpha.10](https://github.com/guanghechen/sora/compare/@guanghechen/filetree.types@1.0.0-alpha.9...@guanghechen/filetree.types@1.0.0-alpha.10) (2023-12-17)
 
 

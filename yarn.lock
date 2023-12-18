@@ -635,7 +635,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/filetree.types@^1.0.0-alpha.10, @guanghechen/filetree.types@workspace:packages/filetree.types":
+"@guanghechen/filetree.types@^1.0.0-alpha.11, @guanghechen/filetree.types@workspace:packages/filetree.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/filetree.types@workspace:packages/filetree.types"
   languageName: unknown
@@ -645,7 +645,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/filetree@workspace:packages/filetree"
   dependencies:
-    "@guanghechen/filetree.types": ^1.0.0-alpha.10
+    "@guanghechen/filetree.types": ^1.0.0-alpha.11
     uuid: ^9.0.1
   languageName: unknown
   linkType: soft
