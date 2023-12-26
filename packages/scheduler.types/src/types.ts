@@ -12,4 +12,8 @@ export interface IScheduler<D> extends ITask {
    * @param code the code of the task
    */
   waitTaskTerminated(code: number): Promise<void>
+  /**
+   * Waiting all tasks terminated. (done / cancelled / failed)
+   */
+  waitAllTaskTerminated(): Promise<void>
 }

@@ -98,6 +98,12 @@ export class Scheduler<D, T extends ITask> extends ResumableTask implements ISch
     }
   }
 
+  public async waitAllTaskTerminated(): Promise<void> {
+    const pipeline: IPipeline<D, T> = this._pipeline
+    while (pipeline.size > 0) await this._pullAndRun()
+    return
+  }
+
   public override finish(): Promise<void> {
     if (!this._pipeline.closed) {
       this._addError(
@@ -116,13 +122,19 @@ export class Scheduler<D, T extends ITask> extends ResumableTask implements ISch
   }
 
   private async _pullAndRun(): Promise<void> {
+    if (this._task !== undefined && !this._task.terminated) {
+      await this._task.finish()
+      this._task = undefined
+    }
+
     const material: IPipelineProduct<T> = await this._pipeline.pull()
     if (material.data === undefined || material.codes.length <= 0) return delay(this._idleInterval)
 
+    const reporter: IReporter | undefined = this._reporter
     const task = material.data
     this._task = task
 
-    this._reporter?.verbose(
+    reporter?.verbose(
       '[{}] task({}) starting. codes: [{}]',
       this.name,
       task.name,
@@ -134,13 +146,13 @@ export class Scheduler<D, T extends ITask> extends ResumableTask implements ISch
         onStatusChange: status => {
           switch (status) {
             case TaskStatusEnum.FINISHED:
-              this._reporter?.verbose(
+              reporter?.verbose(
                 '[{}] task({}) finished. codes: {}.',
                 this.name,
                 task.name,
                 material.codes.join(', '),
               )
-              this._reporter?.debug(
+              reporter?.debug(
                 '[{}] task({}) finished. details: {}',
                 this.name,
                 task.name,
@@ -150,13 +162,13 @@ export class Scheduler<D, T extends ITask> extends ResumableTask implements ISch
               this._monitorTaskTerminated.notify(material.codes, status, task.error)
               break
             case TaskStatusEnum.FAILED:
-              this._reporter?.verbose(
+              reporter?.verbose(
                 '[{}] task({}) failed. codes: {}.',
                 this.name,
                 task.name,
                 material.codes.join(', '),
               )
-              this._reporter?.debug(
+              reporter?.debug(
                 '[{}] task({}) failed. details: {}',
                 this.name,
                 task.name,
@@ -166,13 +178,13 @@ export class Scheduler<D, T extends ITask> extends ResumableTask implements ISch
               this._monitorTaskTerminated.notify(material.codes, status, task.error)
               break
             case TaskStatusEnum.CANCELLED:
-              this._reporter?.verbose(
+              reporter?.verbose(
                 '[{}] task({}) cancelled. codes: {}.',
                 this.name,
                 task.name,
                 material.codes.join(', '),
               )
-              this._reporter?.debug(
+              reporter?.debug(
                 '[{}] task({}) cancelled. details: {}',
                 this.name,
                 task.name,
