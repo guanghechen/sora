@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.9](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler.types@1.0.0-alpha.8...@guanghechen/scheduler.types@1.0.0-alpha.9) (2023-12-26)
+
+
+### Performance Improvements
+
+* ✨ provide `waitAllTaskTerminated` from scheduler ([829db7e](https://github.com/guanghechen/sora/commit/829db7e6846695be4f1092547b0bd677b25e008c))
+
+
+
+
+
 # [1.0.0-alpha.8](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler.types@1.0.0-alpha.7...@guanghechen/scheduler.types@1.0.0-alpha.8) (2023-11-29)
 
 
