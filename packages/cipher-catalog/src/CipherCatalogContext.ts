@@ -1,9 +1,5 @@
 import { text2bytes } from '@guanghechen/byte'
-import type {
-  ICipherCatalogContext,
-  IDeserializedCatalogItem,
-  IDraftCatalogItem,
-} from '@guanghechen/cipher-catalog.types'
+import type { ICatalogItemForIv, ICipherCatalogContext } from '@guanghechen/cipher-catalog.types'
 import type { IHashAlgorithm } from '@guanghechen/mac'
 import type { IWorkspacePathResolver } from '@guanghechen/path.types'
 
@@ -17,7 +13,8 @@ export interface ICipherCatalogContextProps {
   readonly pathHashAlgorithm: IHashAlgorithm
   readonly plainPathResolver: IWorkspacePathResolver
   readonly calcIvFromBytes: (byteList: Iterable<Uint8Array>) => Promise<Uint8Array | undefined>
-  readonly isKeepPlain: (relativePlainFilepath: string) => boolean
+  readonly isKeepIntegrity: (relativePlainPath: string) => boolean
+  readonly isKeepPlain: (relativePlainPath: string) => boolean
 }
 
 export class CipherCatalogContext implements ICipherCatalogContext {
@@ -29,7 +26,8 @@ export class CipherCatalogContext implements ICipherCatalogContext {
   public readonly partCodePrefix: string
   public readonly pathHashAlgorithm: IHashAlgorithm
   public readonly plainPathResolver: IWorkspacePathResolver
-  public readonly isKeepPlain: (relativePlainFilepath: string) => boolean
+  public readonly isKeepIntegrity: (relativePlainPath: string) => boolean
+  public readonly isKeepPlain: (relativePlainPath: string) => boolean
   protected readonly calcIvFromBytes: (
     byteList: Iterable<Uint8Array>,
   ) => Promise<Uint8Array | undefined>
@@ -41,6 +39,7 @@ export class CipherCatalogContext implements ICipherCatalogContext {
       maxTargetFileSize,
       partCodePrefix,
       pathHashAlgorithm,
+      isKeepIntegrity,
       isKeepPlain,
       calcIvFromBytes: calcIv,
     } = props
@@ -55,16 +54,12 @@ export class CipherCatalogContext implements ICipherCatalogContext {
     this.partCodePrefix = partCodePrefix
     this.pathHashAlgorithm = pathHashAlgorithm
     this.plainPathResolver = plainPathResolver
+    this.isKeepIntegrity = isKeepIntegrity
     this.isKeepPlain = isKeepPlain
     this.calcIvFromBytes = calcIv
   }
 
-  public async calcIv(
-    item: IDeserializedCatalogItem | IDraftCatalogItem,
-  ): Promise<Readonly<Uint8Array> | undefined> {
-    return this.calcIvFromBytes([
-      text2bytes(item.plainFilepath, 'utf8'),
-      text2bytes(item.fingerprint, 'hex'),
-    ])
+  public async calcIv(item: ICatalogItemForIv): Promise<Readonly<Uint8Array> | undefined> {
+    return this.calcIvFromBytes([text2bytes(item.plainPath, 'hex')])
   }
 }

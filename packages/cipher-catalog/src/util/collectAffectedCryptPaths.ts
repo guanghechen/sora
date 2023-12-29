@@ -4,17 +4,17 @@ import type {
   IDraftCatalogDiffItem,
 } from '@guanghechen/cipher-catalog.types'
 
-export function collectAffectedCryptFilepaths(
+export function collectAffectedCryptPaths(
   diffItems: ReadonlyArray<IDraftCatalogDiffItem>,
 ): string[] {
   const files: Set<string> = new Set()
   const collect = (item: ICatalogItem): void => {
-    if (item.cryptFilepathParts.length > 1) {
-      for (const filePart of item.cryptFilepathParts) {
-        files.add(item.cryptFilepath + filePart)
+    if (item.cryptPathParts.length > 1) {
+      for (const filePart of item.cryptPathParts) {
+        files.add(item.cryptPath + filePart)
       }
     } else {
-      files.add(item.cryptFilepath)
+      files.add(item.cryptPath)
     }
   }
 

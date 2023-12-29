@@ -1,10 +1,10 @@
 export * from './util/areSameCatalogItem'
 export * from './util/areSameDraftCatalogItem'
 export * from './util/calcCryptFilepathsWithParts'
-export * from './util/collectAffectedCryptFilepaths'
-export * from './util/collectAffectedPlainFilepaths'
+export * from './util/collectAffectedCryptPaths'
+export * from './util/collectAffectedPlainPaths'
 export * from './util/diffFromCatalogItems'
-export * from './util/normalizePlainFilepath'
+export * from './util/normalizePlainPath'
 
 export * from './CipherCatalogContext'
 

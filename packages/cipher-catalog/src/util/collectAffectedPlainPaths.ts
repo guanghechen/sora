@@ -4,12 +4,12 @@ import type {
   IDraftCatalogDiffItem,
 } from '@guanghechen/cipher-catalog.types'
 
-export function collectAffectedPlainFilepaths(
+export function collectAffectedPlainPaths(
   diffItems: ReadonlyArray<IDraftCatalogDiffItem>,
 ): string[] {
   const files: Set<string> = new Set()
   const collect = (item: ICatalogItem): void => {
-    files.add(item.plainFilepath)
+    files.add(item.plainPath)
   }
 
   for (let i = 0; i < diffItems.length; ++i) {

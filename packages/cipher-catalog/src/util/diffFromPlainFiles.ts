@@ -5,7 +5,7 @@ import type {
   IReadonlyCipherCatalog,
 } from '@guanghechen/cipher-catalog.types'
 import { FileChangeTypeEnum } from '@guanghechen/cipher-catalog.types'
-import { invariant, isFileSync } from '@guanghechen/internal'
+import { invariant } from '@guanghechen/internal'
 import { areSameDraftCatalogItem } from './areSameDraftCatalogItem'
 
 /**
@@ -20,6 +20,7 @@ export async function diffFromPlainFiles(
   oldItemMap: ReadonlyMap<string, ICatalogItem>,
   plainFilepaths: string[],
   strickCheck: boolean,
+  isPlainPathExist: (plainPath: string) => boolean,
 ): Promise<IDraftCatalogDiffItem[]> {
   const title = `diffFromPlainFiles`
   const { plainPathResolver } = catalog.context
@@ -31,8 +32,7 @@ export async function diffFromPlainFiles(
   for (const plainFilepath of plainFilepaths) {
     const key = catalog.normalizePlainFilepath(plainFilepath)
     const oldItem = oldItemMap.get(key)
-    const absolutePlainFilepath = plainPathResolver.resolve(plainFilepath)
-    const isSrcFileExists = isFileSync(absolutePlainFilepath)
+    const isSrcFileExists = isPlainPathExist(plainFilepath)
 
     if (isSrcFileExists) {
       const newItem: IDraftCatalogItem = await catalog.calcCatalogItem(plainFilepath)

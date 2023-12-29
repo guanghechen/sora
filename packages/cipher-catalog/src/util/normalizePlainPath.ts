@@ -1,6 +1,6 @@
 import type { IWorkspacePathResolver } from '@guanghechen/path.types'
 
-export function normalizePlainFilepath(
+export function normalizePlainPath(
   plainFilepath: string,
   plainPathResolver: IWorkspacePathResolver,
 ): string {

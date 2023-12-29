@@ -6,11 +6,15 @@ export function areSameDraftCatalogItem(
 ): boolean {
   if (oldItem === newItem) return true
   return (
-    oldItem.plainFilepath === newItem.plainFilepath &&
-    oldItem.cryptFilepath === newItem.cryptFilepath &&
+    oldItem.plainPath === newItem.plainPath &&
     oldItem.fingerprint === newItem.fingerprint &&
+    oldItem.size === newItem.size &&
+    oldItem.ctime === newItem.ctime &&
+    oldItem.mtime === newItem.mtime &&
+    oldItem.cryptPath === newItem.cryptPath &&
+    oldItem.keepIntegrity === newItem.keepIntegrity &&
     oldItem.keepPlain === newItem.keepPlain &&
-    oldItem.cryptFilepathParts.length === newItem.cryptFilepathParts.length &&
-    oldItem.cryptFilepathParts.every(part => newItem.cryptFilepathParts.includes(part))
+    oldItem.cryptPath.length === newItem.cryptPath.length &&
+    oldItem.cryptPathParts.every(part => newItem.cryptPathParts.includes(part))
   )
 }

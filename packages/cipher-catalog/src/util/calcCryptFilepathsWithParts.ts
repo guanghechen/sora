@@ -1,13 +1,8 @@
 /**
- * Calc crypt filepaths with cryptFilepath and its file parts.
- * @param cryptFilepath
- * @param cryptFilepathParts
+ * Calc crypt filepaths with cryptPath and its file parts.
+ * @param cryptPath
+ * @param cryptPathParts
  */
-export function calcCryptFilepathsWithParts(
-  cryptFilepath: string,
-  cryptFilepathParts: string[],
-): string[] {
-  return cryptFilepathParts.length > 1
-    ? cryptFilepathParts.map(part => cryptFilepath + part)
-    : [cryptFilepath]
+export function calcCryptPathsWithPart(cryptPath: string, cryptPathParts: string[]): string[] {
+  return cryptPathParts.length > 1 ? cryptPathParts.map(part => cryptPath + part) : [cryptPath]
 }
