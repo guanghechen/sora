@@ -68,6 +68,12 @@ export interface IReadonlyCipherCatalog {
   has(plainFilepath: string): boolean
 
   /**
+   * Check if the content in the given relativePlainFilepath should be kept integrity.
+   * @param relativePlainFilepath
+   */
+  isKeepIntegrity(relativePlainFilepath: string): boolean
+
+  /**
    * Check if the content in the given relativePlainFilepath should be kept plain.
    * @param relativePlainFilepath
    */

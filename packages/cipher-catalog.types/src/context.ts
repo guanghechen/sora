@@ -1,7 +1,10 @@
 import type { IWorkspacePathResolver } from '@guanghechen/path.types'
-import type { IDeserializedCatalogItem, IDraftCatalogItem } from './item'
 
 export type IHashAlgorithm = 'md5' | 'sha1' | 'sha256' | 'sha512'
+
+export interface ICatalogItemForIv {
+  plainPath: string
+}
 
 export interface ICipherCatalogContext {
   readonly contentHashAlgorithm: IHashAlgorithm
@@ -17,7 +20,13 @@ export interface ICipherCatalogContext {
    * Calc the iv of the given item.
    * @param item
    */
-  calcIv(item: IDeserializedCatalogItem | IDraftCatalogItem): Promise<Uint8Array | undefined>
+  calcIv(item: ICatalogItemForIv): Promise<Uint8Array | undefined>
+
+  /**
+   * Check if the content in the given relativePlainFilepath should be kept integrity.
+   * @param relativePlainFilepath
+   */
+  isKeepIntegrity(relativePlainFilepath: string): boolean
 
   /**
    * Check if the plain file should be kept plain.
