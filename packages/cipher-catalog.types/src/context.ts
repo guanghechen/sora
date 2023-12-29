@@ -24,13 +24,20 @@ export interface ICipherCatalogContext {
 
   /**
    * Check if the content in the given relativePlainFilepath should be kept integrity.
-   * @param relativePlainFilepath
+   * @param plainPath
    */
-  isKeepIntegrity(relativePlainFilepath: string): boolean
+  isKeepIntegrity(plainPath: string): boolean
 
   /**
    * Check if the plain file should be kept plain.
-   * @param relativePlainFilepath
+   * @param plainPath
    */
-  isKeepPlain(relativePlainFilepath: string): boolean
+  isKeepPlain(plainPath: string): boolean
+
+  /**
+   * Check if the given plainPath exist.
+   * @param plainPath
+   * @returns
+   */
+  isPlainPathExist(plainPath: string): boolean
 }

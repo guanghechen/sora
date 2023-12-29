@@ -5,7 +5,7 @@ import { normalizePlainPath } from '../src'
 const plainRootDir = locateFixtures('basic')
 const plainPathResolver = new WorkspacePathResolver(plainRootDir, pathResolver)
 
-test('normalizePlainFilepath', () => {
+test('normalizePlainPath', () => {
   expect(normalizePlainPath('a.txt', plainPathResolver)).toEqual('a.txt')
   expect(normalizePlainPath('a.txt/', plainPathResolver)).toEqual('a.txt')
   expect(normalizePlainPath('./a.txt', plainPathResolver)).toEqual('a.txt')

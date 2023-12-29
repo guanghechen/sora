@@ -10,6 +10,8 @@ import { areSameDraftCatalogItem } from './areSameDraftCatalogItem'
 
 /**
  * Calculate diff items.
+ *
+ * @param catalog
  * @param oldItemMap
  * @param plainFilepaths
  * @param strickCheck     Wether if to check some edge cases that shouldn't affect the final result,
@@ -20,7 +22,6 @@ export async function diffFromPlainFiles(
   oldItemMap: ReadonlyMap<string, ICatalogItem>,
   plainFilepaths: string[],
   strickCheck: boolean,
-  isPlainPathExist: (plainPath: string) => boolean,
 ): Promise<IDraftCatalogDiffItem[]> {
   const title = `diffFromPlainFiles`
 
@@ -29,9 +30,9 @@ export async function diffFromPlainFiles(
   const removedItems: IDraftCatalogDiffItem[] = []
 
   for (const plainFilepath of plainFilepaths) {
-    const key = catalog.normalizePlainFilepath(plainFilepath)
+    const key = catalog.normalizePlainPath(plainFilepath)
     const oldItem = oldItemMap.get(key)
-    const isSrcFileExists = isPlainPathExist(plainFilepath)
+    const isSrcFileExists = catalog.isPlainPathExist(plainFilepath)
 
     if (isSrcFileExists) {
       const newItem: IDraftCatalogItem = await catalog.calcCatalogItem(plainFilepath)

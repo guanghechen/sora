@@ -15,6 +15,7 @@ export interface ICipherCatalogContextProps {
   readonly calcIvFromBytes: (byteList: Iterable<Uint8Array>) => Promise<Uint8Array | undefined>
   readonly isKeepIntegrity: (relativePlainPath: string) => boolean
   readonly isKeepPlain: (relativePlainPath: string) => boolean
+  readonly isPlainPathExist: (relativePlainPath: string) => boolean
 }
 
 export class CipherCatalogContext implements ICipherCatalogContext {
@@ -28,6 +29,7 @@ export class CipherCatalogContext implements ICipherCatalogContext {
   public readonly plainPathResolver: IWorkspacePathResolver
   public readonly isKeepIntegrity: (relativePlainPath: string) => boolean
   public readonly isKeepPlain: (relativePlainPath: string) => boolean
+  public readonly isPlainPathExist: (relativePlainPath: string) => boolean
   protected readonly calcIvFromBytes: (
     byteList: Iterable<Uint8Array>,
   ) => Promise<Uint8Array | undefined>
@@ -41,6 +43,7 @@ export class CipherCatalogContext implements ICipherCatalogContext {
       pathHashAlgorithm,
       isKeepIntegrity,
       isKeepPlain,
+      isPlainPathExist,
       calcIvFromBytes: calcIv,
     } = props
     const { cryptPathResolver, plainPathResolver } = props
@@ -56,6 +59,7 @@ export class CipherCatalogContext implements ICipherCatalogContext {
     this.plainPathResolver = plainPathResolver
     this.isKeepIntegrity = isKeepIntegrity
     this.isKeepPlain = isKeepPlain
+    this.isPlainPathExist = isPlainPathExist
     this.calcIvFromBytes = calcIv
   }
 

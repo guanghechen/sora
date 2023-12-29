@@ -15,15 +15,15 @@ export interface IReadonlyCipherCatalog {
 
   /**
    * Generate a catalog item.
-   * @param plainFilepath
+   * @param plainPath
    */
-  calcCatalogItem(plainFilepath: string): Promise<IDraftCatalogItem | never>
+  calcCatalogItem(plainPath: string): Promise<IDraftCatalogItem | never>
 
   /**
    * Calc crypt filepath.
-   * @param plainFilepath
+   * @param plainPath
    */
-  calcCryptFilepath(plainFilepath: string): string
+  calcCryptFilepath(plainPath: string): string
 
   /**
    * Calc the iv of the given item.
@@ -33,15 +33,15 @@ export interface IReadonlyCipherCatalog {
 
   /**
    * Check crypt files for corruption.
-   * @param cryptFilepaths
+   * @param cryptPaths
    */
-  checkCryptIntegrity(cryptFilepaths: string[]): Promise<void | never>
+  checkCryptIntegrity(cryptPaths: string[]): Promise<void | never>
 
   /**
    * Check plain files for corruption.
-   * @param plainFilepaths
+   * @param plainPaths
    */
-  checkPlainIntegrity(plainFilepaths: string[]): Promise<void | never>
+  checkPlainIntegrity(plainPaths: string[]): Promise<void | never>
 
   /**
    * Find a catalog item which matched the given filter.
@@ -57,27 +57,34 @@ export interface IReadonlyCipherCatalog {
 
   /**
    * Get the catalog item by plain filepath.
-   * @param plainFilepath
+   * @param plainPath
    */
-  get(plainFilepath: string): ICatalogItem | undefined
+  get(plainPath: string): ICatalogItem | undefined
 
   /**
    * Check if the given plain filepath is existed in the catalog.
-   * @param plainFilepath
+   * @param plainPath
    */
-  has(plainFilepath: string): boolean
+  has(plainPath: string): boolean
 
   /**
    * Check if the content in the given relativePlainFilepath should be kept integrity.
-   * @param relativePlainFilepath
+   * @param plainPath
    */
-  isKeepIntegrity(relativePlainFilepath: string): boolean
+  isKeepIntegrity(plainPath: string): boolean
 
   /**
    * Check if the content in the given relativePlainFilepath should be kept plain.
-   * @param relativePlainFilepath
+   * @param plainPath
    */
-  isKeepPlain(relativePlainFilepath: string): boolean
+  isKeepPlain(plainPath: string): boolean
+
+  /**
+   * Check if the given plainPath exist.
+   * @param plainPath
+   * @returns
+   */
+  isPlainPathExist(plainPath: string): boolean
 
   /**
    * Monitor the catalog change.
@@ -87,7 +94,7 @@ export interface IReadonlyCipherCatalog {
 
   /**
    * Normalize the given plainFilepath to get a stable string across platforms.
-   * @param plainFilepath
+   * @param plainPath
    */
-  normalizePlainFilepath(plainFilepath: string): string
+  normalizePlainPath(plainPath: string): string
 }

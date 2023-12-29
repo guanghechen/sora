@@ -17,14 +17,11 @@ export interface ICipherCatalog extends IReadonlyCipherCatalog, IBatchDisposable
 
   /**
    * Calculate diff items.
-   * @param plainFilepaths
+   * @param plainPaths
    * @param strickCheck     Wether if to check some edge cases that shouldn't affect the final result,
    *                        just for higher integrity check.
    */
-  diffFromPlainFiles(
-    plainFilepaths: string[],
-    strickCheck: boolean,
-  ): Promise<IDraftCatalogDiffItem[]>
+  diffFromPlainFiles(plainPaths: string[], strickCheck: boolean): Promise<IDraftCatalogDiffItem[]>
 
   /**
    * Clear the catalog items and init with the new given items.
