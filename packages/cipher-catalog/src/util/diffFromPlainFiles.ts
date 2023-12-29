@@ -23,7 +23,6 @@ export async function diffFromPlainFiles(
   isPlainPathExist: (plainPath: string) => boolean,
 ): Promise<IDraftCatalogDiffItem[]> {
   const title = `diffFromPlainFiles`
-  const { plainPathResolver } = catalog.context
 
   const addedItems: IDraftCatalogDiffItem[] = []
   const modifiedItems: IDraftCatalogDiffItem[] = []

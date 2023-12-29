@@ -11,7 +11,7 @@ export interface IDeserializedCatalogItem {
    * into multiple parts, where each element of the array is a part of the crypt file (suffix of the
    * cryptFilepath).
    */
-  cryptFileParts: string[]
+  cryptPathParts: string[]
 
   /**
    * Fingerprint of contents of the plain file. (hex string)
