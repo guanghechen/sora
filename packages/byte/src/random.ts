@@ -1,13 +1,14 @@
+import { randomBytes as randomBytesFromCrypto } from 'crypto'
+
 /**
  * Generate a random bytes with the given size.
+ *
+ * Use randomBytes from 'crypto' cause it returns true random numbers.
+ *
  * @param size
  * @returns
  */
 export function randomBytes(size: number): Uint8Array {
-  const bytes: Uint8Array = new Uint8Array(size)
-  for (let i = 0; i < size; i++) {
-    const v: number = Math.random() * 256
-    bytes[i] = v >>> 0
-  }
-  return bytes
+  const bytes: Uint8Array = randomBytesFromCrypto(size)
+  return Uint8Array.from(bytes)
 }
