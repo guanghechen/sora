@@ -1,3 +1,4 @@
+import { areSameBytes } from '@guanghechen/byte'
 import type { IDraftCatalogItem } from '@guanghechen/cipher-catalog.types'
 
 export function areSameDraftCatalogItem(
@@ -15,6 +16,7 @@ export function areSameDraftCatalogItem(
     oldItem.keepIntegrity === newItem.keepIntegrity &&
     oldItem.keepPlain === newItem.keepPlain &&
     oldItem.cryptPath.length === newItem.cryptPath.length &&
-    oldItem.cryptPathParts.every(part => newItem.cryptPathParts.includes(part))
+    oldItem.cryptPathParts.every(part => newItem.cryptPathParts.includes(part)) &&
+    areSameBytes(oldItem.nonce, newItem.nonce)
   )
 }

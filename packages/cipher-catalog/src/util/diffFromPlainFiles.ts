@@ -13,29 +13,28 @@ import { areSameDraftCatalogItem } from './areSameDraftCatalogItem'
  *
  * @param catalog
  * @param oldItemMap
- * @param plainFilepaths
+ * @param plainPaths
  * @param strickCheck     Wether if to check some edge cases that shouldn't affect the final result,
  *                        just for higher integrity check.
  */
 export async function diffFromPlainFiles(
   catalog: IReadonlyCipherCatalog,
   oldItemMap: ReadonlyMap<string, ICatalogItem>,
-  plainFilepaths: string[],
+  plainPaths: string[],
   strickCheck: boolean,
 ): Promise<IDraftCatalogDiffItem[]> {
   const title = `diffFromPlainFiles`
-
   const addedItems: IDraftCatalogDiffItem[] = []
   const modifiedItems: IDraftCatalogDiffItem[] = []
   const removedItems: IDraftCatalogDiffItem[] = []
 
-  for (const plainFilepath of plainFilepaths) {
-    const key = catalog.normalizePlainPath(plainFilepath)
-    const oldItem = oldItemMap.get(key)
-    const isSrcFileExists = catalog.isPlainPathExist(plainFilepath)
+  for (const plainPath of plainPaths) {
+    const key: string = catalog.normalizePlainPath(plainPath)
+    const oldItem: ICatalogItem | undefined = oldItemMap.get(key)
+    const isPlainPathExist: boolean = catalog.isPlainPathExist(plainPath)
 
-    if (isSrcFileExists) {
-      const newItem: IDraftCatalogItem = await catalog.calcCatalogItem(plainFilepath)
+    if (isPlainPathExist) {
+      const newItem: IDraftCatalogItem = await catalog.calcCatalogItem(plainPath)
       if (oldItem) {
         if (!areSameDraftCatalogItem(oldItem, newItem)) {
           modifiedItems.push({ changeType: FileChangeTypeEnum.MODIFIED, oldItem, newItem })
@@ -51,7 +50,7 @@ export async function diffFromPlainFiles(
       if (strickCheck) {
         invariant(
           !!oldItem,
-          `[${title}] plainFilepath(${plainFilepath}) is removed but it's not in the catalog before.`,
+          `[${title}] plainFilepath(${plainPath}) is removed but it's not in the catalog before.`,
         )
       }
     }

@@ -12,6 +12,7 @@ test('areSameDraftCatalogItem', () => {
     fingerprint: '',
     keepIntegrity: false,
     keepPlain: false,
+    nonce: text2bytes('27881449fb89e366810f0e2a9fe5e563', 'hex'),
     ctime: 0,
     mtime: 0,
     size: 60,
@@ -41,7 +42,7 @@ test('areSameCatalogItem', () => {
     fingerprint: '',
     keepIntegrity: false,
     keepPlain: false,
-    iv: text2bytes('dddef89d89c3fe3ca704d5fd', 'hex'),
+    nonce: text2bytes('fee71b20bbc57e31b12202f282dacdc8', 'hex'),
     authTag: undefined,
     ctime: 0,
     mtime: 0,
@@ -62,7 +63,7 @@ test('areSameCatalogItem', () => {
   expect(
     areSameCatalogItem(basicItem, {
       ...basicItem,
-      iv: text2bytes('00ca7b42b7a371351da9a287', 'hex'),
+      nonce: text2bytes('052b09285bc546604c8d66a19eccc40f', 'hex'),
     }),
   ).toEqual(false)
 })

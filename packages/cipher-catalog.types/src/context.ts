@@ -8,13 +8,14 @@ export interface ICatalogItemForNonce {
 }
 
 export interface ICipherCatalogContext {
-  readonly contentHashAlgorithm: IHashAlgorithm
-  readonly cryptFilepathSalt: string
+  readonly CONTENT_HASH_ALGORITHM: IHashAlgorithm
+  readonly MAX_CRYPT_FILE_SIZE: number
+  readonly NONCE_SIZE: number
+  readonly PART_CODE_PREFIX: string
+  readonly PATH_HASH_ALGORITHM: IHashAlgorithm
   readonly cryptFilesDir: string
+  readonly cryptPathSalt: string
   readonly cryptPathResolver: IWorkspacePathResolver
-  readonly maxTargetFileSize: number
-  readonly partCodePrefix: string
-  readonly pathHashAlgorithm: IHashAlgorithm
   readonly plainPathResolver: IWorkspacePathResolver
 
   /**

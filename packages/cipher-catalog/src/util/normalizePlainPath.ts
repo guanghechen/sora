@@ -4,6 +4,6 @@ export function normalizePlainPath(
   plainFilepath: string,
   plainPathResolver: IWorkspacePathResolver,
 ): string {
-  const relativePlainFilepath = plainPathResolver.relative(plainFilepath, true)
-  return relativePlainFilepath
+  const relativePlainPath: string = plainPathResolver.relative(plainFilepath, true)
+  return relativePlainPath
 }

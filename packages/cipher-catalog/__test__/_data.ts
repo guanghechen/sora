@@ -18,6 +18,7 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
     fingerprint: '4e26698e6bebd87fc210bec49fea4da6210b5769dbff50b3479effa16799120f',
     keepIntegrity: false,
     keepPlain: true,
+    nonce: text2bytes('af5e87dbe9a86c24d35df07e5151bb76', 'hex'),
     ctime: 0,
     mtime: 0,
     size: 10,
@@ -29,6 +30,7 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
     fingerprint: '70b47f9cc28ad379043b328d7d058097c69e7bb38d766ecca2655cd3afb6b5fa',
     keepIntegrity: false,
     keepPlain: true,
+    nonce: text2bytes('bad9f2912c505861ab5e2680fc58fce9', 'hex'),
     ctime: 0,
     mtime: 0,
     size: 20,
@@ -40,6 +42,7 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
     fingerprint: '6fee185efd0ffc7c51f986dcd2eb513e0ce0b63249d9a3bb51efe0c1ed2cb615',
     keepIntegrity: false,
     keepPlain: false,
+    nonce: text2bytes('81401d77b434e3c8afe5f0ccb29070e5', 'hex'),
     ctime: 0,
     mtime: 0,
     size: 30,
@@ -51,6 +54,7 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
     fingerprint: 'b835f16cc543838431fa5bbeceb8906c667c16af9f98779f54541aeae0ccdce2',
     keepIntegrity: false,
     keepPlain: false,
+    nonce: text2bytes('f522b4c452b3a58dc267c2a379a77ba7', 'hex'),
     ctime: 0,
     mtime: 0,
     size: 50,
@@ -62,6 +66,7 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
     fingerprint: '40cb73b4c02d34812f38a5ca3a3f95d377285e83d7bb499573b918e1862bcf13',
     keepIntegrity: false,
     keepPlain: false,
+    nonce: text2bytes('fcc19e7111f00303626cfe90ab3fc983', 'hex'),
     ctime: 0,
     mtime: 0,
     size: 60,
@@ -71,27 +76,22 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
 export const itemTable: Record<ISymbol, ICatalogItem> = {
   A: {
     ...itemDraftTable.A,
-    iv: undefined,
     authTag: undefined,
   },
   A2: {
     ...itemDraftTable.A2,
-    iv: undefined,
     authTag: undefined,
   },
   B: {
     ...itemDraftTable.B,
-    iv: text2bytes('9f8a20cc7677722161d59714', 'hex'),
     authTag: text2bytes('5519968a852057854b7fea723e301fd6', 'hex'),
   },
   C: {
     ...itemDraftTable.C,
-    iv: text2bytes('3933c49f3c2cbc8bd6dd3295', 'hex'),
     authTag: text2bytes('dd468a718f2aba0797b8c941159b292e', 'hex'),
   },
   D: {
     ...itemDraftTable.D,
-    iv: undefined,
     authTag: text2bytes('6d721d17fe9def40a17a05aa532d3648', 'hex'),
   },
 }
