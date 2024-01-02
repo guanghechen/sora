@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.17](https://github.com/guanghechen/sora/compare/@guanghechen/cipher-catalog.types@1.0.0-alpha.16...@guanghechen/cipher-catalog.types@1.0.0-alpha.17) (2024-01-02)
+
+
+### Performance Improvements
+
+* 🎨 update genNonce ([582ed6c](https://github.com/guanghechen/sora/commit/582ed6cbaada2750c6c910738486ebe1c416e831))
+
+
+
+
+
 # [1.0.0-alpha.16](https://github.com/guanghechen/sora/compare/@guanghechen/cipher-catalog.types@1.0.0-alpha.15...@guanghechen/cipher-catalog.types@1.0.0-alpha.16) (2024-01-02)
 
 
