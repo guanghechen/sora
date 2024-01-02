@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.5](https://github.com/guanghechen/sora/compare/@guanghechen/byte@1.0.0-alpha.4...@guanghechen/byte@1.0.0-alpha.5) (2024-01-02)
+
+
+### Performance Improvements
+
+* :art:  prefer randomBytes from 'crypto' cause it returns true-random numbers ([7d0e7fd](https://github.com/guanghechen/sora/commit/7d0e7fd06b991b2121c01b639cf6d5d36eec4ea6))
+* 🎨 add 'areSameBytes' ([fc0f163](https://github.com/guanghechen/sora/commit/fc0f163b9b78cf382e6e8b601ed53f95e2a14449))
+
+
+
+
+
 # [1.0.0-alpha.4](https://github.com/guanghechen/sora/compare/@guanghechen/byte@1.0.0-alpha.3...@guanghechen/byte@1.0.0-alpha.4) (2023-11-29)
 
 

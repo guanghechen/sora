@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/file-split",
-  "version": "1.0.0-alpha.17",
+  "version": "1.0.0-alpha.18",
   "description": "File helper",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/file-split@1.0.0-alpha.17",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/file-split@1.0.0-alpha.18",
     "directory": "packages/file-split"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/file-split@1.0.0-alpha.17/packages/file-split#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/file-split@1.0.0-alpha.18/packages/file-split#readme",
   "keywords": [
     "file helper",
     "split file",
@@ -45,8 +45,8 @@
     "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
   },
   "dependencies": {
-    "@guanghechen/filepart": "^1.0.0-alpha.1",
-    "@guanghechen/stream": "^1.0.0-alpha.9"
+    "@guanghechen/filepart": "^1.0.0-alpha.2",
+    "@guanghechen/stream": "^1.0.0-alpha.10"
   },
   "devDependencies": {
     "@guanghechen/internal": "^1.0.0-alpha.0"

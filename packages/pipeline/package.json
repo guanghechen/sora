@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/pipeline",
-  "version": "1.0.0-alpha.24",
+  "version": "1.0.0-alpha.25",
   "description": "Task pipeline",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline@1.0.0-alpha.24",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline@1.0.0-alpha.25",
     "directory": "packages/pipeline"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline@1.0.0-alpha.24/packages/pipeline#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline@1.0.0-alpha.25/packages/pipeline#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -40,7 +40,7 @@
     "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
   },
   "dependencies": {
-    "@guanghechen/monitor": "^1.0.0-alpha.24",
+    "@guanghechen/monitor": "^1.0.0-alpha.25",
     "@guanghechen/pipeline.types": "^1.0.0-alpha.8"
   },
   "devDependencies": {

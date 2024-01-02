@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/byte",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.5",
   "description": "Utility functions for bytes (Uint8Array).",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/byte@1.0.0-alpha.4",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/byte@1.0.0-alpha.5",
     "directory": "packages/byte"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/byte@1.0.0-alpha.4/packages/byte#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/byte@1.0.0-alpha.5/packages/byte#readme",
   "keywords": [
     "Uint8Array"
   ],

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.24](https://github.com/guanghechen/sora/compare/@guanghechen/reporter@1.0.0-alpha.23...@guanghechen/reporter@1.0.0-alpha.24) (2024-01-02)
+
+
+### Performance Improvements
+
+* ⬆️ upgrade dependencies ([acdc79d](https://github.com/guanghechen/sora/commit/acdc79d0acd08ad4552d1123a409d44c47dce595))
+
+
+
+
+
 # [1.0.0-alpha.23](https://github.com/guanghechen/sora/compare/@guanghechen/reporter@1.0.0-alpha.22...@guanghechen/reporter@1.0.0-alpha.23) (2023-12-05)
 
 
