@@ -4,6 +4,7 @@ export * from './util/calcCryptFilepathsWithParts'
 export * from './util/collectAffectedCryptPaths'
 export * from './util/collectAffectedPlainPaths'
 export * from './util/diffFromCatalogItems'
+export * from './util/diffFromPlainFiles'
 export * from './util/normalizePlainPath'
 
 // Re-export types and constants

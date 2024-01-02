@@ -5,7 +5,6 @@ import type {
   IReadonlyCipherCatalog,
 } from '@guanghechen/cipher-catalog.types'
 import { FileChangeTypeEnum } from '@guanghechen/cipher-catalog.types'
-import { invariant } from '@guanghechen/internal'
 import { areSameDraftCatalogItem } from './areSameDraftCatalogItem'
 
 /**
@@ -48,10 +47,11 @@ export async function diffFromPlainFiles(
       }
 
       if (strickCheck) {
-        invariant(
-          !!oldItem,
-          `[${title}] plainFilepath(${plainPath}) is removed but it's not in the catalog before.`,
-        )
+        if (!oldItem) {
+          throw new Error(
+            `[${title}] plainFilepath(${plainPath}) is removed but it's not in the catalog before.`,
+          )
+        }
       }
     }
   }
