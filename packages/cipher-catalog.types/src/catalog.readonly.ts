@@ -1,4 +1,4 @@
-import type { ICatalogItemForNonce, ICipherCatalogContext } from './context'
+import type { ICipherCatalogContext } from './context'
 import type { ICatalogItem, IDeserializedCatalogItem, IDraftCatalogItem } from './item'
 import type { ICipherCatalogMonitor, IUnMonitorCipherCatalog } from './monitor'
 
@@ -50,10 +50,9 @@ export interface IReadonlyCipherCatalog {
   flatItem(item: IDeserializedCatalogItem): Promise<ICatalogItem>
 
   /**
-   * Generate a nonce for the given item.
-   * @param item
+   * Generate a nonce with the given size.
    */
-  genNonce(item: ICatalogItemForNonce): Promise<Uint8Array | undefined>
+  genNonce(size: number): Promise<Uint8Array>
 
   /**
    * Get the catalog item by plain filepath.

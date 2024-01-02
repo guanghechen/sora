@@ -6,7 +6,5 @@ export * from './util/collectAffectedPlainPaths'
 export * from './util/diffFromCatalogItems'
 export * from './util/normalizePlainPath'
 
-export * from './CipherCatalogContext'
-
 // Re-export types and constants
 export * from '@guanghechen/cipher-catalog.types'

@@ -2,15 +2,9 @@ import type { IWorkspacePathResolver } from '@guanghechen/path.types'
 
 export type IHashAlgorithm = 'md5' | 'sha1' | 'sha256' | 'sha512'
 
-export interface ICatalogItemForNonce {
-  readonly nonce: Readonly<Uint8Array> | undefined
-  readonly plainPath: string
-}
-
 export interface ICipherCatalogContext {
   readonly CONTENT_HASH_ALGORITHM: IHashAlgorithm
   readonly MAX_CRYPT_FILE_SIZE: number
-  readonly NONCE_SIZE: number
   readonly PART_CODE_PREFIX: string
   readonly PATH_HASH_ALGORITHM: IHashAlgorithm
   readonly cryptFilesDir: string
@@ -19,10 +13,9 @@ export interface ICipherCatalogContext {
   readonly plainPathResolver: IWorkspacePathResolver
 
   /**
-   * Generate a nonce for the given item.
-   * @param item
+   * Generate a nonce with the given size.
    */
-  genNonce(item: ICatalogItemForNonce): Promise<Uint8Array | undefined>
+  genNonce(size: number): Promise<Uint8Array>
 
   /**
    * Check if the content in the given relativePlainFilepath should be kept integrity.
