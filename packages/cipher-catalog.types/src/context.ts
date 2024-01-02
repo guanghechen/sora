@@ -31,6 +31,12 @@ export interface ICipherCatalogContext {
   readonly plainPathResolver: IWorkspacePathResolver
 
   /**
+   * Calculate fingerprint for the given plain file.
+   * @param plainPath
+   */
+  calcFingerprint(plainPath: string): Promise<string>
+
+  /**
    * Generate a nonce with the given size.
    */
   genNonce(): Promise<Uint8Array>
@@ -50,9 +56,14 @@ export interface ICipherCatalogContext {
   /**
    * Check if the given plainPath exist.
    * @param plainPath
-   * @returns
    */
   isPlainPathExist(plainPath: string): Promise<boolean>
+
+  /**
+   * Normalize the given plainFilepath to get a stable string across platforms.
+   * @param plainPath
+   */
+  normalizePlainPath(plainPath: string): string
 
   /**
    * Get the plain file stat.

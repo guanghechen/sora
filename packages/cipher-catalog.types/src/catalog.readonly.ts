@@ -23,7 +23,7 @@ export interface IReadonlyCipherCatalog {
    * Calc crypt filepath.
    * @param plainPath
    */
-  calcCryptFilepath(plainPath: string): string
+  calcCryptFilepath(plainPath: string): Promise<string>
 
   /**
    * Check crypt files for corruption.
@@ -66,10 +66,4 @@ export interface IReadonlyCipherCatalog {
    * @param monitor
    */
   monitor(monitor: Partial<ICipherCatalogMonitor>): IUnMonitorCipherCatalog
-
-  /**
-   * Normalize the given plainFilepath to get a stable string across platforms.
-   * @param plainPath
-   */
-  normalizePlainPath(plainPath: string): string
 }

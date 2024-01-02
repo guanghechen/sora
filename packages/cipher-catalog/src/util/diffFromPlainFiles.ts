@@ -28,7 +28,7 @@ export async function diffFromPlainFiles(
   const removedItems: IDraftCatalogDiffItem[] = []
 
   for (const plainPath of plainPaths) {
-    const key: string = catalog.normalizePlainPath(plainPath)
+    const key: string = catalog.context.normalizePlainPath(plainPath)
     const oldItem: ICatalogItem | undefined = oldItemMap.get(key)
     const isPlainPathExist: boolean = await catalog.context.isPlainPathExist(plainPath)
 
