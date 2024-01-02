@@ -52,7 +52,7 @@ export interface IReadonlyCipherCatalog {
   /**
    * Generate a nonce with the given size.
    */
-  genNonce(size: number): Promise<Uint8Array>
+  genNonce(): Promise<Uint8Array>
 
   /**
    * Get the catalog item by plain filepath.
