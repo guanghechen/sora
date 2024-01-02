@@ -50,11 +50,6 @@ export interface IReadonlyCipherCatalog {
   flatItem(item: IDeserializedCatalogItem): Promise<ICatalogItem>
 
   /**
-   * Generate a nonce with the given size.
-   */
-  genNonce(): Promise<Uint8Array>
-
-  /**
    * Get the catalog item by plain filepath.
    * @param plainPath
    */
@@ -65,25 +60,6 @@ export interface IReadonlyCipherCatalog {
    * @param plainPath
    */
   has(plainPath: string): boolean
-
-  /**
-   * Check if the content in the given relativePlainFilepath should be kept integrity.
-   * @param plainPath
-   */
-  isKeepIntegrity(plainPath: string): boolean
-
-  /**
-   * Check if the content in the given relativePlainFilepath should be kept plain.
-   * @param plainPath
-   */
-  isKeepPlain(plainPath: string): boolean
-
-  /**
-   * Check if the given plainPath exist.
-   * @param plainPath
-   * @returns
-   */
-  isPlainPathExist(plainPath: string): boolean
 
   /**
    * Monitor the catalog change.

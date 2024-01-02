@@ -2,6 +2,23 @@ import type { IWorkspacePathResolver } from '@guanghechen/path.types'
 
 export type IHashAlgorithm = 'md5' | 'sha1' | 'sha256' | 'sha512'
 
+export interface ICipherCatalogStat {
+  /**
+   * File create time.
+   */
+  ctime: number
+
+  /**
+   * File modify time.
+   */
+  mtime: number
+
+  /**
+   * File size.
+   */
+  size: number
+}
+
 export interface ICipherCatalogContext {
   readonly CONTENT_HASH_ALGORITHM: IHashAlgorithm
   readonly MAX_CRYPT_FILE_SIZE: number
@@ -22,18 +39,24 @@ export interface ICipherCatalogContext {
    * Check if the content in the given relativePlainFilepath should be kept integrity.
    * @param plainPath
    */
-  isKeepIntegrity(plainPath: string): boolean
+  isKeepIntegrity(plainPath: string): Promise<boolean>
 
   /**
    * Check if the plain file should be kept plain.
    * @param plainPath
    */
-  isKeepPlain(plainPath: string): boolean
+  isKeepPlain(plainPath: string): Promise<boolean>
 
   /**
    * Check if the given plainPath exist.
    * @param plainPath
    * @returns
    */
-  isPlainPathExist(plainPath: string): boolean
+  isPlainPathExist(plainPath: string): Promise<boolean>
+
+  /**
+   * Get the plain file stat.
+   * @param plainPath
+   */
+  statPlainFile(plainPath: string): Promise<ICipherCatalogStat | undefined>
 }
