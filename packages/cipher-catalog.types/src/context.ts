@@ -2,8 +2,9 @@ import type { IWorkspacePathResolver } from '@guanghechen/path.types'
 
 export type IHashAlgorithm = 'md5' | 'sha1' | 'sha256' | 'sha512'
 
-export interface ICatalogItemForIv {
-  plainPath: string
+export interface ICatalogItemForNonce {
+  readonly nonce: Readonly<Uint8Array> | undefined
+  readonly plainPath: string
 }
 
 export interface ICipherCatalogContext {
@@ -17,10 +18,10 @@ export interface ICipherCatalogContext {
   readonly plainPathResolver: IWorkspacePathResolver
 
   /**
-   * Calc the iv of the given item.
+   * Generate a nonce for the given item.
    * @param item
    */
-  calcIv(item: ICatalogItemForIv): Promise<Uint8Array | undefined>
+  genNonce(item: ICatalogItemForNonce): Promise<Uint8Array | undefined>
 
   /**
    * Check if the content in the given relativePlainFilepath should be kept integrity.

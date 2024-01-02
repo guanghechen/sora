@@ -9,9 +9,4 @@ export interface ICatalogItem extends IDraftCatalogItem {
    * Authenticate tag.
    */
   authTag: Readonly<Uint8Array> | undefined
-
-  /**
-   * Cipher iv.
-   */
-  iv: Uint8Array | undefined
 }

@@ -19,6 +19,12 @@ export interface ISerializedCatalogItem {
   flag: CatalogItemFlagEnum
 
   /**
+   * IV for AES-GCM.
+   * - hex string
+   */
+  nonce: string
+
+  /**
    * The path of the plain source file.
    * - relative path of the plain root directory
    * - encrypted

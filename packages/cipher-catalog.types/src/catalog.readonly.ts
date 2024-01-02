@@ -1,4 +1,4 @@
-import type { ICipherCatalogContext } from './context'
+import type { ICatalogItemForNonce, ICipherCatalogContext } from './context'
 import type { ICatalogItem, IDeserializedCatalogItem, IDraftCatalogItem } from './item'
 import type { ICipherCatalogMonitor, IUnMonitorCipherCatalog } from './monitor'
 
@@ -26,12 +26,6 @@ export interface IReadonlyCipherCatalog {
   calcCryptFilepath(plainPath: string): string
 
   /**
-   * Calc the iv of the given item.
-   * @param item
-   */
-  calcIv(item: IDeserializedCatalogItem | IDraftCatalogItem): Promise<Uint8Array | undefined>
-
-  /**
    * Check crypt files for corruption.
    * @param cryptPaths
    */
@@ -54,6 +48,12 @@ export interface IReadonlyCipherCatalog {
    * @param item
    */
   flatItem(item: IDeserializedCatalogItem): Promise<ICatalogItem>
+
+  /**
+   * Generate a nonce for the given item.
+   * @param item
+   */
+  genNonce(item: ICatalogItemForNonce): Promise<Uint8Array | undefined>
 
   /**
    * Get the catalog item by plain filepath.

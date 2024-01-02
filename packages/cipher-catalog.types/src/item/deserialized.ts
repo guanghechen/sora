@@ -29,6 +29,11 @@ export interface IDeserializedCatalogItem {
   keepPlain: boolean
 
   /**
+   * IV for AES-GCM.
+   */
+  nonce: Readonly<Uint8Array>
+
+  /**
    * The path of the plain source file.
    * - relative path of the plain root directory
    */
