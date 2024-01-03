@@ -1,13 +1,13 @@
 import { bytes2text, text2bytes } from '@guanghechen/byte'
 import type { ICatalogItem, IDraftCatalogItem } from '@guanghechen/cipher-catalog.types'
 import { calcMac } from '@guanghechen/mac'
-import { areSameCatalogItem, areSameDraftCatalogItem } from '../src'
-import { pathHashAlgorithm } from './_data'
+import { areSameCatalogItem, areSameDraftCatalogItem } from '../../src'
+import { PATH_HASH_ALGORITHM } from '../_data'
 
 test('areSameDraftCatalogItem', () => {
   const basicItem: IDraftCatalogItem = {
     plainPath: 'waw.txt',
-    cryptPath: bytes2text(calcMac([text2bytes('waw.txt', 'utf8')], pathHashAlgorithm), 'hex'),
+    cryptPath: bytes2text(calcMac([text2bytes('waw.txt', 'utf8')], PATH_HASH_ALGORITHM), 'hex'),
     cryptPathParts: [''],
     fingerprint: '',
     keepIntegrity: false,
@@ -37,7 +37,7 @@ test('areSameDraftCatalogItem', () => {
 test('areSameCatalogItem', () => {
   const basicItem: ICatalogItem = {
     plainPath: 'waw.txt',
-    cryptPath: bytes2text(calcMac([text2bytes('waw.txt', 'utf8')], pathHashAlgorithm), 'hex'),
+    cryptPath: bytes2text(calcMac([text2bytes('waw.txt', 'utf8')], PATH_HASH_ALGORITHM), 'hex'),
     cryptPathParts: [''],
     fingerprint: '',
     keepIntegrity: false,

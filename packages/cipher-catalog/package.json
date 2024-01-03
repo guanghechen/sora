@@ -44,7 +44,11 @@
   },
   "dependencies": {
     "@guanghechen/byte": "^1.0.0-alpha.5",
-    "@guanghechen/cipher-catalog.types": "^1.0.0-alpha.19"
+    "@guanghechen/cipher-catalog.types": "^1.0.0-alpha.19",
+    "@guanghechen/disposable": "^1.0.0-alpha.1",
+    "@guanghechen/filepart": "^1.0.0-alpha.2",
+    "@guanghechen/mac": "^1.0.0-alpha.4",
+    "@guanghechen/monitor": "^1.0.0-alpha.25"
   },
   "devDependencies": {
     "@guanghechen/internal": "^1.0.0-alpha.0"

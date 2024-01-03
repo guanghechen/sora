@@ -1,8 +1,8 @@
 import { text2bytes } from '@guanghechen/byte'
 import type { IDraftCatalogDiffItem } from '@guanghechen/cipher-catalog.types'
 import { FileChangeTypeEnum } from '@guanghechen/cipher-catalog.types'
-import { collectAffectedCryptPaths, collectAffectedPlainPaths } from '../src'
-import { itemTable } from './_data'
+import { collectAffectedCryptPaths, collectAffectedPlainPaths } from '../../src'
+import { itemTable } from '../_data'
 
 const diffItems: IDraftCatalogDiffItem[] = [
   {
@@ -38,11 +38,11 @@ test('collectAffectedPlainFilepaths', () => {
 test('collectAffectedCryptFilepaths', () => {
   expect(collectAffectedCryptPaths(diffItems)).toEqual([
     'a.txt',
-    'kirito/d52a60a064cc6ae727b065a078231e41756e9b7fd0cedb301789b0406dc48269',
-    'kirito/f608f5814560f4375dda3e7dc8005ca6df2176155828349fd73919e8177bf9a7.ghc-part1',
-    'kirito/f608f5814560f4375dda3e7dc8005ca6df2176155828349fd73919e8177bf9a7.ghc-part2',
-    'kirito/f608f5814560f4375dda3e7dc8005ca6df2176155828349fd73919e8177bf9a7.ghc-part3',
-    'kirito/f608f5814560f4375dda3e7dc8005ca6df2176155828349fd73919e8177bf9a7.ghc-part4',
+    'kirito/346444a4bea4020a29c70628ff065310bdf906bafe1bb389603865bd9acbc74a',
+    'kirito/b597c635c06dd800a4ba92b66fc57b25695a09525c9cf0641eeb543dc3e15499.ghc-part1',
+    'kirito/b597c635c06dd800a4ba92b66fc57b25695a09525c9cf0641eeb543dc3e15499.ghc-part2',
+    'kirito/b597c635c06dd800a4ba92b66fc57b25695a09525c9cf0641eeb543dc3e15499.ghc-part3',
+    'kirito/b597c635c06dd800a4ba92b66fc57b25695a09525c9cf0641eeb543dc3e15499.ghc-part4',
     'd.txt.ghc-part1',
     'd.txt.ghc-part2',
     'd.txt.ghc-part3',
