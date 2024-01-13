@@ -1,7 +1,7 @@
 import { bytes2text, text2bytes } from '@guanghechen/byte'
 import { emptyDir, isFileSync, mkdirsIfNotExists, rm, writeFile } from '@guanghechen/internal'
 import { calcMac } from '@guanghechen/mac'
-import { TextFileResource } from '@guanghechen/resource'
+import { FileTextResource } from '@guanghechen/resource'
 import { assertPromiseThrow, locateFixtures } from 'jest.helper'
 import fs from 'node:fs/promises'
 import path from 'node:path'
@@ -80,7 +80,7 @@ describe('JsonConfigKeeper', () => {
     }
 
     const configFilepath: string = path.join(workspaceDir, 'MyJsonConfigKeeper/config.json')
-    const resource = new TextFileResource({
+    const resource = new FileTextResource({
       strict: true,
       filepath: configFilepath,
       encoding: 'utf8',
@@ -115,7 +115,7 @@ describe('JsonConfigKeeper', () => {
     }
 
     const configFilepath: string = path.join(workspaceDir, 'PlainJsonConfigKeeper/config.json')
-    const resource = new TextFileResource({
+    const resource = new FileTextResource({
       strict: true,
       filepath: configFilepath,
       encoding: 'utf8',

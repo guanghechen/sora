@@ -4,23 +4,30 @@ import { existsSync, mkdirSync, statSync, unlinkSync } from 'node:fs'
 import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
-export interface ITextFileResourceProps {
+export interface IFileTextResourceProps {
   strict: boolean
   filepath: string
   encoding: BufferEncoding
 }
 
-const clazz: string = 'TextFileResource'
+const clazz: string = 'FileTextResource'
 
-export class TextFileResource implements ITextResource {
+export class FileTextResource implements ITextResource {
   public readonly strict: boolean
   public readonly filepath: string
   public readonly encoding: BufferEncoding
 
-  constructor(props: ITextFileResourceProps) {
+  constructor(props: IFileTextResourceProps) {
     this.strict = props.strict
     this.filepath = props.filepath
     this.encoding = props.encoding
+  }
+
+  public async destroy(): Promise<void> {
+    if (existsSync(this.filepath)) {
+      invariant(statSync(this.filepath).isFile(), `[${clazz}.remove] Not a file.`)
+      unlinkSync(this.filepath)
+    }
   }
 
   public async exists(): Promise<boolean> {
@@ -51,12 +58,5 @@ export class TextFileResource implements ITextResource {
     }
 
     await writeFile(this.filepath, content, this.encoding)
-  }
-
-  public async destroy(): Promise<void> {
-    if (existsSync(this.filepath)) {
-      invariant(statSync(this.filepath).isFile(), `[${clazz}.remove] Not a file.`)
-      unlinkSync(this.filepath)
-    }
   }
 }

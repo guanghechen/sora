@@ -3,9 +3,9 @@ import { assertPromiseNotThrow, assertPromiseThrow, locateFixtures } from 'jest.
 import { existsSync, statSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
-import { TextFileResource } from '../src'
+import { FileTextResource } from '../src'
 
-describe('TextFileResource', () => {
+describe('FileTextResource', () => {
   const workspaceDir: string = locateFixtures('__fictitious__.FileStorage')
 
   beforeEach(async () => {
@@ -20,7 +20,7 @@ describe('TextFileResource', () => {
     const configFilepath = path.join(workspaceDir, 'a/b/c/ghc.json')
     const content = 'Hello, world!'
     const encoding: BufferEncoding = 'utf8'
-    const resource = new TextFileResource({ strict: false, filepath: configFilepath, encoding })
+    const resource = new FileTextResource({ strict: false, filepath: configFilepath, encoding })
 
     test('exists', async () => {
       expect(await resource.exists()).toEqual(false)
@@ -94,7 +94,7 @@ describe('TextFileResource', () => {
     const configFilepath = path.join(workspaceDir, 'a/b/c/ghc.json')
     const content = 'Hello, world!'
     const encoding: BufferEncoding = 'utf8'
-    const resource = new TextFileResource({ strict: true, filepath: configFilepath, encoding })
+    const resource = new FileTextResource({ strict: true, filepath: configFilepath, encoding })
 
     test('load-1', async () => {
       expect(existsSync(configFilepath)).toEqual(false)
