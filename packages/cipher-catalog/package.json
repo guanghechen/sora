@@ -1,16 +1,16 @@
 {
   "name": "@guanghechen/cipher-catalog",
-  "version": "1.0.0-alpha.22",
+  "version": "1.0.0-alpha.23",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher-catalog@1.0.0-alpha.22",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher-catalog@1.0.0-alpha.23",
     "directory": "packages/cipher-catalog"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher-catalog@1.0.0-alpha.22/packages/cipher-catalog#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher-catalog@1.0.0-alpha.23/packages/cipher-catalog#readme",
   "keywords": [
     "cipher-catalog",
     "cipher-catalog helper"
@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@guanghechen/byte": "^1.0.0-alpha.5",
-    "@guanghechen/cipher-catalog.types": "^1.0.0-alpha.20",
+    "@guanghechen/cipher-catalog.types": "^1.0.0-alpha.21",
     "@guanghechen/disposable": "^1.0.0-alpha.1",
     "@guanghechen/filepart": "^1.0.0-alpha.2",
     "@guanghechen/mac": "^1.0.0-alpha.4",

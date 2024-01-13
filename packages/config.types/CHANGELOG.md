@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.5](https://github.com/guanghechen/sora/compare/@guanghechen/config.types@1.0.0-alpha.4...@guanghechen/config.types@1.0.0-alpha.5) (2024-01-13)
+
+
+### Features
+
+* 🎨 add 'parse' method to parse config content ([9fbc4f0](https://github.com/guanghechen/sora/commit/9fbc4f090398c1a59894f81aa3facd1bc10aa60c))
+
+
+
+
+
 # [1.0.0-alpha.4](https://github.com/guanghechen/sora/compare/@guanghechen/config.types@1.0.0-alpha.3...@guanghechen/config.types@1.0.0-alpha.4) (2023-11-29)
 
 

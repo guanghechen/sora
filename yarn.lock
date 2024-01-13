@@ -486,7 +486,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/cipher-catalog.types@^1.0.0-alpha.20, @guanghechen/cipher-catalog.types@workspace:packages/cipher-catalog.types":
+"@guanghechen/cipher-catalog.types@^1.0.0-alpha.21, @guanghechen/cipher-catalog.types@workspace:packages/cipher-catalog.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/cipher-catalog.types@workspace:packages/cipher-catalog.types"
   dependencies:
@@ -499,7 +499,7 @@ __metadata:
   resolution: "@guanghechen/cipher-catalog@workspace:packages/cipher-catalog"
   dependencies:
     "@guanghechen/byte": ^1.0.0-alpha.5
-    "@guanghechen/cipher-catalog.types": ^1.0.0-alpha.20
+    "@guanghechen/cipher-catalog.types": ^1.0.0-alpha.21
     "@guanghechen/disposable": ^1.0.0-alpha.1
     "@guanghechen/filepart": ^1.0.0-alpha.2
     "@guanghechen/internal": ^1.0.0-alpha.0
@@ -525,7 +525,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/config.types@^1.0.0-alpha.4, @guanghechen/config.types@workspace:packages/config.types":
+"@guanghechen/config.types@^1.0.0-alpha.5, @guanghechen/config.types@workspace:packages/config.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/config.types@workspace:packages/config.types"
   dependencies:
@@ -538,7 +538,7 @@ __metadata:
   resolution: "@guanghechen/config@workspace:packages/config"
   dependencies:
     "@guanghechen/byte": ^1.0.0-alpha.5
-    "@guanghechen/config.types": ^1.0.0-alpha.4
+    "@guanghechen/config.types": ^1.0.0-alpha.5
     "@guanghechen/internal": ^1.0.0-alpha.0
     "@guanghechen/mac": ^1.0.0-alpha.4
     "@guanghechen/resource.types": ^1.0.0-alpha.4

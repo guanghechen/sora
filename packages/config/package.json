@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/config",
-  "version": "1.0.0-alpha.11",
+  "version": "1.0.0-alpha.12",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
@@ -8,10 +8,10 @@
   "description": "Utilities for defining config followed by semantic version.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/config@1.0.0-alpha.11",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/config@1.0.0-alpha.12",
     "directory": "packages/config"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/config@1.0.0-alpha.11/packages/config#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/config@1.0.0-alpha.12/packages/config#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@guanghechen/byte": "^1.0.0-alpha.5",
-    "@guanghechen/config.types": "^1.0.0-alpha.4",
+    "@guanghechen/config.types": "^1.0.0-alpha.5",
     "@guanghechen/mac": "^1.0.0-alpha.4",
     "@guanghechen/resource.types": "^1.0.0-alpha.4",
     "semver": "^7.5.4"
