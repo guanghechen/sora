@@ -167,14 +167,15 @@ function testJsonConfigKeeper<Instance, Data>(params: {
     await keeper.destroy()
   })
 
-  const writeData = async (version: string, data: Data): Promise<void> => {
+  const wrapData = async (version: string, data: Data): Promise<string> => {
     const content: string = JSON.stringify(data)
     const mac: string = bytes2text(calcMac([text2bytes(content, 'utf8')], 'sha256'), 'hex')
-    await writeFile(
-      configFilepath,
-      JSON.stringify({ __version__: version, __mac__: mac, data }),
-      'utf8',
-    )
+    return JSON.stringify({ __version__: version, __mac__: mac, data })
+  }
+
+  const writeData = async (version: string, data: Data): Promise<void> => {
+    const content: string = await wrapData(version, data)
+    await writeFile(configFilepath, content, 'utf8',)
   }
 
   test('load', async () => {
@@ -220,6 +221,44 @@ function testJsonConfigKeeper<Instance, Data>(params: {
     expect(keeper.data).toEqual(instance.alice)
     await keeper.load()
     expect(keeper.data).toEqual(instance.bob)
+  })
+
+  test('parse', async () => {
+    await assertPromiseThrow(
+      () => keeper.parse(JSON.stringify({ data: data.alice })),
+      '[BaseConfigKeeper.load] Bad config, invalid fields',
+    )
+    expect(keeper.data).toEqual(undefined)
+
+    await assertPromiseThrow(
+      () => keeper.parse(JSON.stringify({ version: '2.0.0', data: data.alice })),
+      '[BaseConfigKeeper.load] Bad config, invalid fields',
+    )
+    expect(keeper.data).toEqual(undefined)
+
+    await assertPromiseThrow(
+      () => keeper.parse('null'),
+      '[BaseConfigKeeper.load] Bad config, invalid fields',
+    )
+    expect(keeper.data).toEqual(undefined)
+
+
+    const content1: string = await wrapData('3.2.3', data.alice)
+    await assertPromiseThrow(
+      () => keeper.parse(content1),
+      `[BaseConfigKeeper.load] Version not compatible. expect(${keeper.__compatible_version__}), received(3.2.3)`,
+    )
+    expect(keeper.data).toEqual(undefined)
+
+    const content2: string = await wrapData('2.0.0', data.alice)
+    const instance2 = await keeper.parse(content2)
+    expect(instance2).toEqual(instance.alice)
+    expect(keeper.data).toEqual(undefined)
+
+    const content3: string = await wrapData('2.0.3', data.bob)
+    const instance3 = await keeper.parse(content3)
+    expect(instance3).toEqual(instance.bob)
+    expect(keeper.data).toEqual(undefined)
   })
 
   test('update / save / remove', async () => {

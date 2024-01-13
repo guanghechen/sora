@@ -35,15 +35,20 @@ export interface IConfigKeeper<D> {
   compatible(version: string): boolean
 
   /**
-   * Update the holding data.
-   * @param data
+   * Remove the config data.
    */
-  update(data: D): Promise<void>
+  destroy(): Promise<void>
 
   /**
-   * Load data from the given resource or default resource.
+   * Load data from the given resource or default resource, this will update the holding data.
    */
-  load(resource?: ITextResource): Promise<void>
+  load(resource?: ITextResource): Promise<D | never>
+
+  /**
+   * Parse the data from the given config content, this won't update the holding data.
+   * @param configContent
+   */
+  parse(configContent: string): Promise<D | never>
 
   /**
    * Save current holding data into the given resource or default resource.
@@ -51,7 +56,8 @@ export interface IConfigKeeper<D> {
   save(resource?: ITextResource): Promise<void>
 
   /**
-   * Remove the config data.
+   * Update the holding data.
+   * @param data
    */
-  destroy(): Promise<void>
+  update(data: D): Promise<void>
 }

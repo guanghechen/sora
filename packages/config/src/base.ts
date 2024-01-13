@@ -66,35 +66,28 @@ export abstract class BaseConfigKeeper<Instance, Data> implements IConfigKeeper<
     })
   }
 
-  public async update(instance: Instance): Promise<void> {
-    this._instance = instance
+  public async destroy(): Promise<void> {
+    await this._resource.destroy()
+    this._instance = undefined
   }
 
-  public async load(resource: ITextResource = this._resource): Promise<void> {
+  public async load(resource: ITextResource = this._resource): Promise<Instance> {
     const configContent: string | undefined = await resource.load()
     invariant(configContent !== undefined, `[${clazz}.load] Failed to load config.`)
 
     const config: IConfig<Data> = await this.decode(configContent)
-    const { __version__, __mac__, __nonce__, data } = config ?? {}
+    const { __nonce__ } = config ?? {}
 
-    // Check if config is compatible.
-    invariant(
-      typeof __version__ === 'string' && typeof __mac__ === 'string',
-      () => `[${clazz}.load] Bad config, invalid fields. (${JSON.stringify(config)})`,
-    )
-    invariant(
-      this.compatible(__version__),
-      `[${clazz}.load] Version not compatible. expect(${this.__compatible_version__}), received(${__version__})`,
-    )
-
-    // Check if the config mac is matched.
-    const content: string = this.stringify(data)
-    const mac = bytes2text(calcMac([text2bytes(content, 'utf8')], this.hashAlgorithm), 'hex')
-    invariant(mac === config.__mac__, () => `[${clazz}.load] Bad config, mac is not matched.`)
-
-    const instance: Instance = await this.deserialize(data)
+    const instance: Instance = await this._parseFromConfig(config)
     this._instance = instance
     this._nonce = __nonce__
+    return instance
+  }
+
+  public async parse(configContent: string): Promise<Instance | never> {
+    const config: IConfig<Data> = await this.decode(configContent)
+    const instance: Instance = await this._parseFromConfig(config)
+    return instance
   }
 
   public async save(resource: ITextResource = this._resource): Promise<void> {
@@ -117,8 +110,29 @@ export abstract class BaseConfigKeeper<Instance, Data> implements IConfigKeeper<
     await resource.save(stringifiedConfig)
   }
 
-  public async destroy(): Promise<void> {
-    await this._resource.destroy()
-    this._instance = undefined
+  public async update(instance: Instance): Promise<void> {
+    this._instance = instance
+  }
+
+  private async _parseFromConfig(config: IConfig<Data>): Promise<Instance | never> {
+    const { __version__, __mac__, data } = config ?? {}
+
+    // Check if config is compatible.
+    invariant(
+      typeof __version__ === 'string' && typeof __mac__ === 'string',
+      () => `[${clazz}.load] Bad config, invalid fields. (${JSON.stringify(config)})`,
+    )
+    invariant(
+      this.compatible(__version__),
+      `[${clazz}.load] Version not compatible. expect(${this.__compatible_version__}), received(${__version__})`,
+    )
+
+    // Check if the config mac is matched.
+    const content: string = this.stringify(data)
+    const mac = bytes2text(calcMac([text2bytes(content, 'utf8')], this.hashAlgorithm), 'hex')
+    invariant(mac === config.__mac__, () => `[${clazz}.load] Bad config, mac is not matched.`)
+
+    const instance: Instance = await this.deserialize(data)
+    return instance
   }
 }
