@@ -32,8 +32,8 @@ describe('FileTree', () => {
   let nPathFromRoot: string[]
   let fPathFromRoot1: string[]
   let fPathFromRoot2: string[]
-  let dPathFromRoot1: string[]
-  let dPathFromRoot2: string[]
+  // let dPathFromRoot1: string[]
+  // let dPathFromRoot2: string[]
 
   beforeAll(() => {
     const { files, folders } = getRawFileTreeNodes1()

@@ -5,7 +5,7 @@ import { VfsPathResolver } from '../src'
 import { simple } from './_data'
 
 describe('simple', () => {
-  const { FIXTURE_PHYSICAL_DIR, FIXTURE_VIRTUAL_DIR, FILEPATH_1, FILEPATH_2, CONTENT_1 } = simple
+  const { FIXTURE_PHYSICAL_DIR, FIXTURE_VIRTUAL_DIR, FILEPATH_1, FILEPATH_2 } = simple
 
   let pathResolver: IVfsPathResolver
   beforeAll(() => {
