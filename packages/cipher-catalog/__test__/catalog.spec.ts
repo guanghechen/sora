@@ -1,7 +1,4 @@
 import { text2bytes } from '@guanghechen/byte'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { chalk } from '@guanghechen/chalk/node'
 import type {
   ICatalogDiffItem,
   ICipherCatalog,
@@ -10,7 +7,6 @@ import type {
 } from '@guanghechen/cipher-catalog.types'
 import { emptyDir, isFileSync, rm, writeFile } from '@guanghechen/internal'
 import { WorkspacePathResolver, pathResolver } from '@guanghechen/path'
-import { Reporter } from '@guanghechen/reporter'
 import { locateFixtures } from 'jest.helper'
 import { stat as statFile } from 'node:fs/promises'
 import path from 'node:path'
@@ -36,7 +32,6 @@ describe('CipherCatalog', () => {
   const cryptRootDir: string = path.join(workspaceDir, 'src_encrypted')
   const plainPathResolver = new WorkspacePathResolver(plainRootDir, pathResolver)
   const cryptPathResolver = new WorkspacePathResolver(cryptRootDir, pathResolver)
-  const reporter = new Reporter(chalk, { baseName: 'FileCipherCatalog' })
 
   const plainPathA: string = itemTable.A.plainPath
   const plainPathB: string = itemTable.B.plainPath
@@ -64,7 +59,10 @@ describe('CipherCatalog', () => {
       NONCE_SIZE,
       PART_CODE_PREFIX,
       PATH_HASH_ALGORITHM,
-      genNonce: async () => text2bytes('af5e87dbe9a86c24d35df07e5151bb76', 'hex'),
+      genNonce: async item =>
+        Object.values(itemTable).find(
+          t => t.plainPath === item.plainPath && t.fingerprint === item.fingerprint,
+        )?.nonce ?? text2bytes('af5e87dbe9a86c24d35df07e5151bb76', 'hex'),
       hashPlainFile: async (plainPath: string): Promise<string> => {
         const absolutePlainPath: string = plainPathResolver.resolve(plainPath)
         return calcFingerprintFromFile(absolutePlainPath, CONTENT_HASH_ALGORITHM)
@@ -378,7 +376,7 @@ describe('CipherCatalog', () => {
   })
 
   // test('diffFromPlainFiles', async () => {
-  //   const fileSplitter = new FileSplitter({ partCodePrefix: PART_CODE_PREFIX })
+  //   const fileSplitter = new FileSplitter({ PART_CODE_PREFIX: PART_CODE_PREFIX })
   //   const cipherFactory = new AesGcmCipherFactoryBuilder().buildFromPassword(
   //     Buffer.from('guanghechen', encoding),
   //     {
@@ -391,7 +389,7 @@ describe('CipherCatalog', () => {
   //   const cipherBatcher = new FileCipherBatcher({
   //     fileSplitter,
   //     fileCipherFactory,
-  //     maxTargetFileSize: MAX_CRYPT_FILE_SIZE,
+  //     MAX_CRYPT_FILE_SIZE: MAX_CRYPT_FILE_SIZE,
   //     reporter,
   //   })
 

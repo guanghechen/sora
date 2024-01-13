@@ -81,12 +81,12 @@ Utility functions for cipher contents or files.
   cipher.decrypt(Buffer.from('cypher data'))    // => Buffer
 
   // encrypt / decrypt file
-  cipher.encryptFile('plain.txt', 'cipher.txt')
-  cipher.decryptFile('cipher.txt', 'plain.txt')
+  cipher.encryptFile({ cryptPath: 'cipher.txt', plainPath: 'plain.txt' })
+  cipher.decryptFile({ cryptPath: 'cipher.txt', plainPath: 'plain.txt' })
 
   // encrypt / decrypt files
-  cipher.encryptFile(['plain1.txt', 'plain2.txt'], 'cipher.txt')
-  cipher.decryptFile(['cipher1.txt', 'cipher2.txt'], 'plain.txt')
+  cipher.encryptFile({ cryptPath: 'cipher.txt', plainPath: 'plain.txt' })
+  cipher.decryptFile({ cryptPath: 'cipher.txt', plainPath: 'plain.txt' })
   ```
 
 * `CipherCatalog`

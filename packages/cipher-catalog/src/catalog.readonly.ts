@@ -51,7 +51,7 @@ export abstract class ReadonlyCipherCatalog implements IReadonlyCipherCatalog {
     const fingerprint = await context.hashPlainFile(plainPath)
     const keepIntegrity: boolean = await context.isKeepIntegrity(plainPath)
     const keepPlain: boolean = await context.isKeepPlain(plainPath)
-    const nonce: Uint8Array = await context.genNonce()
+    const nonce: Uint8Array = await context.genNonce({ plainPath, fingerprint })
     const draftItem: IDraftCatalogItem = {
       plainPath,
       cryptPath,

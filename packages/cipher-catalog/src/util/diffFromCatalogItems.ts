@@ -1,7 +1,7 @@
 import type { ICatalogDiffItem, ICatalogItem } from '@guanghechen/cipher-catalog.types'
 import { FileChangeTypeEnum } from '@guanghechen/cipher-catalog.types'
 import { iterable2map, mapIterable } from '@guanghechen/internal'
-import { areSameCatalogItem } from './areSameCatalogItem'
+import { areSameCatalogItem } from './is'
 
 /**
  * Calculate diff items with the new catalog items.

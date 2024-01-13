@@ -18,7 +18,7 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
     fingerprint: '4e26698e6bebd87fc210bec49fea4da6210b5769dbff50b3479effa16799120f',
     keepIntegrity: false,
     keepPlain: true,
-    nonce: text2bytes('af5e87dbe9a86c24d35df07e5151bb76', 'hex'),
+    nonce: text2bytes('4fb48909205c41727e152bdc82c7e027', 'hex'),
     ctime: 0,
     mtime: 0,
     size: 9,
@@ -30,7 +30,7 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
     fingerprint: '70b47f9cc28ad379043b328d7d058097c69e7bb38d766ecca2655cd3afb6b5fa',
     keepIntegrity: false,
     keepPlain: true,
-    nonce: text2bytes('af5e87dbe9a86c24d35df07e5151bb76', 'hex'),
+    nonce: text2bytes('d9bd65b68ed82573f3e818d76c913e35', 'hex'),
     ctime: 0,
     mtime: 0,
     size: 30,
@@ -42,7 +42,7 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
     fingerprint: '6fee185efd0ffc7c51f986dcd2eb513e0ce0b63249d9a3bb51efe0c1ed2cb615',
     keepIntegrity: false,
     keepPlain: false,
-    nonce: text2bytes('af5e87dbe9a86c24d35df07e5151bb76', 'hex'),
+    nonce: text2bytes('3a49fb90ff10fa667d24f942cb7488c2', 'hex'),
     ctime: 0,
     mtime: 0,
     size: 135,
@@ -54,7 +54,7 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
     fingerprint: 'b835f16cc543838431fa5bbeceb8906c667c16af9f98779f54541aeae0ccdce2',
     keepIntegrity: false,
     keepPlain: false,
-    nonce: text2bytes('af5e87dbe9a86c24d35df07e5151bb76', 'hex'),
+    nonce: text2bytes('cacfe0c3f5fb6bc1460587644173c600', 'hex'),
     ctime: 0,
     mtime: 0,
     size: 3150,
@@ -66,7 +66,7 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
     fingerprint: '40cb73b4c02d34812f38a5ca3a3f95d377285e83d7bb499573b918e1862bcf13',
     keepIntegrity: false,
     keepPlain: false,
-    nonce: text2bytes('af5e87dbe9a86c24d35df07e5151bb76', 'hex'),
+    nonce: text2bytes('66ac488139b95d1c64a77329e50da5d9', 'hex'),
     ctime: 0,
     mtime: 0,
     size: 3150,
@@ -84,19 +84,22 @@ export const itemTable: Record<ISymbol, ICatalogItem> = {
   },
   B: {
     ...itemDraftTable.B,
-    authTag: text2bytes('5519968a852057854b7fea723e301fd6', 'hex'),
+    authTag: text2bytes('00895c0b3c75397ff9a6bdcc79eb0938', 'hex'),
   },
   C: {
     ...itemDraftTable.C,
-    authTag: text2bytes('dd468a718f2aba0797b8c941159b292e', 'hex'),
+    authTag: text2bytes('1e8e24c98c7eb1bb7bf3f975b45229ac', 'hex'),
   },
   D: {
     ...itemDraftTable.D,
-    authTag: text2bytes('6d721d17fe9def40a17a05aa532d3648', 'hex'),
+    authTag: text2bytes('eaf75b058e544ed4fc3201e94a8d9065', 'hex'),
   },
 }
 
-export const diffItemsTable: Record<string, ICatalogDiffItem[]> = {
+export const diffItemsTable: Record<
+  'step1' | 'step2' | 'step3' | 'step4' | 'step5',
+  ICatalogDiffItem[]
+> = {
   step1: [
     { changeType: FileChangeTypeEnum.ADDED, newItem: itemTable.A },
     { changeType: FileChangeTypeEnum.ADDED, newItem: itemTable.B },

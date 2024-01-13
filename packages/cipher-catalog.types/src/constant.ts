@@ -5,8 +5,9 @@ export enum FileChangeTypeEnum {
 }
 
 export enum CatalogItemChangeType {
-  RESET = 'reset',
-  APPLY_DIFF = 'apply-diff',
+  INSERT_OR_UPDATE = 'INSERT_OR_UPDATE',
+  REMOVE = 'REMOVE',
+  RESET = 'RESET',
 }
 
 export enum CatalogItemFlagEnum {

@@ -5,7 +5,7 @@ import type {
   IReadonlyCipherCatalog,
 } from '@guanghechen/cipher-catalog.types'
 import { FileChangeTypeEnum } from '@guanghechen/cipher-catalog.types'
-import { areSameDraftCatalogItem } from './areSameDraftCatalogItem'
+import { areSameDraftCatalogItem } from './is'
 
 /**
  * Calculate diff items.

@@ -2,6 +2,11 @@ import type { ICipherCatalogStat } from './stat'
 
 export type IHashAlgorithm = 'md5' | 'sha1' | 'sha256' | 'sha512'
 
+export interface IItemForGenNonce {
+  plainPath: string
+  fingerprint: string | undefined
+}
+
 /**
  * !!! All plainPath and cryptPath should be relative path and use '/' as path separator.
  * The plainPath should be a relative path based on the plain folder.
@@ -19,7 +24,7 @@ export interface ICipherCatalogContext {
   /**
    * Generate a nonce with the given size.
    */
-  genNonce(): Promise<Uint8Array>
+  genNonce(item: IItemForGenNonce): Promise<Uint8Array>
 
   /**
    * Calculate fingerprint for the given plain file.

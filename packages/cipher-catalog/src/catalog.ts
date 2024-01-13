@@ -54,29 +54,30 @@ export class CipherCatalog extends ReadonlyCipherCatalog implements ICipherCatal
 
   // @override
   public applyDiff(diffItems: ReadonlyArray<ICatalogDiffItem>): void {
-    const itemMap = this.#itemMap
     for (const diffItem of diffItems) {
       const { oldItem, newItem } = diffItem as ICatalogDiffItemCombine
-      if (oldItem) {
-        itemMap.delete(oldItem.plainPath)
-      }
-      if (newItem) {
-        itemMap.set(newItem.plainPath, {
-          plainPath: newItem.plainPath,
-          cryptPath: newItem.cryptPath,
-          cryptPathParts: newItem.cryptPathParts,
-          fingerprint: newItem.fingerprint,
-          keepIntegrity: newItem.keepIntegrity,
-          keepPlain: newItem.keepPlain,
-          nonce: newItem.nonce,
-          authTag: newItem.authTag,
-          ctime: newItem.ctime,
-          mtime: newItem.mtime,
-          size: newItem.size,
-        })
-      }
+      if (oldItem) this.remove(oldItem.plainPath)
+      if (newItem) this.insertOrUpdate(newItem)
     }
-    this._monitorItemChanged.notify({ type: CatalogItemChangeType.APPLY_DIFF, diffItems })
+  }
+
+  // @override
+  public insertOrUpdate(item: ICatalogItem): void {
+    const newItem: ICatalogItem = {
+      plainPath: item.plainPath,
+      cryptPath: item.cryptPath,
+      cryptPathParts: item.cryptPathParts,
+      fingerprint: item.fingerprint,
+      keepIntegrity: item.keepIntegrity,
+      keepPlain: item.keepPlain,
+      nonce: item.nonce,
+      authTag: item.authTag,
+      ctime: item.ctime,
+      mtime: item.mtime,
+      size: item.size,
+    }
+    this.#itemMap.set(item.plainPath, newItem)
+    this._monitorItemChanged.notify({ type: CatalogItemChangeType.INSERT_OR_UPDATE, item: newItem })
   }
 
   // @override
@@ -84,6 +85,14 @@ export class CipherCatalog extends ReadonlyCipherCatalog implements ICipherCatal
     const { onItemChanged } = monitor
     const unsubscribeOnItemChanged = this._monitorItemChanged.subscribe(onItemChanged)
     return unsubscribeOnItemChanged
+  }
+
+  // @override
+  public remove(plainPath: string): void {
+    if (this.#itemMap.has(plainPath)) {
+      this.#itemMap.delete(plainPath)
+      this._monitorItemChanged.notify({ type: CatalogItemChangeType.REMOVE, plainPath })
+    }
   }
 
   // @override
