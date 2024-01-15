@@ -72,8 +72,6 @@ export class CipherCatalog extends ReadonlyCipherCatalog implements ICipherCatal
       keepPlain: item.keepPlain,
       nonce: item.nonce,
       authTag: item.authTag,
-      ctime: item.ctime,
-      mtime: item.mtime,
       size: item.size,
     }
     this.#itemMap.set(item.plainPath, newItem)

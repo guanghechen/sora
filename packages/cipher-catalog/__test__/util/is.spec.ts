@@ -13,8 +13,6 @@ test('areSameDraftCatalogItem', () => {
     keepIntegrity: false,
     keepPlain: false,
     nonce: text2bytes('27881449fb89e366810f0e2a9fe5e563', 'hex'),
-    ctime: 0,
-    mtime: 0,
     size: 60,
   }
 
@@ -44,8 +42,6 @@ test('areSameCatalogItem', () => {
     keepPlain: false,
     nonce: text2bytes('fee71b20bbc57e31b12202f282dacdc8', 'hex'),
     authTag: undefined,
-    ctime: 0,
-    mtime: 0,
     size: 60,
   }
 

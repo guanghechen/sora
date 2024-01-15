@@ -19,8 +19,6 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
     keepIntegrity: false,
     keepPlain: true,
     nonce: text2bytes('4fb48909205c41727e152bdc82c7e027', 'hex'),
-    ctime: 0,
-    mtime: 0,
     size: 9,
   },
   A2: {
@@ -31,8 +29,6 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
     keepIntegrity: false,
     keepPlain: true,
     nonce: text2bytes('d9bd65b68ed82573f3e818d76c913e35', 'hex'),
-    ctime: 0,
-    mtime: 0,
     size: 30,
   },
   B: {
@@ -43,8 +39,6 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
     keepIntegrity: false,
     keepPlain: false,
     nonce: text2bytes('3a49fb90ff10fa667d24f942cb7488c2', 'hex'),
-    ctime: 0,
-    mtime: 0,
     size: 135,
   },
   C: {
@@ -55,8 +49,6 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
     keepIntegrity: false,
     keepPlain: false,
     nonce: text2bytes('cacfe0c3f5fb6bc1460587644173c600', 'hex'),
-    ctime: 0,
-    mtime: 0,
     size: 3150,
   },
   D: {
@@ -67,8 +59,6 @@ export const itemDraftTable: Record<ISymbol, IDraftCatalogItem> = {
     keepIntegrity: false,
     keepPlain: false,
     nonce: text2bytes('66ac488139b95d1c64a77329e50da5d9', 'hex'),
-    ctime: 0,
-    mtime: 0,
     size: 3150,
   },
 }

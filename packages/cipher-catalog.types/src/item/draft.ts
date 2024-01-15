@@ -40,16 +40,6 @@ export interface IDraftCatalogItem {
   plainPath: string
 
   /**
-   * File create time.
-   */
-  ctime: number
-
-  /**
-   * File modify time.
-   */
-  mtime: number
-
-  /**
    * File size.
    */
   size: number

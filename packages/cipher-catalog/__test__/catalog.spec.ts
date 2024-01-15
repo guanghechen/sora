@@ -8,7 +8,7 @@ import type {
 import { emptyDir, isFileSync, rm, writeFile } from '@guanghechen/internal'
 import { WorkspacePathResolver, pathResolver } from '@guanghechen/path'
 import { locateFixtures } from 'jest.helper'
-import { stat as statFile } from 'node:fs/promises'
+import fs from 'node:fs/promises'
 import path from 'node:path'
 import { CipherCatalog, calcFingerprintFromFile } from '../src'
 import {
@@ -16,7 +16,6 @@ import {
   CRYPT_FILES_DIR,
   CRYPT_PATH_SALT,
   MAX_CRYPT_FILE_SIZE,
-  NONCE_SIZE,
   PART_CODE_PREFIX,
   PATH_HASH_ALGORITHM,
   contentTable,
@@ -56,7 +55,6 @@ describe('CipherCatalog', () => {
       CRYPT_FILES_DIR,
       CRYPT_PATH_SALT,
       MAX_CRYPT_FILE_SIZE,
-      NONCE_SIZE,
       PART_CODE_PREFIX,
       PATH_HASH_ALGORITHM,
       genNonce: async item =>
@@ -86,22 +84,14 @@ describe('CipherCatalog', () => {
       statCryptFile: async (cryptPath: string): Promise<ICipherCatalogStat | undefined> => {
         const absoluteCryptPath: string = cryptPathResolver.resolve(cryptPath)
         if (!isFileSync(absoluteCryptPath)) return undefined
-        const stat = await statFile(absoluteCryptPath)
-        return {
-          ctime: 0,
-          mtime: 0,
-          size: stat.size,
-        }
+        const stat = await fs.stat(absoluteCryptPath)
+        return { size: stat.size }
       },
       statPlainFile: async (plainPath: string): Promise<ICipherCatalogStat | undefined> => {
         const absolutePlainPath: string = plainPathResolver.resolve(plainPath)
         if (!isFileSync(absolutePlainPath)) return undefined
-        const stat = await statFile(absolutePlainPath)
-        return {
-          ctime: 0,
-          mtime: 0,
-          size: stat.size,
-        }
+        const stat = await fs.stat(absolutePlainPath)
+        return { size: stat.size }
       },
     }
     catalog = new CipherCatalog(catalogContext)

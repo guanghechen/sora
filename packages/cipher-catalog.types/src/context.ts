@@ -17,7 +17,6 @@ export interface ICipherCatalogContext {
   readonly CRYPT_FILES_DIR: string
   readonly CRYPT_PATH_SALT: string
   readonly MAX_CRYPT_FILE_SIZE: number
-  readonly NONCE_SIZE: number
   readonly PART_CODE_PREFIX: string
   readonly PATH_HASH_ALGORITHM: IHashAlgorithm
 
@@ -69,14 +68,14 @@ export interface ICipherCatalogContext {
   normalizePlainPath(filepath: string): string | never
 
   /**
-   * Get the plain file stat.
-   * @param plainPath
-   */
-  statPlainFile(plainPath: string): Promise<ICipherCatalogStat | undefined>
-
-  /**
    * Get the crypt file stat.
    * @param cryptPath
    */
   statCryptFile(cryptPath: string): Promise<ICipherCatalogStat | undefined>
+
+  /**
+   * Get the plain file stat.
+   * @param plainPath
+   */
+  statPlainFile(plainPath: string): Promise<ICipherCatalogStat | undefined>
 }

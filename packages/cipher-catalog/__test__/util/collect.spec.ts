@@ -1,7 +1,7 @@
 import { text2bytes } from '@guanghechen/byte'
 import type { IDraftCatalogDiffItem } from '@guanghechen/cipher-catalog.types'
 import { FileChangeTypeEnum } from '@guanghechen/cipher-catalog.types'
-import { collectAffectedCryptPaths, collectAffectedPlainPaths } from '../../src'
+import { collectAffectedCryptPaths } from '../../src'
 import { itemTable } from '../_data'
 
 const diffItems: IDraftCatalogDiffItem[] = [
@@ -24,16 +24,10 @@ const diffItems: IDraftCatalogDiffItem[] = [
       keepIntegrity: false,
       keepPlain: true,
       nonce: text2bytes('e31b949dbb18f2ed5decf88d7345c241', 'hex'),
-      ctime: 0,
-      mtime: 0,
       size: 60,
     },
   },
 ]
-
-test('collectAffectedPlainFilepaths', () => {
-  expect(collectAffectedPlainPaths(diffItems)).toEqual(['a.txt', 'b.txt', 'c.txt'])
-})
 
 test('collectAffectedCryptFilepaths', () => {
   expect(collectAffectedCryptPaths(diffItems)).toEqual([

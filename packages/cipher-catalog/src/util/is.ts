@@ -22,8 +22,6 @@ export function areSameDraftCatalogItem(
     oldItem.plainPath === newItem.plainPath &&
     oldItem.fingerprint === newItem.fingerprint &&
     oldItem.size === newItem.size &&
-    oldItem.ctime === newItem.ctime &&
-    oldItem.mtime === newItem.mtime &&
     oldItem.cryptPath === newItem.cryptPath &&
     oldItem.keepIntegrity === newItem.keepIntegrity &&
     oldItem.keepPlain === newItem.keepPlain &&
@@ -42,8 +40,6 @@ export function areSameDeserializedCatalogItem(
     oldItem.plainPath === newItem.plainPath &&
     oldItem.fingerprint === newItem.fingerprint &&
     oldItem.size === newItem.size &&
-    oldItem.ctime === newItem.ctime &&
-    oldItem.mtime === newItem.mtime &&
     oldItem.keepIntegrity === newItem.keepIntegrity &&
     oldItem.keepPlain === newItem.keepPlain &&
     oldItem.cryptPathParts.length === newItem.cryptPathParts.length &&

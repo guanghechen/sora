@@ -35,12 +35,12 @@ export abstract class ReadonlyCipherCatalog implements IReadonlyCipherCatalog {
     const { context } = this
 
     const isPlainPathExist: boolean = await context.isPlainPathExist(plainPath)
-    invariant(isPlainPathExist, `[${title}] Not a file ${plainPath}.`)
+    invariant(isPlainPathExist, `[${title}] Not a file (${plainPath}).`)
 
     const stat = await context.statPlainFile(plainPath)
-    invariant(!!stat, `[${title}] Cannot get the stat of a plain path.`)
+    invariant(!!stat, `[${title}] Cannot get the stat of a plain path (${plainPath}).`)
 
-    const { ctime, mtime, size } = stat
+    const { size } = stat
     const cryptPath: string = await this.calcCryptPath(plainPath)
     const cryptPathParts: string[] = Array.from(
       calcFilePartNames(
@@ -60,8 +60,6 @@ export abstract class ReadonlyCipherCatalog implements IReadonlyCipherCatalog {
       keepIntegrity,
       keepPlain,
       nonce,
-      ctime,
-      mtime,
       size,
     }
     return draftItem
