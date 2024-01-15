@@ -44,3 +44,24 @@ export const resolveLevel = (level_: string | ReporterLevelEnum): ReporterLevelE
     /* c8 ignore stop */
   }
 }
+
+export const retrieveLevelName = (level: ReporterLevelEnum): string => {
+  switch (level) {
+    case ReporterLevelEnum.DEBUG:
+      return 'debug'
+    case ReporterLevelEnum.VERBOSE:
+      return 'verbose'
+    case ReporterLevelEnum.INFO:
+      return 'info'
+    case ReporterLevelEnum.WARN:
+      return 'warn'
+    case ReporterLevelEnum.ERROR:
+      return 'error'
+    case ReporterLevelEnum.FATAL:
+      return 'fatal'
+      /* c8 ignore start */
+    default:
+      return String(level)
+    /* c8 ignore stop */
+  }
+}

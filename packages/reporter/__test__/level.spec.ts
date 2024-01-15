@@ -1,4 +1,4 @@
-import { ReporterLevelEnum, resolveLevel } from '../src'
+import { ReporterLevelEnum, resolveLevel, retrieveLevelName } from '../src'
 
 describe('resolveLevel', () => {
   test('debug', () => {
@@ -41,5 +41,31 @@ describe('resolveLevel', () => {
     expect(resolveLevel('fatal')).toBe(ReporterLevelEnum.FATAL)
     expect(resolveLevel('FATAL')).toBe(ReporterLevelEnum.FATAL)
     expect(resolveLevel(ReporterLevelEnum.FATAL)).toBe(ReporterLevelEnum.FATAL)
+  })
+})
+
+describe('retrieveLevelName', () => {
+  test('debug', () => {
+    expect(retrieveLevelName(ReporterLevelEnum.DEBUG)).toBe('debug')
+  })
+
+  test('verbose', () => {
+    expect(retrieveLevelName(ReporterLevelEnum.VERBOSE)).toBe('verbose')
+  })
+
+  test('info', () => {
+    expect(retrieveLevelName(ReporterLevelEnum.INFO)).toBe('info')
+  })
+
+  test('warn', () => {
+    expect(retrieveLevelName(ReporterLevelEnum.WARN)).toBe('warn')
+  })
+
+  test('error', () => {
+    expect(retrieveLevelName(ReporterLevelEnum.ERROR)).toBe('error')
+  })
+
+  test('fatal', () => {
+    expect(retrieveLevelName(ReporterLevelEnum.FATAL)).toBe('fatal')
   })
 })
