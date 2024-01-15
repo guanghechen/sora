@@ -29,6 +29,14 @@ describe('util', () => {
       'Part size should be a positive integer!',
     )
 
+    expect([...calcFilePartItemsBySize(0, Number.POSITIVE_INFINITY)]).toEqual([
+      { sid: 1, start: 0, end: 0 },
+    ])
+
+    expect([...calcFilePartItemsBySize(100, Number.POSITIVE_INFINITY)]).toEqual([
+      { sid: 1, start: 0, end: 100 },
+    ])
+
     expect([...calcFilePartItemsBySize(100, Number.MAX_SAFE_INTEGER)]).toEqual([
       { sid: 1, start: 0, end: 100 },
     ])

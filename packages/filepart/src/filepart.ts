@@ -12,8 +12,6 @@ export function* calcFilePartItemsBySize(
   fileSize: number,
   partSize: number,
 ): IterableIterator<IFilePartItem> {
-  invariant(partSize >= 1 && Number.isInteger(partSize), 'Part size should be a positive integer!')
-
   if (fileSize <= 0) {
     yield { sid: 1, start: 0, end: 0 }
     return
@@ -23,6 +21,8 @@ export function* calcFilePartItemsBySize(
     yield { sid: 1, start: 0, end: fileSize }
     return
   }
+
+  invariant(partSize >= 1 && Number.isInteger(partSize), 'Part size should be a positive integer!')
 
   const partTotal = Math.ceil(fileSize / partSize)
   invariant(partTotal > 0, 'Part size is too small!')
