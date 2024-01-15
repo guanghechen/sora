@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.3](https://github.com/guanghechen/sora/compare/@guanghechen/filepart@1.0.0-alpha.2...@guanghechen/filepart@1.0.0-alpha.3) (2024-01-15)
+
+
+### Bug Fixes
+
+* 🐛 partSize could be POSITIVE_INFINITY ([e7bd085](https://github.com/guanghechen/sora/commit/e7bd085968177e312a4c4c12739096626f5e8832))
+
+
+
+
+
 # [1.0.0-alpha.2](https://github.com/guanghechen/sora/compare/@guanghechen/filepart@1.0.0-alpha.1...@guanghechen/filepart@1.0.0-alpha.2) (2024-01-02)
 
 **Note:** Version bump only for package @guanghechen/filepart

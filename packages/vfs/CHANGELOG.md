@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.8](https://github.com/guanghechen/sora/compare/@guanghechen/vfs@1.0.0-alpha.7...@guanghechen/vfs@1.0.0-alpha.8) (2024-01-15)
+
+
+### Performance Improvements
+
+* ⬆️ upgrade devDependencies & fix lint ([0cbf676](https://github.com/guanghechen/sora/commit/0cbf6764b1c09388a4b7db6fae4ca72ef928d008))
+
+
+
+
+
 # [1.0.0-alpha.7](https://github.com/guanghechen/sora/compare/@guanghechen/vfs@1.0.0-alpha.6...@guanghechen/vfs@1.0.0-alpha.7) (2024-01-02)
 
 **Note:** Version bump only for package @guanghechen/vfs

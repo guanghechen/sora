@@ -486,7 +486,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/cipher-catalog.types@^1.0.0-alpha.21, @guanghechen/cipher-catalog.types@workspace:packages/cipher-catalog.types":
+"@guanghechen/cipher-catalog.types@^1.0.0-alpha.22, @guanghechen/cipher-catalog.types@workspace:packages/cipher-catalog.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/cipher-catalog.types@workspace:packages/cipher-catalog.types"
   dependencies:
@@ -499,9 +499,9 @@ __metadata:
   resolution: "@guanghechen/cipher-catalog@workspace:packages/cipher-catalog"
   dependencies:
     "@guanghechen/byte": ^1.0.0-alpha.5
-    "@guanghechen/cipher-catalog.types": ^1.0.0-alpha.21
+    "@guanghechen/cipher-catalog.types": ^1.0.0-alpha.22
     "@guanghechen/disposable": ^1.0.0-alpha.1
-    "@guanghechen/filepart": ^1.0.0-alpha.2
+    "@guanghechen/filepart": ^1.0.0-alpha.3
     "@guanghechen/internal": ^1.0.0-alpha.0
     "@guanghechen/mac": ^1.0.0-alpha.4
     "@guanghechen/monitor": ^1.0.0-alpha.25
@@ -618,7 +618,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/file-split@workspace:packages/file-split"
   dependencies:
-    "@guanghechen/filepart": ^1.0.0-alpha.2
+    "@guanghechen/filepart": ^1.0.0-alpha.3
     "@guanghechen/internal": ^1.0.0-alpha.0
     "@guanghechen/stream": ^1.0.0-alpha.10
   languageName: unknown
@@ -630,7 +630,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/filepart@^1.0.0-alpha.2, @guanghechen/filepart@workspace:packages/filepart":
+"@guanghechen/filepart@^1.0.0-alpha.3, @guanghechen/filepart@workspace:packages/filepart":
   version: 0.0.0-use.local
   resolution: "@guanghechen/filepart@workspace:packages/filepart"
   dependencies:
@@ -976,7 +976,7 @@ __metadata:
   resolution: "@guanghechen/vfs@workspace:packages/vfs"
   dependencies:
     "@guanghechen/disposable": ^1.0.0-alpha.1
-    "@guanghechen/filepart": ^1.0.0-alpha.2
+    "@guanghechen/filepart": ^1.0.0-alpha.3
     "@guanghechen/path": ^1.0.0-alpha.14
     "@guanghechen/reporter.types": ^1.0.0-alpha.9
     "@guanghechen/stream": ^1.0.0-alpha.10
