@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.25](https://github.com/guanghechen/sora/compare/@guanghechen/reporter@1.0.0-alpha.24...@guanghechen/reporter@1.0.0-alpha.25) (2024-01-15)
+
+
+### Features
+
+* 🎨 add retrieveLevelName ([27d396f](https://github.com/guanghechen/sora/commit/27d396faa339909a1c49b88ef03a2171e4fc29c4))
+
+
+
+
+
 # [1.0.0-alpha.24](https://github.com/guanghechen/sora/compare/@guanghechen/reporter@1.0.0-alpha.23...@guanghechen/reporter@1.0.0-alpha.24) (2024-01-02)
 
 
