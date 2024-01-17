@@ -1,3 +1,12 @@
+export interface IPathResolverParams {
+  /**
+   * Default value of the 'relative' params, if enabled, will replace all '\\' to '/'.
+   * @default false
+   */
+  preferSlash?: boolean
+}
+
+
 export interface IPathResolver {
   /**
    * Return the last portion of a path.

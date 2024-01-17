@@ -1,9 +1,15 @@
-import type { IPathResolver } from '@guanghechen/path.types'
+import type { IPathResolver, IPathResolverParams } from '@guanghechen/path.types'
 import path from 'node:path'
 
 const clazz: string = 'PathResolver'
 
 export class PathResolver implements IPathResolver {
+  protected readonly defaultPreferSlash: boolean
+
+  constructor(params: IPathResolverParams = {}) {
+    this.defaultPreferSlash = params.preferSlash ?? false
+  }
+
   public basename(filepath: string): string {
     this.ensureAbsolute(filepath)
     const p: string = this.normalize(filepath)
@@ -58,14 +64,16 @@ export class PathResolver implements IPathResolver {
     return this._internalNormalize(filepath)
   }
 
-  public relative(from: string, to: string, preferSlash: boolean = false): string | never {
+  public relative(from: string, to: string, preferSlash_?: boolean): string | never {
+    const preferSlash: boolean = preferSlash_ ?? this.defaultPreferSlash
     this.ensureAbsolute(from, `[${clazz}.relative] from is not an absolute path: ${from}`)
     this.ensureAbsolute(to, `[${clazz}.relative] to is not an absolute path: ${to}`)
     const relativePath: string = this._internalRelative(from, to)
     return preferSlash ? relativePath.replaceAll('\\', '/') : relativePath
   }
 
-  public safeRelative(root: string, filepath: string, preferSlash: boolean = false): string {
+  public safeRelative(root: string, filepath: string, preferSlash_?: boolean): string {
+    const preferSlash: boolean = preferSlash_ ?? this.defaultPreferSlash
     this.ensureSafeRelative(root, filepath)
     const relativePath: string = this._internalSafeRelative(root, filepath)
     return preferSlash ? relativePath.replaceAll('\\', '/') : relativePath
