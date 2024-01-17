@@ -42,11 +42,11 @@ describe('MemoTextResource', () => {
       await resource.destroy()
       await assertPromiseThrow(
         () => resource.save(content),
-        '[MemoTextResource.save] the resource has been destroyed.'
+        '[MemoTextResource.save] the resource has been destroyed.',
       )
       await assertPromiseThrow(
         () => resource.load(),
-        '[MemoTextResource.load] the resource has been destroyed.'
+        '[MemoTextResource.load] the resource has been destroyed.',
       )
     })
   })

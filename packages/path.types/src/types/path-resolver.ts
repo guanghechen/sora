@@ -6,7 +6,6 @@ export interface IPathResolverParams {
   preferSlash?: boolean
 }
 
-
 export interface IPathResolver {
   /**
    * Return the last portion of a path.

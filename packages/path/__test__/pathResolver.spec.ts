@@ -66,7 +66,7 @@ if (path.sep === '/') {
     let pathResolver: IPathResolver
 
     beforeEach(() => {
-      pathResolver = new PathResolver({preferSlash: true})
+      pathResolver = new PathResolver({ preferSlash: true })
     })
 
     test('basename', () => {

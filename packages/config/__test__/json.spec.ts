@@ -175,7 +175,7 @@ function testJsonConfigKeeper<Instance, Data>(params: {
 
   const writeData = async (version: string, data: Data): Promise<void> => {
     const content: string = await wrapData(version, data)
-    await writeFile(configFilepath, content, 'utf8',)
+    await writeFile(configFilepath, content, 'utf8')
   }
 
   test('load', async () => {
@@ -241,7 +241,6 @@ function testJsonConfigKeeper<Instance, Data>(params: {
       '[BaseConfigKeeper.load] Bad config, invalid fields',
     )
     expect(keeper.data).toEqual(undefined)
-
 
     const content1: string = await wrapData('3.2.3', data.alice)
     await assertPromiseThrow(

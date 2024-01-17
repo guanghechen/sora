@@ -48,8 +48,8 @@
       "@guanghechen/vfs": ["packages/vfs/src"],
       "@guanghechen/vfs.types": ["packages/vfs.types/src"],
       "@guanghechen/viewmodel": ["packages/viewmodel/src"],
-      "@guanghechen/viewmodel.types": ["packages/viewmodel.types/src"]
-    }
+      "@guanghechen/viewmodel.types": ["packages/viewmodel.types/src"],
+    },
   },
-  "exclude": ["**/__test__/fixtures"]
+  "exclude": ["**/__test__/fixtures"],
 }

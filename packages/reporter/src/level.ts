@@ -59,7 +59,7 @@ export const retrieveLevelName = (level: ReporterLevelEnum): string => {
       return 'error'
     case ReporterLevelEnum.FATAL:
       return 'fatal'
-      /* c8 ignore start */
+    /* c8 ignore start */
     default:
       return String(level)
     /* c8 ignore stop */
