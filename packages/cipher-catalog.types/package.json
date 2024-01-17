@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/cipher-catalog.types",
-  "version": "1.0.0-alpha.22",
+  "version": "1.0.0-alpha.23",
   "description": "types of @guanghechen/cipher-catalog",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher-catalog.types@1.0.0-alpha.22/packages/cipher-catalog.types@1.0.0-alpha.0",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher-catalog.types@1.0.0-alpha.23/packages/cipher-catalog.types@1.0.0-alpha.0",
     "directory": "packages/packages/cipher-catalog.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher-catalog.types@1.0.0-alpha.22/packages/cipher-catalog.types@1.0.0-alpha.0/packages/packages/cipher-catalog.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/cipher-catalog.types@1.0.0-alpha.23/packages/cipher-catalog.types@1.0.0-alpha.0/packages/packages/cipher-catalog.types#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -39,6 +39,6 @@
     "prepublishOnly": "yarn build"
   },
   "dependencies": {
-    "@guanghechen/path.types": "^1.0.0-alpha.11"
+    "@guanghechen/path.types": "^1.0.0-alpha.12"
   }
 }

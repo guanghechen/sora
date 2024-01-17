@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.12](https://github.com/guanghechen/sora/compare/@guanghechen/path.types@1.0.0-alpha.11...@guanghechen/path.types@1.0.0-alpha.12) (2024-01-17)
+
+
+### Performance Improvements
+
+* 🎨 support preferSlash option ([cf67725](https://github.com/guanghechen/sora/commit/cf67725983902912d31033bdd652ea8dbb36dd3b))
+
+
+
+
+
 # [1.0.0-alpha.11](https://github.com/guanghechen/sora/compare/@guanghechen/path.types@1.0.0-alpha.10...@guanghechen/path.types@1.0.0-alpha.11) (2023-12-04)
 
 

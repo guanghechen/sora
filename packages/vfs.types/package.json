@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/vfs.types",
-  "version": "1.0.0-alpha.6",
+  "version": "1.0.0-alpha.7",
   "description": "Virtual file system types",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/vfs.types@1.0.0-alpha.6",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/vfs.types@1.0.0-alpha.7",
     "directory": "packages/vfs.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/vfs.types@1.0.0-alpha.6/packages/vfs.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/vfs.types@1.0.0-alpha.7/packages/vfs.types#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -40,6 +40,6 @@
   },
   "dependencies": {
     "@guanghechen/disposable.types": "^1.0.0-alpha.1",
-    "@guanghechen/path.types": "^1.0.0-alpha.11"
+    "@guanghechen/path.types": "^1.0.0-alpha.12"
   }
 }
