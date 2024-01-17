@@ -38,6 +38,12 @@ export interface ICipherCatalogContext {
   isCryptPathExist(cryptPath: string): Promise<boolean>
 
   /**
+   * Check if the given path is a good relative path. (only with slashes instead of back-slash)
+   * @param cryptOrPlainPath
+   */
+  isGoodPath(cryptOrPlainPath: string): boolean
+
+  /**
    * Check if the content in the given relativePlainFilepath should be kept integrity.
    * @param plainPath
    */

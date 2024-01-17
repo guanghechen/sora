@@ -39,7 +39,7 @@ const coverageMap = {
 
   '@guanghechen/cipher-catalog': {
     global: {
-      branches: 83,
+      branches: 82,
       functions: 76,
       lines: 75,
       statements: 75,

@@ -31,6 +31,8 @@ export abstract class ReadonlyCipherCatalog implements IReadonlyCipherCatalog {
 
   // @override
   public async calcCatalogItem(plainPath: string): Promise<IDraftCatalogItem | never> {
+    this._ensureGoodPath(plainPath)
+
     const title = `${clazz}.calcCatalogItem`
     const { context } = this
 
@@ -67,6 +69,8 @@ export abstract class ReadonlyCipherCatalog implements IReadonlyCipherCatalog {
 
   // @override
   public async calcCryptPath(plainPath: string): Promise<string> {
+    this._ensureGoodPath(plainPath)
+
     const { context } = this
     const isPlainFileKeepPlain: boolean = await context.isKeepPlain(plainPath)
     if (isPlainFileKeepPlain) return plainPath
@@ -90,6 +94,7 @@ export abstract class ReadonlyCipherCatalog implements IReadonlyCipherCatalog {
 
     const checkCryptPathWithoutPart = async (item: ICatalogItem): Promise<void> => {
       const cryptPath: string = item.cryptPath
+      this._ensureGoodPath(item.cryptPath)
 
       if (!allCryptPaths.has(cryptPath)) {
         errors.push(`[${title}] Unexpected cryptPath. (${cryptPath})`)
@@ -179,6 +184,7 @@ export abstract class ReadonlyCipherCatalog implements IReadonlyCipherCatalog {
 
     const checkPlainPath = async (item: ICatalogItem): Promise<void> => {
       const plainPath: string = item.plainPath
+      this._ensureGoodPath(plainPath)
 
       if (!allPlainPaths.has(plainPath)) {
         errors.push(`[${title}] Unexpected plainPath. (${plainPath})`)
@@ -232,10 +238,11 @@ export abstract class ReadonlyCipherCatalog implements IReadonlyCipherCatalog {
 
   // @override
   public diffFromPlainFiles(
-    plainFilepaths: string[],
+    plainPaths: ReadonlyArray<string>,
     strickCheck: boolean,
   ): Promise<IDraftCatalogDiffItem[]> {
-    return diffFromPlainFiles(this, this.itemMap, plainFilepaths, strickCheck)
+    for (const plainPath of plainPaths) this._ensureGoodPath(plainPath)
+    return diffFromPlainFiles(this, this.itemMap, plainPaths, strickCheck)
   }
 
   // @override
@@ -248,17 +255,25 @@ export abstract class ReadonlyCipherCatalog implements IReadonlyCipherCatalog {
 
   // @override
   public async flatItem(item: IDeserializedCatalogItem): Promise<ICatalogItem> {
+    this._ensureGoodPath(item.plainPath)
     const cryptPath: string = await this.calcCryptPath(item.plainPath)
     return { ...item, cryptPath }
   }
 
   // @override
   public get(plainPath: string): ICatalogItem | undefined {
+    this._ensureGoodPath(plainPath)
     return this.itemMap.get(plainPath)
   }
 
   // @override
   public has(plainPath: string): boolean {
+    this._ensureGoodPath(plainPath)
     return this.itemMap.has(plainPath)
+  }
+
+  protected _ensureGoodPath(cryptOrPlainPath: string): void | never {
+    if (this.context.isGoodPath(cryptOrPlainPath)) return
+    throw new Error(`[${clazz}._ensureGoodPath] bad path. (${cryptOrPlainPath})`)
   }
 }

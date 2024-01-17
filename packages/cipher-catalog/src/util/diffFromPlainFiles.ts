@@ -19,7 +19,7 @@ import { areSameDraftCatalogItem } from './is'
 export async function diffFromPlainFiles(
   catalog: IReadonlyCipherCatalog,
   oldItemMap: ReadonlyMap<string, ICatalogItem>,
-  plainPaths: string[],
+  plainPaths: ReadonlyArray<string>,
   strickCheck: boolean,
 ): Promise<IDraftCatalogDiffItem[]> {
   const title = `diffFromPlainFiles`

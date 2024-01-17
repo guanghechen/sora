@@ -63,6 +63,8 @@ export class CipherCatalog extends ReadonlyCipherCatalog implements ICipherCatal
 
   // @override
   public insertOrUpdate(item: ICatalogItem): void {
+    this._ensureGoodPath(item.plainPath)
+    this._ensureGoodPath(item.cryptPath)
     const newItem: ICatalogItem = {
       plainPath: item.plainPath,
       cryptPath: item.cryptPath,
@@ -87,6 +89,7 @@ export class CipherCatalog extends ReadonlyCipherCatalog implements ICipherCatal
 
   // @override
   public remove(plainPath: string): void {
+    this._ensureGoodPath(plainPath)
     if (this.#itemMap.has(plainPath)) {
       this.#itemMap.delete(plainPath)
       this._monitorItemChanged.notify({ type: CatalogItemChangeType.REMOVE, plainPath })

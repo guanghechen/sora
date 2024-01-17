@@ -62,7 +62,10 @@ export interface IReadonlyCipherCatalog {
    * @param strickCheck     Wether if to check some edge cases that shouldn't affect the final result,
    *                        just for higher integrity check.
    */
-  diffFromPlainFiles(plainPaths: string[], strickCheck: boolean): Promise<IDraftCatalogDiffItem[]>
+  diffFromPlainFiles(
+    plainPaths: ReadonlyArray<string>,
+    strickCheck: boolean,
+  ): Promise<IDraftCatalogDiffItem[]>
 
   /**
    * Find a catalog item which matched the given filter.

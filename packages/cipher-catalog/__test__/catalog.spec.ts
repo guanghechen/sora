@@ -69,7 +69,9 @@ describe('CipherCatalog', () => {
         const absoluteCryptPath: string = cryptPathResolver.resolve(cryptPath)
         return isFileSync(absoluteCryptPath)
       },
-      isKeepPlain: async sourceFilepath => sourceFilepath === 'a.txt',
+      isGoodPath: cryptOrPlainPath =>
+        !pathResolver.isAbsolute(cryptOrPlainPath) && !cryptOrPlainPath.includes('\\'),
+      isKeepPlain: async plainPath => plainPath === 'a.txt',
       isKeepIntegrity: async () => false,
       isPlainPathExist: async (plainPath: string): Promise<boolean> => {
         const absolutePlainPath: string = plainPathResolver.resolve(plainPath)
