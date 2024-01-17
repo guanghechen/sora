@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/vfs",
-  "version": "1.0.0-alpha.9",
+  "version": "1.0.0-alpha.10",
   "description": "An implementation of virtual file system.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/vfs@1.0.0-alpha.9",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/vfs@1.0.0-alpha.10",
     "directory": "packages/vfs"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/vfs@1.0.0-alpha.9/packages/vfs#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/vfs@1.0.0-alpha.10/packages/vfs#readme",
   "keywords": [
     "vfs-local",
     "vfs-local helper"
@@ -46,10 +46,10 @@
   "dependencies": {
     "@guanghechen/disposable": "^1.0.0-alpha.1",
     "@guanghechen/filepart": "^1.0.0-alpha.3",
-    "@guanghechen/path": "^1.0.0-alpha.15",
+    "@guanghechen/path": "^1.0.0-alpha.16",
     "@guanghechen/reporter.types": "^1.0.0-alpha.9",
     "@guanghechen/stream": "^1.0.0-alpha.10",
-    "@guanghechen/vfs.types": "^1.0.0-alpha.7",
+    "@guanghechen/vfs.types": "^1.0.0-alpha.8",
     "chokidar": "^3.5.3"
   }
 }

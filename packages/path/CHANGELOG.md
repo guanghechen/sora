@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.16](https://github.com/guanghechen/sora/compare/@guanghechen/path@1.0.0-alpha.15...@guanghechen/path@1.0.0-alpha.16) (2024-01-17)
+
+
+### Performance Improvements
+
+* ⬆️ fix dependencies & fix lint ([b94c1da](https://github.com/guanghechen/sora/commit/b94c1dab2352201f11022e7aa5820c9da149cbb7))
+
+
+
+
+
 # [1.0.0-alpha.15](https://github.com/guanghechen/sora/compare/@guanghechen/path@1.0.0-alpha.14...@guanghechen/path@1.0.0-alpha.15) (2024-01-17)
 
 

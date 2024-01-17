@@ -486,11 +486,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/cipher-catalog.types@^1.0.0-alpha.23, @guanghechen/cipher-catalog.types@workspace:packages/cipher-catalog.types":
+"@guanghechen/cipher-catalog.types@^1.0.0-alpha.24, @guanghechen/cipher-catalog.types@workspace:packages/cipher-catalog.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/cipher-catalog.types@workspace:packages/cipher-catalog.types"
   dependencies:
-    "@guanghechen/path.types": ^1.0.0-alpha.12
+    "@guanghechen/path.types": ^1.0.0-alpha.13
   languageName: unknown
   linkType: soft
 
@@ -499,7 +499,7 @@ __metadata:
   resolution: "@guanghechen/cipher-catalog@workspace:packages/cipher-catalog"
   dependencies:
     "@guanghechen/byte": ^1.0.0-alpha.5
-    "@guanghechen/cipher-catalog.types": ^1.0.0-alpha.23
+    "@guanghechen/cipher-catalog.types": ^1.0.0-alpha.24
     "@guanghechen/disposable": ^1.0.0-alpha.1
     "@guanghechen/filepart": ^1.0.0-alpha.3
     "@guanghechen/internal": ^1.0.0-alpha.0
@@ -761,17 +761,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/path.types@^1.0.0-alpha.12, @guanghechen/path.types@workspace:packages/path.types":
+"@guanghechen/path.types@^1.0.0-alpha.13, @guanghechen/path.types@workspace:packages/path.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/path.types@workspace:packages/path.types"
   languageName: unknown
   linkType: soft
 
-"@guanghechen/path@^1.0.0-alpha.15, @guanghechen/path@workspace:packages/path":
+"@guanghechen/path@^1.0.0-alpha.16, @guanghechen/path@workspace:packages/path":
   version: 0.0.0-use.local
   resolution: "@guanghechen/path@workspace:packages/path"
   dependencies:
-    "@guanghechen/path.types": ^1.0.0-alpha.12
+    "@guanghechen/path.types": ^1.0.0-alpha.13
   languageName: unknown
   linkType: soft
 
@@ -962,12 +962,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/vfs.types@^1.0.0-alpha.7, @guanghechen/vfs.types@workspace:packages/vfs.types":
+"@guanghechen/vfs.types@^1.0.0-alpha.8, @guanghechen/vfs.types@workspace:packages/vfs.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/vfs.types@workspace:packages/vfs.types"
   dependencies:
     "@guanghechen/disposable.types": ^1.0.0-alpha.1
-    "@guanghechen/path.types": ^1.0.0-alpha.12
+    "@guanghechen/path.types": ^1.0.0-alpha.13
   languageName: unknown
   linkType: soft
 
@@ -977,10 +977,10 @@ __metadata:
   dependencies:
     "@guanghechen/disposable": ^1.0.0-alpha.1
     "@guanghechen/filepart": ^1.0.0-alpha.3
-    "@guanghechen/path": ^1.0.0-alpha.15
+    "@guanghechen/path": ^1.0.0-alpha.16
     "@guanghechen/reporter.types": ^1.0.0-alpha.9
     "@guanghechen/stream": ^1.0.0-alpha.10
-    "@guanghechen/vfs.types": ^1.0.0-alpha.7
+    "@guanghechen/vfs.types": ^1.0.0-alpha.8
     chokidar: ^3.5.3
   languageName: unknown
   linkType: soft
