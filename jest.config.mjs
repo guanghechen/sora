@@ -37,22 +37,6 @@ const coverageMap = {
   },
   //-----------//
 
-  '@guanghechen/cipher-catalog': {
-    global: {
-      branches: 82,
-      functions: 76,
-      lines: 75,
-      statements: 75,
-    },
-  },
-  '@guanghechen/filetree': {
-    global: {
-      branches: 92,
-      functions: 90,
-      lines: 81,
-      statements: 81,
-    },
-  },
   '@guanghechen/path': {
     'src/PathResolver.ts': { branches: 90 },
     'src/UrlPathResolver.ts': { branches: 97 },
@@ -63,14 +47,6 @@ const coverageMap = {
       functions: 43,
       lines: 78,
       statements: 78,
-    },
-  },
-  '@guanghechen/vfs': {
-    global: {
-      branches: 75,
-      functions: 65,
-      lines: 82,
-      statements: 82,
     },
   },
   '@guanghechen/viewmodel': {
