@@ -486,45 +486,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/cipher-catalog.types@^1.0.0-alpha.24, @guanghechen/cipher-catalog.types@workspace:packages/cipher-catalog.types":
-  version: 0.0.0-use.local
-  resolution: "@guanghechen/cipher-catalog.types@workspace:packages/cipher-catalog.types"
-  dependencies:
-    "@guanghechen/path.types": ^1.0.0-alpha.13
-  languageName: unknown
-  linkType: soft
-
-"@guanghechen/cipher-catalog@workspace:packages/cipher-catalog":
-  version: 0.0.0-use.local
-  resolution: "@guanghechen/cipher-catalog@workspace:packages/cipher-catalog"
-  dependencies:
-    "@guanghechen/byte": ^1.0.0-alpha.5
-    "@guanghechen/cipher-catalog.types": ^1.0.0-alpha.24
-    "@guanghechen/disposable": ^1.0.0-alpha.1
-    "@guanghechen/filepart": ^1.0.0-alpha.3
-    "@guanghechen/internal": ^1.0.0-alpha.0
-    "@guanghechen/mac": ^1.0.0-alpha.4
-    "@guanghechen/monitor": ^1.0.0-alpha.25
-  languageName: unknown
-  linkType: soft
-
-"@guanghechen/cipher.types@^1.0.0-alpha.10, @guanghechen/cipher.types@workspace:packages/cipher.types":
-  version: 0.0.0-use.local
-  resolution: "@guanghechen/cipher.types@workspace:packages/cipher.types"
-  languageName: unknown
-  linkType: soft
-
-"@guanghechen/cipher@workspace:packages/cipher":
-  version: 0.0.0-use.local
-  resolution: "@guanghechen/cipher@workspace:packages/cipher"
-  dependencies:
-    "@guanghechen/byte": ^1.0.0-alpha.5
-    "@guanghechen/cipher.types": ^1.0.0-alpha.10
-    "@guanghechen/internal": ^1.0.0-alpha.0
-    "@guanghechen/mac": ^1.0.0-alpha.4
-  languageName: unknown
-  linkType: soft
-
 "@guanghechen/config.types@^1.0.0-alpha.5, @guanghechen/config.types@workspace:packages/config.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/config.types@workspace:packages/config.types"
@@ -639,21 +600,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/filetree.types@^1.0.0-alpha.11, @guanghechen/filetree.types@workspace:packages/filetree.types":
-  version: 0.0.0-use.local
-  resolution: "@guanghechen/filetree.types@workspace:packages/filetree.types"
-  languageName: unknown
-  linkType: soft
-
-"@guanghechen/filetree@workspace:packages/filetree":
-  version: 0.0.0-use.local
-  resolution: "@guanghechen/filetree@workspace:packages/filetree"
-  dependencies:
-    "@guanghechen/filetree.types": ^1.0.0-alpha.11
-    uuid: ^9.0.1
-  languageName: unknown
-  linkType: soft
-
 "@guanghechen/helper-fs@npm:^6.0.0-alpha.6":
   version: 6.0.0-alpha.6
   resolution: "@guanghechen/helper-fs@npm:6.0.0-alpha.6"
@@ -726,11 +672,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/mac@^1.0.0-alpha.4, @guanghechen/mac@workspace:packages/mac":
-  version: 0.0.0-use.local
-  resolution: "@guanghechen/mac@workspace:packages/mac"
-  languageName: unknown
-  linkType: soft
+"@guanghechen/mac@npm:^1.0.0-alpha.4":
+  version: 1.0.0-alpha.5
+  resolution: "@guanghechen/mac@npm:1.0.0-alpha.5"
+  checksum: 11c3fb1b567d02a3bbc8cae1f8d5e66a34efecbef9eca515596b02a6f96a4569c90f6abc60326d937adb7c233a833e7212be46eb855a545359d2403705d6b945
+  languageName: node
+  linkType: hard
 
 "@guanghechen/middleware.types@^1.0.0-alpha.6, @guanghechen/middleware.types@workspace:packages/middleware.types":
   version: 0.0.0-use.local
@@ -767,7 +714,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/path@^1.0.0-alpha.16, @guanghechen/path@workspace:packages/path":
+"@guanghechen/path@workspace:packages/path":
   version: 0.0.0-use.local
   resolution: "@guanghechen/path@workspace:packages/path"
   dependencies:
@@ -959,29 +906,6 @@ __metadata:
 "@guanghechen/types@^1.0.0-alpha.9, @guanghechen/types@workspace:packages/types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/types@workspace:packages/types"
-  languageName: unknown
-  linkType: soft
-
-"@guanghechen/vfs.types@^1.0.0-alpha.8, @guanghechen/vfs.types@workspace:packages/vfs.types":
-  version: 0.0.0-use.local
-  resolution: "@guanghechen/vfs.types@workspace:packages/vfs.types"
-  dependencies:
-    "@guanghechen/disposable.types": ^1.0.0-alpha.1
-    "@guanghechen/path.types": ^1.0.0-alpha.13
-  languageName: unknown
-  linkType: soft
-
-"@guanghechen/vfs@workspace:packages/vfs":
-  version: 0.0.0-use.local
-  resolution: "@guanghechen/vfs@workspace:packages/vfs"
-  dependencies:
-    "@guanghechen/disposable": ^1.0.0-alpha.1
-    "@guanghechen/filepart": ^1.0.0-alpha.3
-    "@guanghechen/path": ^1.0.0-alpha.16
-    "@guanghechen/reporter.types": ^1.0.0-alpha.9
-    "@guanghechen/stream": ^1.0.0-alpha.10
-    "@guanghechen/vfs.types": ^1.0.0-alpha.8
-    chokidar: ^3.5.3
   languageName: unknown
   linkType: soft
 
@@ -2779,7 +2703,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"anymatch@npm:^3.0.3, anymatch@npm:~3.1.2":
+"anymatch@npm:^3.0.3":
   version: 3.1.3
   resolution: "anymatch@npm:3.1.3"
   dependencies:
@@ -3068,13 +2992,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"binary-extensions@npm:^2.0.0":
-  version: 2.2.0
-  resolution: "binary-extensions@npm:2.2.0"
-  checksum: ccd267956c58d2315f5d3ea6757cf09863c5fc703e50fbeb13a7dc849b812ef76e3cf9ca8f35a0c48498776a7478d7b4a0418e1e2b8cb9cb9731f2922aaad7f8
-  languageName: node
-  linkType: hard
-
 "bl@npm:^4.0.3, bl@npm:^4.1.0":
   version: 4.1.0
   resolution: "bl@npm:4.1.0"
@@ -3105,7 +3022,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"braces@npm:^3.0.2, braces@npm:~3.0.2":
+"braces@npm:^3.0.2":
   version: 3.0.2
   resolution: "braces@npm:3.0.2"
   dependencies:
@@ -3332,25 +3249,6 @@ __metadata:
   version: 0.7.0
   resolution: "chardet@npm:0.7.0"
   checksum: 6fd5da1f5d18ff5712c1e0aed41da200d7c51c28f11b36ee3c7b483f3696dabc08927fc6b227735eb8f0e1215c9a8abd8154637f3eff8cada5959df7f58b024d
-  languageName: node
-  linkType: hard
-
-"chokidar@npm:^3.5.3":
-  version: 3.5.3
-  resolution: "chokidar@npm:3.5.3"
-  dependencies:
-    anymatch: ~3.1.2
-    braces: ~3.0.2
-    fsevents: ~2.3.2
-    glob-parent: ~5.1.2
-    is-binary-path: ~2.1.0
-    is-glob: ~4.0.1
-    normalize-path: ~3.0.0
-    readdirp: ~3.6.0
-  dependenciesMeta:
-    fsevents:
-      optional: true
-  checksum: b49fcde40176ba007ff361b198a2d35df60d9bb2a5aab228279eb810feae9294a6b4649ab15981304447afe1e6ffbf4788ad5db77235dc770ab777c6e771980c
   languageName: node
   linkType: hard
 
@@ -5055,7 +4953,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob-parent@npm:5.1.2, glob-parent@npm:^5.1.2, glob-parent@npm:~5.1.2":
+"glob-parent@npm:5.1.2, glob-parent@npm:^5.1.2":
   version: 5.1.2
   resolution: "glob-parent@npm:5.1.2"
   dependencies:
@@ -5641,15 +5539,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-binary-path@npm:~2.1.0":
-  version: 2.1.0
-  resolution: "is-binary-path@npm:2.1.0"
-  dependencies:
-    binary-extensions: ^2.0.0
-  checksum: 84192eb88cff70d320426f35ecd63c3d6d495da9d805b19bc65b518984b7c0760280e57dbf119b7e9be6b161784a5a673ab2c6abe83abb5198a432232ad5b35c
-  languageName: node
-  linkType: hard
-
 "is-boolean-object@npm:^1.1.0":
   version: 1.1.2
   resolution: "is-boolean-object@npm:1.1.2"
@@ -5751,7 +5640,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-glob@npm:^4.0.0, is-glob@npm:^4.0.1, is-glob@npm:^4.0.3, is-glob@npm:~4.0.1":
+"is-glob@npm:^4.0.0, is-glob@npm:^4.0.1, is-glob@npm:^4.0.3":
   version: 4.0.3
   resolution: "is-glob@npm:4.0.3"
   dependencies:
@@ -7574,7 +7463,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"normalize-path@npm:^3.0.0, normalize-path@npm:~3.0.0":
+"normalize-path@npm:^3.0.0":
   version: 3.0.0
   resolution: "normalize-path@npm:3.0.0"
   checksum: 88eeb4da891e10b1318c4b2476b6e2ecbeb5ff97d946815ffea7794c31a89017c70d7f34b3c2ebf23ef4e9fc9fb99f7dffe36da22011b5b5c6ffa34f4873ec20
@@ -8292,7 +8181,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"picomatch@npm:^2.0.4, picomatch@npm:^2.2.1, picomatch@npm:^2.2.3, picomatch@npm:^2.3.1":
+"picomatch@npm:^2.0.4, picomatch@npm:^2.2.3, picomatch@npm:^2.3.1":
   version: 2.3.1
   resolution: "picomatch@npm:2.3.1"
   checksum: 050c865ce81119c4822c45d3c84f1ced46f93a0126febae20737bd05ca20589c564d6e9226977df859ed5e03dc73f02584a2b0faad36e896936238238b0446cf
@@ -8631,15 +8520,6 @@ __metadata:
     string_decoder: ~1.1.1
     util-deprecate: ~1.0.1
   checksum: 65645467038704f0c8aaf026a72fbb588a9e2ef7a75cd57a01702ee9db1c4a1e4b03aaad36861a6a0926546a74d174149c8c207527963e0c2d3eee2f37678a42
-  languageName: node
-  linkType: hard
-
-"readdirp@npm:~3.6.0":
-  version: 3.6.0
-  resolution: "readdirp@npm:3.6.0"
-  dependencies:
-    picomatch: ^2.2.1
-  checksum: 1ced032e6e45670b6d7352d71d21ce7edf7b9b928494dcaba6f11fba63180d9da6cd7061ebc34175ffda6ff529f481818c962952004d273178acd70f7059b320
   languageName: node
   linkType: hard
 
@@ -10074,7 +9954,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^9.0.0, uuid@npm:^9.0.1":
+"uuid@npm:^9.0.0":
   version: 9.0.1
   resolution: "uuid@npm:9.0.1"
   bin:
