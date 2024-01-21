@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.14](https://github.com/guanghechen/sora/compare/@guanghechen/config@1.0.0-alpha.13...@guanghechen/config@1.0.0-alpha.14) (2024-01-21)
+
+### Performance Improvements
+
+- 💄 fix lint
+  ([2d5bb6f](https://github.com/guanghechen/sora/commit/2d5bb6f03d0312a42c1117d95181df8b69de827a))
+- 🎨 remove @guanghechen/mac
+  ([5bde7d0](https://github.com/guanghechen/sora/commit/5bde7d0aa38fa648518804c1c30662fe4bbfa6ac))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [1.0.0-alpha.13](https://github.com/guanghechen/sora/compare/@guanghechen/config@1.0.0-alpha.12...@guanghechen/config@1.0.0-alpha.13) (2024-01-20)
 
 ### Features
