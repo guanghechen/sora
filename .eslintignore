@@ -1,26 +1,18 @@
-**/*.*
-!**/*.ts
-!**/*.cts
-!**/*.mts
-!**/*.js
-!**/*.cjs
-!**/*.mjs
-!**/*.json
-!**/*.types
-!.eslintignore
-!.eslintrc
+.DS_Store
+.eslintignore
+.prettierignore
 
-**/resource/
-!packages/resource/
+**/*.hbs
 
-**/.vscode/
-**/__tmp__/
-**/__test__/cases/
-**/__test__/fixtures/
+**/resource
+!packages/resource
+
+**/.yarn/
 **/coverage/
 **/dist/
 **/doc/
-**/example/
 **/lib/
 **/node_modules/
-**/test/
+**/resource/
+**/__test__/cases/
+**/__test__/fixtures/

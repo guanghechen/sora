@@ -51,16 +51,15 @@
 
 Utilities for handing node streams.
 
-
 ## Install
 
-* npm
+- npm
 
   ```bash
   npm install --save @guanghechen/stream
   ```
 
-* yarn
+- yarn
 
   ```bash
   yarn add @guanghechen/stream
@@ -68,18 +67,17 @@ Utilities for handing node streams.
 
 ## Usage
 
-Name              | Description
-:----------------:|:----------------------------------------------------------:
-`concatStreams`   | Concatenate readable streams to async iterator.
-`consumeStream`   | Consume readable stream. 
-`consumeStreams`  | Consume Consume multiple streams serially.
-`mergeStreams`    | Merge multiple readable streams into one readable streams.
-`stream2buffer`   | Consume read stream and encode the contents into buffer.
-
+|       Name       |                        Description                         |
+| :--------------: | :--------------------------------------------------------: |
+| `concatStreams`  |      Concatenate readable streams to async iterator.       |
+| `consumeStream`  |                  Consume readable stream.                  |
+| `consumeStreams` |         Consume Consume multiple streams serially.         |
+|  `mergeStreams`  | Merge multiple readable streams into one readable streams. |
+| `stream2buffer`  |  Consume read stream and encode the contents into buffer.  |
 
 ## Example
 
-* Basic.
+- Basic.
 
   ```typescript
   import { consumeStreams } from '@guanghechen/stream'
@@ -91,8 +89,7 @@ Name              | Description
   await consumeStreams(readers, writer)
   ```
 
-
-* Middlewares, i.e., cipher data before output.
+- Middlewares, i.e., cipher data before output.
 
   ```typescript
   import { consumeStreams } from '@guanghechen/stream'
@@ -109,5 +106,5 @@ Name              | Description
   await consumeStreams(readers, writer, cipher)
   ```
 
-
-[homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/stream@1.0.0-alpha.10/packages/stream#readme
+[homepage]:
+  https://github.com/guanghechen/sora/tree/@guanghechen/stream@1.0.0-alpha.10/packages/stream#readme

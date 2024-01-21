@@ -49,19 +49,18 @@
 </header>
 <br/>
 
-A collection of utility functions for handling files, such as split big file or
-merge multiple small files.
-
+A collection of utility functions for handling files, such as split big file or merge multiple small
+files.
 
 ## Install
 
-* npm
+- npm
 
   ```bash
   npm install --save @guanghechen/file-split
   ```
 
-* yarn
+- yarn
 
   ```bash
   yarn add @guanghechen/file-split
@@ -69,13 +68,13 @@ merge multiple small files.
 
 ## Usage
 
-* `BigFileHelper` (inspired by [file-split][])
+- `BigFileHelper` (inspired by [file-split][])
 
   ```typescript
   import { bigFileHelper, calcFilePartItemsBySize } from '@guanghechen/file-split'
 
   async function splitFile(filepath: string): Promise<string[]> {
-    const parts = calcFilePartItemsBySize(filepath, 1024 * 1024 * 80) // 80MB per chunk 
+    const parts = calcFilePartItemsBySize(filepath, 1024 * 1024 * 80) // 80MB per chunk
     const partFilepaths: string[] = await bigFileHelper.split(filepath, parts)
     return partFilepaths
   }
@@ -85,14 +84,14 @@ merge multiple small files.
 
 ### Overview
 
-Name                                | Description
-:----------------------------------:|:----------------------------:
-`BigFileHelper`                     | A utility class for split / merging big files
-`bigFileHelper`                     | Default instance of `BigFleHelper`
-`calcFilePartItemsBySize`           | Generate file part items by part size
-`calcFilePartItemsByCount`          | Generate file part items by total of parts
-`calcFilePartNames`                 | Generate file part names (suffix)
+|            Name            |                  Description                  |
+| :------------------------: | :-------------------------------------------: |
+|      `BigFileHelper`       | A utility class for split / merging big files |
+|      `bigFileHelper`       |      Default instance of `BigFleHelper`       |
+| `calcFilePartItemsBySize`  |     Generate file part items by part size     |
+| `calcFilePartItemsByCount` |  Generate file part items by total of parts   |
+|    `calcFilePartNames`     |       Generate file part names (suffix)       |
 
-
-[homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/file-split@1.0.0-alpha.19/packages/file-split#readme
+[homepage]:
+  https://github.com/guanghechen/sora/tree/@guanghechen/file-split@1.0.0-alpha.19/packages/file-split#readme
 [file-split]: https://github.com/tomvlk/node-file-split

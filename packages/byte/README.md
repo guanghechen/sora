@@ -51,16 +51,15 @@
 
 Utility functions for bytes (Uint8Array).
 
-
 ## Install
 
-* npm
+- npm
 
   ```bash
   npm install --save @guanghechen/byte
   ```
 
-* yarn
+- yarn
 
   ```bash
   yarn add @guanghechen/byte
@@ -68,4 +67,5 @@ Utility functions for bytes (Uint8Array).
 
 ## Usage
 
-[homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/byte@1.0.0-alpha.5/packages/byte#readme
+[homepage]:
+  https://github.com/guanghechen/sora/tree/@guanghechen/byte@1.0.0-alpha.5/packages/byte#readme
