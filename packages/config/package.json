@@ -42,7 +42,6 @@
   "dependencies": {
     "@guanghechen/byte": "^1.0.0-alpha.5",
     "@guanghechen/config.types": "^1.0.0-alpha.5",
-    "@guanghechen/mac": "^1.0.0-alpha.5",
     "@guanghechen/resource.types": "^1.0.0-alpha.4",
     "semver": "^7.5.4"
   },

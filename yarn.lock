@@ -501,7 +501,6 @@ __metadata:
     "@guanghechen/byte": ^1.0.0-alpha.5
     "@guanghechen/config.types": ^1.0.0-alpha.5
     "@guanghechen/internal": ^1.0.0-alpha.0
-    "@guanghechen/mac": ^1.0.0-alpha.5
     "@guanghechen/resource.types": ^1.0.0-alpha.4
     semver: ^7.5.4
   languageName: unknown
@@ -669,13 +668,6 @@ __metadata:
     json5: ^2.2.3
     prettier-2: "npm:prettier@^2"
   checksum: 711c1eebed1ebb8674b87c37e688e8179c692f943200e0f97bc85b75212a7df00fb65e1b8b263a0bb8289751947ca0a0cd068b71a9498f60f4812598dd7b0891
-  languageName: node
-  linkType: hard
-
-"@guanghechen/mac@npm:^1.0.0-alpha.5":
-  version: 1.0.0-alpha.5
-  resolution: "@guanghechen/mac@npm:1.0.0-alpha.5"
-  checksum: 11c3fb1b567d02a3bbc8cae1f8d5e66a34efecbef9eca515596b02a6f96a4569c90f6abc60326d937adb7c233a833e7212be46eb855a545359d2403705d6b945
   languageName: node
   linkType: hard
 

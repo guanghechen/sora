@@ -1,10 +1,10 @@
 import { bytes2text, randomBytes, text2bytes } from '@guanghechen/byte'
 import type { IConfig, IConfigKeeper } from '@guanghechen/config.types'
 import { invariant } from '@guanghechen/internal'
-import type { IHashAlgorithm } from '@guanghechen/mac'
-import { calcMac } from '@guanghechen/mac'
 import type { ITextResource } from '@guanghechen/resource.types'
 import satisfies from 'semver/functions/satisfies'
+import type { IHashAlgorithm } from './mac'
+import { calcMac } from './mac'
 
 export interface IBaseConfigKeeperProps {
   /**

@@ -1,12 +1,12 @@
 import { bytes2text, text2bytes } from '@guanghechen/byte'
 import { emptyDir, isFileSync, mkdirsIfNotExists, rm, writeFile } from '@guanghechen/internal'
-import { calcMac } from '@guanghechen/mac'
 import { FileTextResource } from '@guanghechen/resource'
 import { assertPromiseThrow, locateFixtures } from 'jest.helper'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import type { IConfigKeeper } from '../src'
 import { JsonConfigKeeper, PlainJsonConfigKeeper } from '../src'
+import { calcMac } from '../src/mac'
 
 describe('JsonConfigKeeper', () => {
   const workspaceDir: string = locateFixtures('__fictitious__.JsonConfigKeeper')
