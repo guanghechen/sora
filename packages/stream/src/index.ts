@@ -45,16 +45,13 @@ export function consumeStream(
   ...transformers: NodeJS.ReadWriteStream[]
 ): Promise<void> {
   return new Promise<void>((resolve, reject) => {
-    let pipeline = reader.on('error', reject)
-    for (const middleware of transformers) {
-      pipeline = pipeline //
-        .pipe(middleware)
-        .on('error', reject)
-    }
-    pipeline //
-      .pipe(writer)
+    let stream = reader.on('error', reject)
+    for (const middleware of transformers) stream = stream.pipe(middleware, { end: true })
+    stream //
+      .pipe(writer, { end: true})
       .on('error', reject)
       .on('finish', resolve)
+      .on('close', resolve)
   })
 }
 
