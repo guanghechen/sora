@@ -2,7 +2,6 @@
   "extends": "./tsconfig.settings.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "sourceMap": true,
     "paths": {
       "@guanghechen/internal": ["packages/_internal/src"],
       "jest.helper": ["jest.helper.mts"],
