@@ -48,7 +48,7 @@ export function consumeStream(
     let stream = reader.on('error', reject)
     for (const middleware of transformers) stream = stream.pipe(middleware, { end: true })
     stream //
-      .pipe(writer, { end: true})
+      .pipe(writer, { end: true })
       .on('error', reject)
       .on('finish', resolve)
       .on('close', resolve)
