@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/scheduler.types",
-  "version": "1.0.0-alpha.9",
+  "version": "1.0.0-alpha.10",
   "description": "types of @guanghechen/scheduler",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler.types@1.0.0-alpha.9",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler.types@1.0.0-alpha.10",
     "directory": "packages/scheduler.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler.types@1.0.0-alpha.9/packages/scheduler.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler.types@1.0.0-alpha.10/packages/scheduler.types#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -35,6 +35,6 @@
     "README.md"
   ],
   "dependencies": {
-    "@guanghechen/task.types": "^1.0.0-alpha.8"
+    "@guanghechen/task.types": "^1.0.0-alpha.9"
   }
 }

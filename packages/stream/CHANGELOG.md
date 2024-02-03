@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.11](https://github.com/guanghechen/sora/compare/@guanghechen/stream@1.0.0-alpha.10...@guanghechen/stream@1.0.0-alpha.11) (2024-02-03)
+
+### Performance Improvements
+
+- 💄 fix lint
+  ([2d5bb6f](https://github.com/guanghechen/sora/commit/2d5bb6f03d0312a42c1117d95181df8b69de827a))
+- 🔧 fix nx scripts
+  ([47bc4e6](https://github.com/guanghechen/sora/commit/47bc4e66df825cb37127219bccf60dc81d6a9b48))
+- make code tidy
+  ([f280a2f](https://github.com/guanghechen/sora/commit/f280a2f3a8977ae559751096473a220ae354825c))
+- 🔧 update tsconfig
+  ([98855bc](https://github.com/guanghechen/sora/commit/98855bcc245d98c61217c5bafc6a1b2506b7824d))
+- ⬆️ upgrade devDependencies
+  ([81c9943](https://github.com/guanghechen/sora/commit/81c994323e32b06195ca78dbd1b5074e2de82da7))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [1.0.0-alpha.10](https://github.com/guanghechen/sora/compare/@guanghechen/stream@1.0.0-alpha.9...@guanghechen/stream@1.0.0-alpha.10) (2024-01-02)
 
 **Note:** Version bump only for package @guanghechen/stream

@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/types",
-  "version": "1.0.0-alpha.9",
+  "version": "1.0.0-alpha.10",
   "description": "Common types.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/types@1.0.0-alpha.9",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/types@1.0.0-alpha.10",
     "directory": "packages/types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/types@1.0.0-alpha.9/packages/types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/types@1.0.0-alpha.10/packages/types#readme",
   "type": "module",
   "exports": {
     ".": {

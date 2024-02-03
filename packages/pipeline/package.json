@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/pipeline",
-  "version": "1.0.0-alpha.25",
+  "version": "1.0.0-alpha.26",
   "description": "Task pipeline",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline@1.0.0-alpha.25",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline@1.0.0-alpha.26",
     "directory": "packages/pipeline"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline@1.0.0-alpha.25/packages/pipeline#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline@1.0.0-alpha.26/packages/pipeline#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -35,8 +35,8 @@
     "README.md"
   ],
   "dependencies": {
-    "@guanghechen/monitor": "^1.0.0-alpha.25",
-    "@guanghechen/pipeline.types": "^1.0.0-alpha.8"
+    "@guanghechen/monitor": "^1.0.0-alpha.26",
+    "@guanghechen/pipeline.types": "^1.0.0-alpha.9"
   },
   "devDependencies": {
     "@guanghechen/internal": "^1.0.0-alpha.0"

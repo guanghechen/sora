@@ -1,16 +1,16 @@
 {
   "name": "@guanghechen/viewmodel",
-  "version": "1.0.0-alpha.12",
+  "version": "1.0.0-alpha.13",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@1.0.0-alpha.12",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@1.0.0-alpha.13",
     "directory": "packages/viewmodel"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@1.0.0-alpha.12/packages/viewmodel#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@1.0.0-alpha.13/packages/viewmodel#readme",
   "keywords": [
     "viewmodel"
   ],
@@ -34,9 +34,9 @@
     "README.md"
   ],
   "dependencies": {
-    "@guanghechen/disposable": "^1.0.0-alpha.1",
-    "@guanghechen/subscribe.types": "^1.0.0-alpha.1",
-    "@guanghechen/viewmodel.types": "^1.0.0-alpha.9"
+    "@guanghechen/disposable": "^1.0.0-alpha.2",
+    "@guanghechen/subscribe.types": "^1.0.0-alpha.2",
+    "@guanghechen/viewmodel.types": "^1.0.0-alpha.10"
   },
   "devDependencies": {
     "@guanghechen/internal": "^1.0.0-alpha.0"

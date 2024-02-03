@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/pipeline.types",
-  "version": "1.0.0-alpha.8",
+  "version": "1.0.0-alpha.9",
   "description": "types of @guanghechen/pipeline",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline.types@1.0.0-alpha.8",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline.types@1.0.0-alpha.9",
     "directory": "packages/pipeline.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline.types@1.0.0-alpha.8/packages/pipeline.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/pipeline.types@1.0.0-alpha.9/packages/pipeline.types#readme",
   "type": "module",
   "exports": {
     ".": {

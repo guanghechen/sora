@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.11](https://github.com/guanghechen/sora/compare/@guanghechen/resource@1.0.0-alpha.10...@guanghechen/resource@1.0.0-alpha.11) (2024-02-03)
+
+
+### Performance Improvements
+
+* ⬆️ fix dependencies & fix lint ([b94c1da](https://github.com/guanghechen/sora/commit/b94c1dab2352201f11022e7aa5820c9da149cbb7))
+* 🔧 fix nx scripts ([47bc4e6](https://github.com/guanghechen/sora/commit/47bc4e66df825cb37127219bccf60dc81d6a9b48))
+* 🔧 update tsconfig ([98855bc](https://github.com/guanghechen/sora/commit/98855bcc245d98c61217c5bafc6a1b2506b7824d))
+
+
+
+
+
 # [1.0.0-alpha.10](https://github.com/guanghechen/sora/compare/@guanghechen/resource@1.0.0-alpha.9...@guanghechen/resource@1.0.0-alpha.10) (2024-01-13)
 
 
