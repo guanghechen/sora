@@ -2,7 +2,7 @@ import type { IConsoleMock } from '@guanghechen/helper-jest'
 import { createConsoleMock } from '@guanghechen/helper-jest'
 import { ObservableMap } from '../src'
 import type { IImmutableMap, IObservableMap } from '../src'
-import { ImmutableMap, Subscriber } from './_common'
+import { ImmutableMap, TestSubscriber } from './_common'
 
 describe('ObservableMap', () => {
   let observableMap: IObservableMap<string, string, IImmutableMap<string, string>>
@@ -28,9 +28,9 @@ describe('ObservableMap', () => {
     const observableA = observableMap.observeKey('A')
     const observableB = observableMap.observeKey('B')
     const observableC = observableMap.observeKey('C')
-    const subscriberA = new Subscriber<string>('A', '')
-    const subscriberB = new Subscriber<string>('B', '')
-    const subscriberC = new Subscriber<string>('C', '')
+    const subscriberA = new TestSubscriber<string>('A', '')
+    const subscriberB = new TestSubscriber<string>('B', '')
+    const subscriberC = new TestSubscriber<string>('C', '')
     const unsubscribableA = observableA.subscribe(subscriberA)
     const unsubscribableB = observableB.subscribe(subscriberB)
     const unsubscribableC = observableC.subscribe(subscriberC)
@@ -41,17 +41,17 @@ describe('ObservableMap', () => {
     expect(observableA.getSnapshot()).toEqual(undefined)
     expect(observableB.getSnapshot()).toEqual(undefined)
     expect(observableC.getSnapshot()).toEqual(undefined)
-    expect(subscriberA.value).toEqual('')
-    expect(subscriberB.value).toEqual('')
-    expect(subscriberC.value).toEqual('')
+    expect(subscriberA.value).toEqual(undefined)
+    expect(subscriberB.value).toEqual(undefined)
+    expect(subscriberC.value).toEqual(undefined)
 
     observableMap.set('A', 'waw1')
     expect(observableA.getSnapshot()).toEqual('waw1')
     expect(observableB.getSnapshot()).toEqual(undefined)
     expect(observableC.getSnapshot()).toEqual(undefined)
     expect(subscriberA.value).toEqual('waw1')
-    expect(subscriberB.value).toEqual('')
-    expect(subscriberC.value).toEqual('')
+    expect(subscriberB.value).toEqual(undefined)
+    expect(subscriberC.value).toEqual(undefined)
 
     observableMap.set('B', 'waw2')
     expect(observableA.getSnapshot()).toEqual('waw1')
@@ -59,7 +59,7 @@ describe('ObservableMap', () => {
     expect(observableC.getSnapshot()).toEqual(undefined)
     expect(subscriberA.value).toEqual('waw1')
     expect(subscriberB.value).toEqual('waw2')
-    expect(subscriberC.value).toEqual('')
+    expect(subscriberC.value).toEqual(undefined)
 
     observableMap.set('C', 'waw3')
     observableMap.delete('B')
@@ -74,6 +74,7 @@ describe('ObservableMap', () => {
       ['A', 'waw1_2'],
       ['B', 'waw2_2'],
     ])
+    expect(observableMap.get('A')).toEqual('waw1_2')
     expect(observableA.getSnapshot()).toEqual('waw1_2')
     expect(observableB.getSnapshot()).toEqual('waw2_2')
     expect(observableC.getSnapshot()).toEqual('waw3')

@@ -1,10 +1,8 @@
-import type { IDisposable } from '@guanghechen/disposable'
-import { Disposable } from '@guanghechen/disposable'
-import type { ISubscriber } from '@guanghechen/subscribe.types'
-import type { IStatableValue, IState } from '@guanghechen/viewmodel.types'
-import { Observable } from './observable'
+import { Observable, Subscriber } from '@guanghechen/observable'
+import type { ISubscriber } from '@guanghechen/observable'
+import type { IState } from './types/state'
 
-export class State<T extends Readonly<IStatableValue>> extends Observable<T> implements IState<T> {
+export class State<T> extends Observable<T> implements IState<T> {
   public override readonly getSnapshot = (): T => {
     return super.getSnapshot()
   }
@@ -13,19 +11,19 @@ export class State<T extends Readonly<IStatableValue>> extends Observable<T> imp
     return super.getSnapshot()
   }
 
-  public readonly setState = (patch: T | ((prev: T) => T)): void => {
-    const nextValue: T = typeof patch === 'function' ? patch(this.getSnapshot()) : patch
+  public readonly setState = (patch: (prev: T) => T): void => {
+    const prevValue: T = this.getSnapshot()
+    const nextValue: T = patch(prevValue)
     super.next(nextValue)
   }
 
   public readonly subscribeStateChange = (onStateChange: () => void): (() => void) => {
-    const subscriber: ISubscriber<T> = {
-      next: () => onStateChange(),
-      complete: () => {},
-    }
+    const subscriber: ISubscriber<T> = new Subscriber<T>({
+      onNext: () => onStateChange(),
+      onDispose: () => unsubscribable.unsubscribe(),
+    })
     const unsubscribable = super.subscribe(subscriber)
-    const disposable: IDisposable = Disposable.fromUnsubscribable(unsubscribable)
-    this.registerDisposable(disposable)
-    return () => disposable.dispose()
+    this.registerDisposable(subscriber)
+    return () => subscriber.dispose()
   }
 }

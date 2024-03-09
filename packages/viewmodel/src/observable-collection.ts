@@ -1,32 +1,31 @@
-import { BatchDisposable, Disposable } from '@guanghechen/disposable'
-import { noopUnsubscribable } from '@guanghechen/internal'
-import type { ISubscriber, IUnsubscribable } from '@guanghechen/subscribe.types'
+import { BatchDisposable, SafeBatchHandler } from '@guanghechen/disposable'
+import { Observable, Subscriber, noopUnsubscribable } from '@guanghechen/observable'
 import type {
   IEquals,
-  IImmutableCollection,
   IObservable,
-  IObservableCollection,
-  IObservableCollectionOptions,
-  IObservableKeyChange,
-  IObservableValue,
-  IScheduleTransaction,
-} from '@guanghechen/viewmodel.types'
-import { DisposedObservable, Observable } from './observable'
-import { Schedulable } from './schedulable'
+  IObservableNextOptions,
+  ISubscriber,
+  IUnsubscribable,
+} from '@guanghechen/observable'
+import { DisposedObservable } from './observable-disposed'
+import type { IImmutableCollection } from './types/collection'
+import type { IObservableCollection, IObservableCollectionOptions } from './types/observable'
 
-export abstract class ObservableCollection<
-    K,
-    V extends IObservableValue,
-    C extends IImmutableCollection<K, V>,
-  >
+interface IObservableSubscriber<T> {
+  readonly subscriber: ISubscriber<T>
+  inactive: boolean
+}
+
+export class ObservableCollection<K, V, C extends IImmutableCollection<K, V>>
   extends BatchDisposable
   implements IObservableCollection<K, V, C>
 {
   public readonly equals: IEquals<C>
   public readonly valueEquals: IEquals<V | undefined>
-  protected readonly _keySubscribersMap: Map<K, ReadonlyArray<ISubscriber<V | undefined>>>
-  protected _subscribers: ReadonlyArray<ISubscriber<C>>
+  protected readonly _subscribers: Array<IObservableSubscriber<C>>
+  protected readonly _keySubscribersMap: Map<K, Array<IObservableSubscriber<V | undefined>>>
   protected _value: C
+  protected _lastNotifiedValue: C | undefined
 
   constructor(defaultValue: C, options: IObservableCollectionOptions<V> = {}) {
     super()
@@ -39,21 +38,33 @@ export abstract class ObservableCollection<
   }
 
   public override dispose(): void {
-    if (!this.disposed) {
-      super.dispose()
+    if (this.disposed) return
+    super.dispose()
 
-      // Reset subscribers and avoid unexpected modification on iterator.
-      const subscribers: ReadonlyArray<ISubscriber<C>> = this._subscribers
-      this._subscribers = []
-      subscribers.forEach(subscriber => subscriber.complete())
-
-      const keySubscribersMap = new Map(this._keySubscribersMap)
-      this._keySubscribersMap.clear()
-      for (const subscribers of keySubscribersMap.values()) {
-        for (const subscriber of subscribers) subscriber.complete()
+    // Dispose subscribers.
+    const batcher = new SafeBatchHandler()
+    {
+      const subscribers = this._subscribers
+      const size: number = subscribers.length
+      for (let i = 0; i < size; ++i) {
+        const item: IObservableSubscriber<C> = subscribers[i]
+        if (item.inactive || item.subscriber.disposed) continue
+        batcher.run(() => item.subscriber.dispose())
       }
-      keySubscribersMap.clear()
+      this._subscribers.length = 0
     }
+    {
+      for (const subscribers of this._keySubscribersMap.values()) {
+        const size: number = subscribers.length
+        for (let i = 0; i < size; ++i) {
+          const item: IObservableSubscriber<V> = subscribers[i]
+          if (item.inactive || item.subscriber.disposed) continue
+          batcher.run(() => item.subscriber.dispose())
+        }
+      }
+      this._keySubscribersMap.clear()
+    }
+    batcher.summary()
   }
 
   public has(key: K): boolean {
@@ -80,99 +91,121 @@ export abstract class ObservableCollection<
     return this._value
   }
 
-  public subscribe(subscriber: ISubscriber<C>): IUnsubscribable {
+  public next(value: C, options?: IObservableNextOptions): void {
     if (this.disposed) {
-      subscriber.complete()
+      const strict: boolean = options?.strict ?? true
+      if (strict) {
+        throw new RangeError(`Don't update a disposed observable. value: ${String(value)}.`)
+      }
+    }
+
+    const force: boolean = options?.force ?? false
+    const prevValue: C = this._value
+    if (!force && this.equals(value, prevValue)) return
+
+    this._value = value
+    this._notify()
+  }
+
+  public subscribe(subscriber: ISubscriber<C>): IUnsubscribable {
+    if (subscriber.disposed) return noopUnsubscribable
+
+    if (this.disposed) {
+      subscriber.dispose()
       return noopUnsubscribable
     }
 
-    if (!this._subscribers.includes(subscriber)) {
-      this._subscribers = [...this._subscribers, subscriber]
-    }
+    const prevValue: C | undefined = this._lastNotifiedValue
+    const value: C = this._value
+    const item: IObservableSubscriber<C> = { subscriber, inactive: false }
+    this._subscribers.push(item)
+    subscriber.next(value, prevValue)
+
     return {
-      unsubscribe: () => {
-        if (this._subscribers.includes(subscriber)) {
-          this._subscribers = this._subscribers.filter(s => s !== subscriber)
-        }
+      unsubscribe: (): void => {
+        item.inactive = true
       },
     }
   }
 
-  public abstract next(value: C, transaction?: IScheduleTransaction): void
-
   public observeKey(key: K): IObservable<V | undefined> {
     const value: V | undefined = this._value.get(key)
-    if (this.disposed) return new DisposedObservable<V | undefined>(value, this.valueEquals)
+    if (this.disposed) {
+      return new DisposedObservable<V | undefined>(value, { equals: this.valueEquals })
+    }
 
     const observable = new Observable<V | undefined>(value, { equals: this.valueEquals })
-    const unsubscribable: IUnsubscribable = this.subscribeKey(key, {
-      next: v => observable.next(v),
-      complete: () => observable.dispose(),
+    const subscriber: ISubscriber<V | undefined> = new Subscriber<V | undefined>({
+      onNext: v => observable.next(v),
+      onDispose: () => {
+        observable.dispose()
+        unsubscribable.unsubscribe()
+      },
     })
-    observable.registerDisposable(Disposable.fromUnsubscribable(unsubscribable))
+    const unsubscribable: IUnsubscribable = this.subscribeKey(key, subscriber)
+    observable.registerDisposable(subscriber)
     this.registerDisposable(observable)
     return observable
   }
 
   public subscribeKey(key: K, subscriber: ISubscriber<V | undefined>): IUnsubscribable {
+    if (subscriber.disposed) return noopUnsubscribable
+
     if (this.disposed) {
-      subscriber.complete()
+      subscriber.dispose()
       return noopUnsubscribable
     }
 
+    const prevValue: V | undefined =
+      this._lastNotifiedValue === undefined ? undefined : this._lastNotifiedValue.get(key)
+    const value: V | undefined = this._value.get(key)
+    const item: IObservableSubscriber<V | undefined> = { subscriber, inactive: false }
     const keySubscribers = this._keySubscribersMap.get(key)
-    const nextKeySubscribers =
-      keySubscribers === undefined
-        ? [subscriber]
-        : keySubscribers.includes(subscriber)
-          ? keySubscribers
-          : [...keySubscribers, subscriber]
-    if (keySubscribers !== nextKeySubscribers) this._keySubscribersMap.set(key, nextKeySubscribers)
+
+    if (keySubscribers === undefined) this._keySubscribersMap.set(key, [item])
+    else keySubscribers.push(item)
+
+    subscriber.next(value, prevValue)
+
     return {
       unsubscribe: () => {
-        const latestKeySubscribers = this._keySubscribersMap.get(key)
-        if (latestKeySubscribers !== undefined && latestKeySubscribers.includes(subscriber)) {
-          this._keySubscribersMap.set(
-            key,
-            latestKeySubscribers.filter(s => s !== subscriber),
-          )
-        }
+        item.inactive = true
       },
     }
   }
 
-  protected notify(
-    value: C,
-    prevValue: C,
-    changes: ReadonlyArray<IObservableKeyChange<K, V>>,
-    transaction: IScheduleTransaction | undefined,
-  ): void {
-    if (transaction) {
-      transaction.step(new Schedulable(() => this.notifyImmediate(value, prevValue, changes)))
-    }
+  protected _notify(): void {
+    const value: C = this._value
+    const prevValue: C | undefined = this._lastNotifiedValue
+    this._lastNotifiedValue = value
+    const batcher = new SafeBatchHandler()
 
-    this.notifyImmediate(value, prevValue, changes)
-  }
-
-  protected notifyImmediate(
-    value: C,
-    prevValue: C,
-    changes: ReadonlyArray<IObservableKeyChange<K, V>>,
-  ): void {
     // Notify key-subscribers.
-    for (const change of changes) {
-      const keySubscribers = this._keySubscribersMap.get(change.key)
-      if (keySubscribers !== undefined) {
-        for (const subscriber of keySubscribers) {
-          subscriber.next(change.value, change.prevValue)
+    {
+      for (const [key, subscribers] of this._keySubscribersMap) {
+        const val: V | undefined = value.get(key)
+        const prevVal: V | undefined = prevValue === undefined ? undefined : prevValue.get(key)
+        const size: number = subscribers.length
+        for (let i = 0; i < size; ++i) {
+          const subscriber: IObservableSubscriber<V | undefined> = subscribers[i]
+          if (subscriber.inactive || subscriber.subscriber.disposed) continue
+          if (this.valueEquals(val, prevVal)) continue
+          batcher.run(() => subscriber.subscriber.next(val, prevVal))
         }
       }
     }
 
     // Notify subscribers.
-    const subscribers = this._subscribers
-    for (const subscriber of subscribers) {
-      subscriber.next(value, prevValue)
+    {
+      const subscribers = this._subscribers
+      const size: number = subscribers.length
+      for (let i = 0; i < size; ++i) {
+        const subscriber: IObservableSubscriber<C | undefined> = subscribers[i]
+        if (subscriber.inactive || subscriber.subscriber.disposed) continue
+        batcher.run(() => subscriber.subscriber.next(value, prevValue))
+      }
     }
+
+    batcher.summary()
   }
 }

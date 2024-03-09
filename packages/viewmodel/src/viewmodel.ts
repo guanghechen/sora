@@ -1,7 +1,7 @@
 import { BatchDisposable, isDisposable } from '@guanghechen/disposable'
-import type { IObservableKey, IViewModel, IViewModelTicker } from '@guanghechen/viewmodel.types'
-import { Ticker } from './ticker'
-import { isObservable } from './util'
+import type { IObservableKey } from '@guanghechen/observable'
+import { Ticker, isObservable } from '@guanghechen/observable'
+import type { IViewModel, IViewModelTicker } from './types/viewmodel'
 
 export abstract class ViewModel extends BatchDisposable implements IViewModel {
   protected readonly _tickerMap: Map<string, IViewModelTicker>
@@ -14,12 +14,14 @@ export abstract class ViewModel extends BatchDisposable implements IViewModel {
   public override dispose(): void {
     if (!this.disposed) {
       super.dispose()
-      Reflect.ownKeys(this).forEach(key => {
+      for (const key of Reflect.ownKeys(this)) {
         if (typeof key === 'string' && key.endsWith('$')) {
           const disposable = this[key as keyof this]
           if (isDisposable(disposable)) disposable.dispose()
         }
-      })
+      }
+      for (const ticker of this._tickerMap.values()) ticker.ticker.dispose()
+      this._tickerMap.clear()
     }
   }
 

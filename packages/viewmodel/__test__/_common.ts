@@ -1,17 +1,23 @@
-import type { ISubscriber } from '@guanghechen/subscribe.types'
-import type { IImmutableMap, IObservableValue } from '../src'
+import type { ISubscriber } from '@guanghechen/observable.types'
+import type { IImmutableMap } from '../src'
 
 export function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-export class Subscriber<T extends IObservableValue> implements ISubscriber<T> {
+export class TestSubscriber<T> implements ISubscriber<T> {
   public readonly displayName: string
   protected _value: T
+  protected _disposed: boolean
 
   constructor(name: string, initialValue: T) {
     this.displayName = name
     this._value = initialValue
+    this._disposed = false
+  }
+
+  public get disposed(): boolean {
+    return this._disposed
   }
 
   public get value(): T {
@@ -22,12 +28,14 @@ export class Subscriber<T extends IObservableValue> implements ISubscriber<T> {
     this._value = nextValue
   }
 
-  public complete(): void {
+  public dispose(): void {
+    if (this._disposed) return
+    this._disposed = true
     console.log(`[in test] called ${this.displayName}.complete`)
   }
 }
 
-export class ImmutableMap<K, V extends IObservableValue> implements IImmutableMap<K, V> {
+export class ImmutableMap<K, V> implements IImmutableMap<K, V> {
   protected _map: Map<K, V>
 
   constructor(map: Map<K, V> = new Map()) {
@@ -85,11 +93,11 @@ export class ImmutableMap<K, V extends IObservableValue> implements IImmutableMa
   }
 }
 
-class MutableMap<K, V extends IObservableValue> implements IImmutableMap<K, V> {
+class MutableMap<K, V> implements IImmutableMap<K, V> {
   protected _map: Map<K, V>
 
   constructor(map: Map<K, V> = new Map()) {
-    this._map = map
+    this._map = new Map(map)
   }
 
   public get map(): Map<K, V> {

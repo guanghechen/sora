@@ -35,10 +35,7 @@
   ],
   "dependencies": {
     "@guanghechen/disposable": "^1.0.0-alpha.2",
-    "@guanghechen/subscribe.types": "^1.0.0-alpha.2",
-    "@guanghechen/viewmodel.types": "^1.0.0-alpha.10"
-  },
-  "devDependencies": {
-    "@guanghechen/internal": "^1.0.0-alpha.0"
+    "@guanghechen/error.types": "^1.0.0",
+    "@guanghechen/observable": "^6.0.0"
   }
 }

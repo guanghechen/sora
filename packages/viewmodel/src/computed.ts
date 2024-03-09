@@ -1,23 +1,22 @@
-import { Disposable, type IDisposable } from '@guanghechen/disposable'
-import type { ISubscriber, IUnsubscribable } from '@guanghechen/subscribe.types'
+import type { IDisposable } from '@guanghechen/disposable'
+import { Observable, Subscriber, Ticker } from '@guanghechen/observable'
 import type {
-  IComputableValue,
-  IComputed,
   IObservable,
   IObservableOptions,
+  ISubscriber,
+  IUnsubscribable,
   IValueList,
-} from '@guanghechen/viewmodel.types'
-import { Observable } from './observable'
-import { Ticker } from './ticker'
+} from '@guanghechen/observable'
+import type { IComputed } from './types/computed'
 
-export class Computed<T extends Readonly<IComputableValue>> implements IComputed<T> {
+export class Computed<T> implements IComputed<T> {
   protected readonly _observable: IObservable<T>
 
   constructor(observable: IObservable<T>) {
     this._observable = observable
   }
 
-  public static fromObservables<S extends Array<IObservable<any>>, T extends IComputableValue>(
+  public static fromObservables<S extends Array<IObservable<any>>, T>(
     observables: S,
     transform: (values: IValueList<S>) => T,
     options?: IObservableOptions<T>,
@@ -33,12 +32,11 @@ export class Computed<T extends Readonly<IComputableValue>> implements IComputed
     const observable: IObservable<T> = new Observable<T>(getSnapshot(), options)
     observable.registerDisposable(ticker)
 
-    ticker.subscribe({
-      next: () => {
-        if (!observable.disposed) observable.next(getSnapshot())
-      },
-      complete: () => observable.dispose(),
+    const subscriber: ISubscriber<number> = new Subscriber<number>({
+      onNext: () => observable.next(getSnapshot()),
     })
+    ticker.subscribe(subscriber)
+
     return new Computed<T>(observable)
   }
 
@@ -69,13 +67,12 @@ export class Computed<T extends Readonly<IComputableValue>> implements IComputed
   }
 
   public readonly subscribeStateChange = (onStateChange: () => void): (() => void) => {
-    const subscriber: ISubscriber<T> = {
-      next: () => onStateChange(),
-      complete: () => {},
-    }
+    const subscriber: ISubscriber<T> = new Subscriber<T>({
+      onNext: () => onStateChange(),
+      onDispose: () => unsubscribable.unsubscribe(),
+    })
     const unsubscribable = this._observable.subscribe(subscriber)
-    const disposable: IDisposable = Disposable.fromUnsubscribable(unsubscribable)
-    this._observable.registerDisposable(disposable)
-    return () => disposable.dispose()
+    this._observable.registerDisposable(subscriber)
+    return () => subscriber.dispose()
   }
 }
