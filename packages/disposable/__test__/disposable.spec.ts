@@ -9,18 +9,17 @@ test('isDisposable', () => {
   expect(isDisposable({ disposed: false })).toEqual(false)
   expect(isDisposable({ dispose: () => {}, disposed: false })).toEqual(true)
   expect(isDisposable({ dispose: () => {}, disposed: true })).toEqual(true)
-  expect(isDisposable(Disposable.fromCallback(() => {}))).toEqual(true)
-  expect(isDisposable(Disposable.fromUnsubscribable({ unsubscribe: () => {} }))).toEqual(true)
+  expect(isDisposable(new Disposable(() => {}))).toEqual(true)
   expect(isDisposable(new BatchDisposable())).toEqual(true)
 })
 
 describe('disposeAll', () => {
   test('no error', () => {
-    const disposable1 = Disposable.fromCallback(() => {})
-    const disposable2 = Disposable.fromCallback(() => {})
-    const disposable3 = Disposable.fromCallback(() => {})
-    const disposable4 = Disposable.fromCallback(() => {})
-    const disposable5 = Disposable.fromCallback(() => {})
+    const disposable1 = new Disposable(() => {})
+    const disposable2 = new Disposable(() => {})
+    const disposable3 = new Disposable(() => {})
+    const disposable4 = new Disposable(() => {})
+    const disposable5 = new Disposable(() => {})
 
     expect(disposable1.disposed).toEqual(false)
     expect(disposable2.disposed).toEqual(false)
@@ -44,13 +43,13 @@ describe('disposeAll', () => {
   })
 
   test('one error', () => {
-    const disposable1 = Disposable.fromCallback(() => {})
-    const disposable2 = Disposable.fromCallback(() => {
+    const disposable1 = new Disposable(() => {})
+    const disposable2 = new Disposable(() => {
       throw new Error('waw')
     })
-    const disposable3 = Disposable.fromCallback(() => {})
-    const disposable4 = Disposable.fromCallback(() => {})
-    const disposable5 = Disposable.fromCallback(() => {})
+    const disposable3 = new Disposable(() => {})
+    const disposable4 = new Disposable(() => {})
+    const disposable5 = new Disposable(() => {})
 
     expect(disposable1.disposed).toEqual(false)
     expect(disposable2.disposed).toEqual(false)
@@ -76,15 +75,15 @@ describe('disposeAll', () => {
   })
 
   test('multiple errors', () => {
-    const disposable1 = Disposable.fromCallback(() => {})
-    const disposable2 = Disposable.fromCallback(() => {
+    const disposable1 = new Disposable(() => {})
+    const disposable2 = new Disposable(() => {
       throw new Error('waw1')
     })
-    const disposable3 = Disposable.fromCallback(() => {})
-    const disposable4 = Disposable.fromCallback(() => {
+    const disposable3 = new Disposable(() => {})
+    const disposable4 = new Disposable(() => {
       throw new Error('waw2')
     })
-    const disposable5 = Disposable.fromCallback(() => {})
+    const disposable5 = new Disposable(() => {})
 
     expect(disposable1.disposed).toEqual(false)
     expect(disposable2.disposed).toEqual(false)
@@ -113,12 +112,12 @@ describe('disposeAll', () => {
 describe('BatchDisposable', () => {
   test('no error', () => {
     const disposable: IBatchDisposable = new BatchDisposable()
-    const disposable1 = Disposable.fromCallback(() => {})
-    const disposable2 = Disposable.fromCallback(() => {})
-    const disposable3 = Disposable.fromCallback(() => {})
-    const disposable4 = Disposable.fromCallback(() => {})
-    const disposable5 = Disposable.fromCallback(() => {})
-    const disposable6 = Disposable.fromCallback(() => {})
+    const disposable1 = new Disposable(() => {})
+    const disposable2 = new Disposable(() => {})
+    const disposable3 = new Disposable(() => {})
+    const disposable4 = new Disposable(() => {})
+    const disposable5 = new Disposable(() => {})
+    const disposable6 = new Disposable(() => {})
     disposable5.dispose()
     disposable.registerDisposable(disposable1)
     disposable.registerDisposable(disposable2)
@@ -158,14 +157,14 @@ describe('BatchDisposable', () => {
 
   test('one error', () => {
     const disposable: IBatchDisposable = new BatchDisposable()
-    const disposable1 = Disposable.fromCallback(() => {})
-    const disposable2 = Disposable.fromCallback(() => {
+    const disposable1 = new Disposable(() => {})
+    const disposable2 = new Disposable(() => {
       throw new Error('waw')
     })
-    const disposable3 = Disposable.fromCallback(() => {})
-    const disposable4 = Disposable.fromCallback(() => {})
-    const disposable5 = Disposable.fromCallback(() => {})
-    const disposable6 = Disposable.fromCallback(() => {})
+    const disposable3 = new Disposable(() => {})
+    const disposable4 = new Disposable(() => {})
+    const disposable5 = new Disposable(() => {})
+    const disposable6 = new Disposable(() => {})
     disposable5.dispose()
     disposable.registerDisposable(disposable1)
     disposable.registerDisposable(disposable2)
@@ -205,16 +204,16 @@ describe('BatchDisposable', () => {
 
   test('multiple errors', () => {
     const disposable: IBatchDisposable = new BatchDisposable()
-    const disposable1 = Disposable.fromCallback(() => {})
-    const disposable2 = Disposable.fromCallback(() => {
+    const disposable1 = new Disposable(() => {})
+    const disposable2 = new Disposable(() => {
       throw new Error('waw1')
     })
-    const disposable3 = Disposable.fromCallback(() => {})
-    const disposable4 = Disposable.fromCallback(() => {
+    const disposable3 = new Disposable(() => {})
+    const disposable4 = new Disposable(() => {
       throw new Error('waw2')
     })
-    const disposable5 = Disposable.fromCallback(() => {})
-    const disposable6 = Disposable.fromCallback(() => {})
+    const disposable5 = new Disposable(() => {})
+    const disposable6 = new Disposable(() => {})
     disposable5.dispose()
     disposable.registerDisposable(disposable1)
     disposable.registerDisposable(disposable2)

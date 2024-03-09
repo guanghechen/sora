@@ -1,20 +1,42 @@
 import type { IDisposable } from '@guanghechen/disposable.types'
 
-export function disposeAll(disposables: Iterable<IDisposable>): void | never {
-  const errors: unknown[] = []
-  for (const disposable of disposables) {
+export class SafeBatchHandler {
+  private readonly _errors: unknown[]
+  private _summary: unknown | undefined
+
+  constructor() {
+    this._errors = []
+    this._summary = undefined
+  }
+
+  public cleanup(): void {
+    this._errors.length = 0
+    this._summary = undefined
+  }
+
+  public run(action: () => void): void {
     try {
-      disposable.dispose()
-    } catch (e) {
-      errors.push(e)
+      action()
+    } catch (error) {
+      this._errors.push(error)
+      this._summary = undefined
     }
   }
 
-  if (errors.length === 1) {
-    throw errors[0]
+  public summary(): void | never {
+    if (this._summary === undefined) {
+      if (this._errors.length === 1) throw (this._summary = this._errors[0])
+      if (this._errors.length > 1) {
+        this._summary = new AggregateError(this._errors, 'Encountered errors while disposing')
+      }
+    }
+    if (this._summary !== undefined) throw this._summary
   }
+}
 
-  if (errors.length > 1) {
-    throw new AggregateError(errors, 'Encountered errors while disposing')
-  }
+export function disposeAll(disposables: Iterable<IDisposable>): void | never {
+  const handler = new SafeBatchHandler()
+  for (const disposable of disposables) handler.run(() => disposable.dispose())
+  handler.summary()
+  handler.cleanup()
 }

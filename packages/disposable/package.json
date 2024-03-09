@@ -34,7 +34,6 @@
     "README.md"
   ],
   "dependencies": {
-    "@guanghechen/disposable.types": "^1.0.0-alpha.2",
-    "@guanghechen/subscribe.types": "^1.0.0-alpha.2"
+    "@guanghechen/disposable.types": "^1.0.0-alpha.2"
   }
 }
