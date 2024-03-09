@@ -15,6 +15,7 @@ export class Pipeline<D, T> implements IPipeline<D, T> {
   protected readonly _cookerApi: IMaterialCookerApi<D>
   protected readonly _handledCodes: Set<number>
   protected readonly _handledTicker: ITicker
+  private _maxContinuousHandledCode: number
   private _code: number
 
   constructor(name: string) {
@@ -34,6 +35,7 @@ export class Pipeline<D, T> implements IPipeline<D, T> {
       },
     }
     const code: number = 0
+    const maxContinuousHandledCode: number = code - 1
     const handledCodes: Set<number> = new Set<number>()
     const handledTicker: ITicker = new Ticker()
 
@@ -45,6 +47,7 @@ export class Pipeline<D, T> implements IPipeline<D, T> {
     this._handledCodes = handledCodes
     this._handledTicker = handledTicker
     this._code = code
+    this._maxContinuousHandledCode = maxContinuousHandledCode
   }
 
   public get size(): number {
@@ -53,6 +56,11 @@ export class Pipeline<D, T> implements IPipeline<D, T> {
 
   public use(cooker: IMaterialCooker<D, T>): void {
     this._cookers.push(cooker)
+  }
+
+  public async close(): Promise<void> {
+    if (this.status.disposed) return
+    this.status.dispose()
   }
 
   public async push(data: D): Promise<number> {
@@ -89,17 +97,46 @@ export class Pipeline<D, T> implements IPipeline<D, T> {
   }
 
   public notifyMaterialHandled(codes: Iterable<number>): void {
-    for (const code of codes) this._handledCodes.add(code)
+    const handledCodes: Set<number> = this._handledCodes
+    for (const code of codes) handledCodes.add(code)
+
+    // Update maxContinuousHandledCode.
+    let maxContinuousHandledCode = this._maxContinuousHandledCode + 1
+    while (handledCodes.has(maxContinuousHandledCode)) {
+      handledCodes.delete(maxContinuousHandledCode)
+      maxContinuousHandledCode += 1
+    }
+    this._maxContinuousHandledCode = maxContinuousHandledCode - 1
+
+    // Notify that some materials were handled.
     this._handledTicker.tick()
   }
 
   public waitMaterialHandled(code: number): Promise<void> {
-    if (code < 0 || code >= this._code) return Promise.resolve()
+    if (code <= this._maxContinuousHandledCode || this._handledCodes.has(code)) {
+      return Promise.resolve()
+    }
 
     return new Promise<void>(resolve => {
       const subscriber: ISubscriber<number> = new Subscriber<number>({
         onNext: () => {
-          if (this._handledCodes.has(code)) {
+          if (code <= this._maxContinuousHandledCode || this._handledCodes.has(code)) {
+            unsubscribe.unsubscribe()
+            resolve()
+          }
+        },
+      })
+      const unsubscribe = this._handledTicker.subscribe(subscriber)
+    })
+  }
+
+  public waitAllMaterialsHandledAt(code: number): Promise<void> {
+    if (code <= this._maxContinuousHandledCode) return Promise.resolve()
+
+    return new Promise<void>(resolve => {
+      const subscriber: ISubscriber<number> = new Subscriber<number>({
+        onNext: () => {
+          if (code <= this._maxContinuousHandledCode) {
             unsubscribe.unsubscribe()
             resolve()
           }

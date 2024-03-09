@@ -40,6 +40,11 @@ export interface IPipeline<D, T> {
   use(cooker: IMaterialCooker<D, T>): void
 
   /**
+   * Close the pipeline and perform some cleanup operation.
+   */
+  close(): Promise<void>
+
+  /**
    * Add a element into the pipeline.
    * @param data
    * @returns the code of the material
@@ -62,4 +67,10 @@ export interface IPipeline<D, T> {
    * @param code the code of the material
    */
   waitMaterialHandled(code: number): Promise<void>
+
+  /**
+   * Waiting all materials handled which code are less than or equal to the specified code.
+   * @param code
+   */
+  waitAllMaterialsHandledAt(code: number): Promise<void>
 }

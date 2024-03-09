@@ -5,15 +5,13 @@ import type { IReporter } from '@guanghechen/reporter.types'
 import type { ITask, TaskStrategyEnum } from '@guanghechen/task'
 import { ResumableTask, TaskStatusEnum } from '@guanghechen/task'
 import { PipelineStatusEnum } from './constant'
-import type { IProductConsumer, IProductConsumerApi, IProductConsumerNext } from './types/consumer'
 import type { IPipeline } from './types/pipeline'
-import type { IProduct } from './types/product'
 import type { IScheduler } from './types/scheduler'
 
 const delay = (duration: number): Promise<void> =>
   new Promise<void>(resolve => setTimeout(resolve, duration))
 
-interface IProps<D, T> {
+interface IProps<D, T extends ITask> {
   readonly name: string
   readonly pipeline: IPipeline<D, T>
   readonly strategy: TaskStrategyEnum
@@ -22,13 +20,12 @@ interface IProps<D, T> {
   readonly idleInterval?: number
 }
 
-export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
-  protected readonly _consumers: Array<IProductConsumer<T, ITask>>
-  protected readonly _consumerApi: IProductConsumerApi
+export class Scheduler<D, T extends ITask> extends ResumableTask implements IScheduler<D> {
   protected readonly _idleInterval: number
   protected readonly _pipeline: IPipeline<D, T>
   protected readonly _reporter: IReporter | undefined
   protected _task: ITask | undefined
+  protected _lastScheduledMaterialCode: number
 
   constructor(props: IProps<D, T>) {
     const { name, pipeline, reporter, strategy } = props
@@ -36,12 +33,11 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
     const idleInterval: number = Math.max(500, Number(props.idleInterval) || 0)
     super(name, strategy, pollInterval)
 
-    this._consumers = []
-    this._consumerApi = {}
     this._idleInterval = idleInterval
     this._pipeline = pipeline
     this._reporter = reporter
     this._task = undefined
+    this._lastScheduledMaterialCode = -1
 
     const schedulerStatusSubscriber: ISubscriber<TaskStatusEnum> = new Subscriber({
       onNext: nextStatus => {
@@ -72,16 +68,18 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
     this.status.subscribe(schedulerStatusSubscriber)
   }
 
-  public schedule(data: D): Promise<number> {
-    return this._pipeline.push(data)
-  }
-
-  public use(consumer: IProductConsumer<T, ITask>): void {
-    this._consumers.push(consumer)
+  public async schedule(data: D): Promise<number> {
+    const code = await this._pipeline.push(data)
+    if (code > this._lastScheduledMaterialCode) this._lastScheduledMaterialCode = code
+    return code
   }
 
   public waitTaskTerminated(code: number): Promise<void> {
     return this._pipeline.waitMaterialHandled(code)
+  }
+
+  public waitAllScheduledTasksTerminated(): Promise<void> {
+    return this._pipeline.waitAllMaterialsHandledAt(this._lastScheduledMaterialCode)
   }
 
   public override complete(): Promise<void> {
@@ -125,26 +123,11 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
     }
 
     const pipeline: IPipeline<D, T> = this._pipeline
-    const product: IProduct<T> = await pipeline.pull()
-    if (product.data === null || product.codes.length <= 0) return delay(this._idleInterval)
+    const { codes, data: task } = await pipeline.pull()
+    if (task === null || codes.length <= 0) return delay(this._idleInterval)
 
     const reporter: IReporter | undefined = this._reporter
-    const api: IProductConsumerApi = this._consumerApi
-    const reducer: IProductConsumerNext<ITask> = this._consumers.reduceRight<
-      IProductConsumerNext<ITask>
-    >(
-      (next, consumer) => embryo => consumer.consume(product, embryo, api, next),
-      async embryo => embryo,
-    )
-    const task: ITask | null = await reducer(null)
-    if (task === null) return delay(this._idleInterval)
-
-    reporter?.verbose(
-      '[{}] task({}) starting. codes: [{}]',
-      this.name,
-      task.name,
-      product.codes.join(', '),
-    )
+    reporter?.verbose('[{}] task({}) starting. codes: [{}]', this.name, task.name, codes.join(', '))
 
     this._task = task
     await task.start()
@@ -158,15 +141,8 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
                 '[{}] task({}) finished. codes: {}.',
                 this.name,
                 task.name,
-                product.codes.join(', '),
+                codes.join(', '),
               )
-              reporter?.debug(
-                '[{}] task({}) finished. details: {}',
-                this.name,
-                task.name,
-                product.data,
-              )
-
               unsubscribable.unsubscribe()
               resolve()
               break
@@ -175,15 +151,8 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
                 '[{}] task({}) failed. codes: {}.',
                 this.name,
                 task.name,
-                product.codes.join(', '),
+                codes.join(', '),
               )
-              reporter?.debug(
-                '[{}] task({}) failed. details: {}',
-                this.name,
-                task.name,
-                product.data,
-              )
-
               unsubscribable.unsubscribe()
               reject(task.errors)
               break
@@ -192,15 +161,8 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
                 '[{}] task({}) cancelled. codes: {}.',
                 this.name,
                 task.name,
-                product.codes.join(', '),
+                codes.join(', '),
               )
-              reporter?.debug(
-                '[{}] task({}) cancelled. details: {}',
-                this.name,
-                task.name,
-                product.data,
-              )
-
               unsubscribable.unsubscribe()
               resolve()
               break
@@ -211,7 +173,7 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
       const unsubscribable = task.status.subscribe(subscriber)
     }).finally(() => {
       this._task = undefined
-      pipeline.notifyMaterialHandled(product.codes)
+      pipeline.notifyMaterialHandled(codes)
     })
   }
 }
