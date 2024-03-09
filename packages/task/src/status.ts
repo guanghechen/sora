@@ -59,8 +59,20 @@ export class TaskStatus extends Observable<TaskStatusEnum> implements ITaskStatu
     return (value & _terminated) > 0
   }
 
+  public override dispose(): void {
+    if (this.terminated) {
+      if (!this.disposed) super.dispose()
+      return
+    }
+
+    this.next(TaskStatusEnum.CANCELLED, { strict: false })
+    super.dispose()
+  }
+
   public override next(nextStatus: TaskStatusEnum, options?: IObservableNextOptions): void {
     const curStatus: TaskStatusEnum = this.getSnapshot()
+    if (curStatus === nextStatus) return
+
     if (this._verifyTransition(curStatus, nextStatus)) {
       super.next(nextStatus, options)
       if ((nextStatus & _terminated) > 0) this.dispose()

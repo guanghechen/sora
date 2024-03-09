@@ -1,11 +1,11 @@
 import { Subscriber, Ticker } from '@guanghechen/observable'
 import type { ISubscriber, ITicker } from '@guanghechen/observable'
-import { PipelineStatusEnum } from '../constant'
-import type { IMaterialCooker, IMaterialCookerApi, IMaterialCookerNext } from '../types/cooker'
-import type { IMaterial } from '../types/material'
-import type { IPipeline, IPipelineStatus } from '../types/pipeline'
-import type { IProduct } from '../types/product'
+import { PipelineStatusEnum } from './constant'
 import { PipelineStatus } from './status'
+import type { IMaterialCooker, IMaterialCookerApi, IMaterialCookerNext } from './types/cooker'
+import type { IMaterial } from './types/material'
+import type { IPipeline, IPipelineStatus } from './types/pipeline'
+import type { IProduct } from './types/product'
 
 export class Pipeline<D, T> implements IPipeline<D, T> {
   public readonly name: string

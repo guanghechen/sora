@@ -29,7 +29,7 @@ export abstract class AtomicTask implements ITask {
       this.status.next(TaskStatusEnum.RUNNING)
       this._promise = this.run()
         .then(() => {
-          this.status.next(TaskStatusEnum.COMPLETED)
+          this.status.next(TaskStatusEnum.COMPLETED, { strict: false })
         })
         .catch(error => {
           const soraError: ISoraError = {
@@ -38,7 +38,7 @@ export abstract class AtomicTask implements ITask {
             details: error,
           }
           this._errors.push(soraError)
-          this.status.next(TaskStatusEnum.FAILED)
+          this.status.next(TaskStatusEnum.FAILED, { strict: false })
         })
     }
     return this._promise

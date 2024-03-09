@@ -19,11 +19,6 @@ export interface IMaterialCooker<D, T> {
   readonly name: string
 
   /**
-   * Perform some initialization.
-   */
-  init(): Promise<void>
-
-  /**
    * Cook a material.
    * @param material
    */

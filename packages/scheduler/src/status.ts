@@ -1,7 +1,7 @@
 import type { IObservableNextOptions } from '@guanghechen/observable'
 import { Observable } from '@guanghechen/observable'
-import { PipelineStatusEnum } from '../constant'
-import type { IPipelineStatus } from '../types/pipeline'
+import { PipelineStatusEnum } from './constant'
+import type { IPipelineStatus } from './types/pipeline'
 
 const _terminated: PipelineStatusEnum = PipelineStatusEnum.CLOSED
 const _transitionMap: Record<PipelineStatusEnum, PipelineStatusEnum> = {
@@ -14,7 +14,7 @@ const _transitionMap: Record<PipelineStatusEnum, PipelineStatusEnum> = {
 
 export class PipelineStatus extends Observable<PipelineStatusEnum> implements IPipelineStatus {
   constructor() {
-    super(PipelineStatusEnum.IDLE)
+    super(PipelineStatusEnum.DRIED)
   }
 
   public get closed(): boolean {
@@ -23,20 +23,28 @@ export class PipelineStatus extends Observable<PipelineStatusEnum> implements IP
   }
 
   public override dispose(): void {
-    if (this.disposed) return
-    this.next(PipelineStatusEnum.CLOSED, { strict: true })
+    if (this.closed) {
+      if (!this.disposed) super.dispose()
+      return
+    }
+
+    this.next(PipelineStatusEnum.CLOSED, { strict: false })
     super.dispose()
   }
 
   public override next(nextStatus: PipelineStatusEnum, options?: IObservableNextOptions): void {
     const curStatus: PipelineStatusEnum = this.getSnapshot()
+    if (curStatus === nextStatus) return
+
     if (this._verifyTransition(curStatus, nextStatus)) {
       super.next(nextStatus, options)
       if ((nextStatus & _terminated) > 0) this.dispose()
       return
     }
 
+    /* c8 ignore next */
     const strict: boolean = options?.strict ?? true
+
     if (strict) {
       const curStatusName: string = PipelineStatusEnum[curStatus]
       const nextStatusName: string = PipelineStatusEnum[nextStatus]

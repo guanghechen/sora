@@ -1,26 +1,29 @@
 import { ErrorLevelEnum, type ISoraError } from '@guanghechen/error.types'
 import { Subscriber } from '@guanghechen/observable'
-import type { ISubscriber } from '@guanghechen/observable'
+import type { ISubscriber, IUnsubscribable } from '@guanghechen/observable'
 import type { IReporter } from '@guanghechen/reporter.types'
-import type { ITask, TaskStrategyEnum } from '@guanghechen/task'
-import { ResumableTask, TaskStatusEnum } from '@guanghechen/task'
+import type { ITask, ITaskStatus } from '@guanghechen/task'
+import { ResumableTask, TaskStatusEnum, TaskStrategyEnum } from '@guanghechen/task'
 import { PipelineStatusEnum } from './constant'
+import type { IProductConsumer, IProductConsumerApi, IProductConsumerNext } from './types/consumer'
 import type { IPipeline } from './types/pipeline'
 import type { IScheduler } from './types/scheduler'
 
 const delay = (duration: number): Promise<void> =>
   new Promise<void>(resolve => setTimeout(resolve, duration))
 
-interface IProps<D, T extends ITask> {
+interface IProps<D, T> {
   readonly name: string
   readonly pipeline: IPipeline<D, T>
   readonly strategy: TaskStrategyEnum
-  readonly reporter: IReporter | undefined
-  readonly pollInterval?: number
   readonly idleInterval?: number
+  readonly pollInterval?: number
+  readonly reporter?: IReporter
 }
 
-export class Scheduler<D, T extends ITask> extends ResumableTask implements IScheduler<D> {
+export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
+  protected readonly _consumers: Array<IProductConsumer<T, ITask>>
+  protected readonly _consumerApi: IProductConsumerApi
   protected readonly _idleInterval: number
   protected readonly _pipeline: IPipeline<D, T>
   protected readonly _reporter: IReporter | undefined
@@ -29,10 +32,15 @@ export class Scheduler<D, T extends ITask> extends ResumableTask implements ISch
 
   constructor(props: IProps<D, T>) {
     const { name, pipeline, reporter, strategy } = props
+    const idleInterval: number = Math.max(0, Number(props.idleInterval) || 300)
     const pollInterval: number = Math.max(0, Number(props.pollInterval) || 0)
-    const idleInterval: number = Math.max(500, Number(props.idleInterval) || 0)
     super(name, strategy, pollInterval)
 
+    const consumers: Array<IProductConsumer<T, ITask>> = []
+    const consumerApi: IProductConsumerApi = {}
+
+    this._consumers = consumers
+    this._consumerApi = consumerApi
     this._idleInterval = idleInterval
     this._pipeline = pipeline
     this._reporter = reporter
@@ -66,6 +74,10 @@ export class Scheduler<D, T extends ITask> extends ResumableTask implements ISch
       },
     })
     this.status.subscribe(schedulerStatusSubscriber)
+  }
+
+  public use(consumer: IProductConsumer<T, ITask>): void {
+    this._consumers.push(consumer)
   }
 
   public async schedule(data: D): Promise<number> {
@@ -123,57 +135,81 @@ export class Scheduler<D, T extends ITask> extends ResumableTask implements ISch
     }
 
     const pipeline: IPipeline<D, T> = this._pipeline
-    const { codes, data: task } = await pipeline.pull()
-    if (task === null || codes.length <= 0) return delay(this._idleInterval)
+    const { codes, data } = await pipeline.pull()
+    if (data === null || codes.length <= 0) return delay(this._idleInterval)
+
+    const api: IProductConsumerApi = this._consumerApi
+    const reducer: IProductConsumerNext<ITask> = this._consumers.reduceRight<
+      IProductConsumerNext<ITask>
+    >(
+      (next, consumer) => embryo => consumer.consume(data, embryo, api, next),
+      async embryo => embryo,
+    )
+    const task: ITask | null = await reducer(null)
+    if (task === null) return delay(this._idleInterval)
 
     const reporter: IReporter | undefined = this._reporter
     reporter?.verbose('[{}] task({}) starting. codes: [{}]', this.name, task.name, codes.join(', '))
 
     this._task = task
-    await task.start()
+    void task.start()
+
+    let notified: boolean = false
+    const onTerminated = (
+      status: ITaskStatus,
+      unsubscribable: IUnsubscribable,
+      resolve: () => void,
+      reject: (error: unknown) => void,
+    ): void => {
+      if (notified) return
+
+      if (status.terminated) {
+        reporter?.verbose(
+          '[{}] task({}) {}. codes: {}.',
+          this.name,
+          task.name,
+          TaskStatusEnum[status.getSnapshot()],
+          codes.join(', '),
+        )
+
+        notified = false
+        unsubscribable.unsubscribe()
+        pipeline.notifyMaterialHandled(codes)
+        if (status.getSnapshot() === TaskStatusEnum.FAILED) reject(task.errors)
+        else resolve()
+      }
+    }
 
     await new Promise<void>((resolve, reject) => {
       const subscriber: ISubscriber<TaskStatusEnum> = new Subscriber<TaskStatusEnum>({
-        onNext: status => {
-          switch (status) {
-            case TaskStatusEnum.COMPLETED:
-              reporter?.verbose(
-                '[{}] task({}) finished. codes: {}.',
-                this.name,
-                task.name,
-                codes.join(', '),
-              )
-              unsubscribable.unsubscribe()
-              resolve()
-              break
-            case TaskStatusEnum.FAILED:
-              reporter?.verbose(
-                '[{}] task({}) failed. codes: {}.',
-                this.name,
-                task.name,
-                codes.join(', '),
-              )
-              unsubscribable.unsubscribe()
-              reject(task.errors)
-              break
-            case TaskStatusEnum.CANCELLED:
-              reporter?.verbose(
-                '[{}] task({}) cancelled. codes: {}.',
-                this.name,
-                task.name,
-                codes.join(', '),
-              )
-              unsubscribable.unsubscribe()
-              resolve()
-              break
-            default:
-          }
+        onNext: () => {
+          setTimeout(() => onTerminated(task.status, unsubscribable, resolve, reject), 0)
+        },
+        onDispose: () => {
+          setTimeout(() => onTerminated(task.status, unsubscribable, resolve, reject), 0)
         },
       })
       const unsubscribable = task.status.subscribe(subscriber)
-    }).finally(() => {
-      this._task = undefined
-      pipeline.notifyMaterialHandled(codes)
     })
+      .catch(error => {
+        reporter?.error(
+          '[{}] task({}) failed. codes: {}. error: {}',
+          this.name,
+          task.name,
+          codes,
+          error,
+        )
+
+        switch (this.strategy) {
+          case TaskStrategyEnum.ABORT_ON_ERROR:
+            throw Array.isArray(error) ? new AggregateError(error) : error
+          case TaskStrategyEnum.CONTINUE_ON_ERROR:
+            break
+          default:
+        }
+      })
+      .finally(() => {
+        this._task = undefined
+      })
   }
 }
