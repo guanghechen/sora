@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.1](https://github.com/guanghechen/sora/compare/@guanghechen/error.types@1.0.0-alpha.9...@guanghechen/error.types@1.0.1) (2024-03-09)
+
+### Performance Improvements
+
+- :art: refactor error & remove error.types
+  ([0f4a259](https://github.com/guanghechen/sora/commit/0f4a25951e173979d6af448c72a50b05d56d50f1))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [1.0.0-alpha.9](https://github.com/guanghechen/sora/compare/@guanghechen/error.types@1.0.0-alpha.8...@guanghechen/error.types@1.0.0-alpha.9) (2024-02-03)
 
 ### Performance Improvements

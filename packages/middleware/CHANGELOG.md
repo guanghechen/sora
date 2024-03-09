@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.1](https://github.com/guanghechen/sora/compare/@guanghechen/middleware@1.0.0-alpha.7...@guanghechen/middleware@1.0.1) (2024-03-09)
+
+### Performance Improvements
+
+- :art: refactor middleware & remove middleware.types
+  ([ba84d0c](https://github.com/guanghechen/sora/commit/ba84d0ca1d43a4778ab9551f7c8876d3b1c7fb94))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [1.0.0-alpha.7](https://github.com/guanghechen/sora/compare/@guanghechen/middleware@1.0.0-alpha.6...@guanghechen/middleware@1.0.0-alpha.7) (2024-02-03)
 
 ### Performance Improvements

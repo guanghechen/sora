@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.21](https://github.com/guanghechen/sora/compare/@guanghechen/file-split@1.0.0-alpha.20...@guanghechen/file-split@1.0.0-alpha.21) (2024-03-09)
+
+**Note:** Version bump only for package @guanghechen/file-split
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [1.0.0-alpha.20](https://github.com/guanghechen/sora/compare/@guanghechen/file-split@1.0.0-alpha.19...@guanghechen/file-split@1.0.0-alpha.20) (2024-02-03)
 
 ### Performance Improvements

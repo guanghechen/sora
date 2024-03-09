@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.16](https://github.com/guanghechen/sora/compare/@guanghechen/config@1.0.0-alpha.15...@guanghechen/config@1.0.0-alpha.16) (2024-03-09)
+
+### Performance Improvements
+
+- 🔧 fix config
+  ([214a842](https://github.com/guanghechen/sora/commit/214a84231af7614dc46990b01ee8cfff44c6f20c))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [1.0.0-alpha.15](https://github.com/guanghechen/sora/compare/@guanghechen/config@1.0.0-alpha.14...@guanghechen/config@1.0.0-alpha.15) (2024-02-03)
 
 ### Performance Improvements

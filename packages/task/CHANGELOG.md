@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.1](https://github.com/guanghechen/sora/compare/@guanghechen/task@1.0.0-alpha.26...@guanghechen/task@1.0.0-beta.1) (2024-03-09)
+
+### Performance Improvements
+
+- :art: refactor task & remove task.types
+  ([7169a51](https://github.com/guanghechen/sora/commit/7169a5123c95be1e29e7bdfe49f11b6de823594f))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [1.0.0-alpha.26](https://github.com/guanghechen/sora/compare/@guanghechen/task@1.0.0-alpha.25...@guanghechen/task@1.0.0-alpha.26) (2024-02-03)
 
 ### Performance Improvements

@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/error.types",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "types of @guanghechen/error",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/error.types@1.0.0",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/error.types@1.0.1",
     "directory": "packages/error.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/error.types@1.0.0/packages/error.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/error.types@1.0.1/packages/error.types#readme",
   "type": "module",
   "exports": {
     ".": {

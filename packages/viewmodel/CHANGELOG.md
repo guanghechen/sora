@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.14](https://github.com/guanghechen/sora/compare/@guanghechen/viewmodel@1.0.0-alpha.13...@guanghechen/viewmodel@1.0.0-alpha.14) (2024-03-09)
+
+### Performance Improvements
+
+- :art: refactor viewmodel & remove viewmodel.types
+  ([5df71bd](https://github.com/guanghechen/sora/commit/5df71bd7d35f01b287df7e4d91ff4af09716756e))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [1.0.0-alpha.13](https://github.com/guanghechen/sora/compare/@guanghechen/viewmodel@1.0.0-alpha.12...@guanghechen/viewmodel@1.0.0-alpha.13) (2024-02-03)
 
 ### Performance Improvements
