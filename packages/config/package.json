@@ -38,7 +38,7 @@
     "@guanghechen/byte": "^1.0.0-alpha.6",
     "@guanghechen/config.types": "^1.0.0-alpha.6",
     "@guanghechen/resource.types": "^1.0.0-alpha.5",
-    "semver": "^7.5.4"
+    "semver": "^7.6.0"
   },
   "devDependencies": {
     "@guanghechen/internal": "^1.0.0-alpha.0"

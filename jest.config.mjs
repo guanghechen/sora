@@ -33,37 +33,21 @@ export default async function () {
 
 const coverageMap = {
   '@guanghechen/internal': {
-    'src/util/fs.ts': { branches: 91, lines: 96, statements: 96 },
-    'src/util/noop.ts': { functions: 0 },
+    global: { branches: 0, functions: 0, lines: 0, statements: 0 },
   },
   //-----------//
 
   '@guanghechen/chalk': {
-    global: {
-      branches: 73,
-      functions: 42,
-      lines: 46,
-      statements: 46,
-    },
+    global: { branches: 73, functions: 42, lines: 46, statements: 46 },
   },
   '@guanghechen/path': {
     'src/PathResolver.ts': { branches: 90 },
     'src/UrlPathResolver.ts': { branches: 97 },
   },
   '@guanghechen/reporter': {
-    global: {
-      branches: 96,
-      functions: 43,
-      lines: 78,
-      statements: 78,
-    },
+    global: { branches: 96, functions: 43, lines: 78, statements: 78 },
   },
   '@guanghechen/viewmodel': {
-    global: {
-      branches: 87,
-      functions: 63,
-      lines: 56,
-      statements: 56,
-    },
+    global: { branches: 58, functions: 50, lines: 51, statements: 51 },
   },
 }

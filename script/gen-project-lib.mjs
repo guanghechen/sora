@@ -1,5 +1,6 @@
 import { chalk } from '@guanghechen/chalk/node'
 import { Reporter, ReporterLevelEnum } from '@guanghechen/reporter'
+import fs from 'node:fs'
 import path from 'node:path'
 import url from 'node:url'
 import { detectTestDir, genAndWriteNxProjectJson } from './nx/project.mjs'
@@ -13,6 +14,11 @@ const reporter = new Reporter(chalk, {
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
 const workspaceRoot = path.dirname(__dirname)
 
+const projectNames = fs
+  .readdirSync(path.join(workspaceRoot, 'packages'))
+  .filter(d => !d.startsWith('_'))
+  .filter(d => fs.existsSync(path.join(workspaceRoot, 'packages', d, 'package.json')))
+
 /** @type {Promise<import('./nx/project.mjs').IGenNxProjectJsonParams>[]} */
 const entries = [
   {
@@ -20,42 +26,7 @@ const entries = [
     projectDir: 'packages/_internal',
     projectType: 'lib',
   },
-  ...[
-    'byte',
-    'chalk',
-    'chalk.types',
-    'config',
-    'config.types',
-    'disposable',
-    'disposable.types',
-    'equal',
-    'error',
-    'error.types',
-    'file-split',
-    'filepart',
-    'filepart.types',
-    'middleware',
-    'middleware.types',
-    'monitor',
-    'monitor.types',
-    'path',
-    'path.types',
-    'pipeline',
-    'pipeline.types',
-    'reporter',
-    'reporter.types',
-    'resource',
-    'resource.types',
-    'scheduler',
-    'scheduler.types',
-    'stream',
-    'subscribe.types',
-    'task',
-    'task.types',
-    'types',
-    'viewmodel',
-    'viewmodel.types',
-  ].map(projectName => ({
+  ...projectNames.map(projectName => ({
     projectName,
     projectDir: 'packages/' + projectName,
     projectType: 'lib',
