@@ -1,6 +1,11 @@
-import type { ITask } from '@guanghechen/task.types'
+import type { ITask } from '@guanghechen/task'
+import type { IProductConsumer } from './consumer'
 
-export interface IScheduler<D> extends ITask {
+export interface IScheduler<D, T> extends ITask {
+  /**
+   * Use a consumer to consume the products.
+   */
+  use(consumer: IProductConsumer<T, ITask>): void
   /**
    * Schedule a task.
    * @param data
@@ -12,8 +17,4 @@ export interface IScheduler<D> extends ITask {
    * @param code the code of the task
    */
   waitTaskTerminated(code: number): Promise<void>
-  /**
-   * Waiting all tasks terminated. (done / cancelled / failed)
-   */
-  waitAllTaskTerminated(): Promise<void>
 }
