@@ -20,7 +20,7 @@ describe('consumeStream', () => {
     for (const fp of tmpFiles) unlinkSync(fp)
   })
 
-  test('basic', async () => {
+  it('basic', async () => {
     for (const fp of filepaths) {
       const content = await loadContent(fp)
       const outFilepath = fp + '.out'
@@ -31,7 +31,7 @@ describe('consumeStream', () => {
     }
   })
 
-  test('cipher', async () => {
+  it('cipher', async () => {
     for (const fp of filepaths) {
       const content = await loadContent(fp)
 
@@ -60,7 +60,7 @@ describe('consumeStreams', () => {
     ;[outFilepath, cipherOutFilepath].flat().forEach(fp => unlinkSync(fp))
   })
 
-  test('basic', async () => {
+  it('basic', async () => {
     const content = (await Promise.all(filepaths.map(fp => loadContent(fp)))).join('')
     const readers = filepaths.map(fp => fs.createReadStream(fp))
     const writer = fs.createWriteStream(outFilepath)
@@ -68,7 +68,7 @@ describe('consumeStreams', () => {
     expect(await loadContent(outFilepath)).toEqual(content)
   })
 
-  test('single', async () => {
+  it('single', async () => {
     for (const fp of filepaths) {
       const content = await loadContent(fp)
       const reader = fs.createReadStream(fp)
@@ -78,7 +78,7 @@ describe('consumeStreams', () => {
     }
   })
 
-  test('cipher', async () => {
+  it('cipher', async () => {
     const content = (await Promise.all(filepaths.map(fp => loadContent(fp)))).join('')
     const readers = filepaths.map(fp => fs.createReadStream(fp))
     const writer = fs.createWriteStream(outFilepath)
@@ -95,7 +95,7 @@ describe('consumeStreams', () => {
 })
 
 describe('stream2buffer', function () {
-  test('basic', async () => {
+  it('basic', async () => {
     for (const fp of filepaths) {
       const reader = fs.createReadStream(fp)
       const buffer = await stream2buffer(reader, true)
@@ -103,7 +103,7 @@ describe('stream2buffer', function () {
     }
   })
 
-  test('string stream', async () => {
+  it('string stream', async () => {
     for (const fp of filepaths) {
       const reader = fs.createReadStream(fp, encoding)
       const buffer = await stream2buffer(reader, false)
@@ -113,7 +113,7 @@ describe('stream2buffer', function () {
 })
 
 describe('stream2bytes', function () {
-  test('basic', async () => {
+  it('basic', async () => {
     for (const fp of filepaths) {
       const reader = fs.createReadStream(fp)
       const bytes: Uint8Array = await stream2bytes(reader, true)
@@ -122,7 +122,7 @@ describe('stream2bytes', function () {
     }
   })
 
-  test('string stream', async () => {
+  it('string stream', async () => {
     for (const fp of filepaths) {
       const reader = fs.createReadStream(fp, encoding)
       const bytes: Uint8Array = await stream2bytes(reader, false)

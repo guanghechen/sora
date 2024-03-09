@@ -127,7 +127,7 @@ describe('JsonConfigKeeper', () => {
       await keeper.destroy()
     })
 
-    test('basic', () => {
+    it('basic', () => {
       expect(keeper.__version__).toEqual('2.0.0')
       expect(keeper.__compatible_version__).toEqual('~2.0.0')
       expect(keeper.data).toEqual(undefined)
@@ -178,7 +178,7 @@ function testJsonConfigKeeper<Instance, Data>(params: {
     await writeFile(configFilepath, content, 'utf8')
   }
 
-  test('load', async () => {
+  it('load', async () => {
     await assertPromiseThrow(() => keeper.load(), `Cannot find file`)
     mkdirsIfNotExists(configFilepath, true)
     await assertPromiseThrow(() => keeper.load(), `Not a file`)
@@ -223,7 +223,7 @@ function testJsonConfigKeeper<Instance, Data>(params: {
     expect(keeper.data).toEqual(instance.bob)
   })
 
-  test('parse', async () => {
+  it('parse', async () => {
     await assertPromiseThrow(
       () => keeper.parse(JSON.stringify({ data: data.alice })),
       '[BaseConfigKeeper.load] Bad config, invalid fields',
@@ -260,7 +260,7 @@ function testJsonConfigKeeper<Instance, Data>(params: {
     expect(keeper.data).toEqual(undefined)
   })
 
-  test('update / save / remove', async () => {
+  it('update / save / remove', async () => {
     await assertPromiseThrow(() => keeper.save(), '[BaseConfigKeeper.save] No valid data holding')
     await keeper.update(instance.alice)
     expect(keeper.data).toEqual(instance.alice)

@@ -5,7 +5,7 @@ import { findNearestFilepath, locateNearestFilepath } from '../src'
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
 
 describe('locateNearestFilepath', function () {
-  test('single filename', function () {
+  it('single filename', function () {
     expect(locateNearestFilepath(__dirname, 'package.json')).toBe(
       path.join(__dirname, '../package.json'),
     )
@@ -23,7 +23,7 @@ describe('locateNearestFilepath', function () {
     )
   })
 
-  test('multiple filenames', function () {
+  it('multiple filenames', function () {
     expect(locateNearestFilepath(__dirname, ['package.json'])).toBe(
       path.join(__dirname, '../package.json'),
     )
@@ -41,13 +41,13 @@ describe('locateNearestFilepath', function () {
     )
   })
 
-  test('not found', function () {
+  it('not found', function () {
     expect(locateNearestFilepath(__dirname, '.xx.yy.zz....xxx' + Math.random())).toBeNull()
   })
 })
 
 describe('findNearestFilepath', function () {
-  test('basic', function () {
+  it('basic', function () {
     expect(findNearestFilepath(__dirname, p => path.basename(p) === 'package.json')).toBe(
       path.join(__dirname, '../package.json'),
     )
@@ -57,7 +57,7 @@ describe('findNearestFilepath', function () {
     ).toBe(path.join(__dirname, '../package.json'))
   })
 
-  test('not found', function () {
+  it('not found', function () {
     expect(findNearestFilepath(__dirname, () => false)).toBeNull()
   })
 })

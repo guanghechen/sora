@@ -17,4 +17,8 @@ describe('pipeline', () => {
   beforeEach(() => {
     pipeline = new Pipeline('sora')
   })
+
+  afterEach(async () => {
+    await pipeline.close()
+  })
 })

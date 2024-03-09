@@ -18,7 +18,7 @@ describe('util', () => {
   const contentF: string = readFileSync(locateFixtures('f.md'), encoding)
   const contentG: string = readFileSync(locateFixtures('g.md'), encoding)
 
-  test('calcFilePartItemsBySize', () => {
+  it('calcFilePartItemsBySize', () => {
     expect(() => [...calcFilePartItemsBySize(100, 0)]).toThrow(
       'Part size should be a positive integer!',
     )
@@ -85,7 +85,7 @@ describe('util', () => {
     ])
   })
 
-  test('calcFilePartItemsByCount', () => {
+  it('calcFilePartItemsByCount', () => {
     expect(() => [...calcFilePartItemsByCount(100, 0)]).toThrow(
       'Total of part should be a positive integer!',
     )
@@ -137,7 +137,7 @@ describe('util', () => {
     ])
   })
 
-  test('calcFilePartNames', () => {
+  it('calcFilePartNames', () => {
     // empty
     expect([...calcFilePartNames([], '')]).toEqual([])
     expect([...calcFilePartNames([], '.part')]).toEqual([])
@@ -180,7 +180,7 @@ describe('util', () => {
     ])
   })
 
-  test('calcFilePartNamesByCount', () => {
+  it('calcFilePartNamesByCount', () => {
     // empty
     expect([...calcFilePartNamesByCount(0, '')]).toEqual([])
     expect([...calcFilePartNamesByCount(-1, '.part')]).toEqual([])

@@ -22,20 +22,20 @@ describe('encode / decode', () => {
         },
       ]
 
-      test('encode', function () {
+      it('encode', function () {
         for (const { plaintext, ciphertext } of kases) {
           const bytes: Uint8Array = text2bytes(plaintext, 'utf8')
           expect(bytes2text(bytes, 'base64')).toEqual(ciphertext)
         }
       })
 
-      test('decode', function () {
+      it('decode', function () {
         for (const { plaintext, ciphertext } of kases) {
           expect(text2bytes(ciphertext, 'base64')).toEqual(text2bytes(plaintext, 'utf8'))
         }
       })
 
-      test('validate', function () {
+      it('validate', function () {
         expect(validateBase64Text('a')).toBe(false)
         expect(validateBase64Text('aa')).toBe(false)
         expect(validateBase64Text('aaa')).toBe(false)
@@ -45,10 +45,10 @@ describe('encode / decode', () => {
     })
 
     describe('edge case', () => {
-      test('%4 == 0', () => testWithBytes(1000))
-      test('%4 == 1', () => testWithBytes(1001))
-      test('%4 == 2', () => testWithBytes(1002))
-      test('%4 == 3', () => testWithBytes(1003))
+      it('%4 == 0', () => testWithBytes(1000))
+      it('%4 == 1', () => testWithBytes(1001))
+      it('%4 == 2', () => testWithBytes(1002))
+      it('%4 == 3', () => testWithBytes(1003))
 
       function testWithBytes(size: number): void {
         const bytes = new Uint8Array(size)
@@ -68,7 +68,7 @@ describe('encode / decode', () => {
   })
 
   describe('hex', () => {
-    test('basic', () => {
+    it('basic', () => {
       const originalText: string =
         '5b68774ab64c5d83a71ed329ee95eed5e156ccd89500693c3157c88fce380f30'
       const bytes: Uint8Array = text2bytes(originalText, 'hex')
@@ -76,21 +76,21 @@ describe('encode / decode', () => {
       expect(text).toEqual(originalText)
     })
 
-    test('edge case', () => {
+    it('edge case', () => {
       expect(() => hexText2bytes('2')).toThrow('[hexText2bytes] Hex string length must be even.')
       expect(() => hexText2bytes('2k')).toThrow('[hexText2bytes] bad hex string, unknown char (k).')
       expect(() => hexText2bytes('mk')).toThrow('[hexText2bytes] bad hex string, unknown char (m).')
     })
   })
 
-  test('utf8', () => {
+  it('utf8', () => {
     const originalText: string = 'Hello, world. 你好，世界。'
     const bytes: Uint8Array = text2bytes(originalText, 'utf8')
     const text: string = bytes2text(bytes, 'utf8')
     expect(text).toEqual(originalText)
   })
 
-  test('unknown encoding', () => {
+  it('unknown encoding', () => {
     expect(() => text2bytes('waw', 'waw' as any)).toThrow('[text2bytes] Unsupported encoding: waw.')
     expect(() => bytes2text(new Uint8Array(2), 'waw' as any)).toThrow(
       '[bytes2text] Unsupported encoding: waw.',

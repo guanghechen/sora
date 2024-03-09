@@ -2,11 +2,11 @@ import { ReporterLevelEnum, parseOptionsFromArgs } from '../src'
 
 describe('command funcs', () => {
   describe('options', () => {
-    test('default', () => {
+    it('default', () => {
       expect(parseOptionsFromArgs([])).toEqual({ flights: {} })
     })
 
-    test('#1', () => {
+    it('#1', () => {
       expect(
         parseOptionsFromArgs([
           '--log-level=debug',
@@ -30,7 +30,7 @@ describe('command funcs', () => {
       })
     })
 
-    test('#2', () => {
+    it('#2', () => {
       expect(
         parseOptionsFromArgs([
           '--log-level=debug',
@@ -47,7 +47,7 @@ describe('command funcs', () => {
       })
     })
 
-    test('#3', () => {
+    it('#3', () => {
       const options = parseOptionsFromArgs(['--log-filepath="a/waw.txt"', '--log-encoding', 'gbk'])
       expect(options).toEqual({ flights: {} })
     })

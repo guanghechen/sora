@@ -4,7 +4,7 @@ import { Observable } from '../src'
 import { TestSubscriber } from './common'
 
 describe('sync', () => {
-  test('notifier', () => {
+  it('notifier', () => {
     const observable: IObservable<number> = new Observable<number>(0)
     const subscriber1 = new TestSubscriber(1)
     const subscriber2 = new TestSubscriber(2)
@@ -208,7 +208,7 @@ describe('sync', () => {
 })
 
 describe('async', () => {
-  test('notifier', async () => {
+  it('notifier', async () => {
     const duration: number = 50
     const observable: IObservable<number> = new Observable<number>(0, { delay: duration })
     const subscriber1 = new TestSubscriber(1)
@@ -490,7 +490,7 @@ describe('async', () => {
     expect(subscriber3.disposed).toEqual(true)
   })
 
-  test('subscribe', async () => {
+  it('subscribe', async () => {
     const duration: number = 50
     const observable: IObservable<number> = new Observable<number>(0, { delay: duration })
 

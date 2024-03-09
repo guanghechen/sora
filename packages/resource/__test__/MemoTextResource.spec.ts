@@ -7,20 +7,20 @@ describe('MemoTextResource', () => {
     const encoding: BufferEncoding = 'utf8'
     const resource = new MemoTextResource({ strict: false, encoding, content: undefined })
 
-    test('exists', async () => {
+   it('exists', async () => {
       expect(await resource.exists()).toEqual(true)
 
       await resource.save('waw')
       expect(await resource.exists()).toEqual(true)
     })
 
-    test('load', async () => {
+   it('load', async () => {
       expect(await resource.load()).toEqual('waw')
       await resource.save(content)
       expect(await resource.load()).toEqual(content)
     })
 
-    test('destroy', async () => {
+   it('destroy', async () => {
       expect(await resource.exists()).toEqual(true)
       await resource.destroy()
       expect(await resource.exists()).toEqual(false)
@@ -33,12 +33,12 @@ describe('MemoTextResource', () => {
     const encoding: BufferEncoding = 'utf8'
     const resource = new MemoTextResource({ strict: true, encoding, content: undefined })
 
-    test('load', async () => {
+   it('load', async () => {
       await resource.save(content)
       expect(await resource.load()).toEqual(content)
     })
 
-    test('destroy', async () => {
+   it('destroy', async () => {
       await resource.destroy()
       await assertPromiseThrow(
         () => resource.save(content),

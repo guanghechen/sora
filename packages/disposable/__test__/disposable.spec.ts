@@ -14,7 +14,7 @@ test('isDisposable', () => {
 })
 
 describe('disposeAll', () => {
-  test('no error', () => {
+  it('no error', () => {
     const disposable1 = new Disposable(() => {})
     const disposable2 = new Disposable(() => {})
     const disposable3 = new Disposable(() => {})
@@ -42,7 +42,7 @@ describe('disposeAll', () => {
     expect(disposable5.disposed).toEqual(true)
   })
 
-  test('one error', () => {
+  it('one error', () => {
     const disposable1 = new Disposable(() => {})
     const disposable2 = new Disposable(() => {
       throw new Error('waw')
@@ -74,7 +74,7 @@ describe('disposeAll', () => {
     expect(disposable5.disposed).toEqual(true)
   })
 
-  test('multiple errors', () => {
+  it('multiple errors', () => {
     const disposable1 = new Disposable(() => {})
     const disposable2 = new Disposable(() => {
       throw new Error('waw1')
@@ -110,7 +110,7 @@ describe('disposeAll', () => {
 })
 
 describe('BatchDisposable', () => {
-  test('no error', () => {
+  it('no error', () => {
     const disposable: IBatchDisposable = new BatchDisposable()
     const disposable1 = new Disposable(() => {})
     const disposable2 = new Disposable(() => {})
@@ -155,7 +155,7 @@ describe('BatchDisposable', () => {
     expect(disposable6.disposed).toEqual(true)
   })
 
-  test('one error', () => {
+  it('one error', () => {
     const disposable: IBatchDisposable = new BatchDisposable()
     const disposable1 = new Disposable(() => {})
     const disposable2 = new Disposable(() => {
@@ -202,7 +202,7 @@ describe('BatchDisposable', () => {
     expect(disposable6.disposed).toEqual(true)
   })
 
-  test('multiple errors', () => {
+  it('multiple errors', () => {
     const disposable: IBatchDisposable = new BatchDisposable()
     const disposable1 = new Disposable(() => {})
     const disposable2 = new Disposable(() => {

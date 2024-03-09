@@ -24,7 +24,7 @@ describe('ObservableMap', () => {
     observableMap.dispose()
   })
 
-  test('observeKey', async () => {
+  it('observeKey', async () => {
     const observableA = observableMap.observeKey('A')
     const observableB = observableMap.observeKey('B')
     const observableC = observableMap.observeKey('C')

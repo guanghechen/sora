@@ -1,7 +1,7 @@
 import { normalizeString } from '../src/format'
 
 describe('normalizeString', () => {
-  test('basic', () => {
+  it('basic', () => {
     const suites = [
       [undefined, 'undefined', 'undefined'],
       [null, 'null', 'null'],

@@ -1,7 +1,7 @@
 import { bytes2text, mergeBytes, text2bytes } from '../src'
 
 describe('merge', () => {
-  test('basic', () => {
+  it('basic', () => {
     const encoding = 'utf8'
     const bytes1 = text2bytes('hello', encoding)
     const bytes2 = text2bytes(', world', encoding)

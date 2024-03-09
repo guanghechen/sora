@@ -1,13 +1,13 @@
 import { ReporterLevelEnum, resolveLevel, retrieveLevelName } from '../src'
 
 describe('resolveLevel', () => {
-  test('debug', () => {
+  it('debug', () => {
     expect(resolveLevel('debug')).toBe(ReporterLevelEnum.DEBUG)
     expect(resolveLevel('DEBUG')).toBe(ReporterLevelEnum.DEBUG)
     expect(resolveLevel(ReporterLevelEnum.DEBUG)).toBe(ReporterLevelEnum.DEBUG)
   })
 
-  test('verbose', () => {
+  it('verbose', () => {
     expect(resolveLevel('verb')).toBe(ReporterLevelEnum.VERBOSE)
     expect(resolveLevel('verbose')).toBe(ReporterLevelEnum.VERBOSE)
     expect(resolveLevel('VERB')).toBe(ReporterLevelEnum.VERBOSE)
@@ -15,7 +15,7 @@ describe('resolveLevel', () => {
     expect(resolveLevel(ReporterLevelEnum.VERBOSE)).toBe(ReporterLevelEnum.VERBOSE)
   })
 
-  test('info', () => {
+  it('info', () => {
     expect(resolveLevel('info')).toBe(ReporterLevelEnum.INFO)
     expect(resolveLevel('information')).toBe(ReporterLevelEnum.INFO)
     expect(resolveLevel('INFO')).toBe(ReporterLevelEnum.INFO)
@@ -23,7 +23,7 @@ describe('resolveLevel', () => {
     expect(resolveLevel(ReporterLevelEnum.INFO)).toBe(ReporterLevelEnum.INFO)
   })
 
-  test('warning', () => {
+  it('warning', () => {
     expect(resolveLevel('warn')).toBe(ReporterLevelEnum.WARN)
     expect(resolveLevel('warning')).toBe(ReporterLevelEnum.WARN)
     expect(resolveLevel('WARN')).toBe(ReporterLevelEnum.WARN)
@@ -31,13 +31,13 @@ describe('resolveLevel', () => {
     expect(resolveLevel(ReporterLevelEnum.WARN)).toBe(ReporterLevelEnum.WARN)
   })
 
-  test('error', () => {
+  it('error', () => {
     expect(resolveLevel('error')).toBe(ReporterLevelEnum.ERROR)
     expect(resolveLevel('ERROR')).toBe(ReporterLevelEnum.ERROR)
     expect(resolveLevel(ReporterLevelEnum.ERROR)).toBe(ReporterLevelEnum.ERROR)
   })
 
-  test('fatal', () => {
+  it('fatal', () => {
     expect(resolveLevel('fatal')).toBe(ReporterLevelEnum.FATAL)
     expect(resolveLevel('FATAL')).toBe(ReporterLevelEnum.FATAL)
     expect(resolveLevel(ReporterLevelEnum.FATAL)).toBe(ReporterLevelEnum.FATAL)
@@ -45,27 +45,27 @@ describe('resolveLevel', () => {
 })
 
 describe('retrieveLevelName', () => {
-  test('debug', () => {
+  it('debug', () => {
     expect(retrieveLevelName(ReporterLevelEnum.DEBUG)).toBe('debug')
   })
 
-  test('verbose', () => {
+  it('verbose', () => {
     expect(retrieveLevelName(ReporterLevelEnum.VERBOSE)).toBe('verbose')
   })
 
-  test('info', () => {
+  it('info', () => {
     expect(retrieveLevelName(ReporterLevelEnum.INFO)).toBe('info')
   })
 
-  test('warn', () => {
+  it('warn', () => {
     expect(retrieveLevelName(ReporterLevelEnum.WARN)).toBe('warn')
   })
 
-  test('error', () => {
+  it('error', () => {
     expect(retrieveLevelName(ReporterLevelEnum.ERROR)).toBe('error')
   })
 
-  test('fatal', () => {
+  it('fatal', () => {
     expect(retrieveLevelName(ReporterLevelEnum.FATAL)).toBe('fatal')
   })
 })

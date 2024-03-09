@@ -5,7 +5,7 @@ import { Reporter, ReporterLevelEnum } from '../src'
 
 describe('Reporter', () => {
   describe('options', () => {
-    test('flights', () => {
+    it('flights', () => {
       const reporter = new Reporter(chalk, {
         flights: { colorful: false },
       })
@@ -18,7 +18,7 @@ describe('Reporter', () => {
     })
   })
 
-  test('setDivisionName', () => {
+  it('setDivisionName', () => {
     const reporter = new Reporter(chalk, {
       baseName: 'basename',
     })
@@ -34,7 +34,7 @@ describe('Reporter', () => {
     expect(reporter.name).toBe('basename')
   })
 
-  test('setLevel', () => {
+  it('setLevel', () => {
     const logger = new Reporter(chalk)
     expect(logger.level).toBe(ReporterLevelEnum.INFO)
 

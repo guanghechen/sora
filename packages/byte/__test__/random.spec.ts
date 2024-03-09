@@ -1,7 +1,7 @@
 import { randomBytes } from '../src'
 
 describe('random', () => {
-  test('randomBytes', () => {
+  it('randomBytes', () => {
     const bytes1: Uint8Array = randomBytes(32)
     const bytes2: Uint8Array = randomBytes(32)
     expect(bytes1).not.toEqual(bytes2)

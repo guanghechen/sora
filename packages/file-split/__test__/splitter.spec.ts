@@ -85,7 +85,7 @@ describe('splitter', () => {
     await rm(workspaceDir)
   })
 
-  test('calcPartFilepaths', () => {
+  it('calcPartFilepaths', () => {
     expect(fileHelper.calcPartFilepaths(filepathA, partsA)).toEqual(
       ['1', '2', '3', '4'].map(p => filepathA + partCodePrefix + p),
     )
@@ -105,7 +105,7 @@ describe('splitter', () => {
     expect(fileHelper.calcPartFilepaths(filepathG, partsG)).toEqual([filepathG])
   })
 
-  test('split', async () => {
+  it('split', async () => {
     // A
     const partPathsA = await fileHelper.split(filepathA, partsA)
     expect(partPathsA).toEqual(partsAFilepaths)
@@ -142,7 +142,7 @@ describe('splitter', () => {
     expect(partPathsG.every(fp => existsSync(fp))).toEqual(true)
   })
 
-  test('merge', async () => {
+  it('merge', async () => {
     // A
     const partPathsA = await fileHelper.split(filepathA, partsA)
     expect(partPathsA).toEqual(partsAFilepaths)

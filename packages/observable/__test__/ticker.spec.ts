@@ -3,7 +3,7 @@ import { Observable, Ticker } from '../src'
 import { TestSubscriber } from './common'
 
 describe('async', () => {
-  test('tick', async () => {
+  it('tick', async () => {
     const duration: number = 50
     const ticker = new Ticker({ start: 0, delay: duration })
 
@@ -49,7 +49,7 @@ describe('async', () => {
     expect(subscriber1.updateTick).toEqual(2)
   })
 
-  test('observe', async () => {
+  it('observe', async () => {
     const duration: number = 50
     const ticker = new Ticker({ start: 0, delay: duration })
 
