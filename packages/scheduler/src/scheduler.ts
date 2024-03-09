@@ -2,7 +2,7 @@ import { ErrorLevelEnum, type ISoraError } from '@guanghechen/error.types'
 import { Subscriber } from '@guanghechen/observable'
 import type { ISubscriber, IUnsubscribable } from '@guanghechen/observable'
 import type { IReporter } from '@guanghechen/reporter.types'
-import type { ITask, ITaskStatus } from '@guanghechen/task'
+import type { ITask } from '@guanghechen/task'
 import { ResumableTask, TaskStatusEnum, TaskStrategyEnum } from '@guanghechen/task'
 import { PipelineStatusEnum } from './constant'
 import type { IProductConsumer, IProductConsumerApi, IProductConsumerNext } from './types/consumer'
@@ -81,6 +81,7 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
   }
 
   public async schedule(data: D): Promise<number> {
+    if (this.status.terminated) return -1
     const code = await this._pipeline.push(data)
     if (code > this._lastScheduledMaterialCode) this._lastScheduledMaterialCode = code
     return code
@@ -94,38 +95,40 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
     return this._pipeline.waitAllMaterialsHandledAt(this._lastScheduledMaterialCode)
   }
 
-  public override complete(): Promise<void> {
-    const pipeline: IPipeline<D, T> = this._pipeline
-    if (!pipeline.status.closed) {
-      const soraError: ISoraError = {
-        from: this.name,
-        level: ErrorLevelEnum.ERROR,
-        details: `[Scheduler] ${this.name}: pipeline is not closed, the finish won't be terminated`,
-      }
-      this._errors.push(soraError)
-    }
-    return super.complete()
+  public override async complete(): Promise<void> {
+    this.status.next(TaskStatusEnum.COMPLETED, { strict: false })
+    await this.waitAllScheduledTasksTerminated()
   }
 
   protected override *run(): IterableIterator<Promise<void>> {
     const pipeline: IPipeline<D, T> = this._pipeline
-    while (!pipeline.status.closed) {
-      while (pipeline.size > 0) yield this._pullAndRun()
+    while (!pipeline.status.closed && !this.status.terminated) {
+      while (pipeline.size > 0) {
+        if (this.status.terminated) return
+        yield this._pullAndRun()
+      }
 
       // Waiting the pipeline to be idle.
+      let resolved: boolean = false
+      let unsubscribable: IUnsubscribable | undefined
       yield new Promise<void>(resolve => {
         const subscriber: ISubscriber<PipelineStatusEnum> = new Subscriber<PipelineStatusEnum>({
           onNext: nextStatus => {
-            if (nextStatus !== PipelineStatusEnum.DRIED) {
-              resolve()
-              unsubscribe.unsubscribe()
-            }
+            if (resolved) return
+            if (nextStatus !== PipelineStatusEnum.DRIED) resolve()
           },
         })
-        const unsubscribe = pipeline.status.subscribe(subscriber)
+        unsubscribable = pipeline.status.subscribe(subscriber)
+      }).finally(() => {
+        resolved = true
+        unsubscribable?.unsubscribe()
       })
     }
-    while (pipeline.size > 0) yield this._pullAndRun()
+
+    while (pipeline.size > 0) {
+      if (this.status.terminated) return
+      yield this._pullAndRun()
+    }
   }
 
   private async _pullAndRun(): Promise<void> {
@@ -154,44 +157,40 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
     this._task = task
     void task.start()
 
-    let notified: boolean = false
-    const onTerminated = (
-      status: ITaskStatus,
-      unsubscribable: IUnsubscribable,
-      resolve: () => void,
-      reject: (error: unknown) => void,
-    ): void => {
-      if (notified) return
-
-      if (status.terminated) {
-        reporter?.verbose(
-          '[{}] task({}) {}. codes: {}.',
-          this.name,
-          task.name,
-          TaskStatusEnum[status.getSnapshot()],
-          codes.join(', '),
-        )
-
-        notified = false
-        unsubscribable.unsubscribe()
-        pipeline.notifyMaterialHandled(codes)
-        if (status.getSnapshot() === TaskStatusEnum.FAILED) reject(task.errors)
-        else resolve()
-      }
-    }
-
+    let resolved: boolean = false
+    let unsubscribable: IUnsubscribable | undefined
     await new Promise<void>((resolve, reject) => {
       const subscriber: ISubscriber<TaskStatusEnum> = new Subscriber<TaskStatusEnum>({
-        onNext: () => {
-          setTimeout(() => onTerminated(task.status, unsubscribable, resolve, reject), 0)
-        },
-        onDispose: () => {
-          setTimeout(() => onTerminated(task.status, unsubscribable, resolve, reject), 0)
+        onNext: status => {
+          if (resolved) return
+          if (task.status.terminated) {
+            reporter?.verbose(
+              '[{}] task({}) {}. codes: {}.',
+              this.name,
+              task.name,
+              TaskStatusEnum[status],
+              codes.join(', '),
+            )
+            if (status === TaskStatusEnum.FAILED) reject(task.errors)
+            else resolve()
+          }
         },
       })
-      const unsubscribable = task.status.subscribe(subscriber)
-    })
-      .catch(error => {
+      unsubscribable = task.status.subscribe(subscriber)
+    }).finally(() => {
+      resolved = true
+      unsubscribable?.unsubscribe()
+      pipeline.notifyMaterialHandled(codes)
+
+      this._task = undefined
+      if (task.errors.length > 0) {
+        const error: ISoraError = {
+          from: task.name,
+          level: ErrorLevelEnum.ERROR,
+          details: task.errors.length > 1 ? new AggregateError(task.errors) : task.errors,
+        }
+        this._errors.push(error)
+
         reporter?.error(
           '[{}] task({}) failed. codes: {}. error: {}',
           this.name,
@@ -202,14 +201,12 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
 
         switch (this.strategy) {
           case TaskStrategyEnum.ABORT_ON_ERROR:
-            throw Array.isArray(error) ? new AggregateError(error) : error
+            throw error
           case TaskStrategyEnum.CONTINUE_ON_ERROR:
             break
           default:
         }
-      })
-      .finally(() => {
-        this._task = undefined
-      })
+      }
+    })
   }
 }

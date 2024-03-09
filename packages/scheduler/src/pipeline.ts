@@ -1,5 +1,5 @@
 import { Subscriber, Ticker } from '@guanghechen/observable'
-import type { ISubscriber, ITicker } from '@guanghechen/observable'
+import type { ISubscriber, ITicker, IUnsubscribable } from '@guanghechen/observable'
 import { PipelineStatusEnum } from './constant'
 import { PipelineStatus } from './status'
 import type { IMaterialCooker, IMaterialCookerApi, IMaterialCookerNext } from './types/cooker'
@@ -112,37 +112,43 @@ export class Pipeline<D, T> implements IPipeline<D, T> {
     this._handledTicker.tick()
   }
 
-  public waitMaterialHandled(code: number): Promise<void> {
-    if (code <= this._maxContinuousHandledCode || this._handledCodes.has(code)) {
-      return Promise.resolve()
-    }
+  public async waitMaterialHandled(code: number): Promise<void> {
+    if (code <= this._maxContinuousHandledCode || this._handledCodes.has(code)) return
 
-    return new Promise<void>(resolve => {
+    let resolved: boolean = false
+    let unsubscribable: IUnsubscribable | undefined
+    await new Promise<void>(resolve => {
       const subscriber: ISubscriber<number> = new Subscriber<number>({
         onNext: () => {
-          if (code <= this._maxContinuousHandledCode || this._handledCodes.has(code)) {
-            unsubscribe.unsubscribe()
-            resolve()
-          }
+          /* c8 ignore next */
+          if (resolved) return
+          if (code <= this._maxContinuousHandledCode || this._handledCodes.has(code)) resolve()
         },
       })
-      const unsubscribe = this._handledTicker.subscribe(subscriber)
+      unsubscribable = this._handledTicker.subscribe(subscriber)
+    }).finally(() => {
+      resolved = true
+      unsubscribable?.unsubscribe()
     })
   }
 
-  public waitAllMaterialsHandledAt(code: number): Promise<void> {
-    if (code <= this._maxContinuousHandledCode) return Promise.resolve()
+  public async waitAllMaterialsHandledAt(code: number): Promise<void> {
+    if (code <= this._maxContinuousHandledCode) return
 
-    return new Promise<void>(resolve => {
+    let resolved: boolean = false
+    let unsubscribable: IUnsubscribable | undefined
+    await new Promise<void>(resolve => {
       const subscriber: ISubscriber<number> = new Subscriber<number>({
         onNext: () => {
-          if (code <= this._maxContinuousHandledCode) {
-            unsubscribe.unsubscribe()
-            resolve()
-          }
+          /* c8 ignore next */
+          if (resolved) return
+          if (code <= this._maxContinuousHandledCode) resolve()
         },
       })
-      const unsubscribe = this._handledTicker.subscribe(subscriber)
+      unsubscribable = this._handledTicker.subscribe(subscriber)
+    }).finally(() => {
+      resolved = true
+      unsubscribable?.unsubscribe()
     })
   }
 

@@ -1,5 +1,12 @@
 import { AtomicTask, type ITask, TaskStrategyEnum } from '@guanghechen/task'
-import type { IMaterialCooker, IMaterialCookerApi, IMaterialCookerNext, IProductConsumer, IProductConsumerApi, IProductConsumerNext } from '../../src'
+import type {
+  IMaterialCooker,
+  IMaterialCookerApi,
+  IMaterialCookerNext,
+  IProductConsumer,
+  IProductConsumerApi,
+  IProductConsumerNext,
+} from '../../src'
 
 export enum FileChangeTypeEnum {
   CREATE = 'create',
@@ -15,19 +22,6 @@ export interface IFileMaterialData {
 export interface IFIleProductData {
   readonly type: FileChangeTypeEnum
   readonly filepaths: string[]
-}
-
-export class FileTask extends AtomicTask implements ITask {
-  protected readonly data: IFIleProductData
-
-  constructor(name: string, data: IFIleProductData) {
-    super(name, TaskStrategyEnum.ABORT_ON_ERROR)
-    this.data = data
-  }
-
-  protected override async run(): Promise<void> {
-    console.log(`[${this.name}] run:`, this.data.type, this.data.filepaths)
-  }
 }
 
 export class FileMaterialCooker implements IMaterialCooker<IFileMaterialData, IFIleProductData> {
@@ -122,5 +116,24 @@ export class FileProductConsumer implements IProductConsumer<IFIleProductData, I
     if (embryo !== null) return embryo
     const task: ITask = new FileTask(data.type, data)
     return next(task)
+  }
+}
+
+export class FileTask extends AtomicTask implements ITask {
+  protected readonly data: IFIleProductData
+
+  constructor(name: string, data: IFIleProductData) {
+    super(name, TaskStrategyEnum.ABORT_ON_ERROR)
+    this.data = data
+  }
+
+  protected override async run(): Promise<void> {
+    const { type, filepaths } = this.data
+    if (filepaths.includes('non-exist')) {
+      if (type === FileChangeTypeEnum.DELETE || type === FileChangeTypeEnum.MODIFY) {
+        throw new Error('file not exist')
+      }
+    }
+    console.log(`[${this.name}] run:`, type, filepaths)
   }
 }

@@ -47,6 +47,9 @@ const coverageMap = {
   '@guanghechen/reporter': {
     global: { branches: 96, functions: 43, lines: 78, statements: 78 },
   },
+  '@guanghechen/scheduler': {
+    global: { branches: 86, functions: 97, lines: 95, statements: 95 },
+  },
   '@guanghechen/viewmodel': {
     global: { branches: 58, functions: 50, lines: 51, statements: 51 },
   },
