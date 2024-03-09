@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.2](https://github.com/guanghechen/sora/compare/@guanghechen/observable@6.0.1...@guanghechen/observable@6.0.2) (2024-03-09)
+
+### Bug Fixes
+
+- 🐛 notify current value to subscriber even the observable has been disposed
+  ([235d145](https://github.com/guanghechen/sora/commit/235d145c7f159f66a4a1f407e7156e601d85f1e4))
+
+### Performance Improvements
+
+- :art: format codes
+  ([177eb54](https://github.com/guanghechen/sora/commit/177eb5407fe9209269541a327d42084901a63090))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 ## 6.0.1 (2024-03-09)
 
 ### Performance Improvements
