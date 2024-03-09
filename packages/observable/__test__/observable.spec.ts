@@ -563,8 +563,8 @@ describe('async', () => {
     expect(subscriber2.value).toEqual(2)
     expect(subscriber2.updateTick).toEqual(0)
     expect(subscriber2.disposed).toEqual(true)
-    expect(subscriber3.value).toEqual(3)
-    expect(subscriber3.updateTick).toEqual(0)
+    expect(subscriber3.value).toEqual(100)
+    expect(subscriber3.updateTick).toEqual(1)
     expect(subscriber3.disposed).toEqual(true)
 
     // ----------------------------------------------------------------------------------
@@ -579,8 +579,8 @@ describe('async', () => {
     expect(subscriber2.value).toEqual(2)
     expect(subscriber2.updateTick).toEqual(0)
     expect(subscriber2.disposed).toEqual(true)
-    expect(subscriber3.value).toEqual(3)
-    expect(subscriber3.updateTick).toEqual(0)
+    expect(subscriber3.value).toEqual(100)
+    expect(subscriber3.updateTick).toEqual(1)
     expect(subscriber3.disposed).toEqual(true)
 
     // ----------------------------------------------------------------------------------
@@ -597,8 +597,8 @@ describe('async', () => {
     expect(subscriber2.value).toEqual(2)
     expect(subscriber2.updateTick).toEqual(0)
     expect(subscriber2.disposed).toEqual(true)
-    expect(subscriber3.value).toEqual(3)
-    expect(subscriber3.updateTick).toEqual(0)
+    expect(subscriber3.value).toEqual(100)
+    expect(subscriber3.updateTick).toEqual(1)
     expect(subscriber3.disposed).toEqual(true)
   })
 })

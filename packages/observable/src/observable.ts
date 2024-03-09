@@ -83,14 +83,16 @@ export class Observable<T> extends BatchDisposable implements IObservable<T> {
   public subscribe(subscriber: ISubscriber<T>): IUnsubscribable {
     if (subscriber.disposed) return noopUnsubscribable
 
+    const prevValue: T | undefined = this._lastNotifiedValue
+    const value: T = this._value
+
     if (this.disposed) {
+      subscriber.next(value, prevValue)
       subscriber.dispose()
       return noopUnsubscribable
     }
 
-    // eslint-disable-next-line no-plusplus
-    const prevValue: T | undefined = this._lastNotifiedValue
-    const value: T = this._value
+
     this._flush()
 
     const item: IObservableSubscriber<T> = { subscriber, inactive: false }

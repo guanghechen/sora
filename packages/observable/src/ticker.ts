@@ -1,3 +1,5 @@
+import type { IDisposable } from '@guanghechen/disposable'
+import { Disposable } from '@guanghechen/disposable'
 import type {
   IEquals,
   IObservable,
@@ -33,12 +35,11 @@ export class Ticker extends Observable<number> implements ITicker {
 
     if (observable.disposed) return noopUnobservable
 
-    const subscriber: ISubscriber<T> = new Subscriber<T>({
-      onNext: (): void => this.tick(),
-      onDispose: () => unsubscribable.unsubscribe(),
-    })
+    const subscriber: ISubscriber<T> = new Subscriber<T>({ onNext: (): void => this.tick() })
     const unsubscribable = observable.subscribe(subscriber)
+    const disposable: IDisposable = new Disposable(() => unsubscribable.unsubscribe())
     this.registerDisposable(subscriber)
-    return { unobserve: () => unsubscribable.unsubscribe() }
+    this.registerDisposable(disposable)
+    return { unobserve: () => disposable.dispose() }
   }
 }
