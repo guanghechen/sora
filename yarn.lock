@@ -569,7 +569,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/file-split@workspace:packages/file-split"
   dependencies:
-    "@guanghechen/filepart": ^1.0.0-alpha.5
+    "@guanghechen/filepart": ^1.0.0-alpha.6
     "@guanghechen/internal": ^1.0.0-alpha.0
     "@guanghechen/stream": ^1.0.0-alpha.11
   languageName: unknown
@@ -581,7 +581,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/filepart@^1.0.0-alpha.5, @guanghechen/filepart@workspace:packages/filepart":
+"@guanghechen/filepart@^1.0.0-alpha.6, @guanghechen/filepart@workspace:packages/filepart":
   version: 0.0.0-use.local
   resolution: "@guanghechen/filepart@workspace:packages/filepart"
   dependencies:
@@ -675,12 +675,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/observable@^6.0.3, @guanghechen/observable@workspace:packages/observable":
+"@guanghechen/observable@^6.1.0, @guanghechen/observable@workspace:packages/observable":
   version: 0.0.0-use.local
   resolution: "@guanghechen/observable@workspace:packages/observable"
   dependencies:
     "@guanghechen/disposable": ^1.0.0-alpha.4
-    "@guanghechen/subscriber": ^1.0.0-alpha.0
+    "@guanghechen/subscriber": ^1.0.0-alpha.1
   languageName: unknown
   linkType: soft
 
@@ -755,10 +755,10 @@ __metadata:
   dependencies:
     "@guanghechen/error.types": ^1.0.1
     "@guanghechen/middleware": ^1.0.1
-    "@guanghechen/observable": ^6.0.3
+    "@guanghechen/observable": ^6.1.0
     "@guanghechen/reporter.types": ^1.0.0-alpha.10
-    "@guanghechen/subscriber": ^1.0.0-alpha.0
-    "@guanghechen/task": ^1.0.0-beta.3
+    "@guanghechen/subscriber": ^1.0.0-alpha.1
+    "@guanghechen/task": ^1.0.0-beta.4
   languageName: unknown
   linkType: soft
 
@@ -830,7 +830,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/subscriber@^1.0.0-alpha.0, @guanghechen/subscriber@workspace:packages/subscriber":
+"@guanghechen/subscriber@^1.0.0-alpha.1, @guanghechen/subscriber@workspace:packages/subscriber":
   version: 0.0.0-use.local
   resolution: "@guanghechen/subscriber@workspace:packages/subscriber"
   dependencies:
@@ -838,12 +838,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/task@^1.0.0-beta.3, @guanghechen/task@workspace:packages/task":
+"@guanghechen/task@^1.0.0-beta.4, @guanghechen/task@workspace:packages/task":
   version: 0.0.0-use.local
   resolution: "@guanghechen/task@workspace:packages/task"
   dependencies:
     "@guanghechen/error.types": ^1.0.1
-    "@guanghechen/observable": ^6.0.3
+    "@guanghechen/observable": ^6.1.0
   languageName: unknown
   linkType: soft
 
@@ -859,8 +859,8 @@ __metadata:
   dependencies:
     "@guanghechen/disposable": ^1.0.0-alpha.4
     "@guanghechen/error.types": ^1.0.1
-    "@guanghechen/observable": ^6.0.3
-    "@guanghechen/subscriber": ^1.0.0-alpha.0
+    "@guanghechen/observable": ^6.1.0
+    "@guanghechen/subscriber": ^1.0.0-alpha.1
   languageName: unknown
   linkType: soft
 

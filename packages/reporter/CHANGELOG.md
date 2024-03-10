@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.29](https://github.com/guanghechen/sora/compare/@guanghechen/reporter@1.0.0-alpha.28...@guanghechen/reporter@1.0.0-alpha.29) (2024-03-10)
+
+### Performance Improvements
+
+- :art: format codes
+  ([177eb54](https://github.com/guanghechen/sora/commit/177eb5407fe9209269541a327d42084901a63090))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [1.0.0-alpha.28](https://github.com/guanghechen/sora/compare/@guanghechen/reporter@1.0.0-alpha.27...@guanghechen/reporter@1.0.0-alpha.28) (2024-03-09)
 
 **Note:** Version bump only for package @guanghechen/reporter

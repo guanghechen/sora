@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.4](https://github.com/guanghechen/sora/compare/@guanghechen/task@1.0.0-beta.3...@guanghechen/task@1.0.0-beta.4) (2024-03-10)
+
+**Note:** Version bump only for package @guanghechen/task
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [1.0.0-beta.3](https://github.com/guanghechen/sora/compare/@guanghechen/task@1.0.0-beta.2...@guanghechen/task@1.0.0-beta.3) (2024-03-10)
 
 ### Performance Improvements

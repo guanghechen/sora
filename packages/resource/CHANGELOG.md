@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.13](https://github.com/guanghechen/sora/compare/@guanghechen/resource@1.0.0-alpha.12...@guanghechen/resource@1.0.0-alpha.13) (2024-03-10)
+
+
+### Performance Improvements
+
+* :art:  format codes ([177eb54](https://github.com/guanghechen/sora/commit/177eb5407fe9209269541a327d42084901a63090))
+
+
+
+
+
 # [1.0.0-alpha.12](https://github.com/guanghechen/sora/compare/@guanghechen/resource@1.0.0-alpha.11...@guanghechen/resource@1.0.0-alpha.12) (2024-03-09)
 
 **Note:** Version bump only for package @guanghechen/resource

@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0-beta.4](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler@6.0.0-beta.3...@guanghechen/scheduler@6.0.0-beta.4) (2024-03-10)
+
+### Performance Improvements
+
+- :alien: fix due to the change of @guanghechen/observable
+  ([7fb9ffa](https://github.com/guanghechen/sora/commit/7fb9ffa35861093cd13eaf96a5b39503a37a70f8))
+- 🎨 refaactor observable with subscriber & remove observable.types
+  ([bac2118](https://github.com/guanghechen/sora/commit/bac211888713cac920154efb593dbbcf903ab33e))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [6.0.0-beta.3](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler@6.0.0-beta.2...@guanghechen/scheduler@6.0.0-beta.3) (2024-03-10)
 
 ### Performance Improvements

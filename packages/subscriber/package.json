@@ -1,16 +1,16 @@
 {
   "name": "@guanghechen/subscriber",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/subscriber@1.0.0-alpha.0",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/subscriber@1.0.0-alpha.1",
     "directory": "packages/subscriber"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/subscriber@1.0.0-alpha.0/packages/subscriber#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/subscriber@1.0.0-alpha.1/packages/subscriber#readme",
   "keywords": [
     "subscriber"
   ],
