@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.18](https://github.com/guanghechen/sora/compare/@guanghechen/viewmodel@1.0.0-alpha.17...@guanghechen/viewmodel@1.0.0-alpha.18) (2024-03-10)
+
+### Performance Improvements
+
+- 🎨 re-export subscriber and disposable
+  ([391f42f](https://github.com/guanghechen/sora/commit/391f42f68f1a0fe8893f64025b8cfec2728d368d))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [1.0.0-alpha.17](https://github.com/guanghechen/sora/compare/@guanghechen/viewmodel@1.0.0-alpha.16...@guanghechen/viewmodel@1.0.0-alpha.17) (2024-03-10)
 
 ### Performance Improvements
