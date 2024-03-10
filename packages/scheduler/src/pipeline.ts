@@ -56,8 +56,9 @@ export class Pipeline<D, T> implements IPipeline<D, T> {
     return this._materials.length
   }
 
-  public use(cooker: IMaterialCooker<D, T>): void {
+  public use(cooker: IMaterialCooker<D, T>): this {
     this._cookers.push(cooker)
+    return this
   }
 
   public async close(): Promise<void> {

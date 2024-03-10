@@ -6,7 +6,7 @@ export interface IScheduler<D, T> extends ITask {
    * Use a cooker to cook the material to product.
    * @param cooker
    */
-  use(consumer: IProductConsumer<T, ITask>): void
+  use(consumer: IProductConsumer<T, ITask>): this
 
   /**
    * Schedule a task.

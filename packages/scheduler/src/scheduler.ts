@@ -76,8 +76,9 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
     this.status.subscribe(schedulerStatusSubscriber)
   }
 
-  public use(consumer: IProductConsumer<T, ITask>): void {
+  public use(consumer: IProductConsumer<T, ITask>): this {
     this._consumers.push(consumer)
+    return this
   }
 
   public async schedule(data: D): Promise<number> {

@@ -37,7 +37,7 @@ export interface IPipeline<D, T> {
    * Use a cooker to cook the material to product.
    * @param cooker
    */
-  use(cooker: IMaterialCooker<D, T>): void
+  use(cooker: IMaterialCooker<D, T>): this
 
   /**
    * Close the pipeline and perform some cleanup operation.
