@@ -757,6 +757,7 @@ __metadata:
     "@guanghechen/middleware": ^1.0.1
     "@guanghechen/observable": ^6.0.3
     "@guanghechen/reporter.types": ^1.0.0-alpha.10
+    "@guanghechen/subscriber": ^1.0.0-alpha.0
     "@guanghechen/task": ^1.0.0-beta.3
   languageName: unknown
   linkType: soft
