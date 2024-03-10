@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0-beta.5](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler@6.0.0-beta.4...@guanghechen/scheduler@6.0.0-beta.5) (2024-03-10)
+
+### Performance Improvements
+
+- 🎨 return 'this' for 'use' method
+  ([75418e5](https://github.com/guanghechen/sora/commit/75418e5f98303390874331ba0a407ab1e4eb2e83))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [6.0.0-beta.4](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler@6.0.0-beta.3...@guanghechen/scheduler@6.0.0-beta.4) (2024-03-10)
 
 ### Performance Improvements
