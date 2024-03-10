@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.16](https://github.com/guanghechen/sora/compare/@guanghechen/viewmodel@1.0.0-alpha.15...@guanghechen/viewmodel@1.0.0-alpha.16) (2024-03-10)
+
+### Performance Improvements
+
+- 🎨 add @guanghechen/monitor back
+  ([4c75f05](https://github.com/guanghechen/sora/commit/4c75f05441f57eb2428c086aea20c733f4a730c5))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [1.0.0-alpha.15](https://github.com/guanghechen/sora/compare/@guanghechen/viewmodel@1.0.0-alpha.14...@guanghechen/viewmodel@1.0.0-alpha.15) (2024-03-09)
 
 ### Performance Improvements

@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.3](https://github.com/guanghechen/sora/compare/@guanghechen/observable@6.0.2...@guanghechen/observable@6.0.3) (2024-03-10)
+
+### Performance Improvements
+
+- 🎨 add @guanghechen/monitor back
+  ([4c75f05](https://github.com/guanghechen/sora/commit/4c75f05441f57eb2428c086aea20c733f4a730c5))
+- 🎨 format codes
+  ([a953c67](https://github.com/guanghechen/sora/commit/a953c67ba19389b6b14bc829361d9ca406c24059))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 ## [6.0.2](https://github.com/guanghechen/sora/compare/@guanghechen/observable@6.0.1...@guanghechen/observable@6.0.2) (2024-03-09)
 
 ### Bug Fixes

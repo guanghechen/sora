@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.27](https://github.com/guanghechen/sora/compare/@guanghechen/monitor@1.0.0-alpha.26...@guanghechen/monitor@1.0.0-alpha.27) (2024-03-10)
+
+### Performance Improvements
+
+- :art: remove monitor and monitor.types
+  ([5ca3f52](https://github.com/guanghechen/sora/commit/5ca3f5246009cc2e951be738f6d5bbef3ce14504))
+- 🎨 add @guanghechen/monitor back
+  ([4c75f05](https://github.com/guanghechen/sora/commit/4c75f05441f57eb2428c086aea20c733f4a730c5))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [1.0.0-alpha.26](https://github.com/guanghechen/sora/compare/@guanghechen/monitor@1.0.0-alpha.25...@guanghechen/monitor@1.0.0-alpha.26) (2024-02-03)
 
 ### Performance Improvements

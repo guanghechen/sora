@@ -521,7 +521,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/disposable@1.0.0-alpha.3, @guanghechen/disposable@^1.0.0-alpha.3, @guanghechen/disposable@workspace:packages/disposable":
+"@guanghechen/disposable@^1.0.0-alpha.4, @guanghechen/disposable@workspace:packages/disposable":
   version: 0.0.0-use.local
   resolution: "@guanghechen/disposable@workspace:packages/disposable"
   dependencies:
@@ -672,7 +672,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/monitor@workspace:packages/monitor"
   dependencies:
-    "@guanghechen/disposable": 1.0.0-alpha.3
+    "@guanghechen/disposable": ^1.0.0-alpha.4
   languageName: unknown
   linkType: soft
 
@@ -684,11 +684,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/observable@^6.0.2, @guanghechen/observable@workspace:packages/observable":
+"@guanghechen/observable@^6.0.3, @guanghechen/observable@workspace:packages/observable":
   version: 0.0.0-use.local
   resolution: "@guanghechen/observable@workspace:packages/observable"
   dependencies:
-    "@guanghechen/disposable": ^1.0.0-alpha.3
+    "@guanghechen/disposable": ^1.0.0-alpha.4
     "@guanghechen/error.types": ^1.0.1
     "@guanghechen/observable.types": ^6.0.1
   languageName: unknown
@@ -765,9 +765,9 @@ __metadata:
   dependencies:
     "@guanghechen/error.types": ^1.0.1
     "@guanghechen/middleware": ^1.0.1
-    "@guanghechen/observable": ^6.0.2
+    "@guanghechen/observable": ^6.0.3
     "@guanghechen/reporter.types": ^1.0.0-alpha.10
-    "@guanghechen/task": ^1.0.0-beta.2
+    "@guanghechen/task": ^1.0.0-beta.3
   languageName: unknown
   linkType: soft
 
@@ -839,12 +839,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/task@^1.0.0-beta.2, @guanghechen/task@workspace:packages/task":
+"@guanghechen/task@^1.0.0-beta.3, @guanghechen/task@workspace:packages/task":
   version: 0.0.0-use.local
   resolution: "@guanghechen/task@workspace:packages/task"
   dependencies:
     "@guanghechen/error.types": ^1.0.1
-    "@guanghechen/observable": ^6.0.2
+    "@guanghechen/observable": ^6.0.3
   languageName: unknown
   linkType: soft
 
@@ -858,9 +858,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/viewmodel@workspace:packages/viewmodel"
   dependencies:
-    "@guanghechen/disposable": ^1.0.0-alpha.3
+    "@guanghechen/disposable": ^1.0.0-alpha.4
     "@guanghechen/error.types": ^1.0.1
-    "@guanghechen/observable": ^6.0.2
+    "@guanghechen/observable": ^6.0.3
   languageName: unknown
   linkType: soft
 

@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.3](https://github.com/guanghechen/sora/compare/@guanghechen/task@1.0.0-beta.2...@guanghechen/task@1.0.0-beta.3) (2024-03-10)
+
+### Performance Improvements
+
+- 🎨 format codes
+  ([a953c67](https://github.com/guanghechen/sora/commit/a953c67ba19389b6b14bc829361d9ca406c24059))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [1.0.0-beta.2](https://github.com/guanghechen/sora/compare/@guanghechen/task@1.0.0-beta.1...@guanghechen/task@1.0.0-beta.2) (2024-03-09)
 
 ### Performance Improvements
