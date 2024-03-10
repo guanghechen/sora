@@ -1,10 +1,5 @@
-import type {
-  IEquals,
-  IObservable,
-  IObservableNextOptions,
-  ISubscriber,
-  IUnsubscribable,
-} from '@guanghechen/observable'
+import type { IEquals, IObservable, IObservableNextOptions } from '@guanghechen/observable'
+import type { ISubscriber, IUnsubscribable } from '@guanghechen/subscriber'
 import type { IImmutableCollection, IImmutableMap, IImmutableSet } from './collection'
 
 export interface IObservableCollectionOptions<V> {

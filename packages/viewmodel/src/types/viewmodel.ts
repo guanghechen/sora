@@ -1,5 +1,6 @@
 import type { IBatchDisposable, IDisposable } from '@guanghechen/disposable'
-import type { IObservableKey, ISubscribable } from '@guanghechen/observable'
+import type { IObservableKey } from '@guanghechen/observable'
+import type { ISubscribable } from '@guanghechen/subscriber'
 
 export interface IViewModelTicker {
   readonly keys: ReadonlyArray<string>

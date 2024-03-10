@@ -1,5 +1,5 @@
-import { Observable, Subscriber } from '@guanghechen/observable'
-import type { ISubscriber } from '@guanghechen/observable'
+import { Observable } from '@guanghechen/observable'
+import { type ISubscriber, Subscriber } from '@guanghechen/subscriber'
 import type { IState } from './types/state'
 
 export class State<T> extends Observable<T> implements IState<T> {

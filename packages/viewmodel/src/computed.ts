@@ -1,12 +1,8 @@
 import type { IDisposable } from '@guanghechen/disposable'
-import { Observable, Subscriber, Ticker } from '@guanghechen/observable'
-import type {
-  IObservable,
-  IObservableOptions,
-  ISubscriber,
-  IUnsubscribable,
-  IValueList,
-} from '@guanghechen/observable'
+import { Observable, Ticker } from '@guanghechen/observable'
+import type { IObservable, IObservableOptions, IValueList } from '@guanghechen/observable'
+import type { ISubscriber, IUnsubscribable } from '@guanghechen/subscriber'
+import { Subscriber } from '@guanghechen/subscriber'
 import type { IComputed } from './types/computed'
 
 export class Computed<T> implements IComputed<T> {

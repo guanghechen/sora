@@ -1,4 +1,4 @@
-import type { ISubscriber } from '@guanghechen/observable.types'
+import type { ISubscriber } from '@guanghechen/subscriber'
 import type { IImmutableMap } from '../src'
 
 export function delay(ms: number): Promise<void> {

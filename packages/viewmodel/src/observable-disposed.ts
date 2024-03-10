@@ -5,9 +5,8 @@ import type {
   IObservable,
   IObservableNextOptions,
   IObservableOptions,
-  ISubscriber,
-  IUnsubscribable,
 } from '@guanghechen/observable'
+import type { ISubscriber, IUnsubscribable } from '@guanghechen/subscriber'
 
 const defaultEquals = <T>(x: T, y: T): boolean => Object.is(x, y)
 

@@ -1,12 +1,7 @@
 import { BatchDisposable, SafeBatchHandler } from '@guanghechen/disposable'
-import { Observable, Subscriber, noopUnsubscribable } from '@guanghechen/observable'
-import type {
-  IEquals,
-  IObservable,
-  IObservableNextOptions,
-  ISubscriber,
-  IUnsubscribable,
-} from '@guanghechen/observable'
+import { Observable } from '@guanghechen/observable'
+import type { IEquals, IObservable, IObservableNextOptions } from '@guanghechen/observable'
+import { type ISubscriber, type IUnsubscribable, Subscriber } from '@guanghechen/subscriber'
 import { DisposedObservable } from './observable-disposed'
 import type { IImmutableCollection } from './types/collection'
 import type { IObservableCollection, IObservableCollectionOptions } from './types/observable'
@@ -15,6 +10,9 @@ interface IObservableSubscriber<T> {
   readonly subscriber: ISubscriber<T>
   inactive: boolean
 }
+
+const noop = (..._args: any[]): void => {}
+const noopUnsubscribable: IUnsubscribable = { unsubscribe: noop }
 
 export class ObservableCollection<K, V, C extends IImmutableCollection<K, V>>
   extends BatchDisposable
