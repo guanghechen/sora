@@ -30,8 +30,10 @@ export class Ticker extends Observable<number> implements ITicker {
 
     const subscriber: ISubscriber<T> = new Subscriber<T>({ onNext: (): void => this.tick() })
     const unsubscribable = observable.subscribe(subscriber)
-    const disposable: IDisposable = new Disposable(() => unsubscribable.unsubscribe())
-    this.registerDisposable(subscriber)
+    const disposable: IDisposable = new Disposable(() => {
+      subscriber.dispose()
+      unsubscribable.unsubscribe()
+    })
     this.registerDisposable(disposable)
     return { unobserve: () => disposable.dispose() }
   }

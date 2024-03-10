@@ -1,4 +1,4 @@
-import type { IDisposable } from '@guanghechen/disposable'
+import { Disposable, type IDisposable } from '@guanghechen/disposable'
 import { Observable, Ticker } from '@guanghechen/observable'
 import type { IObservable, IObservableOptions, IValueList } from '@guanghechen/observable'
 import type { ISubscriber, IUnsubscribable } from '@guanghechen/subscriber'
@@ -63,12 +63,13 @@ export class Computed<T> implements IComputed<T> {
   }
 
   public readonly subscribeStateChange = (onStateChange: () => void): (() => void) => {
-    const subscriber: ISubscriber<T> = new Subscriber<T>({
-      onNext: () => onStateChange(),
-      onDispose: () => unsubscribable.unsubscribe(),
-    })
+    const subscriber: ISubscriber<T> = new Subscriber<T>({ onNext: () => onStateChange() })
     const unsubscribable = this._observable.subscribe(subscriber)
-    this._observable.registerDisposable(subscriber)
-    return () => subscriber.dispose()
+    const disposable: IDisposable = new Disposable(() => {
+      subscriber.dispose()
+      unsubscribable.unsubscribe()
+    })
+    this._observable.registerDisposable(disposable)
+    return () => disposable.dispose()
   }
 }

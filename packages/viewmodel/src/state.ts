@@ -1,3 +1,5 @@
+import type { IDisposable } from '@guanghechen/disposable'
+import { Disposable } from '@guanghechen/disposable'
 import { Observable } from '@guanghechen/observable'
 import { type ISubscriber, Subscriber } from '@guanghechen/subscriber'
 import type { IState } from './types/state'
@@ -18,12 +20,13 @@ export class State<T> extends Observable<T> implements IState<T> {
   }
 
   public readonly subscribeStateChange = (onStateChange: () => void): (() => void) => {
-    const subscriber: ISubscriber<T> = new Subscriber<T>({
-      onNext: () => onStateChange(),
-      onDispose: () => unsubscribable.unsubscribe(),
-    })
+    const subscriber: ISubscriber<T> = new Subscriber<T>({ onNext: () => onStateChange() })
     const unsubscribable = super.subscribe(subscriber)
-    this.registerDisposable(subscriber)
-    return () => subscriber.dispose()
+    const disposable: IDisposable = new Disposable(() => {
+      subscriber.dispose()
+      unsubscribable.unsubscribe()
+    })
+    this.registerDisposable(disposable)
+    return () => disposable.dispose()
   }
 }

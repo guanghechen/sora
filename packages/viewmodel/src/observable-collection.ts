@@ -1,4 +1,5 @@
-import { BatchDisposable, SafeBatchHandler } from '@guanghechen/disposable'
+import type { IDisposable } from '@guanghechen/disposable'
+import { BatchDisposable, Disposable, SafeBatchHandler } from '@guanghechen/disposable'
 import { Observable } from '@guanghechen/observable'
 import type { IEquals, IObservable, IObservableNextOptions } from '@guanghechen/observable'
 import { type ISubscriber, type IUnsubscribable, Subscriber } from '@guanghechen/subscriber'
@@ -136,14 +137,15 @@ export class ObservableCollection<K, V, C extends IImmutableCollection<K, V>>
     const observable = new Observable<V | undefined>(value, { equals: this.valueEquals })
     const subscriber: ISubscriber<V | undefined> = new Subscriber<V | undefined>({
       onNext: v => observable.next(v),
-      onDispose: () => {
-        observable.dispose()
-        unsubscribable.unsubscribe()
-      },
     })
     const unsubscribable: IUnsubscribable = this.subscribeKey(key, subscriber)
-    observable.registerDisposable(subscriber)
-    this.registerDisposable(observable)
+    const disposable: IDisposable = new Disposable(() => {
+      observable.dispose()
+      subscriber.dispose()
+      unsubscribable.unsubscribe()
+    })
+    this.registerDisposable(disposable)
+    observable.registerDisposable(disposable)
     return observable
   }
 
