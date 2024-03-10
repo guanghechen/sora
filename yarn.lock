@@ -859,7 +859,6 @@ __metadata:
   resolution: "@guanghechen/viewmodel@workspace:packages/viewmodel"
   dependencies:
     "@guanghechen/disposable": ^1.0.0-alpha.4
-    "@guanghechen/error.types": ^1.0.1
     "@guanghechen/observable": ^6.1.0
     "@guanghechen/subscriber": ^1.0.0-alpha.1
   languageName: unknown
