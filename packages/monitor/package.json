@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/monitor",
-  "version": "1.0.0-alpha.27",
+  "version": "1.0.0-alpha.28",
   "description": "Monitor",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/monitor@1.0.0-alpha.27",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/monitor@1.0.0-alpha.28",
     "directory": "packages/monitor"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/monitor@1.0.0-alpha.27/packages/monitor#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/monitor@1.0.0-alpha.28/packages/monitor#readme",
   "type": "module",
   "exports": {
     ".": {

@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.28](https://github.com/guanghechen/sora/compare/@guanghechen/monitor@1.0.0-alpha.27...@guanghechen/monitor@1.0.0-alpha.28) (2024-03-10)
+
+### Performance Improvements
+
+- 🎨 refactor monitor with subscriber
+  ([eec0f55](https://github.com/guanghechen/sora/commit/eec0f55beacdf0b072d38f6f8990cae564fdbe87))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [1.0.0-alpha.27](https://github.com/guanghechen/sora/compare/@guanghechen/monitor@1.0.0-alpha.26...@guanghechen/monitor@1.0.0-alpha.27) (2024-03-10)
 
 ### Performance Improvements
