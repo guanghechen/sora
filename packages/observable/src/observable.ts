@@ -94,7 +94,6 @@ export class Observable<T> extends BatchDisposable implements IObservable<T> {
       return noopUnsubscribable
     }
 
-
     this._flush()
 
     const item: IObservableSubscriber<T> = { subscriber, inactive: false }

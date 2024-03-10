@@ -1,5 +1,5 @@
-import type { IPipelineStatus  } from '../../src'
-import { PipelineStatus , PipelineStatusEnum } from '../../src'
+import type { IPipelineStatus } from '../../src'
+import { PipelineStatus, PipelineStatusEnum } from '../../src'
 
 class LocalPipelineStatus extends PipelineStatus {
   constructor(value: PipelineStatusEnum) {

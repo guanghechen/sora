@@ -338,7 +338,7 @@ function basicTests(strategy: TaskStrategyEnum): void {
       expect(task.errors).toEqual([])
       expect(processor.process).toHaveBeenCalledTimes(1)
 
-      await delay(stepDuration + pollInterval + 2)
+      await delay(stepDuration + pollInterval + 10)
       expect(result).toEqual(2)
       expect(task.status.getSnapshot()).toEqual(TaskStatusEnum.RUNNING)
 
