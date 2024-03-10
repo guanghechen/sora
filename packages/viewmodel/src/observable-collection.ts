@@ -64,7 +64,8 @@ export class ObservableCollection<K, V, C extends IImmutableCollection<K, V>>
       }
       this._keySubscribersMap.clear()
     }
-    batcher.summary()
+    batcher.summary('[observable-collection] Encountered errors while disposing.')
+    batcher.cleanup()
   }
 
   public has(key: K): boolean {
@@ -206,6 +207,7 @@ export class ObservableCollection<K, V, C extends IImmutableCollection<K, V>>
       }
     }
 
-    batcher.summary()
+    batcher.summary('[observable-collection] Encountered errors while notifying subscribers.')
+    batcher.cleanup()
   }
 }

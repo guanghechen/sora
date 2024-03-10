@@ -55,8 +55,10 @@ export class Observable<T> extends BatchDisposable implements IObservable<T> {
       if (item.inactive || item.subscriber.disposed) continue
       batcher.run(() => item.subscriber.dispose())
     }
+    for (const item of this._subscribers) item.inactive = true
     this._subscribers.length = 0
-    batcher.summary()
+    batcher.summary('[observable] Encountered errors while disposing.')
+    batcher.cleanup()
   }
 
   public getSnapshot(): T {
@@ -153,6 +155,7 @@ export class Observable<T> extends BatchDisposable implements IObservable<T> {
       if (subscriber.inactive || subscriber.subscriber.disposed) continue
       batcher.run(() => subscriber.subscriber.next(value, prevValue))
     }
-    batcher.summary()
+    batcher.summary('[observable] Encountered errors while notifying subscribers.')
+    batcher.cleanup()
   }
 }

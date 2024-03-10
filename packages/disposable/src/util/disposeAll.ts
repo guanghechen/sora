@@ -23,11 +23,11 @@ export class SafeBatchHandler {
     }
   }
 
-  public summary(): void | never {
+  public summary(errorSummary: string): void | never {
     if (this._summary === undefined) {
       if (this._errors.length === 1) throw (this._summary = this._errors[0])
       if (this._errors.length > 1) {
-        this._summary = new AggregateError(this._errors, 'Encountered errors while disposing')
+        this._summary = new AggregateError(this._errors, errorSummary)
       }
     }
     if (this._summary !== undefined) throw this._summary
@@ -37,6 +37,6 @@ export class SafeBatchHandler {
 export function disposeAll(disposables: Iterable<IDisposable>): void | never {
   const handler = new SafeBatchHandler()
   for (const disposable of disposables) handler.run(() => disposable.dispose())
-  handler.summary()
+  handler.summary('[disposeAll] Encountered errors while disposing')
   handler.cleanup()
 }

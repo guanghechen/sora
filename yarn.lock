@@ -521,7 +521,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/disposable@^1.0.0-alpha.3, @guanghechen/disposable@workspace:packages/disposable":
+"@guanghechen/disposable@1.0.0-alpha.3, @guanghechen/disposable@^1.0.0-alpha.3, @guanghechen/disposable@workspace:packages/disposable":
   version: 0.0.0-use.local
   resolution: "@guanghechen/disposable@workspace:packages/disposable"
   dependencies:
@@ -665,6 +665,14 @@ __metadata:
 "@guanghechen/middleware@^1.0.1, @guanghechen/middleware@workspace:packages/middleware":
   version: 0.0.0-use.local
   resolution: "@guanghechen/middleware@workspace:packages/middleware"
+  languageName: unknown
+  linkType: soft
+
+"@guanghechen/monitor@workspace:packages/monitor":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/monitor@workspace:packages/monitor"
+  dependencies:
+    "@guanghechen/disposable": 1.0.0-alpha.3
   languageName: unknown
   linkType: soft
 
