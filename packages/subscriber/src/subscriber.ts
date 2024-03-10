@@ -1,8 +1,9 @@
-import type { ISubscriber } from '@guanghechen/observable.types'
-import { noop } from './util'
+import type { ISubscriber } from './types'
 
 type IOnDisposable = () => void
 type IOnNext<T> = (value: T, prevValue: T | undefined) => void
+
+const noop = (): void => {}
 
 export interface ISubscriberOptions<T> {
   readonly onNext: IOnNext<T>

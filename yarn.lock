@@ -839,6 +839,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@guanghechen/subscriber@workspace:packages/subscriber":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/subscriber@workspace:packages/subscriber"
+  dependencies:
+    "@guanghechen/disposable": ^1.0.0-alpha.4
+  languageName: unknown
+  linkType: soft
+
 "@guanghechen/task@^1.0.0-beta.3, @guanghechen/task@workspace:packages/task":
   version: 0.0.0-use.local
   resolution: "@guanghechen/task@workspace:packages/task"
