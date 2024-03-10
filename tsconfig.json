@@ -20,7 +20,6 @@
       "@guanghechen/middleware": ["packages/middleware/src"],
       "@guanghechen/monitor": ["packages/monitor/src"],
       "@guanghechen/observable": ["packages/observable/src"],
-      "@guanghechen/observable.types": ["packages/observable.types/src"],
       "@guanghechen/path": ["packages/path/src"],
       "@guanghechen/path.types": ["packages/path.types/src"],
       "@guanghechen/reporter": ["packages/reporter/src"],

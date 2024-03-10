@@ -1,5 +1,5 @@
-import type { ISubscriber } from '@guanghechen/observable.types'
-import { Subscriber } from '../src'
+import type { ISubscriber } from '@guanghechen/subscriber'
+import { Subscriber } from '@guanghechen/subscriber'
 
 export class TestSubscriber extends Subscriber<number> implements ISubscriber<number> {
   protected _value: number

@@ -1,17 +1,10 @@
 import type { IDisposable } from '@guanghechen/disposable'
 import { Disposable } from '@guanghechen/disposable'
-import type {
-  IEquals,
-  IObservable,
-  IObservableNextOptions,
-  ISubscriber,
-  ITicker,
-  ITickerObserveOptions,
-  ITickerOptions,
-  IUnobservable,
-} from '@guanghechen/observable.types'
+import type { ISubscriber } from '@guanghechen/subscriber'
+import { Subscriber } from '@guanghechen/subscriber'
 import { Observable } from './observable'
-import { Subscriber } from './subscriber'
+import type { IEquals, IObservable, IObservableNextOptions } from './types/observable'
+import type { ITicker, ITickerObserveOptions, ITickerOptions, IUnobservable } from './types/ticker'
 import { noopUnobservable } from './util'
 
 const equals: IEquals<number> = (x, y) => x === y

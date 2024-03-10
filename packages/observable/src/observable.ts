@@ -1,25 +1,20 @@
-import { BatchDisposable, SafeBatchHandler } from '@guanghechen/disposable'
+import { BatchDisposable } from '@guanghechen/disposable'
+import type { ISubscriber, ISubscribers, IUnsubscribable } from '@guanghechen/subscriber'
+import { Subscribers } from '@guanghechen/subscriber'
 import type {
   IEquals,
   IObservable,
   IObservableNextOptions,
   IObservableOptions,
-  ISubscriber,
-  IUnsubscribable,
-} from '@guanghechen/observable.types'
+} from './types/observable'
 import { noopUnsubscribable } from './util'
-
-interface IObservableSubscriber<T> {
-  readonly subscriber: ISubscriber<T>
-  inactive: boolean
-}
 
 const defaultEquals = <T>(x: T, y: T): boolean => Object.is(x, y)
 
 export class Observable<T> extends BatchDisposable implements IObservable<T> {
   public readonly equals: IEquals<T>
   protected readonly _delay: number
-  protected readonly _subscribers: Array<IObservableSubscriber<T>>
+  protected readonly _subscribers: ISubscribers<T>
   protected _value: T
   protected _updateTick: number
   protected _notifyTick: number
@@ -31,7 +26,7 @@ export class Observable<T> extends BatchDisposable implements IObservable<T> {
 
     const { equals = defaultEquals } = options
     this._delay = Math.max(0, Number(options.delay) || 0)
-    this._subscribers = []
+    this._subscribers = new Subscribers()
     this._value = defaultValue
     this._updateTick = 0
     this._notifyTick = 0
@@ -48,17 +43,7 @@ export class Observable<T> extends BatchDisposable implements IObservable<T> {
     this._flush()
 
     // Dispose subscribers.
-    const batcher = new SafeBatchHandler()
-    const size: number = this._subscribers.length
-    for (let i = 0; i < size; ++i) {
-      const item: IObservableSubscriber<T> = this._subscribers[i]
-      if (item.inactive || item.subscriber.disposed) continue
-      batcher.run(() => item.subscriber.dispose())
-    }
-    for (const item of this._subscribers) item.inactive = true
-    this._subscribers.length = 0
-    batcher.summary('[observable] Encountered errors while disposing.')
-    batcher.cleanup()
+    this._subscribers.dispose()
   }
 
   public getSnapshot(): T {
@@ -95,16 +80,8 @@ export class Observable<T> extends BatchDisposable implements IObservable<T> {
     }
 
     this._flush()
-
-    const item: IObservableSubscriber<T> = { subscriber, inactive: false }
-    this._subscribers.push(item)
     subscriber.next(value, prevValue)
-
-    return {
-      unsubscribe: (): void => {
-        item.inactive = true
-      },
-    }
+    return this._subscribers.subscribe(subscriber)
   }
 
   protected _flush(): void {
@@ -142,19 +119,8 @@ export class Observable<T> extends BatchDisposable implements IObservable<T> {
   protected _notifyImmediate(): void {
     const prevValue: T | undefined = this._lastNotifiedValue
     const value: T = this._value
-
     this._lastNotifiedValue = value
     this._notifyTick = this._updateTick
-
-    const batcher = new SafeBatchHandler()
-    const subscribers = this._subscribers
-    const size: number = subscribers.length
-    for (let i = 0; i < size; ++i) {
-      const subscriber: IObservableSubscriber<T> = subscribers[i]
-      if (subscriber.inactive || subscriber.subscriber.disposed) continue
-      batcher.run(() => subscriber.subscriber.next(value, prevValue))
-    }
-    batcher.summary('[observable] Encountered errors while notifying subscribers.')
-    batcher.cleanup()
+    this._subscribers.notify(value, prevValue)
   }
 }

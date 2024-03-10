@@ -1,4 +1,6 @@
-import type { IObservable, IUnobservable, IUnsubscribable } from '@guanghechen/observable.types'
+import type { IUnsubscribable } from '@guanghechen/subscriber'
+import type { IObservable } from './types/observable'
+import type { IUnobservable } from './types/ticker'
 
 export const noop = (..._args: any[]): void => {}
 export const noopUnsubscribable: IUnsubscribable = { unsubscribe: noop }

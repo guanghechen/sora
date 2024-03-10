@@ -1,5 +1,5 @@
 import { delay } from '@guanghechen/internal'
-import type { IObservable } from '@guanghechen/observable.types'
+import type { IObservable } from '../src'
 import { Observable } from '../src'
 import { TestSubscriber } from './common'
 

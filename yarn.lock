@@ -640,7 +640,6 @@ __metadata:
   resolution: "@guanghechen/internal@workspace:packages/_internal"
   dependencies:
     "@guanghechen/byte": ^1.0.0-alpha.0
-    "@guanghechen/observable.types": ^6.0.0
     "@guanghechen/reporter.types": ^1.0.0-alpha.0
   languageName: unknown
   linkType: soft
@@ -676,21 +675,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/observable.types@^6.0.0, @guanghechen/observable.types@^6.0.1, @guanghechen/observable.types@workspace:packages/observable.types":
-  version: 0.0.0-use.local
-  resolution: "@guanghechen/observable.types@workspace:packages/observable.types"
-  dependencies:
-    "@guanghechen/disposable.types": ^1.0.0-alpha.2
-  languageName: unknown
-  linkType: soft
-
 "@guanghechen/observable@^6.0.3, @guanghechen/observable@workspace:packages/observable":
   version: 0.0.0-use.local
   resolution: "@guanghechen/observable@workspace:packages/observable"
   dependencies:
     "@guanghechen/disposable": ^1.0.0-alpha.4
-    "@guanghechen/error.types": ^1.0.1
-    "@guanghechen/observable.types": ^6.0.1
+    "@guanghechen/subscriber": ^1.0.0-alpha.0
   languageName: unknown
   linkType: soft
 
@@ -839,7 +829,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/subscriber@workspace:packages/subscriber":
+"@guanghechen/subscriber@^1.0.0-alpha.0, @guanghechen/subscriber@workspace:packages/subscriber":
   version: 0.0.0-use.local
   resolution: "@guanghechen/subscriber@workspace:packages/subscriber"
   dependencies:
@@ -869,6 +859,7 @@ __metadata:
     "@guanghechen/disposable": ^1.0.0-alpha.4
     "@guanghechen/error.types": ^1.0.1
     "@guanghechen/observable": ^6.0.3
+    "@guanghechen/subscriber": ^1.0.0-alpha.0
   languageName: unknown
   linkType: soft
 

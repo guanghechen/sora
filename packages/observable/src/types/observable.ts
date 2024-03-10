@@ -1,5 +1,5 @@
-import type { IBatchDisposable } from '@guanghechen/disposable.types'
-import type { ISubscribable } from './subscribe'
+import type { IBatchDisposable } from '@guanghechen/disposable'
+import type { ISubscribable } from '@guanghechen/subscriber'
 
 export type IEquals<T> = (x: T, y: T) => boolean
 

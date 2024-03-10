@@ -1,4 +1,4 @@
-import type { IObservable, IObservableNextOptions } from '@guanghechen/observable.types'
+import type { IObservable, IObservableNextOptions } from '@guanghechen/observable'
 import type { PipelineStatusEnum } from '../constant'
 import type { IMaterialCooker } from './cooker'
 import type { IProduct } from './product'

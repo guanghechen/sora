@@ -40,6 +40,9 @@ const coverageMap = {
   '@guanghechen/chalk': {
     global: { branches: 73, functions: 42, lines: 46, statements: 46 },
   },
+  '@guanghechen/observable': {
+    global: { functions: 94 },
+  },
   '@guanghechen/path': {
     'src/PathResolver.ts': { branches: 90 },
     'src/UrlPathResolver.ts': { branches: 97 },
@@ -49,6 +52,9 @@ const coverageMap = {
   },
   '@guanghechen/scheduler': {
     global: { branches: 86, functions: 97, lines: 95, statements: 95 },
+  },
+  '@guanghechen/subscriber': {
+    global: { functions: 93 },
   },
   '@guanghechen/viewmodel': {
     global: { branches: 58, functions: 50, lines: 51, statements: 51 },
