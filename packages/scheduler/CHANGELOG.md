@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0-beta.6](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler@6.0.0-beta.5...@guanghechen/scheduler@6.0.0-beta.6) (2024-03-10)
+
+**Note:** Version bump only for package @guanghechen/scheduler
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [6.0.0-beta.5](https://github.com/guanghechen/sora/compare/@guanghechen/scheduler@6.0.0-beta.4...@guanghechen/scheduler@6.0.0-beta.5) (2024-03-10)
 
 ### Performance Improvements

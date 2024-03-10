@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.1.1](https://github.com/guanghechen/sora/compare/@guanghechen/observable@6.1.0...@guanghechen/observable@6.1.1) (2024-03-10)
+
+### Bug Fixes
+
+- 🐛 cannot access 'unsubscribable' before initialization
+  ([78ba9ed](https://github.com/guanghechen/sora/commit/78ba9ed20e47cb0a5f107c3c34783c8b2da9263c))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [6.1.0](https://github.com/guanghechen/sora/compare/@guanghechen/observable@6.0.3...@guanghechen/observable@6.1.0) (2024-03-10)
 
 ### Features

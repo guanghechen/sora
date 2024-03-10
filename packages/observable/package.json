@@ -1,16 +1,16 @@
 {
   "name": "@guanghechen/observable",
-  "version": "6.1.0",
+  "version": "6.1.1",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/observable@6.1.0",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/observable@6.1.1",
     "directory": "packages/observable"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/observable@6.1.0/packages/observable#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/observable@6.1.1/packages/observable#readme",
   "keywords": [
     "observable"
   ],

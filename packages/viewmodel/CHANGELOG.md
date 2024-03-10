@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.19](https://github.com/guanghechen/sora/compare/@guanghechen/viewmodel@1.0.0-alpha.18...@guanghechen/viewmodel@1.0.0-alpha.19) (2024-03-10)
+
+### Bug Fixes
+
+- 🐛 cannot access 'unsubscribable' before initialization
+  ([78ba9ed](https://github.com/guanghechen/sora/commit/78ba9ed20e47cb0a5f107c3c34783c8b2da9263c))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [1.0.0-alpha.18](https://github.com/guanghechen/sora/compare/@guanghechen/viewmodel@1.0.0-alpha.17...@guanghechen/viewmodel@1.0.0-alpha.18) (2024-03-10)
 
 ### Performance Improvements
