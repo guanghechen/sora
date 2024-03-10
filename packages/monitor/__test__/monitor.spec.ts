@@ -24,10 +24,10 @@ describe('Monitor', () => {
     expect(callback2).toHaveBeenCalledWith(42, 'hello')
     expect(monitor.size).toEqual(2)
 
-    unsubscribe1()
+    unsubscribe1.unsubscribe()
     expect(monitor.size).toEqual(1)
 
-    unsubscribe1()
+    unsubscribe1.unsubscribe()
     expect(monitor.size).toEqual(1)
 
     monitor.notify(10, 'world')
@@ -40,8 +40,8 @@ describe('Monitor', () => {
     expect(callback1).toHaveBeenCalledTimes(1)
     expect(callback2).toHaveBeenCalledTimes(2)
 
-    unsubscribe1()
-    unsubscribe2()
+    unsubscribe1.unsubscribe()
+    unsubscribe2.unsubscribe()
     expect(monitor.size).toEqual(0)
     expect(callback1).toHaveBeenCalledTimes(1)
     expect(callback2).toHaveBeenCalledTimes(2)
@@ -55,7 +55,7 @@ describe('Monitor', () => {
     monitor.notify(42, 'hello')
     expect(callback).toHaveBeenCalledWith(42, 'hello')
 
-    unsubscribe()
+    unsubscribe.unsubscribe()
     expect(monitor.size).toEqual(0)
 
     monitor.notify(10, 'world')
@@ -74,7 +74,7 @@ describe('Monitor', () => {
     monitor.notify(42, 'hello')
     expect(callback).not.toHaveBeenCalled()
 
-    unsubscribe()
+    unsubscribe.unsubscribe()
     expect(monitor.size).toEqual(0)
     expect(callback).not.toHaveBeenCalled()
   })
@@ -111,8 +111,8 @@ describe('Monitor', () => {
     expect(callback1).not.toHaveBeenCalledWith(4, 'waw4')
     expect(callback2).not.toHaveBeenCalledWith(4, 'waw4')
 
-    unsubscribe1()
-    unsubscribe2()
+    unsubscribe1.unsubscribe()
+    unsubscribe2.unsubscribe()
     expect(monitor.size).toEqual(0)
 
     monitor.notify(5, 'waw5')
@@ -162,7 +162,7 @@ describe('Monitor', () => {
     expect(monitor.size).toEqual(5)
 
     expect(() => monitor.notify(42, 'hello')).toThrow(
-      `[monitor ${monitor.name}] Encountered errors while notifying subscribers.`,
+      'Encountered errors while notifying subscribers.',
     )
 
     expect(nonErroringCallback1).toHaveBeenCalled()
@@ -196,7 +196,7 @@ describe('Monitor', () => {
     })
 
     const callback3 = jest.fn(function () {
-      unsubscribe1()
+      unsubscribe1.unsubscribe()
     })
 
     const unsubscribe1 = monitor.subscribe(callback1)
@@ -213,7 +213,7 @@ describe('Monitor', () => {
     expect(callback3).not.toHaveBeenCalledWith(42, 'hello')
     expect(results).toEqual(['A1', 'B1']) // new added callbacks won't called immediately
 
-    unsubscribe2()
+    unsubscribe2.unsubscribe()
     expect(monitor.size).toEqual(7)
 
     monitor.notify(10, 'world')
@@ -286,8 +286,8 @@ describe('Monitor', () => {
       'G2',
     ])
 
-    unsubscribe1()
-    unsubscribe3()
+    unsubscribe1.unsubscribe()
+    unsubscribe3.unsubscribe()
     expect(monitor.size).toEqual(0)
 
     monitor.notify(17, 'cool2')

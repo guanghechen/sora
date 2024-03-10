@@ -671,7 +671,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/monitor@workspace:packages/monitor"
   dependencies:
-    "@guanghechen/disposable": ^1.0.0-alpha.4
+    "@guanghechen/disposable.types": ^1.0.0-alpha.2
+    "@guanghechen/subscriber": ^1.0.0-alpha.1
   languageName: unknown
   linkType: soft
 
