@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-beta.6 (2024-09-18)
+
+- :rotating_light: improve: fix lint ([3083212](https://github.com/guanghechen/sora/commit/3083212))
+- :wrench: chore: upgrade devDependencies and fix configs
+  ([230fb63](https://github.com/guanghechen/sora/commit/230fb63))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [1.0.0-beta.5](https://github.com/guanghechen/sora/compare/@guanghechen/task@1.0.0-beta.4...@guanghechen/task@1.0.0-beta.5) (2024-03-10)
 
 **Note:** Version bump only for package @guanghechen/task

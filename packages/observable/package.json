@@ -1,16 +1,16 @@
 {
   "name": "@guanghechen/observable",
-  "version": "6.1.1",
+  "version": "6.1.2",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/observable@6.1.1",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/observable@6.1.2",
     "directory": "packages/observable"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/observable@6.1.1/packages/observable#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/observable@6.1.2/packages/observable#readme",
   "keywords": [
     "observable"
   ],
@@ -34,7 +34,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@guanghechen/disposable": "^1.0.0-alpha.4",
-    "@guanghechen/subscriber": "^1.0.0-alpha.1"
+    "@guanghechen/disposable": "^1.0.0-alpha.5",
+    "@guanghechen/subscriber": "^1.0.0-alpha.2"
   }
 }

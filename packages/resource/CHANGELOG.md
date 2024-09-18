@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-alpha.14 (2024-09-18)
+
+* :wrench:  chore: upgrade devDependencies and fix configs ([230fb63](https://github.com/guanghechen/sora/commit/230fb63))
+
+
+
+
+
 # [1.0.0-alpha.13](https://github.com/guanghechen/sora/compare/@guanghechen/resource@1.0.0-alpha.12...@guanghechen/resource@1.0.0-alpha.13) (2024-03-10)
 
 

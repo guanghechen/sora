@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-alpha.30 (2024-09-18)
+
+- :rotating_light: improve: fix lint ([3083212](https://github.com/guanghechen/sora/commit/3083212))
+- :wrench: chore: upgrade devDependencies and fix configs
+  ([230fb63](https://github.com/guanghechen/sora/commit/230fb63))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 # [1.0.0-alpha.29](https://github.com/guanghechen/sora/compare/@guanghechen/reporter@1.0.0-alpha.28...@guanghechen/reporter@1.0.0-alpha.29) (2024-03-10)
 
 ### Performance Improvements
