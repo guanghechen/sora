@@ -24,10 +24,4 @@ export default [
     ],
   },
   ...ghcConfigs,
-  {
-    files: ['**/constant.ts'],
-    rules: {
-      '@typescript-eslint/prefer-literal-enum-member': 'off',
-    },
-  },
 ]

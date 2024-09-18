@@ -587,9 +587,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/eslint-config@npm:^7.0.2":
-  version: 7.0.2
-  resolution: "@guanghechen/eslint-config@npm:7.0.2"
+"@guanghechen/eslint-config@npm:^7.0.3":
+  version: 7.0.3
+  resolution: "@guanghechen/eslint-config@npm:7.0.3"
   dependencies:
     "@eslint/js": ^9.10.0
     "@stylistic/eslint-plugin-ts": ^2.8.0
@@ -602,7 +602,7 @@ __metadata:
     typescript-eslint: ^8.6.0
   peerDependencies:
     eslint: ^9.0.0
-  checksum: 54eabb0027a3d5fd86acd281de7d7a3794002645c3ca7f83e724b97e119af87f345133a58cfe2f8e9ba61fac6e54eb4fda59a11831d020053fde038201b2037d
+  checksum: 3951c3f9ca69ed3da642dc1ed03d32ce8a6379497616e78cdf391b305f6a68a429c2f085bcd58dad2817f8e97633604b06a92bac0efd9e45df88341999f06a51
   languageName: node
   linkType: hard
 
@@ -828,7 +828,7 @@ __metadata:
   dependencies:
     "@babel/core": 7.25.2
     "@guanghechen/conventional-changelog": ^6.0.0-alpha.2
-    "@guanghechen/eslint-config": ^7.0.2
+    "@guanghechen/eslint-config": ^7.0.3
     "@guanghechen/helper-jest": ^6.0.0-alpha.4
     "@guanghechen/jest-config": ^6.0.0-alpha.2
     "@guanghechen/rollup-config": ^6.0.0-alpha.5
