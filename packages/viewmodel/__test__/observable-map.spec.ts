@@ -110,6 +110,6 @@ describe('ObservableMap', () => {
     expect(subscriberB.value).toEqual('waw2_2')
     expect(subscriberC.value).toEqual('waw3_3')
 
-    expect(consoleMock.getIndiscriminateAll()).toMatchInlineSnapshot(`[]`)
+    expect(consoleMock.getIndiscriminateAll()).toMatchInlineSnapshot('[]')
   })
 })

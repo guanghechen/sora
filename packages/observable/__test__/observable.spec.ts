@@ -156,7 +156,7 @@ describe('sync', () => {
 
     // ----------------------------------------------------------------------------------
 
-    expect(() => observable.next(103)).toThrow(`Don't update a disposed observable. value: 103.`)
+    expect(() => observable.next(103)).toThrow("Don't update a disposed observable. value: 103.")
 
     expect(observable.getSnapshot()).toEqual(102)
     expect(subscriber1.value).toEqual(100)
@@ -440,7 +440,7 @@ describe('async', () => {
 
     // ----------------------------------------------------------------------------------
 
-    expect(() => observable.next(103)).toThrow(`Don't update a disposed observable. value: 103.`)
+    expect(() => observable.next(103)).toThrow("Don't update a disposed observable. value: 103.")
 
     expect(observable.getSnapshot()).toEqual(102)
     expect(subscriber1.value).toEqual(100)

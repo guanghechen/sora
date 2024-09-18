@@ -12,7 +12,7 @@ describe('normalizeString', () => {
       [1.2, '1.2', '1.2'],
       [[], '[]', '[]'],
       [{}, '{}', '{}'],
-      [{ name: 'bob' }, `{name:'bob'}`, `{\n  name: 'bob',\n}`],
+      [{ name: 'bob' }, "{name:'bob'}", "{\n  name: 'bob',\n}"],
       ['', '', ''],
       ['Hello, world!', 'Hello, world!', 'Hello, world!'],
       [
@@ -22,8 +22,8 @@ describe('normalizeString', () => {
             return { name: 'alice' }
           },
         },
-        `{name:'alice'}`,
-        `{\n  name: 'alice',\n}`,
+        "{name:'alice'}",
+        "{\n  name: 'alice',\n}",
       ],
     ]
 

@@ -179,9 +179,9 @@ function testJsonConfigKeeper<Instance, Data>(params: {
   }
 
   it('load', async () => {
-    await assertPromiseThrow(() => keeper.load(), `Cannot find file`)
+    await assertPromiseThrow(() => keeper.load(), 'Cannot find file')
     mkdirsIfNotExists(configFilepath, true)
-    await assertPromiseThrow(() => keeper.load(), `Not a file`)
+    await assertPromiseThrow(() => keeper.load(), 'Not a file')
     expect(keeper.data).toEqual(undefined)
 
     await rm(configFilepath)
@@ -267,7 +267,7 @@ function testJsonConfigKeeper<Instance, Data>(params: {
 
     await rm(path.dirname(configFilepath))
     await writeFile(path.dirname(configFilepath), 'Hello, world!', 'utf8')
-    await assertPromiseThrow(() => keeper.save(), `Parent path is not a dir`)
+    await assertPromiseThrow(() => keeper.save(), 'Parent path is not a dir')
 
     await rm(path.dirname(configFilepath))
     await keeper.save()
@@ -288,6 +288,6 @@ function testJsonConfigKeeper<Instance, Data>(params: {
     expect(keeper.data).toEqual(undefined)
 
     mkdirsIfNotExists(configFilepath, true)
-    await assertPromiseThrow(() => keeper.destroy(), `Not a file`)
+    await assertPromiseThrow(() => keeper.destroy(), 'Not a file')
   })
 }

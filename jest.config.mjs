@@ -35,7 +35,7 @@ const coverageMap = {
   '@guanghechen/internal': {
     global: { branches: 0, functions: 0, lines: 0, statements: 0 },
   },
-  //-----------//
+  // -----------//
 
   '@guanghechen/chalk': {
     global: { branches: 73, functions: 42, lines: 46, statements: 46 },

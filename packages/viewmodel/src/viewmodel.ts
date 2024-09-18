@@ -40,7 +40,7 @@ export abstract class ViewModel extends BatchDisposable implements IViewModel {
       for (const obKey of keys) {
         const observable = this[obKey]
         if (!isObservable(observable)) {
-          console.warn(`[ViewModel.ticker] not an observable, key:`, obKey, 'val:', observable)
+          console.warn('[ViewModel.ticker] not an observable, key:', obKey, 'val:', observable)
           continue
         }
         ticker.observe(observable)

@@ -37,7 +37,7 @@ export default async function rollupConfig() {
             delimiters: ['', ''],
             preventAssignment: true,
             values: {
-              [`} from '.';`]: `} from './index.mjs';`,
+              "} from '.';": "} from './index.mjs';",
             },
           }),
           {
@@ -46,8 +46,8 @@ export default async function rollupConfig() {
                 return code
                   .replace(uselessImportRegex, '')
                   .replace(
-                    `import satisfies from 'semver/functions/satisfies';`,
-                    `import satisfies from 'semver/functions/satisfies.js';`,
+                    "import satisfies from 'semver/functions/satisfies';",
+                    "import satisfies from 'semver/functions/satisfies.js';",
                   )
               },
             }),

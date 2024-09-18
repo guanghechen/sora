@@ -21,7 +21,6 @@ export class PipelineStatusTester {
 
   public buildTest(): void {
     const fromName: string = PipelineStatusEnum[this.from]
-    // eslint-disable-next-line jest/valid-title
     describe(fromName, () => {
       beforeEach(() => {
         this._status = new LocalPipelineStatus(this.from)

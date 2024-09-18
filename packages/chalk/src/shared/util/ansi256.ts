@@ -23,7 +23,6 @@ export function ansi256ToAnsi(code: number): number {
   const value = Math.max(r, g, b) * 2
   if (value === 0) return 30
 
-  // eslint-disable-next-line no-bitwise
   let result = 30 + ((Math.round(b) << 2) | (Math.round(g) << 1) | Math.round(r))
   if (value === 2) result += 60
   return result

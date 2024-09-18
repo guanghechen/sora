@@ -52,6 +52,8 @@ export class ObservableCollection<K, V, C extends IImmutableCollection<K, V>>
       }
       this._subscribers.length = 0
     }
+
+    // eslint-disable-next-line no-lone-blocks
     {
       for (const subscribers of this._keySubscribersMap.values()) {
         const size: number = subscribers.length
@@ -182,17 +184,15 @@ export class ObservableCollection<K, V, C extends IImmutableCollection<K, V>>
     const batcher = new SafeBatchHandler()
 
     // Notify key-subscribers.
-    {
-      for (const [key, subscribers] of this._keySubscribersMap) {
-        const val: V | undefined = value.get(key)
-        const prevVal: V | undefined = prevValue === undefined ? undefined : prevValue.get(key)
-        const size: number = subscribers.length
-        for (let i = 0; i < size; ++i) {
-          const subscriber: IObservableSubscriber<V | undefined> = subscribers[i]
-          if (subscriber.inactive || subscriber.subscriber.disposed) continue
-          if (this.valueEquals(val, prevVal)) continue
-          batcher.run(() => subscriber.subscriber.next(val, prevVal))
-        }
+    for (const [key, subscribers] of this._keySubscribersMap) {
+      const val: V | undefined = value.get(key)
+      const prevVal: V | undefined = prevValue === undefined ? undefined : prevValue.get(key)
+      const size: number = subscribers.length
+      for (let i = 0; i < size; ++i) {
+        const subscriber: IObservableSubscriber<V | undefined> = subscribers[i]
+        if (subscriber.inactive || subscriber.subscriber.disposed) continue
+        if (this.valueEquals(val, prevVal)) continue
+        batcher.run(() => subscriber.subscriber.next(val, prevVal))
       }
     }
 

@@ -65,7 +65,7 @@ export class Subscribers<T> implements ISubscribers<T> {
       if (item.unsubscribed || item.subscriber.disposed) continue
       batcher.run(() => item.subscriber.next(value, prevValue))
     }
-    batcher.summary(`Encountered errors while notifying subscribers.`)
+    batcher.summary('Encountered errors while notifying subscribers.')
     batcher.cleanup()
   }
 

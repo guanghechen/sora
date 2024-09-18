@@ -22,7 +22,7 @@ export interface IObservableNextOptions {
   readonly strict?: boolean
 
   /**
-   * Force trigger the notification of subscribers even the next value is equals to the current value.
+   * Force trigger the notification of subscribers even the next value equals to the current value.
    * @default false
    */
   readonly force?: boolean

@@ -73,6 +73,7 @@ export abstract class ResumableTask implements ITask {
 
     // Execute until the task is terminated.
     const execution: IterableIterator<Promise<void>> = this._execution!
+    // eslint-disable-next-line space-in-parens
     for (let alive = true; alive; ) {
       const step = execution.next()
       if (step.done) {
