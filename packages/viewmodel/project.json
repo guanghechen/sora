@@ -10,7 +10,6 @@
       "options": {
         "cwd": "packages/viewmodel",
         "parallel": false,
-        "sourceMap": true,
         "commands": ["rimraf lib"]
       }
     },

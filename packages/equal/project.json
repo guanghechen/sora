@@ -10,7 +10,6 @@
       "options": {
         "cwd": "packages/equal",
         "parallel": false,
-        "sourceMap": true,
         "commands": ["rimraf lib"]
       }
     },

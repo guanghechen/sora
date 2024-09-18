@@ -10,7 +10,6 @@
       "options": {
         "cwd": "packages/observable",
         "parallel": false,
-        "sourceMap": true,
         "commands": ["rimraf lib"]
       }
     },

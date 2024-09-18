@@ -10,7 +10,6 @@
       "options": {
         "cwd": "packages/config",
         "parallel": false,
-        "sourceMap": true,
         "commands": ["rimraf lib"]
       }
     },

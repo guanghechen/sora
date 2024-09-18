@@ -10,7 +10,6 @@
       "options": {
         "cwd": "packages/disposable.types",
         "parallel": false,
-        "sourceMap": true,
         "commands": ["rimraf lib"]
       }
     },
