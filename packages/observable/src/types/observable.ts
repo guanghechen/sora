@@ -28,24 +28,27 @@ export interface IObservableNextOptions {
   readonly force?: boolean
 }
 
-export interface IObservable<T> extends IBatchDisposable, ISubscribable<T> {
+export interface IBaseObservable<T> extends IBatchDisposable, ISubscribable<T> {
+  getSnapshot: () => T
+}
+
+export interface IObservable<T> extends IBaseObservable<T> {
   readonly equals: IEquals<T>
-  getSnapshot(): T
   next(value: T, options?: IObservableNextOptions): void
 }
 
-export type IValueList<T extends Array<IObservable<any>>> = {
-  [K in keyof T]: T[K] extends IObservable<infer U> ? U : never
+export type IValueList<T extends Array<IBaseObservable<any>>> = {
+  [K in keyof T]: T[K] extends IBaseObservable<infer U> ? U : never
 }
 
 export type IValueMap<T extends object> = {
-  [key in keyof T]: T[key] extends IObservable<infer U> ? U : never
+  [key in keyof T]: T[key] extends IBaseObservable<infer U> ? U : never
 }
 
 export type IObservableRecord<T extends object> = {
-  [key in keyof T]: T[key] extends IObservable<any> ? T[key] : never
+  [key in keyof T]: T[key] extends IBaseObservable<any> ? T[key] : never
 }
 
 export type IObservableKey<T extends object> = keyof {
-  [key in keyof T]: T[key] extends IObservable<any> ? key : never
+  [key in keyof T]: T[key] extends IBaseObservable<any> ? key : never
 }

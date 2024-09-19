@@ -1,4 +1,4 @@
-import type { IObservable, IObservableNextOptions } from './observable'
+import type { IBaseObservable, IObservable, IObservableNextOptions } from './observable'
 
 /**
  * A unobservable can be unobserved.
@@ -40,5 +40,5 @@ export interface ITicker extends IObservable<number> {
    * @param observable
    * @param options
    */
-  observe(observable: IObservable<any>, options?: ITickerObserveOptions): void
+  observe(observable: IBaseObservable<any>, options?: ITickerObserveOptions): void
 }

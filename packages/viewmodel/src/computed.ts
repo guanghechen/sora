@@ -1,18 +1,23 @@
 import { Disposable, type IDisposable } from '@guanghechen/disposable'
 import { Observable, Ticker } from '@guanghechen/observable'
-import type { IObservable, IObservableOptions, IValueList } from '@guanghechen/observable'
+import type {
+  IBaseObservable,
+  IObservable,
+  IObservableOptions,
+  IValueList,
+} from '@guanghechen/observable'
 import type { ISubscriber, IUnsubscribable } from '@guanghechen/subscriber'
 import { Subscriber } from '@guanghechen/subscriber'
 import type { IComputed } from './types/computed'
 
 export class Computed<T> implements IComputed<T> {
-  protected readonly _observable: IObservable<T>
+  protected readonly _observable: IBaseObservable<T>
 
-  constructor(observable: IObservable<T>) {
+  constructor(observable: IBaseObservable<T>) {
     this._observable = observable
   }
 
-  public static fromObservables<S extends Array<IObservable<any>>, T>(
+  public static fromObservables<S extends Array<IBaseObservable<any>>, T>(
     observables: S,
     transform: (values: IValueList<S>) => T,
     options?: IObservableOptions<T>,

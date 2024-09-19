@@ -3,7 +3,7 @@ import { Disposable } from '@guanghechen/disposable'
 import type { ISubscriber } from '@guanghechen/subscriber'
 import { Subscriber } from '@guanghechen/subscriber'
 import { Observable } from './observable'
-import type { IEquals, IObservable, IObservableNextOptions } from './types/observable'
+import type { IBaseObservable, IEquals, IObservableNextOptions } from './types/observable'
 import type { ITicker, ITickerObserveOptions, ITickerOptions, IUnobservable } from './types/ticker'
 import { noopUnobservable } from './util'
 
@@ -19,7 +19,10 @@ export class Ticker extends Observable<number> implements ITicker {
     this.next(this._value + 1, options)
   }
 
-  public observe<T>(observable: IObservable<T>, options?: ITickerObserveOptions): IUnobservable {
+  public observe<T>(
+    observable: IBaseObservable<T>,
+    options?: ITickerObserveOptions,
+  ): IUnobservable {
     if (this.disposed) {
       const strict: boolean = options?.strict ?? true
       if (strict) throw new RangeError('[Ticker.observe] the ticker has been disposed.')
