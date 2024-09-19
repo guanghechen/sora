@@ -1,5 +1,7 @@
 import type { IComputed } from './computed'
 
+export type IValuePatcher<T> = (prev: T) => T
+
 export interface IState<T> extends IComputed<T> {
   /**
    *
@@ -10,5 +12,10 @@ export interface IState<T> extends IComputed<T> {
    *
    * @param patch
    */
-  setState(patch: (prev: T) => T): void
+  setState(patch: IValuePatcher<T>): void
+  /**
+   *
+   * @param patch
+   */
+  updateState(patch: T | IValuePatcher<T>): void
 }
