@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-alpha.22 (2024-09-19)
+
+- :art: improve(viewmodel): add new method updateState to align the React setState method
+  ([110f439](https://github.com/guanghechen/sora/commit/110f439))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 ## 1.0.0-alpha.21 (2024-09-19)
 
 - :art: improve(viewmodel): support to create Computed from another Computed
