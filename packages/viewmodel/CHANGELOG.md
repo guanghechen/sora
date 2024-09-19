@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-alpha.21 (2024-09-19)
+
+- :art: improve(viewmodel): support to create Computed from another Computed
+  ([5fc89ba](https://github.com/guanghechen/sora/commit/5fc89ba))
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 ## 1.0.0-alpha.20 (2024-09-18)
 
 - :rotating_light: improve: fix lint ([3083212](https://github.com/guanghechen/sora/commit/3083212))

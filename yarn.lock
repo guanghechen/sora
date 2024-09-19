@@ -717,7 +717,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/observable@^6.1.2, @guanghechen/observable@workspace:packages/observable":
+"@guanghechen/observable@^6.1.3, @guanghechen/observable@workspace:packages/observable":
   version: 0.0.0-use.local
   resolution: "@guanghechen/observable@workspace:packages/observable"
   dependencies:
@@ -797,10 +797,10 @@ __metadata:
   dependencies:
     "@guanghechen/error.types": ^1.0.2
     "@guanghechen/middleware": ^1.0.2
-    "@guanghechen/observable": ^6.1.2
+    "@guanghechen/observable": ^6.1.3
     "@guanghechen/reporter.types": ^1.0.0-alpha.11
     "@guanghechen/subscriber": ^1.0.0-alpha.2
-    "@guanghechen/task": ^1.0.0-beta.6
+    "@guanghechen/task": ^1.0.0-beta.7
   languageName: unknown
   linkType: soft
 
@@ -876,12 +876,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/task@^1.0.0-beta.6, @guanghechen/task@workspace:packages/task":
+"@guanghechen/task@^1.0.0-beta.7, @guanghechen/task@workspace:packages/task":
   version: 0.0.0-use.local
   resolution: "@guanghechen/task@workspace:packages/task"
   dependencies:
     "@guanghechen/error.types": ^1.0.2
-    "@guanghechen/observable": ^6.1.2
+    "@guanghechen/observable": ^6.1.3
   languageName: unknown
   linkType: soft
 
@@ -896,7 +896,7 @@ __metadata:
   resolution: "@guanghechen/viewmodel@workspace:packages/viewmodel"
   dependencies:
     "@guanghechen/disposable": ^1.0.0-alpha.5
-    "@guanghechen/observable": ^6.1.2
+    "@guanghechen/observable": ^6.1.3
     "@guanghechen/subscriber": ^1.0.0-alpha.2
   languageName: unknown
   linkType: soft

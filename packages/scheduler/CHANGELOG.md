@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 6.0.0-beta.8 (2024-09-19)
+
+**Note:** Version bump only for package @guanghechen/scheduler
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
 ## 6.0.0-beta.7 (2024-09-18)
 
 - :rotating_light: improve: fix lint ([3083212](https://github.com/guanghechen/sora/commit/3083212))
