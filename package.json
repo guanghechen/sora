@@ -42,7 +42,7 @@
   "devDependencies": {
     "@babel/core": "7.25.2",
     "@guanghechen/conventional-changelog": "^6.0.0-alpha.2",
-    "@guanghechen/eslint-config": "^7.0.4",
+    "@guanghechen/eslint-config": "^7.0.5",
     "@guanghechen/helper-jest": "^6.0.0-alpha.5",
     "@guanghechen/jest-config": "^6.0.0-alpha.2",
     "@guanghechen/rollup-config": "^6.0.0-alpha.6",
@@ -64,7 +64,7 @@
     "pinst": "3.0.0",
     "prettier": "3.3.3",
     "rimraf": "^6.0.1",
-    "rollup": "^4.22.0",
+    "rollup": "^4.22.2",
     "ts-jest": "29.2.5",
     "ts-node": "10.9.2",
     "typescript": "5.6.2"

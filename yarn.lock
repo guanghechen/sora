@@ -587,9 +587,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/eslint-config@npm:^7.0.4":
-  version: 7.0.4
-  resolution: "@guanghechen/eslint-config@npm:7.0.4"
+"@guanghechen/eslint-config@npm:^7.0.5":
+  version: 7.0.5
+  resolution: "@guanghechen/eslint-config@npm:7.0.5"
   dependencies:
     "@eslint/js": ^9.10.0
     "@stylistic/eslint-plugin-ts": ^2.8.0
@@ -602,7 +602,7 @@ __metadata:
     typescript-eslint: ^8.6.0
   peerDependencies:
     eslint: ^9.0.0
-  checksum: e111f3883431200d1daeeddf3c28a808ada4fdfbd1f00d2649c4550d1c6380dfb87e333baf0c5fa38154e378ee83b8cf895d055c253349a1cf6631ff385a4ffa
+  checksum: c021758aeb234b004329fef2e24f20f16da9aaf68a6e97743be7dacb055a07aec7fb7ebffc53b683e22cc4cf5a0d848312d881b00d5fb8ab3db63b9d4c578b90
   languageName: node
   linkType: hard
 
@@ -830,7 +830,7 @@ __metadata:
   dependencies:
     "@babel/core": 7.25.2
     "@guanghechen/conventional-changelog": ^6.0.0-alpha.2
-    "@guanghechen/eslint-config": ^7.0.4
+    "@guanghechen/eslint-config": ^7.0.5
     "@guanghechen/helper-jest": ^6.0.0-alpha.5
     "@guanghechen/jest-config": ^6.0.0-alpha.2
     "@guanghechen/rollup-config": ^6.0.0-alpha.6
@@ -852,7 +852,7 @@ __metadata:
     pinst: 3.0.0
     prettier: 3.3.3
     rimraf: ^6.0.1
-    rollup: ^4.22.0
+    rollup: ^4.22.2
     ts-jest: 29.2.5
     ts-node: 10.9.2
     typescript: 5.6.2
@@ -9091,7 +9091,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup@npm:^4.22.0":
+"rollup@npm:^4.22.2":
   version: 4.22.2
   resolution: "rollup@npm:4.22.2"
   dependencies:
