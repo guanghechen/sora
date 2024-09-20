@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/stream",
-  "version": "1.0.0-alpha.12",
+  "version": "1.0.0",
   "description": "Utilities for handing node streams.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/stream@1.0.0-alpha.12",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/stream@1.0.0",
     "directory": "packages/stream"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/stream@1.0.0-alpha.12/packages/stream#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/stream@1.0.0/packages/stream#readme",
   "keywords": [
     "stream",
     "concat streams",
@@ -40,6 +40,6 @@
     "README.md"
   ],
   "dependencies": {
-    "@guanghechen/byte": "^1.0.0-alpha.7"
+    "@guanghechen/byte": "^1.0.0"
   }
 }

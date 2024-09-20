@@ -1,16 +1,16 @@
 {
   "name": "@guanghechen/resource",
-  "version": "1.0.0-alpha.14",
+  "version": "1.0.0",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/resource@1.0.0-alpha.14",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/resource@1.0.0",
     "directory": "packages/resource"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/resource@1.0.0-alpha.14/packages/resource#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/resource@1.0.0/packages/resource#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -34,7 +34,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@guanghechen/invariant": "^6.0.0",
-    "@guanghechen/resource.types": "^1.0.0-alpha.6"
+    "@guanghechen/invariant": "^6.0.1",
+    "@guanghechen/resource.types": "^1.0.0"
   }
 }

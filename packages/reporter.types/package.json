@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/reporter.types",
-  "version": "1.0.0-alpha.11",
+  "version": "1.0.0",
   "description": "types of @guanghechen/reporter",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/reporter.types@1.0.0-alpha.11",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/reporter.types@1.0.0",
     "directory": "packages/reporter.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/reporter.types@1.0.0-alpha.11/packages/reporter.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/reporter.types@1.0.0/packages/reporter.types#readme",
   "type": "module",
   "exports": {
     ".": {

@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/string@1.0.0/packages/string#readme">@guanghechen/string</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/string@1.0.1/packages/string#readme">@guanghechen/string</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/string">
@@ -97,4 +97,4 @@ Utilities for processing strings or stringify other type data.
     ```
 
 
-[homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/string@1.0.0/packages/string#readme
+[homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/string@1.0.1/packages/string#readme

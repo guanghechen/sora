@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/is@1.0.0/packages/is#readme">@guanghechen/is</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/is@1.0.1/packages/is#readme">@guanghechen/is</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/is">
@@ -86,4 +86,4 @@ Name                  | Description
 `isNumberLike`        | Check if the given data is an `number` / `Number` or number like `string` type
 
 
-[homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/is@1.0.0/packages/is#readme
+[homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/is@1.0.1/packages/is#readme

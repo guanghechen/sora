@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/fs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Provide some enhanced methods base on `node:fs`.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/fs@1.0.0",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/fs@1.0.1",
     "directory": "packages/fs"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/fs@1.0.0/packages/fs#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/fs@1.0.1/packages/fs#readme",
   "keywords": [
     "url path",
     "file path"
@@ -42,7 +42,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@guanghechen/invariant": "^6.0.0",
-    "@guanghechen/reporter.types": "^1.0.0-alpha.11"
+    "@guanghechen/invariant": "^6.0.1",
+    "@guanghechen/reporter.types": "^1.0.0"
   }
 }

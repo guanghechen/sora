@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/string",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Utilities for processing strings or stringify other type data.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/string@1.0.0",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/string@1.0.1",
     "directory": "packages/string"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/string@1.0.0/packages/string#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/string@1.0.1/packages/string#readme",
   "keywords": [
     "string",
     "string transformer",
