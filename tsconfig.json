@@ -18,6 +18,7 @@
       "@guanghechen/filepart": ["packages/filepart/src"],
       "@guanghechen/filepart.types": ["packages/filepart.types/src"],
       "@guanghechen/invariant": ["packages/invariant/src"],
+      "@guanghechen/is": ["packages/is/src"],
       "@guanghechen/middleware": ["packages/middleware/src"],
       "@guanghechen/monitor": ["packages/monitor/src"],
       "@guanghechen/observable": ["packages/observable/src"],

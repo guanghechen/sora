@@ -691,6 +691,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@guanghechen/is@workspace:packages/is":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/is@workspace:packages/is"
+  languageName: unknown
+  linkType: soft
+
 "@guanghechen/jest-config@npm:^6.0.0-alpha.2":
   version: 6.0.0-alpha.2
   resolution: "@guanghechen/jest-config@npm:6.0.0-alpha.2"
