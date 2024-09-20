@@ -1,0 +1,48 @@
+{
+  "name": "@guanghechen/event-bus",
+  "version": "6.0.0",
+  "description": "A simple event bus.",
+  "author": {
+    "name": "guanghechen",
+    "url": "https://github.com/guanghechen/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/event-bus@6.0.0",
+    "directory": "packages/event-bus"
+  },
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/event-bus@6.0.0/packages/event-bus#readme",
+  "keywords": [
+    "event bus"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "import": "./lib/esm/index.mjs",
+      "require": "./lib/cjs/index.cjs",
+      "types": "./lib/types/index.d.ts"
+    }
+  },
+  "source": "./src/index.ts",
+  "main": "./lib/cjs/index.cjs",
+  "module": "./lib/esm/index.mjs",
+  "types": "./lib/types/index.d.ts",
+  "license": "MIT",
+  "engines": {
+    "node": ">= 18.0.0"
+  },
+  "files": [
+    "lib/",
+    "!lib/**/*.map",
+    "package.json",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "../../node_modules/.bin/rimraf lib/ && ../../node_modules/.bin/cross-env NODE_ENV=production ../../node_modules/.bin/rollup -c ../../rollup.config.mjs",
+    "prepublishOnly": "yarn build",
+    "test": "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
+  }
+}

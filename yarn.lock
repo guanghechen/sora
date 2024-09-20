@@ -606,6 +606,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@guanghechen/event-bus@workspace:packages/event-bus":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/event-bus@workspace:packages/event-bus"
+  languageName: unknown
+  linkType: soft
+
 "@guanghechen/file-split@workspace:packages/file-split":
   version: 0.0.0-use.local
   resolution: "@guanghechen/file-split@workspace:packages/file-split"
