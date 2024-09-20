@@ -39,6 +39,6 @@
     "@guanghechen/config.types": "^1.0.0",
     "@guanghechen/invariant": "^6.0.1",
     "@guanghechen/resource.types": "^1.0.0",
-    "semver": "^7.6.3"
+    "compare-versions": "^6.1.1"
   }
 }

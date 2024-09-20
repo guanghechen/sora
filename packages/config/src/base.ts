@@ -2,7 +2,7 @@ import { bytes2text, randomBytes, text2bytes } from '@guanghechen/byte'
 import type { IConfig, IConfigKeeper } from '@guanghechen/config.types'
 import { invariant } from '@guanghechen/invariant'
 import type { ITextResource } from '@guanghechen/resource.types'
-import satisfies from 'semver/functions/satisfies'
+import { satisfies } from 'compare-versions'
 import type { IHashAlgorithm } from './mac'
 import { calcMac } from './mac'
 
@@ -60,10 +60,7 @@ export abstract class BaseConfigKeeper<Instance, Data> implements IConfigKeeper<
   }
 
   public compatible(version: string): boolean {
-    return satisfies(version, this.__compatible_version__, {
-      loose: false,
-      includePrerelease: true,
-    })
+    return satisfies(version, this.__compatible_version__)
   }
 
   public async destroy(): Promise<void> {
