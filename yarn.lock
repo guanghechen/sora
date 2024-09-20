@@ -676,7 +676,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/internal@^1.0.0-alpha.0, @guanghechen/internal@workspace:packages/_internal":
+"@guanghechen/internal@workspace:packages/_internal":
   version: 0.0.0-use.local
   resolution: "@guanghechen/internal@workspace:packages/_internal"
   dependencies:
@@ -756,7 +756,6 @@ __metadata:
   resolution: "@guanghechen/reporter@workspace:packages/reporter"
   dependencies:
     "@guanghechen/chalk.types": ^1.0.0-alpha.10
-    "@guanghechen/internal": ^1.0.0-alpha.0
     "@guanghechen/reporter.types": ^1.0.0-alpha.11
     "@guanghechen/types": ^1.0.0-alpha.11
     dayjs: ^1.11.13

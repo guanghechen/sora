@@ -43,8 +43,5 @@
     "@guanghechen/types": "^1.0.0-alpha.11",
     "dayjs": "^1.11.13",
     "json5": "^2.2.3"
-  },
-  "devDependencies": {
-    "@guanghechen/internal": "^1.0.0-alpha.0"
   }
 }
