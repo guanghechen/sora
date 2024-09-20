@@ -29,6 +29,7 @@
       "@guanghechen/resource.types": ["packages/resource.types/src"],
       "@guanghechen/scheduler": ["packages/scheduler/src"],
       "@guanghechen/stream": ["packages/stream/src"],
+      "@guanghechen/string": ["packages/string/src"],
       "@guanghechen/subscriber": ["packages/subscriber/src"],
       "@guanghechen/task": ["packages/task/src"],
       "@guanghechen/types": ["packages/types/src"],
