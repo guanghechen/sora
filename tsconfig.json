@@ -18,6 +18,7 @@
       "@guanghechen/file-split": ["packages/file-split/src"],
       "@guanghechen/filepart": ["packages/filepart/src"],
       "@guanghechen/filepart.types": ["packages/filepart.types/src"],
+      "@guanghechen/fs": ["packages/fs/src"],
       "@guanghechen/invariant": ["packages/invariant/src"],
       "@guanghechen/is": ["packages/is/src"],
       "@guanghechen/middleware": ["packages/middleware/src"],

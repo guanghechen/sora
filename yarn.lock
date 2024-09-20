@@ -637,6 +637,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@guanghechen/fs@workspace:packages/fs":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/fs@workspace:packages/fs"
+  dependencies:
+    "@guanghechen/invariant": ^6.0.0
+    "@guanghechen/reporter.types": ^1.0.0-alpha.11
+  languageName: unknown
+  linkType: soft
+
 "@guanghechen/helper-fs@npm:^6.0.0-alpha.7":
   version: 6.0.0-alpha.7
   resolution: "@guanghechen/helper-fs@npm:6.0.0-alpha.7"
