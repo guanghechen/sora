@@ -40,9 +40,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@guanghechen/filepart.types": "^1.0.0-alpha.3"
-  },
-  "devDependencies": {
-    "@guanghechen/internal": "^1.0.0-alpha.0"
+    "@guanghechen/filepart.types": "^1.0.0-alpha.3",
+    "@guanghechen/invariant": "^6.0.0"
   }
 }

@@ -1,4 +1,4 @@
-import { invariant } from '@guanghechen/internal'
+import { invariant } from '@guanghechen/invariant'
 import type { ITextResource } from '@guanghechen/resource.types'
 import { existsSync, mkdirSync, statSync, unlinkSync } from 'node:fs'
 import { readFile, writeFile } from 'node:fs/promises'

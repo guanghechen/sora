@@ -1,6 +1,6 @@
 import type { IFilePartItem } from '@guanghechen/filepart'
 import { DEFAULT_FILEPART_CODE_PREFIX, calcFilePartNames } from '@guanghechen/filepart'
-import { invariant } from '@guanghechen/internal'
+import { invariant } from '@guanghechen/invariant'
 import { consumeStream, consumeStreams } from '@guanghechen/stream'
 import { createReadStream, createWriteStream } from 'node:fs'
 import type { IFileSplitter } from './types'

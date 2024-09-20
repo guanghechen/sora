@@ -41,9 +41,7 @@
   ],
   "dependencies": {
     "@guanghechen/filepart": "^1.0.0-alpha.7",
+    "@guanghechen/invariant": "^6.0.0",
     "@guanghechen/stream": "^1.0.0-alpha.12"
-  },
-  "devDependencies": {
-    "@guanghechen/internal": "^1.0.0-alpha.0"
   }
 }

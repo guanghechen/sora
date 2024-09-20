@@ -37,10 +37,8 @@
   "dependencies": {
     "@guanghechen/byte": "^1.0.0-alpha.7",
     "@guanghechen/config.types": "^1.0.0-alpha.7",
+    "@guanghechen/invariant": "^6.0.0",
     "@guanghechen/resource.types": "^1.0.0-alpha.6",
     "semver": "^7.6.3"
-  },
-  "devDependencies": {
-    "@guanghechen/internal": "^1.0.0-alpha.0"
   }
 }

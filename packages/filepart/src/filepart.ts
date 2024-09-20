@@ -1,5 +1,5 @@
 import type { IFilePartItem } from '@guanghechen/filepart.types'
-import { invariant } from '@guanghechen/internal'
+import { invariant } from '@guanghechen/invariant'
 
 /**
  * Generate file part items by part size.

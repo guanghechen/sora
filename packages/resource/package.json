@@ -34,9 +34,7 @@
     "README.md"
   ],
   "dependencies": {
+    "@guanghechen/invariant": "^6.0.0",
     "@guanghechen/resource.types": "^1.0.0-alpha.6"
-  },
-  "devDependencies": {
-    "@guanghechen/internal": "^1.0.0-alpha.0"
   }
 }
