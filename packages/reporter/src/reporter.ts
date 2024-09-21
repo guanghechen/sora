@@ -112,35 +112,39 @@ export class Reporter implements IReporter {
   }
 
   public debug(messageFormat: string | unknown, ...messages: unknown[]): void {
-    this.log(ReporterLevelEnum.DEBUG, messageFormat, ...messages)
+    this.log(ReporterLevelEnum.DEBUG, messageFormat, messages)
   }
 
   public verbose(messageFormat: string | unknown, ...messages: unknown[]): void {
-    this.log(ReporterLevelEnum.VERBOSE, messageFormat, ...messages)
+    this.log(ReporterLevelEnum.VERBOSE, messageFormat, messages)
   }
 
   public info(messageFormat: string | unknown, ...messages: unknown[]): void {
-    this.log(ReporterLevelEnum.INFO, messageFormat, ...messages)
+    this.log(ReporterLevelEnum.INFO, messageFormat, messages)
   }
 
   public warn(messageFormat: string | unknown, ...messages: unknown[]): void {
-    this.log(ReporterLevelEnum.WARN, messageFormat, ...messages)
+    this.log(ReporterLevelEnum.WARN, messageFormat, messages)
   }
 
   public error(messageFormat: string | unknown, ...messages: unknown[]): void {
-    this.log(ReporterLevelEnum.ERROR, messageFormat, ...messages)
+    this.log(ReporterLevelEnum.ERROR, messageFormat, messages)
   }
 
   public fatal(messageFormat: string | unknown, ...messages: unknown[]): void {
-    this.log(ReporterLevelEnum.FATAL, messageFormat, ...messages)
+    this.log(ReporterLevelEnum.FATAL, messageFormat, messages)
   }
 
-  // write a log record.
-  public log(
+  public log(level: ReporterLevelEnum, messageFormat: string | unknown, messages: unknown[]): void {
+    const text: string | undefined = this.format(level, messageFormat, messages)
+    if (text !== undefined) this.write(text)
+  }
+
+  public format(
     level: ReporterLevelEnum,
     messageFormat: string | unknown,
-    ...messages: unknown[]
-  ): void {
+    messages: unknown[],
+  ): string | undefined {
     if (!level || level < this.level) return
     const header = this.formatHeader(level, new Date())
 
@@ -169,11 +173,6 @@ export class Reporter implements IReporter {
     if (unpairedIdx < items.length) message += ' ' + items.slice(unpairedIdx).join(' ')
     if (!newline && !message.endsWith('\n')) message += '\n'
 
-    this.write(this.format(level, header, message))
-  }
-
-  // format a log record.
-  protected format(level: ReporterLevelEnum, header: string, message: string): string {
     const content: string = this.formatContent(level, message)
     return header.length > 0 ? header + ' ' + content : content
   }

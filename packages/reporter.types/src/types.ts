@@ -62,4 +62,12 @@ export interface IReporter {
    * @param messages
    */
   fatal(messageFormat: string, ...messages: any[]): void
+  /**
+   * Print a log if the reporter.level is lower than or equal the given level.
+   */
+  log(level: ReporterLevelEnum, messageFormat: string | unknown, messages: unknown[]): void
+  /**
+   * Format the given parameters to a printable string.
+   */
+  format(level: ReporterLevelEnum, messageFormat: string | unknown, messages: unknown[]): void
 }
