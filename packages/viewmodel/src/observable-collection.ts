@@ -53,7 +53,6 @@ export class ObservableCollection<K, V, C extends IImmutableCollection<K, V>>
       this._subscribers.length = 0
     }
 
-    // eslint-disable-next-line no-lone-blocks
     {
       for (const subscribers of this._keySubscribersMap.values()) {
         const size: number = subscribers.length
