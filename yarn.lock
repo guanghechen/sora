@@ -637,14 +637,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/fs@^1.0.1, @guanghechen/fs@workspace:packages/fs":
-  version: 0.0.0-use.local
-  resolution: "@guanghechen/fs@workspace:packages/fs"
+"@guanghechen/fs@npm:^1.0.1":
+  version: 1.0.2
+  resolution: "@guanghechen/fs@npm:1.0.2"
   dependencies:
     "@guanghechen/invariant": ^6.0.1
     "@guanghechen/reporter.types": ^1.0.0
-  languageName: unknown
-  linkType: soft
+  checksum: d18251470dd390e565e3551a2489fb4ca043a75d50510b52b575087dce1949b21171223534d04f9e90c153d2edfcbe6d61ec3774a5b0e02987d9901b85080fc6
+  languageName: node
+  linkType: hard
 
 "@guanghechen/helper-func@npm:^6.0.0-alpha.1":
   version: 6.0.0-alpha.1
