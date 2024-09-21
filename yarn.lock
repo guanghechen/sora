@@ -735,7 +735,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/reporter.types@^1.0.0, @guanghechen/reporter.types@workspace:packages/reporter.types":
+"@guanghechen/reporter.types@^1.0.0, @guanghechen/reporter.types@^1.0.1, @guanghechen/reporter.types@workspace:packages/reporter.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/reporter.types@workspace:packages/reporter.types"
   languageName: unknown
@@ -746,7 +746,7 @@ __metadata:
   resolution: "@guanghechen/reporter@workspace:packages/reporter"
   dependencies:
     "@guanghechen/chalk.types": ^1.0.0
-    "@guanghechen/reporter.types": ^1.0.0
+    "@guanghechen/reporter.types": ^1.0.1
     "@guanghechen/types": ^1.0.0
     dayjs: ^1.11.13
     json5: ^2.2.3
@@ -792,7 +792,7 @@ __metadata:
     "@guanghechen/error.types": ^1.0.3
     "@guanghechen/middleware": ^1.0.3
     "@guanghechen/observable": ^6.1.4
-    "@guanghechen/reporter.types": ^1.0.0
+    "@guanghechen/reporter.types": ^1.0.1
     "@guanghechen/subscriber": ^1.0.0
     "@guanghechen/task": ^1.0.1
   languageName: unknown
