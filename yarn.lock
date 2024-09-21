@@ -794,7 +794,7 @@ __metadata:
     "@guanghechen/observable": ^6.1.4
     "@guanghechen/reporter.types": ^1.0.0
     "@guanghechen/subscriber": ^1.0.0
-    "@guanghechen/task": ^1.0.0
+    "@guanghechen/task": ^1.0.1
   languageName: unknown
   linkType: soft
 
@@ -874,7 +874,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/task@^1.0.0, @guanghechen/task@workspace:packages/task":
+"@guanghechen/task@^1.0.1, @guanghechen/task@workspace:packages/task":
   version: 0.0.0-use.local
   resolution: "@guanghechen/task@workspace:packages/task"
   dependencies:
