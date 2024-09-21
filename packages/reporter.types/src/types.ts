@@ -69,5 +69,9 @@ export interface IReporter {
   /**
    * Format the given parameters to a printable string.
    */
-  format(level: ReporterLevelEnum, messageFormat: string | unknown, messages: unknown[]): void
+  format(
+    level: ReporterLevelEnum,
+    messageFormat: string | unknown,
+    messages: unknown[],
+  ): string | undefined
 }
