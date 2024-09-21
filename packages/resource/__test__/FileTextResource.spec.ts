@@ -1,4 +1,4 @@
-import { emptyDir, mkdirsIfNotExists, rm, writeFile } from '@guanghechen/internal'
+import { emptyDir, mkdirsIfNotExists, rm, writeFile } from '@guanghechen/fs'
 import { assertPromiseNotThrow, assertPromiseThrow, locateFixtures } from 'jest.helper'
 import { existsSync, statSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'

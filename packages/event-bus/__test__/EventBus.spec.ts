@@ -1,4 +1,3 @@
-import { delay } from '@guanghechen/internal'
 import type { IEvent, IEventHandler } from '../src'
 import { EventBus } from '../src'
 
@@ -197,7 +196,7 @@ describe('EventBus', function () {
       eventBus.subscribe(handle2, false)
       eventBus.dispatch({ type: EventTypes.EXIT, payload: { id: 3 } })
 
-      await delay(100)
+      await new Promise<void>(resolve => setTimeout(resolve, 100))
 
       eventBus.dispatch({ type: EventTypes.INIT, payload: { id: 4 } })
       eventBus.unsubscribe(handle)

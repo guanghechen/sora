@@ -1,4 +1,3 @@
-import { delay } from '@guanghechen/internal'
 import { Observable, Ticker } from '../src'
 import { TestSubscriber } from './common'
 
@@ -42,7 +41,7 @@ describe('async', () => {
 
     // ----------------------------------------------------------------------------------
 
-    await delay(duration + 20)
+    await new Promise<void>(resolve => setTimeout(resolve, duration + 20))
 
     expect(ticker.getSnapshot()).toEqual(5)
     expect(subscriber1.value).toEqual(5)
@@ -86,7 +85,7 @@ describe('async', () => {
 
     // ----------------------------------------------------------------------------------
 
-    await delay(duration + 20)
+    await new Promise<void>(resolve => setTimeout(resolve, duration + 20))
 
     expect(ticker.getSnapshot()).toEqual(3)
     expect(ticker.disposed).toEqual(false)
@@ -100,7 +99,7 @@ describe('async', () => {
 
     unobservable1.unobserve()
     observable1.next(101)
-    await delay(duration + 20)
+    await new Promise<void>(resolve => setTimeout(resolve, duration + 20))
 
     expect(ticker.getSnapshot()).toEqual(3)
     expect(ticker.disposed).toEqual(false)
@@ -114,7 +113,7 @@ describe('async', () => {
 
     observable2.dispose()
     observable2.next(201, { strict: false })
-    await delay(duration + 20)
+    await new Promise<void>(resolve => setTimeout(resolve, duration + 20))
 
     expect(ticker.getSnapshot()).toEqual(3)
     expect(ticker.disposed).toEqual(false)
@@ -126,7 +125,7 @@ describe('async', () => {
     // ----------------------------------------------------------------------------------
 
     observable3.next(301)
-    await delay(duration + 20)
+    await new Promise<void>(resolve => setTimeout(resolve, duration + 20))
 
     expect(ticker.getSnapshot()).toEqual(4)
     expect(ticker.disposed).toEqual(false)
@@ -143,7 +142,7 @@ describe('async', () => {
 
     observable2.next(202, { strict: false })
     observable3.next(302)
-    await delay(duration + 20)
+    await new Promise<void>(resolve => setTimeout(resolve, duration + 20))
 
     expect(ticker.getSnapshot()).toEqual(4)
     expect(ticker.disposed).toEqual(false)
@@ -168,7 +167,7 @@ describe('async', () => {
 
     observable2.next(203, { strict: false })
     observable3.next(303)
-    await delay(duration + 20)
+    await new Promise<void>(resolve => setTimeout(resolve, duration + 20))
 
     expect(ticker.getSnapshot()).toEqual(6)
     expect(ticker.disposed).toEqual(false)
@@ -189,7 +188,7 @@ describe('async', () => {
     observable2.next(104, { strict: false })
     observable2.next(204, { strict: false })
     observable3.next(304, { strict: false })
-    await delay(duration + 20)
+    await new Promise<void>(resolve => setTimeout(resolve, duration + 20))
 
     expect(ticker.getSnapshot()).toEqual(6)
     expect(ticker.disposed).toEqual(true)

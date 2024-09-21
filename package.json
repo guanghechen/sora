@@ -43,6 +43,7 @@
     "@babel/core": "7.25.2",
     "@guanghechen/conventional-changelog": "^6.0.0-alpha.2",
     "@guanghechen/eslint-config": "^7.0.6",
+    "@guanghechen/fs": "^1.0.2",
     "@guanghechen/helper-jest": "^6.0.0-alpha.5",
     "@guanghechen/jest-config": "^6.0.0-alpha.2",
     "@guanghechen/rollup-config": "^6.0.0-alpha.6",

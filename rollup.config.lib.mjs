@@ -8,7 +8,7 @@ import {
 import replace from '@rollup/plugin-replace'
 import path from 'node:path'
 
-const builtins = new Set(['@guanghechen/internal'])
+const builtins = new Set([])
 const externals = new Set(['./index.mjs'])
 
 const uselessImports = ['node:fs', 'node:fs/promises', 'node:path'].join('|')

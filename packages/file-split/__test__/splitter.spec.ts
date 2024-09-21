@@ -1,6 +1,6 @@
 import { DEFAULT_FILEPART_CODE_PREFIX, calcFilePartItemsBySize } from '@guanghechen/filepart'
 import type { IFilePartItem } from '@guanghechen/filepart'
-import { emptyDir, rm, writeFile } from '@guanghechen/internal'
+import { emptyDir, rm, writeFile } from '@guanghechen/fs'
 import { locateFixtures } from 'jest.helper'
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'

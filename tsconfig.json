@@ -3,7 +3,6 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@guanghechen/internal": ["packages/_internal/src"],
       "jest.helper": ["jest.helper.mts"],
       "@guanghechen/byte": ["packages/byte/src"],
       "@guanghechen/chalk": ["packages/chalk/src"],

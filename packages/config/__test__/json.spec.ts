@@ -1,5 +1,5 @@
 import { bytes2text, text2bytes } from '@guanghechen/byte'
-import { emptyDir, isFileSync, mkdirsIfNotExists, rm, writeFile } from '@guanghechen/internal'
+import { emptyDir, isFileSync, mkdirsIfNotExists, rm, writeFile } from '@guanghechen/fs'
 import { FileTextResource } from '@guanghechen/resource'
 import { assertPromiseThrow, locateFixtures } from 'jest.helper'
 import fs from 'node:fs/promises'

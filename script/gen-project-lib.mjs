@@ -21,11 +21,6 @@ const projectNames = fs
 
 /** @type {Promise<import('./nx/project.mjs').IGenNxProjectJsonParams>[]} */
 const entries = [
-  {
-    projectName: 'internal',
-    projectDir: 'packages/_internal',
-    projectType: 'lib',
-  },
   ...projectNames.map(projectName => ({
     projectName,
     projectDir: 'packages/' + projectName,

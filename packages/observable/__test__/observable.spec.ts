@@ -1,4 +1,3 @@
-import { delay } from '@guanghechen/internal'
 import type { IObservable } from '../src'
 import { Observable } from '../src'
 import { TestSubscriber } from './common'
@@ -261,7 +260,7 @@ describe('async', () => {
 
     // ----------------------------------------------------------------------------------
 
-    await delay(duration + 20)
+    await new Promise<void>(resolve => setTimeout(resolve, duration + 20))
 
     expect(observable.getSnapshot()).toEqual(100)
     expect(subscriber1.value).toEqual(100)
@@ -311,7 +310,7 @@ describe('async', () => {
 
     // ----------------------------------------------------------------------------------
 
-    await delay(duration + 20)
+    await new Promise<void>(resolve => setTimeout(resolve, duration + 20))
 
     expect(observable.getSnapshot()).toEqual(101)
     expect(subscriber1.value).toEqual(100)
@@ -343,7 +342,7 @@ describe('async', () => {
 
     // ----------------------------------------------------------------------------------
 
-    await delay(duration + 20)
+    await new Promise<void>(resolve => setTimeout(resolve, duration + 20))
 
     expect(observable.getSnapshot()).toEqual(101)
     expect(subscriber1.value).toEqual(100)
@@ -375,7 +374,7 @@ describe('async', () => {
 
     // ----------------------------------------------------------------------------------
 
-    await delay(duration + 20)
+    await new Promise<void>(resolve => setTimeout(resolve, duration + 20))
 
     expect(observable.getSnapshot()).toEqual(101)
     expect(subscriber1.value).toEqual(100)
@@ -525,7 +524,7 @@ describe('async', () => {
     // ----------------------------------------------------------------------------------
 
     observable.next(100)
-    await delay(duration + 20)
+    await new Promise<void>(resolve => setTimeout(resolve, duration + 20))
 
     expect(observable.getSnapshot()).toEqual(100)
     expect(observable.disposed).toEqual(false)
