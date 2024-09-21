@@ -637,13 +637,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/fs@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "@guanghechen/fs@npm:1.0.2"
+"@guanghechen/fs@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "@guanghechen/fs@npm:1.0.3"
   dependencies:
     "@guanghechen/invariant": ^6.0.1
-    "@guanghechen/reporter.types": ^1.0.0
-  checksum: d18251470dd390e565e3551a2489fb4ca043a75d50510b52b575087dce1949b21171223534d04f9e90c153d2edfcbe6d61ec3774a5b0e02987d9901b85080fc6
+    "@guanghechen/reporter.types": ^1.0.2
+  checksum: 2309deff6f5db9682f8ea5dd5df290e5967766c96ba49ca89b471a80d95eff88ebb5406708213db13208d0711e79d20f1336c03759827f47fe5af95db4fbe3a1
   languageName: node
   linkType: hard
 
@@ -654,15 +654,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/helper-jest@npm:^6.0.0-alpha.5":
-  version: 6.0.0-alpha.5
-  resolution: "@guanghechen/helper-jest@npm:6.0.0-alpha.5"
+"@guanghechen/helper-jest@npm:^6.0.0-alpha.6":
+  version: 6.0.0-alpha.6
+  resolution: "@guanghechen/helper-jest@npm:6.0.0-alpha.6"
   dependencies:
     "@guanghechen/helper-func": ^6.0.0-alpha.1
     "@guanghechen/is": ^1.0.1
+    "@guanghechen/reporter.types": ^1.0.2
     "@jest/globals": ^29.7.0
     jest: ^29.7.0
-  checksum: 4567c54ece6041729c5bf8bacb084e3b18ab81e9ee6d3f6fb3fdffaf89ff3bed4615571a4a18c0e61209deb6332943e913910f70f8fa2afd9f4099ff99411e2e
+  checksum: 559a5e2e354ee654ad66f527338b00daee9266c90d871d8283ab463953d2a81c5f22ec8b9102282ec7ab0ac15a5081f719ab6d4445052fd2772b108be1fe3c57
   languageName: node
   linkType: hard
 
@@ -735,13 +736,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/reporter.types@^1.0.0, @guanghechen/reporter.types@^1.0.2, @guanghechen/reporter.types@workspace:packages/reporter.types":
+"@guanghechen/reporter.types@^1.0.2, @guanghechen/reporter.types@workspace:packages/reporter.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/reporter.types@workspace:packages/reporter.types"
   languageName: unknown
   linkType: soft
 
-"@guanghechen/reporter@^1.0.0, @guanghechen/reporter@workspace:packages/reporter":
+"@guanghechen/reporter@^1.0.2, @guanghechen/reporter@workspace:packages/reporter":
   version: 0.0.0-use.local
   resolution: "@guanghechen/reporter@workspace:packages/reporter"
   dependencies:
@@ -798,21 +799,21 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/script-doc-link@npm:^6.0.0-alpha.18":
-  version: 6.0.0-alpha.18
-  resolution: "@guanghechen/script-doc-link@npm:6.0.0-alpha.18"
+"@guanghechen/script-doc-link@npm:^6.0.0-alpha.19":
+  version: 6.0.0-alpha.19
+  resolution: "@guanghechen/script-doc-link@npm:6.0.0-alpha.19"
   dependencies:
     "@guanghechen/chalk": ^1.0.0
-    "@guanghechen/fs": ^1.0.2
+    "@guanghechen/fs": ^1.0.3
     "@guanghechen/helper-func": ^6.0.0-alpha.1
     "@guanghechen/invariant": ^6.0.1
     "@guanghechen/is": ^1.0.1
-    "@guanghechen/reporter": ^1.0.0
+    "@guanghechen/reporter": ^1.0.2
     globby: ^14.0.2
     minimist: ^1.2.8
   bin:
     ghc-doc-link-rewrite: ./lib/esm/cli.mjs
-  checksum: 0c0f249bcd97024bbb7f5ebc3b8ab725e5acb2d2ef6028e07f77162630706d94677b9690947371462e7002022f77d42548dfb2ee3855b66737d6b4e6e71316c8
+  checksum: d7028474f37eb898a13b2c983bc7e58727999332b6ba9ba22ba6514d2e8971ddec98c822488d6e6e0a6bf8f5f6e370c59732368cba337fbf4acfe9cefe32c221
   languageName: node
   linkType: hard
 
@@ -823,11 +824,11 @@ __metadata:
     "@babel/core": 7.25.2
     "@guanghechen/conventional-changelog": ^6.0.0-alpha.2
     "@guanghechen/eslint-config": ^7.0.6
-    "@guanghechen/fs": ^1.0.2
-    "@guanghechen/helper-jest": ^6.0.0-alpha.5
+    "@guanghechen/fs": ^1.0.3
+    "@guanghechen/helper-jest": ^6.0.0-alpha.6
     "@guanghechen/jest-config": ^6.0.0-alpha.2
     "@guanghechen/rollup-config": ^6.0.0-alpha.6
-    "@guanghechen/script-doc-link": ^6.0.0-alpha.18
+    "@guanghechen/script-doc-link": ^6.0.0-alpha.19
     "@rollup/plugin-replace": ^5.0.7
     "@types/jest": 29.5.13
     "@types/node": ^20.16.5
