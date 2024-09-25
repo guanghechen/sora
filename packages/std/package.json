@@ -13,7 +13,10 @@
   },
   "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/std@1.0.0/packages/std#readme",
   "keywords": [
-    "is"
+    "array",
+    "is",
+    "iterable",
+    "string"
   ],
   "type": "module",
   "exports": {

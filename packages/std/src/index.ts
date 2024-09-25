@@ -1,2 +1,6 @@
+export * from './array'
 export * from './is'
+export * from './iterable'
 export * from './string/transformer'
+export * from './types'
+export * from './util'
