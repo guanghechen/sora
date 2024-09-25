@@ -48,9 +48,9 @@ const coverageMap = {
   '@guanghechen/scheduler': {
     global: { branches: 86, functions: 97, lines: 95, statements: 95 },
   },
-  '@guanghechen/string': {
-    'src/vender/change-case.ts': { branches: 53, functions: 82 },
-    'src/vender/title-case.ts': { branches: 50 },
+  '@guanghechen/std': {
+    'src/string/vender/change-case.ts': { branches: 53, functions: 82 },
+    'src/string/vender/title-case.ts': { branches: 50 },
   },
   '@guanghechen/subscriber': {
     global: { functions: 93 },

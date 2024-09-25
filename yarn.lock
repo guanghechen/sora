@@ -868,12 +868,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/string@workspace:packages/string":
-  version: 0.0.0-use.local
-  resolution: "@guanghechen/string@workspace:packages/string"
-  languageName: unknown
-  linkType: soft
-
 "@guanghechen/subscriber@^1.0.0, @guanghechen/subscriber@workspace:packages/subscriber":
   version: 0.0.0-use.local
   resolution: "@guanghechen/subscriber@workspace:packages/subscriber"
