@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/file-split",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "File helper",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/file-split@1.0.0",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/file-split@1.0.1",
     "directory": "packages/file-split"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/file-split@1.0.0/packages/file-split#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/file-split@1.0.1/packages/file-split#readme",
   "keywords": [
     "file helper",
     "split file",
@@ -40,8 +40,8 @@
     "README.md"
   ],
   "dependencies": {
-    "@guanghechen/filepart": "^1.0.0",
-    "@guanghechen/invariant": "^6.0.1",
-    "@guanghechen/stream": "^1.0.0"
+    "@guanghechen/filepart": "^1.0.1",
+    "@guanghechen/invariant": "^6.0.2",
+    "@guanghechen/stream": "^1.0.1"
   }
 }

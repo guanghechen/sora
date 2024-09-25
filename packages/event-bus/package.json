@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/event-bus",
-  "version": "6.0.1",
+  "version": "6.0.2",
   "description": "A simple event bus.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/event-bus@6.0.1",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/event-bus@6.0.2",
     "directory": "packages/event-bus"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/event-bus@6.0.1/packages/event-bus#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/event-bus@6.0.2/packages/event-bus#readme",
   "keywords": [
     "event bus"
   ],

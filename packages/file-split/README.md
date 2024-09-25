@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/file-split@1.0.0/packages/file-split#readme">@guanghechen/file-split</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/file-split@1.0.1/packages/file-split#readme">@guanghechen/file-split</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/file-split">
@@ -93,5 +93,5 @@ files.
 |    `calcFilePartNames`     |       Generate file part names (suffix)       |
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/file-split@1.0.0/packages/file-split#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/file-split@1.0.1/packages/file-split#readme
 [file-split]: https://github.com/tomvlk/node-file-split

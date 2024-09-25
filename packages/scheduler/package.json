@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/scheduler",
-  "version": "6.0.3",
+  "version": "6.0.4",
   "description": "Task scheduler",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@6.0.3",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@6.0.4",
     "directory": "packages/scheduler"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@6.0.3/packages/scheduler#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@6.0.4/packages/scheduler#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -35,11 +35,11 @@
     "README.md"
   ],
   "dependencies": {
-    "@guanghechen/error.types": "^1.0.3",
-    "@guanghechen/middleware": "^1.0.3",
-    "@guanghechen/observable": "^6.1.4",
-    "@guanghechen/reporter.types": "^1.0.2",
-    "@guanghechen/subscriber": "^1.0.0",
-    "@guanghechen/task": "^1.0.1"
+    "@guanghechen/error.types": "^1.0.4",
+    "@guanghechen/middleware": "^1.0.4",
+    "@guanghechen/observable": "^6.1.5",
+    "@guanghechen/reporter.types": "^1.0.3",
+    "@guanghechen/subscriber": "^1.0.1",
+    "@guanghechen/task": "^1.0.2"
   }
 }
