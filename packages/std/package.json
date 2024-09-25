@@ -1,20 +1,19 @@
 {
-  "name": "@guanghechen/is",
-  "version": "1.0.1",
-  "description": "Utilities to detect data type.",
+  "name": "@guanghechen/std",
+  "version": "1.0.0",
+  "description": "Standard utilities codes and types.",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/is@1.0.1",
-    "directory": "packages/is"
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/std@1.0.0",
+    "directory": "packages/std"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/is@1.0.1/packages/is#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/std@1.0.0/packages/std#readme",
   "keywords": [
-    "is",
-    "detect type"
+    "is"
   ],
   "type": "module",
   "exports": {

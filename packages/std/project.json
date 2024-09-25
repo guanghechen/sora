@@ -1,14 +1,14 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "name": "is",
-  "sourceRoot": "packages/is/src",
+  "name": "std",
+  "sourceRoot": "packages/std/src",
   "projectType": "library",
   "tags": [],
   "targets": {
     "clean": {
       "executor": "nx:run-commands",
       "options": {
-        "cwd": "packages/is",
+        "cwd": "packages/std",
         "parallel": false,
         "commands": ["rimraf lib"]
       }
@@ -17,7 +17,7 @@
       "executor": "nx:run-commands",
       "dependsOn": ["clean", "^build"],
       "options": {
-        "cwd": "packages/is",
+        "cwd": "packages/std",
         "parallel": false,
         "sourcemap": true,
         "commands": ["cross-env ROLLUP_CONFIG_TYPE=lib rollup -c ../../rollup.config.mjs"]
@@ -34,7 +34,7 @@
     "watch": {
       "executor": "nx:run-commands",
       "options": {
-        "cwd": "packages/is",
+        "cwd": "packages/std",
         "parallel": false,
         "sourcemap": true,
         "commands": ["cross-env ROLLUP_CONFIG_TYPE=lib rollup -c ../../rollup.config.mjs -w"]
@@ -43,7 +43,7 @@
     "test": {
       "executor": "nx:run-commands",
       "options": {
-        "cwd": "packages/is",
+        "cwd": "packages/std",
         "commands": [
           "node --experimental-vm-modules ../../node_modules/.bin/jest --config ../../jest.config.mjs --rootDir ."
         ]

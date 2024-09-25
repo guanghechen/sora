@@ -1,30 +1,30 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/is@1.0.1/packages/is#readme">@guanghechen/is</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/std@1.0.0/packages/std#readme">@guanghechen/std</a>
   </h1>
   <div align="center">
-    <a href="https://www.npmjs.com/package/@guanghechen/is">
+    <a href="https://www.npmjs.com/package/@guanghechen/std">
       <img
         alt="Npm Version"
-        src="https://img.shields.io/npm/v/@guanghechen/is.svg"
+        src="https://img.shields.io/npm/v/@guanghechen/std.svg"
       />
     </a>
-    <a href="https://www.npmjs.com/package/@guanghechen/is">
+    <a href="https://www.npmjs.com/package/@guanghechen/std">
       <img
         alt="Npm Download"
-        src="https://img.shields.io/npm/dm/@guanghechen/is.svg"
+        src="https://img.shields.io/npm/dm/@guanghechen/std.svg"
       />
     </a>
-    <a href="https://www.npmjs.com/package/@guanghechen/is">
+    <a href="https://www.npmjs.com/package/@guanghechen/std">
       <img
         alt="Npm License"
-        src="https://img.shields.io/npm/l/@guanghechen/is.svg"
+        src="https://img.shields.io/npm/l/@guanghechen/std.svg"
       />
     </a>
     <a href="https://github.com/nodejs/node">
       <img
         alt="Node.js Version"
-        src="https://img.shields.io/node/v/@guanghechen/is"
+        src="https://img.shields.io/node/v/@guanghechen/std"
       />
     </a>
     <a href="https://github.com/facebook/jest">
@@ -50,13 +50,13 @@ Utilities to detect data type.
 - npm
 
   ```bash
-  npm install --save-dev @guanghechen/is
+  npm install --save-dev @guanghechen/std
   ```
 
 - yarn
 
   ```bash
-  yarn add --dev @guanghechen/is
+  yarn add --dev @guanghechen/std
   ```
 
 ## Usage
@@ -86,4 +86,4 @@ Name                  | Description
 `isNumberLike`        | Check if the given data is an `number` / `Number` or number like `string` type
 
 
-[homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/is@1.0.1/packages/is#readme
+[homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/std@1.0.0/packages/std#readme

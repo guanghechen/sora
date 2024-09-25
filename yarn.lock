@@ -682,11 +682,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/is@^1.0.1, @guanghechen/is@workspace:packages/is":
-  version: 0.0.0-use.local
-  resolution: "@guanghechen/is@workspace:packages/is"
-  languageName: unknown
-  linkType: soft
+"@guanghechen/is@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@guanghechen/is@npm:1.0.1"
+  checksum: 139c31869d15f02f16292eb455cf1598d9ba474442d06e5995a847aa95155b0cfb165b4151a3975c801af00f7344d59529793ef5ba30cb2ee59dce86809ac57d
+  languageName: node
+  linkType: hard
 
 "@guanghechen/jest-config@npm:^6.0.0-alpha.2":
   version: 6.0.0-alpha.2
@@ -850,6 +851,12 @@ __metadata:
     ts-jest: 29.2.5
     ts-node: 10.9.2
     typescript: 5.6.2
+  languageName: unknown
+  linkType: soft
+
+"@guanghechen/std@workspace:packages/std":
+  version: 0.0.0-use.local
+  resolution: "@guanghechen/std@workspace:packages/std"
   languageName: unknown
   linkType: soft
 
