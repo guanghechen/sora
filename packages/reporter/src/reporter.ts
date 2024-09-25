@@ -1,11 +1,12 @@
 import type { IChalk } from '@guanghechen/chalk.types'
 import type { IReporter, IReporterFlights } from '@guanghechen/reporter.types'
 import { ReporterLevelEnum } from '@guanghechen/reporter.types'
-import type { Mutable } from '@guanghechen/types'
 import dayjs from 'dayjs'
 import { parseOptionsFromArgs } from './args'
 import { normalizeString } from './format'
 import type { ILevelStyleMap } from './level'
+
+type Mutable<T extends object> = { -readonly [P in keyof T]: T[P] }
 
 export interface IReporterOptions {
   baseName?: string

@@ -32,7 +32,6 @@
       "@guanghechen/stream": ["packages/stream/src"],
       "@guanghechen/subscriber": ["packages/subscriber/src"],
       "@guanghechen/task": ["packages/task/src"],
-      "@guanghechen/types": ["packages/types/src"],
       "@guanghechen/viewmodel": ["packages/viewmodel/src"]
     }
   },

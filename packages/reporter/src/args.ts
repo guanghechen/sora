@@ -1,7 +1,8 @@
 import type { IReporterFlights } from '@guanghechen/reporter.types'
-import type { Mutable } from '@guanghechen/types'
 import { resolveLevel } from './level'
 import type { IReporterOptions } from './reporter'
+
+type Mutable<T extends object> = { -readonly [P in keyof T]: T[P] }
 
 interface ICommanderOptions {
   logLevel?: string
