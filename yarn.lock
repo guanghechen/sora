@@ -496,7 +496,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/js@npm:9.11.1, @eslint/js@npm:^9.11.0":
+"@eslint/js@npm:9.11.1, @eslint/js@npm:^9.11.1":
   version: 9.11.1
   resolution: "@eslint/js@npm:9.11.1"
   checksum: 6fdd1958b25223588dd002a7497a395abb71dd1f25626ecd16ebcb8dd0fca7b74104a8172c192dfff131b49faa2b469be36a179b6ca096b6f55afb1f9b6fa952
@@ -531,7 +531,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/chalk@^1.0.0, @guanghechen/chalk@workspace:packages/chalk":
+"@guanghechen/chalk@^1.0.1, @guanghechen/chalk@workspace:packages/chalk":
   version: 0.0.0-use.local
   resolution: "@guanghechen/chalk@workspace:packages/chalk"
   dependencies:
@@ -559,12 +559,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/conventional-changelog@npm:^6.0.0-alpha.2":
-  version: 6.0.0-alpha.2
-  resolution: "@guanghechen/conventional-changelog@npm:6.0.0-alpha.2"
+"@guanghechen/conventional-changelog@npm:^6.0.0-alpha.3":
+  version: 6.0.0-alpha.3
+  resolution: "@guanghechen/conventional-changelog@npm:6.0.0-alpha.3"
   dependencies:
     gitmojis: ^3.14.0
-  checksum: 249760440b363abb2c385dfa0e9bdfd7479943faf01dccb56e0ace5cc694281cd71fd6c704f405e7f0461936ac2a1005a0eafaddb64501d3a9d046b392768282
+  checksum: d1fbefd9ce780facd26461cd286fdf17128702e80372db29eb46597d546b665dee98bd1079d0daae2e2cada1dec3ed0828f7ba179766e6e4c58336ba205888e5
   languageName: node
   linkType: hard
 
@@ -594,11 +594,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/eslint-config@npm:^7.0.6":
-  version: 7.0.6
-  resolution: "@guanghechen/eslint-config@npm:7.0.6"
+"@guanghechen/eslint-config@npm:^7.0.7":
+  version: 7.0.7
+  resolution: "@guanghechen/eslint-config@npm:7.0.7"
   dependencies:
-    "@eslint/js": ^9.11.0
+    "@eslint/js": ^9.11.1
     "@stylistic/eslint-plugin-ts": ^2.8.0
     eslint-config-prettier: 9.1.0
     eslint-plugin-import: ^2.30.0
@@ -606,10 +606,11 @@ __metadata:
     eslint-plugin-jsx-a11y: ^6.10.0
     eslint-plugin-prettier: ^5.2.1
     eslint-plugin-react: ^7.36.1
-    typescript-eslint: ^8.6.0
+    typescript-eslint: ^8.7.0
   peerDependencies:
     eslint: ^9.0.0
-  checksum: 17db75aa399a55d160303bf2a48a527cf61a897b364f22cce85c1dc891aa92fc90b26290ef4237dc25eb3605267bb9ae292bfe81e2c9d87ac609ebfc7085725c
+    prettier: ">=2"
+  checksum: fd5af736018ae8ec082b34264ebaabe9d82aa9852ba4b2e1bd92883569c1280bff6a84620f2bf26dc67c15a7461a6985c2d54125dfa9b649773475b93f541813
   languageName: node
   linkType: hard
 
@@ -644,65 +645,50 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/fs@npm:^1.0.3":
-  version: 1.0.3
-  resolution: "@guanghechen/fs@npm:1.0.3"
+"@guanghechen/fs@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "@guanghechen/fs@npm:1.0.5"
   dependencies:
-    "@guanghechen/invariant": ^6.0.1
-    "@guanghechen/reporter.types": ^1.0.2
-  checksum: 2309deff6f5db9682f8ea5dd5df290e5967766c96ba49ca89b471a80d95eff88ebb5406708213db13208d0711e79d20f1336c03759827f47fe5af95db4fbe3a1
+    "@guanghechen/invariant": ^6.0.2
+    "@guanghechen/reporter.types": ^1.0.3
+  checksum: 748318e1ec85fcfe3ab721b9fe4d1d85567c442270df3558cddf6ec6841298a389102600525592123a190cab52bbb35bb67c2faca0a074c5e6f83e6f470b95c6
   languageName: node
   linkType: hard
 
-"@guanghechen/helper-func@npm:^6.0.0-alpha.1":
-  version: 6.0.0-alpha.1
-  resolution: "@guanghechen/helper-func@npm:6.0.0-alpha.1"
-  checksum: d8e84839bce9d9c463786c11005694ba12b232d34265680038998ff0d8f348783cdb988e0ad360d6de7e9ed4615e463b445019562a791dc94d1c0362676ac04f
-  languageName: node
-  linkType: hard
-
-"@guanghechen/helper-jest@npm:^6.0.0-alpha.6":
-  version: 6.0.0-alpha.6
-  resolution: "@guanghechen/helper-jest@npm:6.0.0-alpha.6"
+"@guanghechen/helper-jest@npm:^6.0.0-alpha.8":
+  version: 6.0.0-alpha.8
+  resolution: "@guanghechen/helper-jest@npm:6.0.0-alpha.8"
   dependencies:
-    "@guanghechen/helper-func": ^6.0.0-alpha.1
-    "@guanghechen/is": ^1.0.1
-    "@guanghechen/reporter.types": ^1.0.2
+    "@guanghechen/reporter.types": ^1.0.3
+    "@guanghechen/std": ^1.0.1
     "@jest/globals": ^29.7.0
     jest: ^29.7.0
-  checksum: 559a5e2e354ee654ad66f527338b00daee9266c90d871d8283ab463953d2a81c5f22ec8b9102282ec7ab0ac15a5081f719ab6d4445052fd2772b108be1fe3c57
+  checksum: 170ba0a6d47bcf06b790d88bddb9a1994085bcdabd8d962442a8d0d45ea626fd188a60b4911cc4c0f0e78e558fce3c776cba2efe3974b5f28e93ce053f061edb
   languageName: node
   linkType: hard
 
-"@guanghechen/helper-npm@npm:^6.0.0-alpha.3":
-  version: 6.0.0-alpha.3
-  resolution: "@guanghechen/helper-npm@npm:6.0.0-alpha.3"
+"@guanghechen/helper-npm@npm:^6.0.0-alpha.4":
+  version: 6.0.0-alpha.4
+  resolution: "@guanghechen/helper-npm@npm:6.0.0-alpha.4"
   dependencies:
     import-meta-resolve: ^4.1.0
-  checksum: b686d8a947337e6d7643fb70886dbd01a5f2a4d2ec909502708c01cb833d1a2e4370771e642f26818d3fe1101efb42ad6d73e4e3b091ff8005365568c5ffc392
+  checksum: 17bdb2d6e9c22ed6d54784534f3c3b9567b4d56645ed8b8a132918f9e551f2cf69e8cf41ec2907f48ed7cfa2794c9b77428182c1a1bad94d62f1820c29c5c507
   languageName: node
   linkType: hard
 
-"@guanghechen/invariant@^6.0.1, @guanghechen/invariant@^6.0.2, @guanghechen/invariant@workspace:packages/invariant":
+"@guanghechen/invariant@^6.0.2, @guanghechen/invariant@workspace:packages/invariant":
   version: 0.0.0-use.local
   resolution: "@guanghechen/invariant@workspace:packages/invariant"
   languageName: unknown
   linkType: soft
 
-"@guanghechen/is@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@guanghechen/is@npm:1.0.1"
-  checksum: 139c31869d15f02f16292eb455cf1598d9ba474442d06e5995a847aa95155b0cfb165b4151a3975c801af00f7344d59529793ef5ba30cb2ee59dce86809ac57d
-  languageName: node
-  linkType: hard
-
-"@guanghechen/jest-config@npm:^6.0.0-alpha.2":
-  version: 6.0.0-alpha.2
-  resolution: "@guanghechen/jest-config@npm:6.0.0-alpha.2"
+"@guanghechen/jest-config@npm:^6.0.0-alpha.3":
+  version: 6.0.0-alpha.3
+  resolution: "@guanghechen/jest-config@npm:6.0.0-alpha.3"
   dependencies:
     json5: ^2.2.3
     prettier-2: "npm:prettier@^2"
-  checksum: 711c1eebed1ebb8674b87c37e688e8179c692f943200e0f97bc85b75212a7df00fb65e1b8b263a0bb8289751947ca0a0cd068b71a9498f60f4812598dd7b0891
+  checksum: 86bcfd23b2403dc73503e42d050bb6d5c0e3ced60a6c1b72e5f1d609b6f5341255691895915810da09126c0f83315d0d539e31a1baaf0014146242e1dec34244
   languageName: node
   linkType: hard
 
@@ -744,13 +730,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/reporter.types@^1.0.2, @guanghechen/reporter.types@^1.0.3, @guanghechen/reporter.types@workspace:packages/reporter.types":
+"@guanghechen/reporter.types@^1.0.3, @guanghechen/reporter.types@workspace:packages/reporter.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/reporter.types@workspace:packages/reporter.types"
   languageName: unknown
   linkType: soft
 
-"@guanghechen/reporter@^1.0.2, @guanghechen/reporter@workspace:packages/reporter":
+"@guanghechen/reporter@^1.0.3, @guanghechen/reporter@workspace:packages/reporter":
   version: 0.0.0-use.local
   resolution: "@guanghechen/reporter@workspace:packages/reporter"
   dependencies:
@@ -776,20 +762,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/rollup-config@npm:^6.0.0-alpha.6":
-  version: 6.0.0-alpha.6
-  resolution: "@guanghechen/rollup-config@npm:6.0.0-alpha.6"
+"@guanghechen/rollup-config@npm:^6.0.0-alpha.8":
+  version: 6.0.0-alpha.8
+  resolution: "@guanghechen/rollup-config@npm:6.0.0-alpha.8"
   dependencies:
-    "@guanghechen/helper-npm": ^6.0.0-alpha.3
-    "@rollup/plugin-commonjs": 26.0.1
+    "@guanghechen/helper-npm": ^6.0.0-alpha.4
+    "@rollup/plugin-commonjs": 28.0.0
     "@rollup/plugin-json": 6.1.0
-    "@rollup/plugin-node-resolve": 15.2.3
+    "@rollup/plugin-node-resolve": 15.3.0
     "@rollup/plugin-typescript": 11.1.6
     rollup-plugin-dts: ^6.1.1
   peerDependencies:
     rollup: ^3.0.0 || ^4.0.0
     typescript: ">=5.0.0"
-  checksum: 8784d8c420d5e303ca87dbe87c804587df0f53f7e8d2e18da7e0694c5c3e3c7bbcff17984651ce85e43b7ab68fd5e957c75a6438a9bce1d23f3f55ba6619eaf5
+  checksum: 26d31882dff47d413f13d64b0c1399d12a26234e666be231683344bf41154d93d2634f75380b71c8206939f750bbc2d8db29895cf434365cf3925e9475eea8f6
   languageName: node
   linkType: hard
 
@@ -806,25 +792,24 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/script-doc-link@npm:^6.0.0-alpha.19":
-  version: 6.0.0-alpha.19
-  resolution: "@guanghechen/script-doc-link@npm:6.0.0-alpha.19"
+"@guanghechen/script-doc-link@npm:^6.0.0-alpha.21":
+  version: 6.0.0-alpha.21
+  resolution: "@guanghechen/script-doc-link@npm:6.0.0-alpha.21"
   dependencies:
-    "@guanghechen/chalk": ^1.0.0
-    "@guanghechen/fs": ^1.0.3
-    "@guanghechen/helper-func": ^6.0.0-alpha.1
-    "@guanghechen/invariant": ^6.0.1
-    "@guanghechen/is": ^1.0.1
-    "@guanghechen/reporter": ^1.0.2
+    "@guanghechen/chalk": ^1.0.1
+    "@guanghechen/fs": ^1.0.5
+    "@guanghechen/invariant": ^6.0.2
+    "@guanghechen/reporter": ^1.0.3
+    "@guanghechen/std": ^1.0.1
     globby: ^14.0.2
     minimist: ^1.2.8
   bin:
     ghc-doc-link-rewrite: ./lib/esm/cli.mjs
-  checksum: d7028474f37eb898a13b2c983bc7e58727999332b6ba9ba22ba6514d2e8971ddec98c822488d6e6e0a6bf8f5f6e370c59732368cba337fbf4acfe9cefe32c221
+  checksum: eee46f6f13637271f04206d8927c127f41c44449c81c7927a4130b3b1aad2fb78e40234fff4d7ca058f963b502350b5ad3cff4f55219261a5aa8025d2ccdc978
   languageName: node
   linkType: hard
 
-"@guanghechen/std@workspace:packages/std":
+"@guanghechen/std@^1.0.1, @guanghechen/std@workspace:packages/std":
   version: 0.0.0-use.local
   resolution: "@guanghechen/std@workspace:packages/std"
   languageName: unknown
@@ -1806,22 +1791,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rollup/plugin-commonjs@npm:26.0.1":
-  version: 26.0.1
-  resolution: "@rollup/plugin-commonjs@npm:26.0.1"
+"@rollup/plugin-commonjs@npm:28.0.0":
+  version: 28.0.0
+  resolution: "@rollup/plugin-commonjs@npm:28.0.0"
   dependencies:
     "@rollup/pluginutils": ^5.0.1
     commondir: ^1.0.1
     estree-walker: ^2.0.2
-    glob: ^10.4.1
+    fdir: ^6.1.1
     is-reference: 1.2.1
     magic-string: ^0.30.3
+    picomatch: ^2.3.1
   peerDependencies:
     rollup: ^2.68.0||^3.0.0||^4.0.0
   peerDependenciesMeta:
     rollup:
       optional: true
-  checksum: 88d1349cc2cda4ad6193cce901356e4c14a830497fc01c91f38c94a871b203ffe657b29c9a98cd16787e3a6a8b45169dd0b471cb36d26d645478a177c958779a
+  checksum: cd2dbb85375a077dae326da482b8590552e18267f17b6213bfa638824c50384e01376579535a9ab7d42a8fc2c674cc0ef8d850a8c36878cc182f8e32b634d0ad
   languageName: node
   linkType: hard
 
@@ -1839,14 +1825,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rollup/plugin-node-resolve@npm:15.2.3":
-  version: 15.2.3
-  resolution: "@rollup/plugin-node-resolve@npm:15.2.3"
+"@rollup/plugin-node-resolve@npm:15.3.0":
+  version: 15.3.0
+  resolution: "@rollup/plugin-node-resolve@npm:15.3.0"
   dependencies:
     "@rollup/pluginutils": ^5.0.1
     "@types/resolve": 1.20.2
     deepmerge: ^4.2.2
-    is-builtin-module: ^3.2.1
     is-module: ^1.0.0
     resolve: ^1.22.1
   peerDependencies:
@@ -1854,7 +1839,7 @@ __metadata:
   peerDependenciesMeta:
     rollup:
       optional: true
-  checksum: 730f32c2f8fdddff07cf0fca86a5dac7c475605fb96930197a868c066e62eb6388c557545e4f7d99b7a283411754c9fbf98944ab086b6074e04fc1292e234aa8
+  checksum: 90e4e94b173e7edd57e374ac0cc0a69cc6f1b4507e83731132ac6fa1747d96a5648a48441e4452728429b6db5e67561439b7b2f4d2c6a941a33d38be56d871b4
   languageName: node
   linkType: hard
 
@@ -2320,7 +2305,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^20.16.5":
+"@types/node@npm:^20.16.7":
   version: 20.16.7
   resolution: "@types/node@npm:20.16.7"
   dependencies:
@@ -3113,13 +3098,6 @@ __metadata:
     base64-js: ^1.3.1
     ieee754: ^1.1.13
   checksum: e2cf8429e1c4c7b8cbd30834ac09bd61da46ce35f5c22a78e6c2f04497d6d25541b16881e30a019c6fd3154150650ccee27a308eff3e26229d788bbdeb08ab84
-  languageName: node
-  linkType: hard
-
-"builtin-modules@npm:^3.3.0":
-  version: 3.3.0
-  resolution: "builtin-modules@npm:3.3.0"
-  checksum: db021755d7ed8be048f25668fe2117620861ef6703ea2c65ed2779c9e3636d5c3b82325bd912244293959ff3ae303afa3471f6a15bf5060c103e4cc3a839749d
   languageName: node
   linkType: hard
 
@@ -4752,6 +4730,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fdir@npm:^6.1.1":
+  version: 6.3.0
+  resolution: "fdir@npm:6.3.0"
+  peerDependencies:
+    picomatch: ^3 || ^4
+  peerDependenciesMeta:
+    picomatch:
+      optional: true
+  checksum: c0fe6ddd4aa0a315a55401d468974b582b1880908c8f7b1b1c40db4cd2feb2c04402d2fbdbd6ad049f6261e0d7cd6e629cc5ae678f8883f245ebc1f94b6ff9e6
+  languageName: node
+  linkType: hard
+
 "figures@npm:3.2.0, figures@npm:^3.0.0":
   version: 3.2.0
   resolution: "figures@npm:3.2.0"
@@ -5162,7 +5152,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob@npm:^10.2.2, glob@npm:^10.3.10, glob@npm:^10.4.1":
+"glob@npm:^10.2.2, glob@npm:^10.3.10":
   version: 10.4.5
   resolution: "glob@npm:10.4.5"
   dependencies:
@@ -5709,15 +5699,6 @@ __metadata:
     call-bind: ^1.0.2
     has-tostringtag: ^1.0.0
   checksum: c03b23dbaacadc18940defb12c1c0e3aaece7553ef58b162a0f6bba0c2a7e1551b59f365b91e00d2dbac0522392d576ef322628cb1d036a0fe51eb466db67222
-  languageName: node
-  linkType: hard
-
-"is-builtin-module@npm:^3.2.1":
-  version: 3.2.1
-  resolution: "is-builtin-module@npm:3.2.1"
-  dependencies:
-    builtin-modules: ^3.3.0
-  checksum: e8f0ffc19a98240bda9c7ada84d846486365af88d14616e737d280d378695c8c448a621dcafc8332dbf0fcd0a17b0763b845400709963fa9151ddffece90ae88
   languageName: node
   linkType: hard
 
@@ -9124,16 +9105,16 @@ __metadata:
   resolution: "root@workspace:."
   dependencies:
     "@babel/core": 7.25.2
-    "@guanghechen/conventional-changelog": ^6.0.0-alpha.2
-    "@guanghechen/eslint-config": ^7.0.6
-    "@guanghechen/fs": ^1.0.3
-    "@guanghechen/helper-jest": ^6.0.0-alpha.6
-    "@guanghechen/jest-config": ^6.0.0-alpha.2
-    "@guanghechen/rollup-config": ^6.0.0-alpha.6
-    "@guanghechen/script-doc-link": ^6.0.0-alpha.19
+    "@guanghechen/conventional-changelog": ^6.0.0-alpha.3
+    "@guanghechen/eslint-config": ^7.0.7
+    "@guanghechen/fs": ^1.0.5
+    "@guanghechen/helper-jest": ^6.0.0-alpha.8
+    "@guanghechen/jest-config": ^6.0.0-alpha.3
+    "@guanghechen/rollup-config": ^6.0.0-alpha.8
+    "@guanghechen/script-doc-link": ^6.0.0-alpha.21
     "@rollup/plugin-replace": ^6.0.1
     "@types/jest": 29.5.13
-    "@types/node": ^20.16.5
+    "@types/node": ^20.16.7
     "@types/uuid": ^10.0.0
     ci-info: ^4.0.0
     cross-env: ^7.0.3
@@ -10204,7 +10185,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript-eslint@npm:^8.6.0":
+"typescript-eslint@npm:^8.7.0":
   version: 8.7.0
   resolution: "typescript-eslint@npm:8.7.0"
   dependencies:
