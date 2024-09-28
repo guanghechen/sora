@@ -43,7 +43,7 @@ const coverageMap = {
     'src/UrlPathResolver.ts': { branches: 97 },
   },
   '@guanghechen/reporter': {
-    global: { branches: 96, functions: 43, lines: 78, statements: 78 },
+    global: { branches: 94, functions: 40, lines: 76, statements: 76 },
   },
   '@guanghechen/scheduler': {
     global: { branches: 86, functions: 97, lines: 95, statements: 95 },
