@@ -1,16 +1,16 @@
 {
   "name": "@guanghechen/subscriber",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/subscriber@1.0.1",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/subscriber@1.0.2",
     "directory": "packages/subscriber"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/subscriber@1.0.1/packages/subscriber#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/subscriber@1.0.2/packages/subscriber#readme",
   "keywords": [
     "subscriber"
   ],
@@ -34,6 +34,6 @@
     "README.md"
   ],
   "dependencies": {
-    "@guanghechen/disposable": "^1.0.1"
+    "@guanghechen/disposable": "^1.0.2"
   }
 }

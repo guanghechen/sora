@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/byte@1.0.1/packages/byte#readme">@guanghechen/byte</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/byte@1.0.2/packages/byte#readme">@guanghechen/byte</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/byte">
@@ -68,4 +68,4 @@ Utility functions for bytes (Uint8Array).
 ## Usage
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/byte@1.0.1/packages/byte#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/byte@1.0.2/packages/byte#readme
