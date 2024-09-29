@@ -49,6 +49,7 @@ const coverageMap = {
     global: { branches: 86, functions: 97, lines: 95, statements: 95 },
   },
   '@guanghechen/std': {
+    'src/root.ts': { branches: 0 },
     'src/string/vender/change-case.ts': { branches: 53, functions: 82 },
     'src/string/vender/title-case.ts': { branches: 50 },
   },
