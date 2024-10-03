@@ -519,13 +519,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/byte@^1.0.2, @guanghechen/byte@workspace:packages/byte":
+"@guanghechen/byte@^1.0.3, @guanghechen/byte@workspace:packages/byte":
   version: 0.0.0-use.local
   resolution: "@guanghechen/byte@workspace:packages/byte"
   languageName: unknown
   linkType: soft
 
-"@guanghechen/chalk.types@^1.0.2, @guanghechen/chalk.types@workspace:packages/chalk.types":
+"@guanghechen/chalk.types@^1.0.3, @guanghechen/chalk.types@workspace:packages/chalk.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/chalk.types@workspace:packages/chalk.types"
   languageName: unknown
@@ -535,15 +535,15 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/chalk@workspace:packages/chalk"
   dependencies:
-    "@guanghechen/chalk.types": ^1.0.2
+    "@guanghechen/chalk.types": ^1.0.3
   languageName: unknown
   linkType: soft
 
-"@guanghechen/config.types@^1.0.2, @guanghechen/config.types@workspace:packages/config.types":
+"@guanghechen/config.types@^1.0.3, @guanghechen/config.types@workspace:packages/config.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/config.types@workspace:packages/config.types"
   dependencies:
-    "@guanghechen/resource.types": ^1.0.2
+    "@guanghechen/resource.types": ^1.0.3
   languageName: unknown
   linkType: soft
 
@@ -551,10 +551,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/config@workspace:packages/config"
   dependencies:
-    "@guanghechen/byte": ^1.0.2
-    "@guanghechen/config.types": ^1.0.2
-    "@guanghechen/invariant": ^6.0.3
-    "@guanghechen/resource.types": ^1.0.2
+    "@guanghechen/byte": ^1.0.3
+    "@guanghechen/config.types": ^1.0.3
+    "@guanghechen/invariant": ^6.0.4
+    "@guanghechen/resource.types": ^1.0.3
     compare-versions: 6.1.1
   languageName: unknown
   linkType: soft
@@ -568,17 +568,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/disposable.types@^1.0.2, @guanghechen/disposable.types@workspace:packages/disposable.types":
+"@guanghechen/disposable.types@^1.0.3, @guanghechen/disposable.types@workspace:packages/disposable.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/disposable.types@workspace:packages/disposable.types"
   languageName: unknown
   linkType: soft
 
-"@guanghechen/disposable@^1.0.2, @guanghechen/disposable@workspace:packages/disposable":
+"@guanghechen/disposable@^1.0.3, @guanghechen/disposable@workspace:packages/disposable":
   version: 0.0.0-use.local
   resolution: "@guanghechen/disposable@workspace:packages/disposable"
   dependencies:
-    "@guanghechen/disposable.types": ^1.0.2
+    "@guanghechen/disposable.types": ^1.0.3
   languageName: unknown
   linkType: soft
 
@@ -588,7 +588,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/error.types@^1.0.5, @guanghechen/error.types@workspace:packages/error.types":
+"@guanghechen/error.types@^1.0.6, @guanghechen/error.types@workspace:packages/error.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/error.types@workspace:packages/error.types"
   languageName: unknown
@@ -624,24 +624,24 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/file-split@workspace:packages/file-split"
   dependencies:
-    "@guanghechen/filepart": ^1.0.2
-    "@guanghechen/invariant": ^6.0.3
-    "@guanghechen/stream": ^1.0.2
+    "@guanghechen/filepart": ^1.0.3
+    "@guanghechen/invariant": ^6.0.4
+    "@guanghechen/stream": ^1.0.3
   languageName: unknown
   linkType: soft
 
-"@guanghechen/filepart.types@^1.0.2, @guanghechen/filepart.types@workspace:packages/filepart.types":
+"@guanghechen/filepart.types@^1.0.3, @guanghechen/filepart.types@workspace:packages/filepart.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/filepart.types@workspace:packages/filepart.types"
   languageName: unknown
   linkType: soft
 
-"@guanghechen/filepart@^1.0.2, @guanghechen/filepart@workspace:packages/filepart":
+"@guanghechen/filepart@^1.0.3, @guanghechen/filepart@workspace:packages/filepart":
   version: 0.0.0-use.local
   resolution: "@guanghechen/filepart@workspace:packages/filepart"
   dependencies:
-    "@guanghechen/filepart.types": ^1.0.2
-    "@guanghechen/invariant": ^6.0.3
+    "@guanghechen/filepart.types": ^1.0.3
+    "@guanghechen/invariant": ^6.0.4
   languageName: unknown
   linkType: soft
 
@@ -677,7 +677,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/invariant@^6.0.3, @guanghechen/invariant@workspace:packages/invariant":
+"@guanghechen/invariant@^6.0.3, @guanghechen/invariant@^6.0.4, @guanghechen/invariant@workspace:packages/invariant":
   version: 0.0.0-use.local
   resolution: "@guanghechen/invariant@workspace:packages/invariant"
   languageName: unknown
@@ -693,7 +693,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/middleware@^1.0.5, @guanghechen/middleware@workspace:packages/middleware":
+"@guanghechen/middleware@^1.0.6, @guanghechen/middleware@workspace:packages/middleware":
   version: 0.0.0-use.local
   resolution: "@guanghechen/middleware@workspace:packages/middleware"
   languageName: unknown
@@ -703,21 +703,21 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/monitor@workspace:packages/monitor"
   dependencies:
-    "@guanghechen/disposable.types": ^1.0.2
-    "@guanghechen/subscriber": ^1.0.2
+    "@guanghechen/disposable.types": ^1.0.3
+    "@guanghechen/subscriber": ^1.0.3
   languageName: unknown
   linkType: soft
 
-"@guanghechen/observable@^6.1.6, @guanghechen/observable@workspace:packages/observable":
+"@guanghechen/observable@^6.1.7, @guanghechen/observable@workspace:packages/observable":
   version: 0.0.0-use.local
   resolution: "@guanghechen/observable@workspace:packages/observable"
   dependencies:
-    "@guanghechen/disposable": ^1.0.2
-    "@guanghechen/subscriber": ^1.0.2
+    "@guanghechen/disposable": ^1.0.3
+    "@guanghechen/subscriber": ^1.0.3
   languageName: unknown
   linkType: soft
 
-"@guanghechen/path.types@^1.0.2, @guanghechen/path.types@workspace:packages/path.types":
+"@guanghechen/path.types@^1.0.3, @guanghechen/path.types@workspace:packages/path.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/path.types@workspace:packages/path.types"
   languageName: unknown
@@ -727,11 +727,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/path@workspace:packages/path"
   dependencies:
-    "@guanghechen/path.types": ^1.0.2
+    "@guanghechen/path.types": ^1.0.3
   languageName: unknown
   linkType: soft
 
-"@guanghechen/reporter.types@^1.0.4, @guanghechen/reporter.types@workspace:packages/reporter.types":
+"@guanghechen/reporter.types@^1.0.4, @guanghechen/reporter.types@^1.0.5, @guanghechen/reporter.types@workspace:packages/reporter.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/reporter.types@workspace:packages/reporter.types"
   languageName: unknown
@@ -741,14 +741,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/reporter@workspace:packages/reporter"
   dependencies:
-    "@guanghechen/chalk.types": ^1.0.2
-    "@guanghechen/reporter.types": ^1.0.4
+    "@guanghechen/chalk.types": ^1.0.3
+    "@guanghechen/reporter.types": ^1.0.5
     dayjs: 1.11.13
     json5: 2.2.3
   languageName: unknown
   linkType: soft
 
-"@guanghechen/resource.types@^1.0.2, @guanghechen/resource.types@workspace:packages/resource.types":
+"@guanghechen/resource.types@^1.0.3, @guanghechen/resource.types@workspace:packages/resource.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/resource.types@workspace:packages/resource.types"
   languageName: unknown
@@ -758,8 +758,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/resource@workspace:packages/resource"
   dependencies:
-    "@guanghechen/invariant": ^6.0.3
-    "@guanghechen/resource.types": ^1.0.2
+    "@guanghechen/invariant": ^6.0.4
+    "@guanghechen/resource.types": ^1.0.3
   languageName: unknown
   linkType: soft
 
@@ -784,12 +784,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/scheduler@workspace:packages/scheduler"
   dependencies:
-    "@guanghechen/error.types": ^1.0.5
-    "@guanghechen/middleware": ^1.0.5
-    "@guanghechen/observable": ^6.1.6
-    "@guanghechen/reporter.types": ^1.0.4
-    "@guanghechen/subscriber": ^1.0.2
-    "@guanghechen/task": ^1.0.3
+    "@guanghechen/error.types": ^1.0.6
+    "@guanghechen/middleware": ^1.0.6
+    "@guanghechen/observable": ^6.1.7
+    "@guanghechen/reporter.types": ^1.0.5
+    "@guanghechen/subscriber": ^1.0.3
+    "@guanghechen/task": ^1.0.4
   languageName: unknown
   linkType: soft
 
@@ -816,28 +816,28 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/stream@^1.0.2, @guanghechen/stream@workspace:packages/stream":
+"@guanghechen/stream@^1.0.3, @guanghechen/stream@workspace:packages/stream":
   version: 0.0.0-use.local
   resolution: "@guanghechen/stream@workspace:packages/stream"
   dependencies:
-    "@guanghechen/byte": ^1.0.2
+    "@guanghechen/byte": ^1.0.3
   languageName: unknown
   linkType: soft
 
-"@guanghechen/subscriber@^1.0.2, @guanghechen/subscriber@workspace:packages/subscriber":
+"@guanghechen/subscriber@^1.0.3, @guanghechen/subscriber@workspace:packages/subscriber":
   version: 0.0.0-use.local
   resolution: "@guanghechen/subscriber@workspace:packages/subscriber"
   dependencies:
-    "@guanghechen/disposable": ^1.0.2
+    "@guanghechen/disposable": ^1.0.3
   languageName: unknown
   linkType: soft
 
-"@guanghechen/task@^1.0.3, @guanghechen/task@workspace:packages/task":
+"@guanghechen/task@^1.0.4, @guanghechen/task@workspace:packages/task":
   version: 0.0.0-use.local
   resolution: "@guanghechen/task@workspace:packages/task"
   dependencies:
-    "@guanghechen/error.types": ^1.0.5
-    "@guanghechen/observable": ^6.1.6
+    "@guanghechen/error.types": ^1.0.6
+    "@guanghechen/observable": ^6.1.7
   languageName: unknown
   linkType: soft
 
@@ -845,9 +845,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/viewmodel@workspace:packages/viewmodel"
   dependencies:
-    "@guanghechen/disposable": ^1.0.2
-    "@guanghechen/observable": ^6.1.6
-    "@guanghechen/subscriber": ^1.0.2
+    "@guanghechen/disposable": ^1.0.3
+    "@guanghechen/observable": ^6.1.7
+    "@guanghechen/subscriber": ^1.0.3
   languageName: unknown
   linkType: soft
 

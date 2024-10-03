@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/disposable.types",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Disposable related types.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/disposable.types@1.0.2",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/disposable.types@1.0.3",
     "directory": "packages/disposable.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/disposable.types@1.0.2/packages/disposable.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/disposable.types@1.0.3/packages/disposable.types#readme",
   "type": "module",
   "exports": {
     ".": {

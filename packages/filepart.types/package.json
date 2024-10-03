@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/filepart.types",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "types of @guanghechen/filepart",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/filepart.types@1.0.2",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/filepart.types@1.0.3",
     "directory": "packages/filepart.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/filepart.types@1.0.2/packages/filepart.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/filepart.types@1.0.3/packages/filepart.types#readme",
   "type": "module",
   "exports": {
     ".": {

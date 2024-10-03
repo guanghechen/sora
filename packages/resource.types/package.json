@@ -1,16 +1,16 @@
 {
   "name": "@guanghechen/resource.types",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/resource.types@1.0.2",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/resource.types@1.0.3",
     "directory": "packages/resource.types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/resource.types@1.0.2/packages/resource.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/resource.types@1.0.3/packages/resource.types#readme",
   "type": "module",
   "exports": {
     ".": {
