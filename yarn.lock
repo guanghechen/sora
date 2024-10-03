@@ -594,7 +594,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/eslint-config@npm:7.0.10":
+"@guanghechen/eslint-config@npm:^7.0.10":
   version: 7.0.10
   resolution: "@guanghechen/eslint-config@npm:7.0.10"
   dependencies:
@@ -645,7 +645,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/fs@npm:1.0.8, @guanghechen/fs@npm:^1.0.8":
+"@guanghechen/fs@npm:^1.0.8":
   version: 1.0.8
   resolution: "@guanghechen/fs@npm:1.0.8"
   dependencies:
@@ -655,7 +655,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/helper-jest@npm:6.0.2":
+"@guanghechen/helper-jest@npm:^6.0.2":
   version: 6.0.2
   resolution: "@guanghechen/helper-jest@npm:6.0.2"
   dependencies:
@@ -668,12 +668,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/helper-npm@npm:^6.0.1":
-  version: 6.0.1
-  resolution: "@guanghechen/helper-npm@npm:6.0.1"
+"@guanghechen/helper-npm@npm:^6.0.2":
+  version: 6.0.2
+  resolution: "@guanghechen/helper-npm@npm:6.0.2"
   dependencies:
     import-meta-resolve: 4.1.0
-  checksum: c69a363e4ed65227a62eb8cc80c5f8997da761109581be3e2b6cac9222bf7b1d8ed71e9ad12fc36870c8db63deefc7161a73039b18ec6191377edd683881b2f9
+  checksum: f4157b851f5872266197c7439ec71313f57dcc2ad962fd73f86076a96b897c4cdac2d470aca6cd92fbf12ac55297cc25b8904e736a95c1db7cc0e19bc7ee6590
   languageName: node
   linkType: hard
 
@@ -683,7 +683,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/jest-config@npm:6.0.2":
+"@guanghechen/jest-config@npm:^6.0.2":
   version: 6.0.2
   resolution: "@guanghechen/jest-config@npm:6.0.2"
   dependencies:
@@ -707,6 +707,13 @@ __metadata:
     "@guanghechen/subscriber": ^1.0.3
   languageName: unknown
   linkType: soft
+
+"@guanghechen/monorepo@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@guanghechen/monorepo@npm:1.0.1"
+  checksum: afa0840f845fbf1dd3f87aa621588e7b349eaa29df05154b7d839a79cb0ae9af153f34a3d83c94899edb5a3a4c02b29b25cc36fd07c2d6dabce9b12d406022b8
+  languageName: node
+  linkType: hard
 
 "@guanghechen/observable@^6.1.7, @guanghechen/observable@workspace:packages/observable":
   version: 0.0.0-use.local
@@ -763,11 +770,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/rollup-config@npm:6.0.1":
-  version: 6.0.1
-  resolution: "@guanghechen/rollup-config@npm:6.0.1"
+"@guanghechen/rollup-config@npm:^6.0.2":
+  version: 6.0.2
+  resolution: "@guanghechen/rollup-config@npm:6.0.2"
   dependencies:
-    "@guanghechen/helper-npm": ^6.0.1
+    "@guanghechen/helper-npm": ^6.0.2
     "@rollup/plugin-commonjs": 28.0.0
     "@rollup/plugin-json": 6.1.0
     "@rollup/plugin-node-resolve": 15.3.0
@@ -776,7 +783,7 @@ __metadata:
   peerDependencies:
     rollup: ^3.0.0 || ^4.0.0
     typescript: ">=5.0.0"
-  checksum: 57293370a2a9758e7858714b26472470ed0b814289a632dc8772dc657655f548690fc4f794e1e39eb9ec711affcb4a386b535cd6274f008896b79b0459eda916
+  checksum: 78cb4d0a250573dda51d741c005e9ec8142c471bb98a59fc61e1880510d1fd2b3ea6677133ec6e3fb9819a9b58b7f7492aad84b6a4b69c45ee04064b07fa1f4f
   languageName: node
   linkType: hard
 
@@ -793,7 +800,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/script-doc-link@npm:6.0.2":
+"@guanghechen/script-doc-link@npm:^6.0.2":
   version: 6.0.2
   resolution: "@guanghechen/script-doc-link@npm:6.0.2"
   dependencies:
@@ -9083,12 +9090,13 @@ __metadata:
   resolution: "root@workspace:."
   dependencies:
     "@guanghechen/conventional-changelog": 6.0.1
-    "@guanghechen/eslint-config": 7.0.10
-    "@guanghechen/fs": 1.0.8
-    "@guanghechen/helper-jest": 6.0.2
-    "@guanghechen/jest-config": 6.0.2
-    "@guanghechen/rollup-config": 6.0.1
-    "@guanghechen/script-doc-link": 6.0.2
+    "@guanghechen/eslint-config": ^7.0.10
+    "@guanghechen/fs": ^1.0.8
+    "@guanghechen/helper-jest": ^6.0.2
+    "@guanghechen/jest-config": ^6.0.2
+    "@guanghechen/monorepo": ^1.0.1
+    "@guanghechen/rollup-config": ^6.0.2
+    "@guanghechen/script-doc-link": ^6.0.2
     "@rollup/plugin-replace": 6.0.1
     "@types/jest": 29.5.13
     "@types/node": 20.16.10
