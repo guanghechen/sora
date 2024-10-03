@@ -10,30 +10,26 @@
       "options": {
         "cwd": "packages/resource",
         "parallel": false,
-        "commands": [
-          "rimraf lib"
-        ]
+        "commands": ["rimraf lib"]
       }
     },
     "build": {
       "executor": "nx:run-commands",
-      "dependsOn": [
-        "clean",
-        "^build"
-      ],
+      "dependsOn": ["clean", "^build"],
       "options": {
         "cwd": "packages/resource",
         "parallel": false,
-        "sourcemap": true,
-        "commands": [
-          "cross-env ROLLUP_CONFIG_TYPE=lib rollup -c ../../rollup.config.mjs"
-        ]
+        "commands": ["rollup -c ../../rollup.config.mjs"],
+        "env": {
+          "NODE_ENV": "production",
+          "ROLLUP_SHOULD_SOURCEMAP": "true"
+        }
       },
       "configurations": {
         "production": {
-          "sourcemap": false,
           "env": {
-            "NODE_ENV": "production"
+            "NODE_ENV": "production",
+            "ROLLUP_SHOULD_SOURCEMAP": "false"
           }
         }
       }
@@ -43,10 +39,11 @@
       "options": {
         "cwd": "packages/resource",
         "parallel": false,
-        "sourcemap": true,
-        "commands": [
-          "cross-env ROLLUP_CONFIG_TYPE=lib rollup -c ../../rollup.config.mjs -w"
-        ]
+        "commands": ["rollup -c ../../rollup.config.mjs -w"],
+        "env": {
+          "NODE_ENV": "development",
+          "ROLLUP_SHOULD_SOURCEMAP": "true"
+        }
       }
     },
     "test": {
