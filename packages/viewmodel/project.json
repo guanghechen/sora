@@ -1,6 +1,7 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "viewmodel",
+  "implicitDependencies": ["disposable", "observable", "subscriber"],
   "sourceRoot": "packages/viewmodel/src",
   "projectType": "library",
   "tags": [],

@@ -1,6 +1,7 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "task",
+  "implicitDependencies": ["observable"],
   "sourceRoot": "packages/task/src",
   "projectType": "library",
   "tags": [],

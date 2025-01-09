@@ -1,6 +1,14 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "scheduler",
+  "implicitDependencies": [
+    "error.types",
+    "middleware",
+    "observable",
+    "reporter.types",
+    "subscriber",
+    "task"
+  ],
   "sourceRoot": "packages/scheduler/src",
   "projectType": "library",
   "tags": [],
