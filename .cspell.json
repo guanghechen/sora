@@ -1,5 +1,7 @@
 {
-  "cSpell.words": [
+  "version": "0.2",
+  "language": "en",
+  "words": [
     "clazz",
     "colorterm",
     "dirpath",
