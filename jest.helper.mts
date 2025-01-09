@@ -8,8 +8,6 @@ import fs from 'node:fs'
 import path from 'node:path'
 import url from 'node:url'
 
-export { isCI } from 'ci-info'
-
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
 export const workspaceRootDir = __dirname
 
