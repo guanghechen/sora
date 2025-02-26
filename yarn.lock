@@ -659,12 +659,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/helper-npm@npm:^6.0.2":
-  version: 6.0.2
-  resolution: "@guanghechen/helper-npm@npm:6.0.2"
+"@guanghechen/helper-npm@npm:^6.0.3":
+  version: 6.0.3
+  resolution: "@guanghechen/helper-npm@npm:6.0.3"
   dependencies:
     import-meta-resolve: 4.1.0
-  checksum: f4157b851f5872266197c7439ec71313f57dcc2ad962fd73f86076a96b897c4cdac2d470aca6cd92fbf12ac55297cc25b8904e736a95c1db7cc0e19bc7ee6590
+  checksum: 8253ac9dda3ded669fe57a116f8334ec7c1a51ddb56e5b23b92d77ff50e5123edb626201de3f652a6633e8cd26c7d124d47bb6034860329d311b748af4570f70
   languageName: node
   linkType: hard
 
@@ -699,10 +699,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/monorepo@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@guanghechen/monorepo@npm:1.0.1"
-  checksum: afa0840f845fbf1dd3f87aa621588e7b349eaa29df05154b7d839a79cb0ae9af153f34a3d83c94899edb5a3a4c02b29b25cc36fd07c2d6dabce9b12d406022b8
+"@guanghechen/monorepo@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@guanghechen/monorepo@npm:1.0.2"
+  checksum: 179eb732706de44c360bee6910f2f94bba261ca4297ef2a88d6eeddc1a35fd64914af446c600cd8a4241e39b5b8b7eae94001252ebeca0d0d1fb234fbb78cead
   languageName: node
   linkType: hard
 
@@ -761,11 +761,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/rollup-config@npm:^6.0.6":
-  version: 6.0.6
-  resolution: "@guanghechen/rollup-config@npm:6.0.6"
+"@guanghechen/rollup-config@npm:^6.0.7":
+  version: 6.0.7
+  resolution: "@guanghechen/rollup-config@npm:6.0.7"
   dependencies:
-    "@guanghechen/helper-npm": ^6.0.2
+    "@guanghechen/helper-npm": ^6.0.3
     "@rollup/plugin-commonjs": 28.0.2
     "@rollup/plugin-json": 6.1.0
     "@rollup/plugin-node-resolve": 16.0.0
@@ -774,7 +774,7 @@ __metadata:
   peerDependencies:
     rollup: ^3.0.0 || ^4.0.0
     typescript: ">=5.0.0"
-  checksum: a060b127fea5422770c591d9e13cf6b0b12d079c355224f67fccdeb69fd02d56fd1f500ea59b23284f9ae5335a430bce42eba1194ec76ec74c610fca31d61703
+  checksum: 51c3a2fd83f0d8bb018ff3143c2bb63925454e0cecde79bae697caee2c9167f91c387ced5d12177d8115625ab009d3063b703de043b5ef215c620b8829f0d9a2
   languageName: node
   linkType: hard
 
@@ -9322,8 +9322,8 @@ __metadata:
     "@guanghechen/fs": ^1.0.8
     "@guanghechen/helper-jest": ^6.0.2
     "@guanghechen/jest-config": ^6.0.2
-    "@guanghechen/monorepo": ^1.0.1
-    "@guanghechen/rollup-config": ^6.0.6
+    "@guanghechen/monorepo": ^1.0.2
+    "@guanghechen/rollup-config": ^6.0.7
     "@guanghechen/script-doc-link": ^6.0.5
     "@rollup/plugin-replace": 6.0.2
     "@types/jest": 29.5.14

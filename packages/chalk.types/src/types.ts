@@ -178,9 +178,7 @@ export interface IBasicStyles {
   bgAnsi256(code: number): IChalkBuilder
 }
 
-export type IChalkStyles = {
-  readonly [key in IStyleName]: IChalkBuilder
-} & IBasicStyles
+export type IChalkStyles = Readonly<Record<IStyleName, IChalkBuilder>> & IBasicStyles
 
 export interface IChalkBuilder extends IChalkStyles {
   // Apply colors
