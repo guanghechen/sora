@@ -5,7 +5,6 @@ import os from 'node:os'
 import process from 'node:process'
 import tty from 'node:tty'
 
-const env: IProcessEnv = process.env as unknown as IProcessEnv
 const argv: string[] = (globalThis as any).Deno ? (globalThis as any).Deno.args : process.argv
 const noFlagForceColor: ColorSupportLevelEnum | undefined = _envForceColor()
 const flagForceColor: ColorSupportLevelEnum | undefined =
@@ -21,21 +20,6 @@ export const supportsColorStderr: IChalkColorSupport | false = _createSupportsCo
   true,
   true,
 )
-
-interface IProcessEnv {
-  AGENT_NAME?: string
-  CI?: string
-  CI_NAME?: string
-  COLORTERM?: string
-  FORCE_COLOR?: string
-  GITEA_ACTIONS?: string
-  GITHUB_ACTIONS?: string
-  TEAMCITY_VERSION?: string
-  TERM?: string
-  TERM_PROGRAM?: string
-  TERM_PROGRAM_VERSION?: string
-  TF_BUILD?: string
-}
 
 function _createSupportsColor(
   isTTY: boolean,
@@ -54,12 +38,12 @@ function _hasFlag(flag: string): boolean {
 }
 
 function _envForceColor(): ColorSupportLevelEnum | undefined {
-  if (env.FORCE_COLOR !== undefined) {
-    if (env.FORCE_COLOR?.toLowerCase() === 'true') return ColorSupportLevelEnum.BASIC
-    if (env.FORCE_COLOR?.toLowerCase() === 'false') return ColorSupportLevelEnum.DISABLED
-    return env.FORCE_COLOR?.length === 0
+  if (process.env.FORCE_COLOR !== undefined) {
+    if (process.env.FORCE_COLOR?.toLowerCase() === 'true') return ColorSupportLevelEnum.BASIC
+    if (process.env.FORCE_COLOR?.toLowerCase() === 'false') return ColorSupportLevelEnum.DISABLED
+    return process.env.FORCE_COLOR?.length === 0
       ? ColorSupportLevelEnum.BASIC
-      : (Math.min(Number.parseInt(env.FORCE_COLOR ?? '', 10), 3) as ColorSupportLevelEnum)
+      : (Math.min(Number.parseInt(process.env.FORCE_COLOR ?? '', 10), 3) as ColorSupportLevelEnum)
   }
   return undefined
 }
@@ -114,11 +98,12 @@ function _supportsColor(
 
   // Check for Azure DevOps pipelines.
   // Has to be above the `!streamIsTTY` check.
-  if (env.TF_BUILD !== undefined && env.AGENT_NAME !== undefined) return ColorSupportLevelEnum.BASIC
+  if (process.env.TF_BUILD !== undefined && process.env.AGENT_NAME !== undefined)
+    return ColorSupportLevelEnum.BASIC
   if (hasStream && !isTTY && forceColor === undefined) return ColorSupportLevelEnum.DISABLED
 
   const min: ColorSupportLevelEnum = forceColor || ColorSupportLevelEnum.DISABLED
-  if (env.TERM === 'dumb') return min
+  if (process.env.TERM === 'dumb') return min
 
   if (process.platform === 'win32') {
     // Windows 10 build 10586 is the first Windows release that supports 256 colors.
@@ -132,16 +117,16 @@ function _supportsColor(
     return ColorSupportLevelEnum.BASIC
   }
 
-  if (env.CI !== undefined) {
-    if (env.GITHUB_ACTIONS !== undefined || env.GITEA_ACTIONS !== undefined) {
+  if (process.env.CI !== undefined) {
+    if (process.env.GITHUB_ACTIONS !== undefined || process.env.GITEA_ACTIONS !== undefined) {
       return ColorSupportLevelEnum.True16m
     }
 
     if (
       ['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI', 'BUILDKITE', 'DRONE'].some(
-        sign => sign in env,
+        sign => sign in process.env,
       ) ||
-      env.CI_NAME === 'codeship'
+      process.env.CI_NAME === 'codeship'
     ) {
       return ColorSupportLevelEnum.BASIC
     }
@@ -149,17 +134,17 @@ function _supportsColor(
     return min
   }
 
-  if (env.TEAMCITY_VERSION !== undefined) {
-    return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env.TEAMCITY_VERSION)
+  if (process.env.TEAMCITY_VERSION !== undefined) {
+    return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(process.env.TEAMCITY_VERSION)
       ? ColorSupportLevelEnum.BASIC
       : ColorSupportLevelEnum.DISABLED
   }
-  if (env.COLORTERM === 'truecolor') return ColorSupportLevelEnum.True16m
-  if (env.TERM === 'xterm-kitty') return ColorSupportLevelEnum.True16m
+  if (process.env.COLORTERM === 'truecolor') return ColorSupportLevelEnum.True16m
+  if (process.env.TERM === 'xterm-kitty') return ColorSupportLevelEnum.True16m
 
-  if (env.TERM_PROGRAM !== undefined) {
-    const version = Number.parseInt((env.TERM_PROGRAM_VERSION || '').split('.')[0], 10)
-    switch (env.TERM_PROGRAM) {
+  if (process.env.TERM_PROGRAM !== undefined) {
+    const version = Number.parseInt((process.env.TERM_PROGRAM_VERSION || '').split('.')[0], 10)
+    switch (process.env.TERM_PROGRAM) {
       case 'iTerm.app':
         return version >= ColorSupportLevelEnum.True16m
           ? ColorSupportLevelEnum.True16m
@@ -171,10 +156,10 @@ function _supportsColor(
     }
   }
 
-  if (/-256(color)?$/i.test(env.TERM || '')) return ColorSupportLevelEnum.ANSI256
-  if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(env.TERM || '')) {
+  if (/-256(color)?$/i.test(process.env.TERM || '')) return ColorSupportLevelEnum.ANSI256
+  if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(process.env.TERM || '')) {
     return ColorSupportLevelEnum.BASIC
   }
-  if (env.COLORTERM !== undefined) return ColorSupportLevelEnum.BASIC
+  if (process.env.COLORTERM !== undefined) return ColorSupportLevelEnum.BASIC
   return min
 }
