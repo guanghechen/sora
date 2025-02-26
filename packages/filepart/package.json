@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/filepart",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "File helper",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/filepart@1.0.3",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/filepart@1.0.4",
     "directory": "packages/filepart"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/filepart@1.0.3/packages/filepart#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/filepart@1.0.4/packages/filepart#readme",
   "keywords": [
     "file helper",
     "split file",
@@ -41,6 +41,6 @@
   ],
   "dependencies": {
     "@guanghechen/filepart.types": "^1.0.3",
-    "@guanghechen/invariant": "^6.0.4"
+    "@guanghechen/invariant": "^6.0.5"
   }
 }

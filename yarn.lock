@@ -506,7 +506,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/chalk.types@^1.0.3, @guanghechen/chalk.types@workspace:packages/chalk.types":
+"@guanghechen/chalk.types@^1.0.4, @guanghechen/chalk.types@workspace:packages/chalk.types":
   version: 0.0.0-use.local
   resolution: "@guanghechen/chalk.types@workspace:packages/chalk.types"
   languageName: unknown
@@ -516,7 +516,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/chalk@workspace:packages/chalk"
   dependencies:
-    "@guanghechen/chalk.types": ^1.0.3
+    "@guanghechen/chalk.types": ^1.0.4
   languageName: unknown
   linkType: soft
 
@@ -534,7 +534,7 @@ __metadata:
   dependencies:
     "@guanghechen/byte": ^1.0.3
     "@guanghechen/config.types": ^1.0.3
-    "@guanghechen/invariant": ^6.0.4
+    "@guanghechen/invariant": ^6.0.5
     "@guanghechen/resource.types": ^1.0.3
     compare-versions: 6.1.1
   languageName: unknown
@@ -605,8 +605,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/file-split@workspace:packages/file-split"
   dependencies:
-    "@guanghechen/filepart": ^1.0.3
-    "@guanghechen/invariant": ^6.0.4
+    "@guanghechen/filepart": ^1.0.4
+    "@guanghechen/invariant": ^6.0.5
     "@guanghechen/stream": ^1.0.3
   languageName: unknown
   linkType: soft
@@ -617,12 +617,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@guanghechen/filepart@^1.0.3, @guanghechen/filepart@workspace:packages/filepart":
+"@guanghechen/filepart@^1.0.4, @guanghechen/filepart@workspace:packages/filepart":
   version: 0.0.0-use.local
   resolution: "@guanghechen/filepart@workspace:packages/filepart"
   dependencies:
     "@guanghechen/filepart.types": ^1.0.3
-    "@guanghechen/invariant": ^6.0.4
+    "@guanghechen/invariant": ^6.0.5
   languageName: unknown
   linkType: soft
 
@@ -668,7 +668,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@guanghechen/invariant@^6.0.4, @guanghechen/invariant@workspace:packages/invariant":
+"@guanghechen/invariant@^6.0.4, @guanghechen/invariant@^6.0.5, @guanghechen/invariant@workspace:packages/invariant":
   version: 0.0.0-use.local
   resolution: "@guanghechen/invariant@workspace:packages/invariant"
   languageName: unknown
@@ -739,7 +739,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/reporter@workspace:packages/reporter"
   dependencies:
-    "@guanghechen/chalk.types": ^1.0.3
+    "@guanghechen/chalk.types": ^1.0.4
     "@guanghechen/reporter.types": ^1.0.5
     dayjs: 1.11.13
     json5: 2.2.3
@@ -756,7 +756,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guanghechen/resource@workspace:packages/resource"
   dependencies:
-    "@guanghechen/invariant": ^6.0.4
+    "@guanghechen/invariant": ^6.0.5
     "@guanghechen/resource.types": ^1.0.3
   languageName: unknown
   linkType: soft
