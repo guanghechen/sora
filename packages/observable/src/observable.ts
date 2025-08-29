@@ -37,6 +37,13 @@ export class Observable<T> extends BatchDisposable implements IObservable<T> {
 
   public override dispose(): void {
     if (this.disposed) return
+
+    // Clear any pending timer before marking as disposed
+    if (this._timer !== undefined) {
+      clearTimeout(this._timer)
+      this._timer = undefined
+    }
+
     super.dispose()
 
     // Notify subscribers if has changes not notified.
@@ -104,13 +111,20 @@ export class Observable<T> extends BatchDisposable implements IObservable<T> {
       if (this._timer === undefined) {
         this._timer = setTimeout(() => {
           try {
-            this._notifyImmediate()
+            // Check if disposed before proceeding
+            if (!this.disposed) {
+              this._notifyImmediate()
+            }
+          } catch (error) {
+            console.error('Error in observable notification:', error)
           } finally {
             this._timer = undefined
           }
 
-          // Recursive to handle candidate changes.
-          this._notify()
+          // Recursive to handle candidate changes, but only if not disposed
+          if (!this.disposed) {
+            this._notify()
+          }
         }, this._delay)
       }
     }

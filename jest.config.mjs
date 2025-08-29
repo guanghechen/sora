@@ -36,7 +36,7 @@ const coverageMap = {
     global: { branches: 73, functions: 42, lines: 46, statements: 46 },
   },
   '@guanghechen/observable': {
-    global: { functions: 94 },
+    global: { branches: 98, functions: 94, lines: 99, statements: 99 },
   },
   '@guanghechen/path': {
     'src/PathResolver.ts': { branches: 90 },

@@ -40,5 +40,5 @@ export interface ITicker extends IObservable<number> {
    * @param observable
    * @param options
    */
-  observe(observable: IBaseObservable<any>, options?: ITickerObserveOptions): void
+  observe(observable: IBaseObservable<any>, options?: ITickerObserveOptions): IUnobservable
 }
