@@ -68,14 +68,16 @@ files.
 
 ## Usage
 
-- `BigFileHelper` (inspired by [file-split][])
+- `FileSplitter` (inspired by [file-split][])
 
   ```typescript
-  import { bigFileHelper, calcFilePartItemsBySize } from '@guanghechen/file-split'
+  import { FileSplitter } from '@guanghechen/file-split'
+  import { calcFilePartItemsBySize } from '@guanghechen/filepart'
 
   async function splitFile(filepath: string): Promise<string[]> {
+    const splitter = new FileSplitter()
     const parts = calcFilePartItemsBySize(filepath, 1024 * 1024 * 80) // 80MB per chunk
-    const partFilepaths: string[] = await bigFileHelper.split(filepath, parts)
+    const partFilepaths: string[] = await splitter.split(filepath, parts)
     return partFilepaths
   }
 
@@ -84,13 +86,9 @@ files.
 
 ### Overview
 
-|            Name            |                  Description                  |
-| :------------------------: | :-------------------------------------------: |
-|      `BigFileHelper`       | A utility class for split / merging big files |
-|      `bigFileHelper`       |      Default instance of `BigFleHelper`       |
-| `calcFilePartItemsBySize`  |     Generate file part items by part size     |
-| `calcFilePartItemsByCount` |  Generate file part items by total of parts   |
-|    `calcFilePartNames`     |       Generate file part names (suffix)       |
+|       Name       |                  Description                  |
+| :--------------: | :-------------------------------------------: |
+|  `FileSplitter`  | A utility class for splitting / merging files |
 
 [homepage]:
   https://github.com/guanghechen/sora/tree/@guanghechen/file-split@1.0.4/packages/file-split#readme

@@ -49,7 +49,7 @@
 </header>
 <br/>
 
-Utilities for handing node streams.
+Utilities for handling node streams.
 
 ## Install
 
@@ -71,7 +71,7 @@ Utilities for handing node streams.
 | :--------------: | :--------------------------------------------------------: |
 | `concatStreams`  |      Concatenate readable streams to async iterator.       |
 | `consumeStream`  |                  Consume readable stream.                  |
-| `consumeStreams` |         Consume Consume multiple streams serially.         |
+| `consumeStreams` |         Consume multiple streams serially.         |
 |  `mergeStreams`  | Merge multiple readable streams into one readable streams. |
 | `stream2buffer`  |  Consume read stream and encode the contents into buffer.  |
 
@@ -84,7 +84,7 @@ Utilities for handing node streams.
   import fs from 'node:fs'
 
   const filepaths = ['a.txt', 'b.txt', 'c.txt']
-  const readers: NodeJS.ReadableStream[] = plainFilepaths.map(fp => fs.createReadStream(fp))
+  const readers: NodeJS.ReadableStream[] = filepaths.map(fp => fs.createReadStream(fp))
   const writer: NodeJS.WritableStream = fs.createWriteStream('out.txt')
   await consumeStreams(readers, writer)
   ```
@@ -97,7 +97,7 @@ Utilities for handing node streams.
   import fs from 'node:fs'
 
   const filepaths = ['a.txt', 'b.txt', 'c.txt']
-  const readers: NodeJS.ReadableStream[] = plainFilepaths.map(fp => fs.createReadStream(fp))
+  const readers: NodeJS.ReadableStream[] = filepaths.map(fp => fs.createReadStream(fp))
   const writer: NodeJS.WritableStream = fs.createWriteStream('out.txt')
 
   const iv: Buffer = crypto.randomBytes(32)

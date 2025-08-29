@@ -23,7 +23,7 @@
     </a>
     <a href="#install">
       <img
-        alt="Module formats: cjs, esm"
+        alt="Module Formats: cjs, esm"
         src="https://img.shields.io/badge/module_formats-cjs%2C%20esm-green.svg"
       />
     </a>
@@ -43,18 +43,18 @@
 </header>
 <br/>
 
-An invariant function, which takes a `condition` and a optional `message` value,
-and throw an error when the given condition fails.
+An invariant function, which takes a `condition` and an optional `message` value,
+and throws an error when the given condition fails.
 
 ## Install
 
-* npm
+- npm
 
   ```bash
   npm install --save @guanghechen/invariant
   ```
 
-* yarn
+- yarn
 
   ```bash
   yarn add @guanghechen/invariant
@@ -63,7 +63,7 @@ and throw an error when the given condition fails.
 
 ## Usage
 
-* Syntax
+- Syntax
 
   ```typescript
   function invariant(
@@ -72,7 +72,7 @@ and throw an error when the given condition fails.
   ): asserts condition
   ```
 
-* Demo
+- Demo
 
   ```typescript
   import invariant from '@guanghechen/invariant'

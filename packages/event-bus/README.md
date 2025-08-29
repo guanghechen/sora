@@ -23,7 +23,7 @@
     </a>
     <a href="#install">
       <img
-        alt="Module formats: cjs, esm"
+        alt="Module Formats: cjs, esm"
         src="https://img.shields.io/badge/module_formats-cjs%2C%20esm-green.svg"
       />
     </a>
@@ -49,17 +49,17 @@
 </header>
 <br/>
 
-
 A simple event bus.
 
-
 ## Install
+
+- npm
 
   ```bash
   npm install --save @guanghechen/event-bus
   ```
 
-* yarn
+- yarn
 
   ```bash
   yarn add @guanghechen/event-bus
@@ -68,7 +68,7 @@ A simple event bus.
 
 ## Usage
 
-* Basic
+- Basic
 
   ```typescript
   import type { IEvent, IEventHandler } from '@guanghechen/event-bus'

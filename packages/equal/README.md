@@ -49,18 +49,18 @@
 </header>
 <br/>
 
-Inspired by https://github.com/epoberezkin/fast-deep-equal, re-publish cause it's not support ESM.
+Inspired by https://github.com/epoberezkin/fast-deep-equal, re-published because it doesn't support ESM.
 
 ## Usage
 
-- use within ESM.
+- Use within ESM.
 
   ```javascript
   import isEqual from '@guanghechen/equal'
   console.log(isEqual({foo: 'bar'}, {foo: 'bar'})); // true
   ```
 
-- use within CommonJS.
+- Use within CommonJS.
 
   ```javascript
   const isEqual = require('@guanghechen/equal')

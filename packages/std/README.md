@@ -21,6 +21,12 @@
         src="https://img.shields.io/npm/l/@guanghechen/std.svg"
       />
     </a>
+    <a href="#install">
+      <img
+        alt="Module Formats: cjs, esm"
+        src="https://img.shields.io/badge/module_formats-cjs%2C%20esm-green.svg"
+      />
+    </a>
     <a href="https://github.com/nodejs/node">
       <img
         alt="Node.js Version"
@@ -43,7 +49,7 @@
 </header>
 <br/>
 
-Standard utilities codes.
+Standard utility functions.
 
 ## Install
 
@@ -61,7 +67,7 @@ Standard utilities codes.
 
 ## Usage
 
-* is
+- is
 
   Name                  | Description
   :--------------------:|:----------------------------------------------------------------
@@ -87,7 +93,7 @@ Standard utilities codes.
   `isEmptyObject`       | Check if the given data is an empty `Object` type
   `isNumberLike`        | Check if the given data is an `number` / `Number` or number like `string` type
 
-* string `transformer` utilities
+- string `transformer` utilities
 
   Name                  | Description
   :--------------------:|:---------------------------------------
