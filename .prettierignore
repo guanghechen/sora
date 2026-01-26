@@ -2,13 +2,13 @@
 .eslintignore
 .prettierignore
 README.md
+pnpm-lock.yaml
 
 **/*.hbs
 
 **/resource
 !packages/resource
 
-**/.yarn/
 **/coverage/
 **/dist/
 **/doc/

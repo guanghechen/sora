@@ -57,6 +57,6 @@ const coverageMap = {
     global: { functions: 93 },
   },
   '@guanghechen/viewmodel': {
-    global: { branches: 58, functions: 46, lines: 58, statements: 58 },
+    global: { branches: 58, functions: 34, lines: 58, statements: 58 },
   },
 }

@@ -10,16 +10,16 @@ describe('locateNearestFilepath', function () {
       path.join(__dirname, '../package.json'),
     )
 
-    expect(locateNearestFilepath(__dirname, 'yarn.lock')).toBe(
-      path.join(__dirname, '../../../yarn.lock'),
+    expect(locateNearestFilepath(__dirname, 'pnpm-lock.yaml')).toBe(
+      path.join(__dirname, '../../../pnpm-lock.yaml'),
     )
 
     expect(locateNearestFilepath(path.dirname(import.meta.url), 'package.json')).toBe(
       path.join(__dirname, '../package.json'),
     )
 
-    expect(locateNearestFilepath(path.dirname(import.meta.url), 'yarn.lock')).toBe(
-      path.join(__dirname, '../../../yarn.lock'),
+    expect(locateNearestFilepath(path.dirname(import.meta.url), 'pnpm-lock.yaml')).toBe(
+      path.join(__dirname, '../../../pnpm-lock.yaml'),
     )
   })
 
@@ -28,16 +28,16 @@ describe('locateNearestFilepath', function () {
       path.join(__dirname, '../package.json'),
     )
 
-    expect(locateNearestFilepath(__dirname, ['package.json', 'yarn.lock'])).toBe(
+    expect(locateNearestFilepath(__dirname, ['package.json', 'pnpm-lock.yaml'])).toBe(
       path.join(__dirname, '../package.json'),
     )
 
-    expect(locateNearestFilepath(__dirname, ['yarn.lock', 'package.json'])).toBe(
+    expect(locateNearestFilepath(__dirname, ['pnpm-lock.yaml', 'package.json'])).toBe(
       path.join(__dirname, '../package.json'),
     )
 
-    expect(locateNearestFilepath(__dirname, ['yarn.lock', '.editorconfig'])).toBe(
-      path.join(__dirname, '../../../yarn.lock'),
+    expect(locateNearestFilepath(__dirname, ['pnpm-lock.yaml', '.editorconfig'])).toBe(
+      path.join(__dirname, '../../../pnpm-lock.yaml'),
     )
   })
 
