@@ -1,5 +1,5 @@
 import { ErrorLevelEnum } from '@guanghechen/error.types'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { AtomicTask, TaskStatusEnum, TaskStrategyEnum } from '../src'
 
 interface ITaskProcessor {
@@ -25,7 +25,7 @@ class AtomicTaskForTest extends AtomicTask {
 describe('AtomicTask', () => {
   it('should start and finish successfully', async () => {
     const processor: ITaskProcessor = {
-      process: jest.fn(() => delay(20)),
+      process: vi.fn(() => delay(20)),
     }
     const task = new AtomicTaskForTest(processor, TaskStrategyEnum.ABORT_ON_ERROR)
 
@@ -57,7 +57,7 @@ describe('AtomicTask', () => {
 
   it('should start and fail', async () => {
     const processor: ITaskProcessor = {
-      process: jest.fn(async () => {
+      process: vi.fn(async () => {
         await delay(20)
         // eslint-disable-next-line no-throw-literal
         throw 'Something went wrong'
@@ -87,7 +87,7 @@ describe('AtomicTask', () => {
 
   it('should finish from pending', async () => {
     const processor: ITaskProcessor = {
-      process: jest.fn(() => delay(20)),
+      process: vi.fn(() => delay(20)),
     }
     const task = new AtomicTaskForTest(processor, TaskStrategyEnum.ABORT_ON_ERROR)
 
@@ -102,7 +102,7 @@ describe('AtomicTask', () => {
 
   it('should cancel from pending', async () => {
     const processor: ITaskProcessor = {
-      process: jest.fn(() => delay(20)),
+      process: vi.fn(() => delay(20)),
     }
     const task = new AtomicTaskForTest(processor, TaskStrategyEnum.ABORT_ON_ERROR)
 
@@ -117,7 +117,7 @@ describe('AtomicTask', () => {
 
   it('should not be cancelled once started', async () => {
     const processor: ITaskProcessor = {
-      process: jest.fn(() => delay(20)),
+      process: vi.fn(() => delay(20)),
     }
     const task = new AtomicTaskForTest(processor, TaskStrategyEnum.ABORT_ON_ERROR)
 

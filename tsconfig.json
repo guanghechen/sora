@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "jest.helper": ["jest.helper.mts"],
+      "vitest.helper": ["vitest.helper.mts"],
       "@guanghechen/byte": ["packages/byte/src"],
       "@guanghechen/chalk": ["packages/chalk/src"],
       "@guanghechen/chalk.types": ["packages/chalk.types/src"],

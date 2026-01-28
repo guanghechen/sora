@@ -1,5 +1,5 @@
-import { locateFixtures } from 'jest.helper'
 import { readFileSync } from 'node:fs'
+import { locateFixtures } from 'vitest.helper'
 import type { IFilePartItem } from '../src'
 import {
   calcFilePartItemsByCount,

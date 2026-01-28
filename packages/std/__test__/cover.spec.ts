@@ -1,9 +1,9 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { cover, coverBoolean, coverInteger, coverNumber, coverString } from '../src'
 
 describe('cover', function () {
   it('lazy defaultValue', function () {
-    const fn = jest.fn(() => 'alpha')
+    const fn = vi.fn(() => 'alpha')
     expect(cover<string>(fn, 'beta')).toEqual('beta')
     expect(fn.mock.calls.length).toBe(0)
 

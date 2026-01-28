@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { Monitor } from '../src'
 
 describe('Monitor', () => {
@@ -13,8 +13,8 @@ describe('Monitor', () => {
   })
 
   it('should subscribe and notify callbacks', () => {
-    const callback1 = jest.fn()
-    const callback2 = jest.fn()
+    const callback1 = vi.fn()
+    const callback2 = vi.fn()
     const unsubscribe1 = monitor.subscribe(callback1)
     const unsubscribe2 = monitor.subscribe(callback2)
 
@@ -48,7 +48,7 @@ describe('Monitor', () => {
   })
 
   it('should unsubscribe from callbacks', () => {
-    const callback = jest.fn()
+    const callback = vi.fn()
     const unsubscribe = monitor.subscribe(callback)
     expect(monitor.size).toEqual(1)
 
@@ -63,7 +63,7 @@ describe('Monitor', () => {
   })
 
   it('should destroy the monitor', () => {
-    const callback = jest.fn()
+    const callback = vi.fn()
     const unsubscribe = monitor.subscribe(callback)
     expect(monitor.size).toEqual(1)
 
@@ -80,8 +80,8 @@ describe('Monitor', () => {
   })
 
   it('should not subscribe to destroyed monitor', () => {
-    const callback1 = jest.fn()
-    const callback2 = jest.fn()
+    const callback1 = vi.fn()
+    const callback2 = vi.fn()
 
     const unsubscribe1 = monitor.subscribe(callback1)
     expect(monitor.size).toEqual(1)
@@ -123,12 +123,12 @@ describe('Monitor', () => {
   })
 
   it('should handle callback single errors', () => {
-    const erroringCallback1 = jest.fn(() => {
+    const erroringCallback1 = vi.fn(() => {
       throw new Error('Callback error1')
     })
 
-    const nonErroringCallback1 = jest.fn()
-    const nonErroringCallback2 = jest.fn()
+    const nonErroringCallback1 = vi.fn()
+    const nonErroringCallback2 = vi.fn()
 
     monitor.subscribe(nonErroringCallback1)
     monitor.subscribe(erroringCallback1)
@@ -142,17 +142,17 @@ describe('Monitor', () => {
   })
 
   it('should handle callback multiple errors', () => {
-    const erroringCallback1 = jest.fn(() => {
+    const erroringCallback1 = vi.fn(() => {
       throw new Error('Callback error1')
     })
 
-    const erroringCallback2 = jest.fn(() => {
+    const erroringCallback2 = vi.fn(() => {
       throw new Error('Callback error2')
     })
 
-    const nonErroringCallback1 = jest.fn()
-    const nonErroringCallback2 = jest.fn()
-    const nonErroringCallback3 = jest.fn()
+    const nonErroringCallback1 = vi.fn()
+    const nonErroringCallback2 = vi.fn()
+    const nonErroringCallback3 = vi.fn()
 
     monitor.subscribe(nonErroringCallback1)
     monitor.subscribe(erroringCallback1)
@@ -177,25 +177,25 @@ describe('Monitor', () => {
     let version1 = 0
     let version2 = 0
 
-    const callback1 = jest.fn(function () {
+    const callback1 = vi.fn(function () {
       version1 += 1
       const v = version1
       results.push('A' + v)
-      monitor.subscribe(jest.fn(() => results.push('E' + v)))
-      monitor.subscribe(jest.fn(() => results.push('F' + v)))
-      monitor.subscribe(jest.fn(() => results.push('G' + v)))
+      monitor.subscribe(vi.fn(() => results.push('E' + v)))
+      monitor.subscribe(vi.fn(() => results.push('F' + v)))
+      monitor.subscribe(vi.fn(() => results.push('G' + v)))
     })
 
-    const callback2 = jest.fn(function () {
+    const callback2 = vi.fn(function () {
       version2 += 1
       const v = version2
       results.push('B' + v)
-      monitor.subscribe(jest.fn(() => results.push('I' + v)))
-      monitor.subscribe(jest.fn(() => results.push('J' + v)))
-      monitor.subscribe(jest.fn(() => results.push('K' + v)))
+      monitor.subscribe(vi.fn(() => results.push('I' + v)))
+      monitor.subscribe(vi.fn(() => results.push('J' + v)))
+      monitor.subscribe(vi.fn(() => results.push('K' + v)))
     })
 
-    const callback3 = jest.fn(function () {
+    const callback3 = vi.fn(function () {
       unsubscribe1.unsubscribe()
     })
 

@@ -1,4 +1,4 @@
-import { assertPromiseThrow } from 'jest.helper'
+import { assertPromiseThrow } from 'vitest.helper'
 import { MemoTextResource } from '../src'
 
 describe('MemoTextResource', () => {

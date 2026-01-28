@@ -1,6 +1,6 @@
 import crypto from 'crypto'
-import { locateFixtures, unlinkSync } from 'jest.helper'
 import fs from 'node:fs'
+import { locateFixtures, unlinkSync } from 'vitest.helper'
 import { consumeStream, consumeStreams, stream2buffer, stream2bytes } from '../src'
 
 const encoding = 'utf8'

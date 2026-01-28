@@ -1,11 +1,10 @@
 // @ts-ignore
 import { chalk } from '@guanghechen/chalk/node'
-import type { IReporterMock } from '@guanghechen/helper-jest'
-import { createReporterMock } from '@guanghechen/helper-jest'
 import type { IReporter } from '@guanghechen/reporter'
 import { Reporter, ReporterLevelEnum } from '@guanghechen/reporter'
 import { TaskStrategyEnum } from '@guanghechen/task'
-import { desensitize } from 'jest.helper'
+import type { IReporterMock } from 'vitest.helper'
+import { createReporterMock, desensitize } from 'vitest.helper'
 import { Pipeline, Scheduler } from '../src'
 import type { IPipeline, IScheduler } from '../src'
 import type { IFIleProductData, IFileMaterialData } from './tester/FilePipelineTester'

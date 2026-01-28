@@ -1,5 +1,5 @@
 import { ErrorLevelEnum } from '@guanghechen/error.types'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { ResumableTask, TaskStatusEnum, TaskStrategyEnum } from '../src'
 
 interface ITaskProcessor {
@@ -37,7 +37,7 @@ function basicTests(strategy: TaskStrategyEnum): void {
     it('should start and finish successfully', async () => {
       let result: number = 0
       const processor: ITaskProcessor = {
-        process: jest.fn(function* (): IterableIterator<Promise<void>> {
+        process: vi.fn(function* (): IterableIterator<Promise<void>> {
           result = 1
           yield delay(stepDuration)
 
@@ -129,7 +129,7 @@ function basicTests(strategy: TaskStrategyEnum): void {
     it('should start and auto finish successfully', async () => {
       let result: number = 0
       const processor: ITaskProcessor = {
-        process: jest.fn(function* (): IterableIterator<Promise<void>> {
+        process: vi.fn(function* (): IterableIterator<Promise<void>> {
           result = 1
           yield delay(stepDuration)
 
@@ -180,7 +180,7 @@ function basicTests(strategy: TaskStrategyEnum): void {
     it('should start and fail', async () => {
       let result: number = 0
       const processor: ITaskProcessor = {
-        process: jest.fn(function* (): IterableIterator<Promise<void>> {
+        process: vi.fn(function* (): IterableIterator<Promise<void>> {
           result = 1
           yield delay(stepDuration)
 
@@ -222,7 +222,7 @@ function basicTests(strategy: TaskStrategyEnum): void {
     it('should start and auto fail', async () => {
       let result: number = 0
       const processor: ITaskProcessor = {
-        process: jest.fn(function* (): IterableIterator<Promise<void>> {
+        process: vi.fn(function* (): IterableIterator<Promise<void>> {
           result = 1
           yield delay(stepDuration)
 
@@ -264,7 +264,7 @@ function basicTests(strategy: TaskStrategyEnum): void {
     it('should finish from pending', async () => {
       let result: number = 0
       const processor: ITaskProcessor = {
-        process: jest.fn(function* (): IterableIterator<Promise<void>> {
+        process: vi.fn(function* (): IterableIterator<Promise<void>> {
           result = 1
           yield delay(stepDuration)
 
@@ -290,7 +290,7 @@ function basicTests(strategy: TaskStrategyEnum): void {
     it('should cancel from pending', async () => {
       let result: number = 0
       const processor: ITaskProcessor = {
-        process: jest.fn(function* (): IterableIterator<Promise<void>> {
+        process: vi.fn(function* (): IterableIterator<Promise<void>> {
           result = 1
           yield delay(stepDuration)
 
@@ -316,7 +316,7 @@ function basicTests(strategy: TaskStrategyEnum): void {
     it('should be cancelled', async () => {
       let result: number = 0
       const processor: ITaskProcessor = {
-        process: jest.fn(function* (): IterableIterator<Promise<void>> {
+        process: vi.fn(function* (): IterableIterator<Promise<void>> {
           result = 1
           yield delay(stepDuration)
 
@@ -358,7 +358,7 @@ function basicTests(strategy: TaskStrategyEnum): void {
   describe('terminated', () => {
     it('cancelled', async () => {
       const processor: ITaskProcessor = {
-        process: jest.fn(function* (): IterableIterator<Promise<void>> {
+        process: vi.fn(function* (): IterableIterator<Promise<void>> {
           yield delay(stepDuration)
           return
         }),
@@ -383,7 +383,7 @@ function basicTests(strategy: TaskStrategyEnum): void {
 
     it('failed', async () => {
       const processor: ITaskProcessor = {
-        process: jest.fn(function* (): IterableIterator<Promise<void>> {
+        process: vi.fn(function* (): IterableIterator<Promise<void>> {
           yield Promise.reject('!!!')
           return
         }),
@@ -426,7 +426,7 @@ function basicTests(strategy: TaskStrategyEnum): void {
 
     it('completed', async () => {
       const processor: ITaskProcessor = {
-        process: jest.fn(function* (): IterableIterator<Promise<void>> {
+        process: vi.fn(function* (): IterableIterator<Promise<void>> {
           yield delay(stepDuration)
           return
         }),

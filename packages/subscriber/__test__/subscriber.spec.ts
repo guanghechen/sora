@@ -1,10 +1,10 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import type { ISubscriber } from '../src'
 import { Subscriber } from '../src'
 
 describe('subscriber', () => {
   it('default', () => {
-    const onNext = jest.fn()
+    const onNext = vi.fn()
     const subscriber: ISubscriber<string> = new Subscriber<string>({ onNext })
 
     expect(subscriber.disposed).toEqual(false)
@@ -34,8 +34,8 @@ describe('subscriber', () => {
   })
 
   it('customized onDispose', () => {
-    const onNext = jest.fn()
-    const onDispose = jest.fn()
+    const onNext = vi.fn()
+    const onDispose = vi.fn()
     const subscriber: ISubscriber<string> = new Subscriber<string>({ onNext, onDispose })
 
     expect(subscriber.disposed).toEqual(false)

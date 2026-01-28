@@ -1,8 +1,8 @@
 import { emptyDir, mkdirsIfNotExists, rm, writeFile } from '@guanghechen/fs'
-import { assertPromiseNotThrow, assertPromiseThrow, locateFixtures } from 'jest.helper'
 import { existsSync, statSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
+import { assertPromiseNotThrow, assertPromiseThrow, locateFixtures } from 'vitest.helper'
 import { FileTextResource } from '../src'
 
 describe('FileTextResource', () => {

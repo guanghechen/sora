@@ -1,5 +1,5 @@
-import type { IConsoleMock } from '@guanghechen/helper-jest'
-import { createConsoleMock } from '@guanghechen/helper-jest'
+import type { IConsoleMock } from 'vitest.helper'
+import { createConsoleMock } from 'vitest.helper'
 import { ObservableMap } from '../src'
 import type { IImmutableMap, IObservableMap } from '../src'
 import { ImmutableMap, TestSubscriber } from './_common'
