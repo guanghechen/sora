@@ -26,6 +26,10 @@
   "module": "./lib/esm/index.mjs",
   "types": "./lib/types/index.d.ts",
   "license": "MIT",
+  "scripts": {
+    "build": "rollup -c ../../rollup.config.mjs",
+    "clean": "rimraf lib"
+  },
   "files": [
     "lib/",
     "!lib/**/*.map",

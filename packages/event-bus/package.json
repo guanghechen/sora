@@ -29,6 +29,13 @@
   "module": "./lib/esm/index.mjs",
   "types": "./lib/types/index.d.ts",
   "license": "MIT",
+  "scripts": {
+    "build": "rollup -c ../../rollup.config.mjs",
+    "clean": "rimraf lib",
+    "test": "vitest run --config ../../vitest.config.ts",
+    "test:coverage": "vitest run --config ../../vitest.config.ts --coverage",
+    "test:update": "vitest run --config ../../vitest.config.ts -u"
+  },
   "engines": {
     "node": ">= 18.0.0"
   },
