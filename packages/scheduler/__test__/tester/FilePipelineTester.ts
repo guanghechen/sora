@@ -137,3 +137,46 @@ export class FileTask extends AtomicTask implements ITask {
     console.log(`[${this.name}] run:`, type, filepaths)
   }
 }
+
+export class SlowFileTask extends AtomicTask implements ITask {
+  protected readonly data: IFIleProductData
+  protected readonly delay: number
+
+  constructor(name: string, data: IFIleProductData, delay: number = 100) {
+    super(name, TaskStrategyEnum.ABORT_ON_ERROR)
+    this.data = data
+    this.delay = delay
+  }
+
+  protected override async run(): Promise<void> {
+    const { type, filepaths } = this.data
+    await new Promise(resolve => setTimeout(resolve, this.delay))
+    if (filepaths.includes('non-exist')) {
+      if (type === FileChangeTypeEnum.DELETE || type === FileChangeTypeEnum.MODIFY) {
+        throw new Error('file not exist')
+      }
+    }
+    console.log(`[${this.name}] slow run:`, type, filepaths)
+  }
+}
+
+export class SlowFileProductConsumer implements IProductConsumer<IFIleProductData, ITask> {
+  public readonly name: string
+  private readonly delay: number
+
+  constructor(name: string, delay: number = 50) {
+    this.name = name
+    this.delay = delay
+  }
+
+  public async consume(
+    data: IFIleProductData,
+    embryo: ITask | null,
+    _api: IProductConsumerApi,
+    next: IProductConsumerNext<ITask>,
+  ): Promise<ITask | null> {
+    if (embryo !== null) return embryo
+    const task: ITask = new SlowFileTask(data.type, data, this.delay)
+    return next(task)
+  }
+}

@@ -10,7 +10,7 @@ const coverageMap: Record<
   Record<string, { branches?: number; functions?: number; lines?: number; statements?: number }>
 > = {
   '@guanghechen/chalk': {
-    global: { branches: 8, functions: 35, lines: 31, statements: 29 },
+    global: { branches: 53, functions: 95, lines: 83, statements: 80 },
   },
   '@guanghechen/config': {
     global: { functions: 94, statements: 98 },
@@ -33,13 +33,13 @@ const coverageMap: Record<
     'src/UrlPathResolver.ts': { branches: 96, statements: 98 },
   },
   '@guanghechen/reporter': {
-    global: { branches: 53, functions: 38, lines: 61, statements: 58 },
+    global: { branches: 92, functions: 96, lines: 99, statements: 97 },
   },
   '@guanghechen/reporter.types': {
     global: { branches: 92 },
   },
   '@guanghechen/scheduler': {
-    global: { branches: 69, functions: 95, lines: 91, statements: 88 },
+    global: { branches: 81, functions: 100, lines: 97, statements: 94 },
   },
   '@guanghechen/std': {
     global: { branches: 88, functions: 94, lines: 94, statements: 94 },
@@ -54,7 +54,7 @@ const coverageMap: Record<
     global: { branches: 91, statements: 99 },
   },
   '@guanghechen/viewmodel': {
-    global: { branches: 32, functions: 24, lines: 38, statements: 37 },
+    global: { branches: 93, functions: 98, lines: 98, statements: 97 },
   },
 }
 

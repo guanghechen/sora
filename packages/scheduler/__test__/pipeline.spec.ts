@@ -1,7 +1,40 @@
 import { Pipeline, PipelineStatusEnum } from '../src'
-import type { IPipeline } from '../src'
+import type {
+  IMaterial,
+  IMaterialCooker,
+  IMaterialCookerApi,
+  IMaterialCookerNext,
+  IPipeline,
+} from '../src'
 import type { IFIleProductData, IFileMaterialData } from './tester/FilePipelineTester'
 import { FileChangeTypeEnum, FileMaterialCooker } from './tester/FilePipelineTester'
+
+class InvalidatingCooker implements IMaterialCooker<IFileMaterialData, IFIleProductData> {
+  public readonly name: string
+
+  constructor(name: string) {
+    this.name = name
+  }
+
+  public async cook(
+    data: IFileMaterialData,
+    embryo: IFIleProductData | null,
+    api: IMaterialCookerApi<IFileMaterialData>,
+    next: IMaterialCookerNext<IFIleProductData>,
+  ): Promise<IFIleProductData | null> {
+    if (embryo !== null) return embryo
+
+    const productData: IFIleProductData = { type: data.type, filepaths: [data.filepath] }
+
+    for (const material of api.subsequent()) {
+      if (material.data.filepath.startsWith('skip-')) {
+        api.invalidate(material)
+      }
+    }
+
+    return next(productData)
+  }
+}
 
 describe('pipeline', () => {
   let pipeline: IPipeline<IFileMaterialData, IFIleProductData>
@@ -98,5 +131,141 @@ describe('pipeline', () => {
     })
     expect(pipeline.size).toEqual(0)
     expect(pipeline.status.getSnapshot()).toEqual(PipelineStatusEnum.CLOSED)
+  })
+})
+
+describe('pipeline (subsequent and invalidation)', () => {
+  let pipeline: IPipeline<IFileMaterialData, IFIleProductData>
+
+  beforeEach(() => {
+    pipeline = new Pipeline('sora-pipeline')
+  })
+
+  afterEach(async () => {
+    await pipeline.close()
+  })
+
+  it('should iterate over alive materials in subsequent (line 35)', async () => {
+    pipeline.use(new InvalidatingCooker('invalidating-cooker'))
+
+    await pipeline.push({ type: FileChangeTypeEnum.CREATE, filepath: 'a' })
+    await pipeline.push({ type: FileChangeTypeEnum.CREATE, filepath: 'skip-b' })
+    await pipeline.push({ type: FileChangeTypeEnum.CREATE, filepath: 'c' })
+    expect(pipeline.size).toBe(3)
+
+    const product = await pipeline.pull()
+    expect(product.data).toEqual({
+      type: FileChangeTypeEnum.CREATE,
+      filepaths: ['a'],
+    })
+    expect(product.codes).toContain(0)
+
+    const product2 = await pipeline.pull()
+    expect(product2.data).toEqual({
+      type: FileChangeTypeEnum.CREATE,
+      filepaths: ['c'],
+    })
+  })
+
+  it('should skip dead materials at the beginning of pull (line 87)', async () => {
+    pipeline.use(new InvalidatingCooker('invalidating-cooker'))
+
+    await pipeline.push({ type: FileChangeTypeEnum.CREATE, filepath: 'a' })
+    await pipeline.push({ type: FileChangeTypeEnum.CREATE, filepath: 'skip-b' })
+    await pipeline.push({ type: FileChangeTypeEnum.CREATE, filepath: 'skip-c' })
+    expect(pipeline.size).toBe(3)
+
+    const product = await pipeline.pull()
+    expect(product.data).toEqual({
+      type: FileChangeTypeEnum.CREATE,
+      filepaths: ['a'],
+    })
+    expect(product.codes).toEqual([0, 1, 2])
+    expect(pipeline.size).toBe(0)
+  })
+})
+
+describe('pipeline (waitMaterialHandled)', () => {
+  let pipeline: Pipeline<IFileMaterialData, IFIleProductData>
+
+  beforeEach(() => {
+    pipeline = new Pipeline('sora-pipeline')
+    pipeline.use(new FileMaterialCooker('sora-cooker'))
+  })
+
+  afterEach(async () => {
+    await pipeline.close()
+  })
+
+  it('should wait for specific material to be handled', async () => {
+    const code1 = await pipeline.push({ type: FileChangeTypeEnum.CREATE, filepath: 'a' })
+    const code2 = await pipeline.push({ type: FileChangeTypeEnum.CREATE, filepath: 'b' })
+
+    setTimeout(() => {
+      void pipeline.pull().then(() => {
+        pipeline.notifyMaterialHandled([code1, code2])
+      })
+    }, 50)
+
+    await pipeline.waitMaterialHandled(code1)
+    await pipeline.waitMaterialHandled(code2)
+  })
+
+  it('should immediately resolve if material already handled', async () => {
+    const code1 = await pipeline.push({ type: FileChangeTypeEnum.CREATE, filepath: 'a' })
+    await pipeline.pull()
+    pipeline.notifyMaterialHandled([code1])
+
+    await pipeline.waitMaterialHandled(code1)
+  })
+
+  it('should handle non-sequential codes in handledCodes set', async () => {
+    const code1 = await pipeline.push({ type: FileChangeTypeEnum.CREATE, filepath: 'a' })
+    const code2 = await pipeline.push({ type: FileChangeTypeEnum.CREATE, filepath: 'b' })
+    const code3 = await pipeline.push({ type: FileChangeTypeEnum.CREATE, filepath: 'c' })
+
+    await pipeline.pull()
+    pipeline.notifyMaterialHandled([code3])
+
+    setTimeout(() => {
+      pipeline.notifyMaterialHandled([code1, code2])
+    }, 50)
+
+    await pipeline.waitMaterialHandled(code3)
+    await pipeline.waitAllMaterialsHandledAt(code3)
+  })
+})
+
+describe('pipeline (waitAllMaterialsHandledAt)', () => {
+  let pipeline: Pipeline<IFileMaterialData, IFIleProductData>
+
+  beforeEach(() => {
+    pipeline = new Pipeline('sora-pipeline')
+    pipeline.use(new FileMaterialCooker('sora-cooker'))
+  })
+
+  afterEach(async () => {
+    await pipeline.close()
+  })
+
+  it('should wait for all materials up to code to be handled', async () => {
+    const code1 = await pipeline.push({ type: FileChangeTypeEnum.CREATE, filepath: 'a' })
+    const code2 = await pipeline.push({ type: FileChangeTypeEnum.CREATE, filepath: 'b' })
+
+    setTimeout(() => {
+      void pipeline.pull().then(() => {
+        pipeline.notifyMaterialHandled([code1, code2])
+      })
+    }, 50)
+
+    await pipeline.waitAllMaterialsHandledAt(code2)
+  })
+
+  it('should immediately resolve if all materials already handled', async () => {
+    const code1 = await pipeline.push({ type: FileChangeTypeEnum.CREATE, filepath: 'a' })
+    await pipeline.pull()
+    pipeline.notifyMaterialHandled([code1])
+
+    await pipeline.waitAllMaterialsHandledAt(code1)
   })
 })

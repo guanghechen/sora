@@ -112,4 +112,189 @@ describe('ObservableMap', () => {
 
     expect(consoleMock.getIndiscriminateAll()).toMatchInlineSnapshot('[]')
   })
+
+  describe('deleteAll', () => {
+    it('should delete multiple keys at once', () => {
+      observableMap.set('A', 'v1')
+      observableMap.set('B', 'v2')
+      observableMap.set('C', 'v3')
+      observableMap.set('D', 'v4')
+
+      observableMap.deleteAll(['A', 'C'])
+
+      expect(observableMap.has('A')).toBe(false)
+      expect(observableMap.has('B')).toBe(true)
+      expect(observableMap.has('C')).toBe(false)
+      expect(observableMap.has('D')).toBe(true)
+    })
+
+    it('should notify subscribers once for batch delete', () => {
+      observableMap.set('A', 'v1')
+      observableMap.set('B', 'v2')
+
+      const callback = vi.fn()
+      const subscriber = new TestSubscriber<IImmutableMap<string, string>>(
+        'map',
+        new ImmutableMap(),
+      )
+      subscriber.next = callback
+
+      observableMap.subscribe(subscriber)
+      callback.mockClear()
+
+      observableMap.deleteAll(['A', 'B'])
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('should notify key subscribers correctly', () => {
+      observableMap.set('A', 'v1')
+      observableMap.set('B', 'v2')
+
+      const observableA = observableMap.observeKey('A')
+      const observableB = observableMap.observeKey('B')
+
+      observableMap.deleteAll(['A'])
+
+      expect(observableA.getSnapshot()).toBeUndefined()
+      expect(observableB.getSnapshot()).toBe('v2')
+    })
+
+    it('should handle empty iterable', () => {
+      observableMap.set('A', 'v1')
+      observableMap.deleteAll([])
+      expect(observableMap.has('A')).toBe(true)
+    })
+
+    it('should support options parameter', () => {
+      observableMap.set('A', 'v1')
+      observableMap.deleteAll(['A'], { strict: false })
+      expect(observableMap.has('A')).toBe(false)
+    })
+  })
+
+  describe('subscribeKey', () => {
+    it('should subscribe to a specific key', () => {
+      const subscriber = new TestSubscriber<string | undefined>('A', undefined)
+      observableMap.subscribeKey('A', subscriber)
+
+      observableMap.set('A', 'value')
+      expect(subscriber.value).toBe('value')
+    })
+
+    it('should return noop unsubscribable for disposed subscriber', () => {
+      const subscriber = new TestSubscriber<string | undefined>('A', undefined)
+      subscriber.dispose()
+
+      const unsubscribable = observableMap.subscribeKey('A', subscriber)
+      unsubscribable.unsubscribe()
+    })
+
+    it('should dispose subscriber when map is disposed', () => {
+      const subscriber = new TestSubscriber<string | undefined>('A', undefined)
+      observableMap.subscribeKey('A', subscriber)
+
+      observableMap.dispose()
+      expect(subscriber.disposed).toBe(true)
+    })
+
+    it('should add to existing key subscribers array', () => {
+      const subscriber1 = new TestSubscriber<string | undefined>('A1', undefined)
+      const subscriber2 = new TestSubscriber<string | undefined>('A2', undefined)
+
+      observableMap.subscribeKey('A', subscriber1)
+      observableMap.subscribeKey('A', subscriber2)
+
+      observableMap.set('A', 'value')
+      expect(subscriber1.value).toBe('value')
+      expect(subscriber2.value).toBe('value')
+    })
+  })
+
+  describe('disposed behavior', () => {
+    it('should throw on set after disposal in strict mode', () => {
+      observableMap.dispose()
+      expect(() => observableMap.set('A', 'v')).toThrow(RangeError)
+    })
+
+    it('should not throw on set after disposal in non-strict mode', () => {
+      observableMap.dispose()
+      expect(() => observableMap.set('A', 'v', { strict: false })).not.toThrow()
+    })
+
+    it('should return disposed observable when observeKey is called after dispose', () => {
+      observableMap.set('A', 'value')
+      observableMap.dispose()
+
+      const observable = observableMap.observeKey('A')
+      expect(observable.disposed).toBe(true)
+      expect(observable.getSnapshot()).toBe('value')
+    })
+
+    it('should dispose subscriber when subscribeKey is called after dispose', () => {
+      observableMap.dispose()
+
+      const subscriber = new TestSubscriber<string | undefined>('A', undefined)
+      observableMap.subscribeKey('A', subscriber)
+
+      expect(subscriber.disposed).toBe(true)
+    })
+  })
+
+  describe('subscribe', () => {
+    it('should return noop unsubscribable for disposed subscriber', () => {
+      const subscriber = new TestSubscriber<IImmutableMap<string, string>>(
+        'map',
+        new ImmutableMap(),
+      )
+      subscriber.dispose()
+
+      const unsubscribable = observableMap.subscribe(subscriber)
+      unsubscribable.unsubscribe()
+    })
+
+    it('should dispose subscriber when map is disposed', () => {
+      const subscriber = new TestSubscriber<IImmutableMap<string, string>>(
+        'map',
+        new ImmutableMap(),
+      )
+      observableMap.subscribe(subscriber)
+
+      observableMap.dispose()
+      expect(subscriber.disposed).toBe(true)
+    })
+  })
+
+  describe('next with force option', () => {
+    it('should not notify when same value without force', () => {
+      const callback = vi.fn()
+      const subscriber = new TestSubscriber<IImmutableMap<string, string>>(
+        'map',
+        new ImmutableMap(),
+      )
+      subscriber.next = callback
+
+      observableMap.subscribe(subscriber)
+      callback.mockClear()
+
+      const snapshot = observableMap.getSnapshot()
+      observableMap.next(snapshot)
+      expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('should notify when same value with force', () => {
+      const callback = vi.fn()
+      const subscriber = new TestSubscriber<IImmutableMap<string, string>>(
+        'map',
+        new ImmutableMap(),
+      )
+      subscriber.next = callback
+
+      observableMap.subscribe(subscriber)
+      callback.mockClear()
+
+      const snapshot = observableMap.getSnapshot()
+      observableMap.next(snapshot, { force: true })
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+  })
 })
