@@ -44,7 +44,7 @@
     "@guanghechen/rollup-config": "^6.0.11",
     "@guanghechen/script-doc-link": "^6.0.9",
     "@rollup/plugin-replace": "6.0.3",
-    "@types/node": "25.1.0",
+    "@types/node": "25.2.0",
     "@vitest/coverage-v8": "^4.0.18",
     "cross-env": "10.1.0",
     "eslint": "9.39.2",
@@ -56,7 +56,7 @@
     "pinst": "3.0.0",
     "prettier": "3.8.1",
     "rimraf": "6.1.2",
-    "rollup": "4.57.0",
+    "rollup": "4.57.1",
     "ts-node": "10.9.2",
     "typescript": "5.9.3",
     "vitest": "^4.0.18"
