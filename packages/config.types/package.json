@@ -38,6 +38,6 @@
     "README.md"
   ],
   "dependencies": {
-    "@guanghechen/resource.types": "^1.0.3"
+    "@guanghechen/resource.types": "workspace:^"
   }
 }

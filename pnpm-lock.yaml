@@ -80,40 +80,40 @@ importers:
   packages/chalk:
     dependencies:
       '@guanghechen/chalk.types':
-        specifier: ^1.0.4
-        version: 1.0.4
+        specifier: workspace:^
+        version: link:../chalk.types
 
   packages/chalk.types: {}
 
   packages/config:
     dependencies:
       '@guanghechen/byte':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: workspace:^
+        version: link:../byte
       '@guanghechen/config.types':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: workspace:^
+        version: link:../config.types
       '@guanghechen/invariant':
-        specifier: ^6.0.5
-        version: 6.0.5
+        specifier: workspace:^
+        version: link:../invariant
       '@guanghechen/resource.types':
-        specifier: ^1.0.3
-        version: 1.0.3
-      compare-versions:
-        specifier: 6.1.1
-        version: 6.1.1
+        specifier: workspace:^
+        version: link:../resource.types
+      '@guanghechen/version':
+        specifier: workspace:^
+        version: link:../version
 
   packages/config.types:
     dependencies:
       '@guanghechen/resource.types':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: workspace:^
+        version: link:../resource.types
 
   packages/disposable:
     dependencies:
       '@guanghechen/disposable.types':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: workspace:^
+        version: link:../disposable.types
 
   packages/disposable.types: {}
 
@@ -126,23 +126,23 @@ importers:
   packages/file-split:
     dependencies:
       '@guanghechen/filepart':
-        specifier: ^1.0.4
-        version: 1.0.4
+        specifier: workspace:^
+        version: link:../filepart
       '@guanghechen/invariant':
-        specifier: ^6.0.5
-        version: 6.0.5
+        specifier: workspace:^
+        version: link:../invariant
       '@guanghechen/stream':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: workspace:^
+        version: link:../stream
 
   packages/filepart:
     dependencies:
       '@guanghechen/filepart.types':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: workspace:^
+        version: link:../filepart.types
       '@guanghechen/invariant':
-        specifier: ^6.0.5
-        version: 6.0.5
+        specifier: workspace:^
+        version: link:../invariant
 
   packages/filepart.types: {}
 
@@ -153,37 +153,37 @@ importers:
   packages/monitor:
     dependencies:
       '@guanghechen/disposable.types':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: workspace:^
+        version: link:../disposable.types
       '@guanghechen/subscriber':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: workspace:^
+        version: link:../subscriber
 
   packages/observable:
     dependencies:
       '@guanghechen/disposable':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: workspace:^
+        version: link:../disposable
       '@guanghechen/subscriber':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: workspace:^
+        version: link:../subscriber
 
   packages/path:
     dependencies:
       '@guanghechen/path.types':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: workspace:^
+        version: link:../path.types
 
   packages/path.types: {}
 
   packages/reporter:
     dependencies:
       '@guanghechen/chalk.types':
-        specifier: ^1.0.4
-        version: 1.0.4
+        specifier: workspace:^
+        version: link:../chalk.types
       '@guanghechen/reporter.types':
-        specifier: ^1.0.5
-        version: 1.0.5
+        specifier: workspace:^
+        version: link:../reporter.types
       dayjs:
         specifier: 1.11.19
         version: 1.11.19
@@ -196,71 +196,71 @@ importers:
   packages/resource:
     dependencies:
       '@guanghechen/invariant':
-        specifier: ^6.0.5
-        version: 6.0.5
+        specifier: workspace:^
+        version: link:../invariant
       '@guanghechen/resource.types':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: workspace:^
+        version: link:../resource.types
 
   packages/resource.types: {}
 
   packages/scheduler:
     dependencies:
       '@guanghechen/error.types':
-        specifier: ^1.0.6
-        version: 1.0.6
+        specifier: workspace:^
+        version: link:../error.types
       '@guanghechen/middleware':
-        specifier: ^1.0.6
-        version: 1.0.6
+        specifier: workspace:^
+        version: link:../middleware
       '@guanghechen/observable':
-        specifier: ^6.1.8
-        version: 6.1.8
+        specifier: workspace:^
+        version: link:../observable
       '@guanghechen/reporter.types':
-        specifier: ^1.0.5
-        version: 1.0.5
+        specifier: workspace:^
+        version: link:../reporter.types
       '@guanghechen/subscriber':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: workspace:^
+        version: link:../subscriber
       '@guanghechen/task':
-        specifier: ^1.0.6
-        version: 1.0.6
+        specifier: workspace:^
+        version: link:../task
 
   packages/std: {}
 
   packages/stream:
     dependencies:
       '@guanghechen/byte':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: workspace:^
+        version: link:../byte
 
   packages/subscriber:
     dependencies:
       '@guanghechen/disposable':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: workspace:^
+        version: link:../disposable
 
   packages/task:
     dependencies:
       '@guanghechen/error.types':
-        specifier: ^1.0.6
-        version: 1.0.6
+        specifier: workspace:^
+        version: link:../error.types
       '@guanghechen/observable':
-        specifier: ^6.1.8
-        version: 6.1.8
+        specifier: workspace:^
+        version: link:../observable
 
   packages/version: {}
 
   packages/viewmodel:
     dependencies:
       '@guanghechen/disposable':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: workspace:^
+        version: link:../disposable
       '@guanghechen/observable':
-        specifier: ^6.1.8
-        version: 6.1.8
+        specifier: workspace:^
+        version: link:../observable
       '@guanghechen/subscriber':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: workspace:^
+        version: link:../subscriber
 
 packages:
 
@@ -647,30 +647,15 @@ packages:
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@guanghechen/byte@1.0.3':
-    resolution: {integrity: sha512-9a9JPwj+djqyu+Wjpi+QJcCAaM7cKnQ0SkF0z10VpmbH1gGzNltU3plGknvFtmgDiizmxYN7w61X0T+7R8VYBA==}
-
   '@guanghechen/chalk.types@1.0.4':
     resolution: {integrity: sha512-H9cnP7BJ8wxlRk4CkGTjgn1vvuU+DvcgmCwkJUTCsbHTQ8VCXb83xF98WSElJPZfh0EL2XTqG3fD9D7Zoab7OA==}
 
   '@guanghechen/chalk@1.0.4':
     resolution: {integrity: sha512-9h6f5DOecmxX+ityDBwNVJcS91UGVp07DN4Do9Ul9X196O0Mbv44ky03ruUtf0FBRzg7Kdnf9zRtkwfSzBNeng==}
 
-  '@guanghechen/config.types@1.0.3':
-    resolution: {integrity: sha512-n+25i9l9wmMHZxuzvPXQkywckLa33WDaFSSS/eI7Tk2h/4VFNkIRllG2JlrWzo9bcNOwpw6jfbKq/cdqzawDJA==}
-
   '@guanghechen/conventional-changelog@6.0.4':
     resolution: {integrity: sha512-gkTIiADyCFG/JwrH1dLAI6tQwZmn4/Mpe9U0mSdcRL8QQC4s1Std1vyxMpN/wtHjUM+z3mfNPTJfGrXwaOvWrQ==}
     engines: {node: '>= 20.0.0'}
-
-  '@guanghechen/disposable.types@1.0.3':
-    resolution: {integrity: sha512-Pnv/Sa1hXwU4ubO5N8kWRlSTyJ+dtA8KXct5/uCsmYuvio5wZkNMilvKbmqBH/tvOEerGGepwTsWBY9k0cGSow==}
-
-  '@guanghechen/disposable@1.0.3':
-    resolution: {integrity: sha512-kGwCh/cQ8XjlftuJBVTNpDnxeR1WFhephJE0AErGx7VdagCukM9U0AxEljlKbvLSkEi4KQ0TITh3gRRDIQZsTQ==}
-
-  '@guanghechen/error.types@1.0.6':
-    resolution: {integrity: sha512-fe87ab43xJccNdZzINjhvsIRpH8e+Esi3848BH2jcr4dQQhv3vsB+f0V1i93GURoCBmu8G4cIdB7dRvWfWvjIA==}
 
   '@guanghechen/eslint-config@7.0.20':
     resolution: {integrity: sha512-Vy5J9Iy2MFNP0RIbdU4sTkZKRJHNYwbdLAPbDiVhScr0zBUZaBnZvLVIki4OS7xKRsZD1E5q0regBSwyKkwQeQ==}
@@ -678,12 +663,6 @@ packages:
     peerDependencies:
       eslint: ^9.0.0
       prettier: '>=2'
-
-  '@guanghechen/filepart.types@1.0.3':
-    resolution: {integrity: sha512-64LKXdc6sLv+o7gj6d8tdahsjyHUdp8mtOXk/XhAkNhLp8sZyceMS5tnRffLZ3GAvGYe7fKIljRRf/aMWBPvog==}
-
-  '@guanghechen/filepart@1.0.4':
-    resolution: {integrity: sha512-gjMkuzLJGbsklw/YjjXI7++2ruCAuRavd8Tz0s9j5wfeClWDCyb4AupOV+Ck98R8Ccvc9ZpBVr4nLPL7X3eUsA==}
 
   '@guanghechen/fs@1.0.11':
     resolution: {integrity: sha512-4qYBrJxu3lTZG69q2dl4IIAATQM0QsS7LK/8QvM6uWwLX8iHk8e39ni+KBddim3wawoMGFdC0ykxP7PaZYU2pg==}
@@ -701,27 +680,15 @@ packages:
     resolution: {integrity: sha512-2nJji5qeTCONKEuYahiGf4Pnm5CHc63GySL8wB11e6YUhR2zPxgx7ivG5H+N0kjw3tGs6E4NJ5GcAjk79Gd1PA==}
     engines: {node: '>= 18.0.0'}
 
-  '@guanghechen/middleware@1.0.6':
-    resolution: {integrity: sha512-/ArhEjFq2Yv+gPBIyVnpkSM3iLMghcGtBOrWbTKCjBqGUMwkqaVaoXMkAyntuq1YLcSiUfox1KDsy/TcC8LShA==}
-
   '@guanghechen/monorepo@1.0.5':
     resolution: {integrity: sha512-ODu2wzglPGdJPi6QREIgkctt/+Jx1dru5r57fYS54RpQpEOGjYL9PXsksXHkv8+2gYsrP104ry3thJM/CMGDWw==}
     engines: {node: '>= 20.0.0'}
-
-  '@guanghechen/observable@6.1.8':
-    resolution: {integrity: sha512-0k5V9OMHQBZ2rR7zuQodgZgwiqBiIkGPHPPsj8DDuTeRKDbmj/UHRKnWFxEndZPUTMvsGU7AhZlK1msbJvCRlQ==}
-
-  '@guanghechen/path.types@1.0.3':
-    resolution: {integrity: sha512-uO+C0tRB+0IuCIEom4bQZ6z0QVn6ueX9Xf7CPUYyhTpJmvpxtMHL12UmHPwrgH3gJgXiq/Q+/udTkzMIfUrPYw==}
 
   '@guanghechen/reporter.types@1.0.5':
     resolution: {integrity: sha512-lQc5uWsrqqjzpG7z5i21whRAYBPF0iys6oq3VpXkgx5MPa4T/mKM6O6sL+bU11huVhnruOFtVvOyDosUhlUSzQ==}
 
   '@guanghechen/reporter@1.0.7':
     resolution: {integrity: sha512-lTusS0IpMYTbpEJJbA6bBLHWqeW8U2kNk+4oso4oCStRFkj1FKjNMSCxOMEx0Fc2PNsfTjdhyNo8rUDJdTX8IQ==}
-
-  '@guanghechen/resource.types@1.0.3':
-    resolution: {integrity: sha512-hwV2e+bx+3awgx+VEa3j1E8NLvojL32gCioO7MprB7AMLN5KapRZ1bR2mVNtJvMKbn46ePIOlC5wWHVWiwfs0w==}
 
   '@guanghechen/rollup-config@6.0.11':
     resolution: {integrity: sha512-BrtiUtuiZpdTyf4UIrlj8rOrQNVBQu97xFs78FnN505u4gQaTaM7MNAYv/eKxhTea0dCQW0axnopSKO3Rrj+gw==}
@@ -738,15 +705,6 @@ packages:
   '@guanghechen/std@1.0.4':
     resolution: {integrity: sha512-jjFX1ud5AULLaF6koHuiIHZQMgGkwKi22D6LzkIea05zZ/I7MmR+HRzQ4+XkfcY2YvHbt9zMGyhBqJrQaiPi+w==}
     engines: {node: '>= 18.0.0'}
-
-  '@guanghechen/stream@1.0.3':
-    resolution: {integrity: sha512-qiGpaI3sMT3mz53bws7tcW71sh0/TgVXRI8vxKwGBdr9jZef5AOTbem2kPUaXe7jdTl91TQH40ycIVIh/kx5zQ==}
-
-  '@guanghechen/subscriber@1.0.3':
-    resolution: {integrity: sha512-34QnENpoI1qOx7GvImhGbKrLoGAqQCskVC/tdY7g2DmgCwBIysiZ9zT1iFex610kUAhv7jHeWKEYiYKBG8UcPA==}
-
-  '@guanghechen/task@1.0.6':
-    resolution: {integrity: sha512-Z+EXuFnDhKfhGFnzZnNtU/w9kF/duhB3QOeODDUYsWimKtQMi7y/JBacXN/0d1Lky697sSVt6Z1rZmfHjHK4Ig==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -2222,9 +2180,6 @@ packages:
 
   compare-func@2.0.0:
     resolution: {integrity: sha512-zHig5N+tPWARooBnb0Zx1MFcdfpyJrfTJ3Y5L+IFvUm8rM74hHz66z0gw0x4tijh5CorKkKUCnW82R2vmpeCRA==}
-
-  compare-versions@6.1.1:
-    resolution: {integrity: sha512-4hm4VPpIecmlg59CHXnRDnqGplJFrbLG4aFEl5vl6cK1u76ws3LLvX7ikFnTDl5vo39sjWD6AaDPYodJp/NNHg==}
 
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
@@ -5493,29 +5448,15 @@ snapshots:
       '@eslint/core': 0.17.0
       levn: 0.4.1
 
-  '@guanghechen/byte@1.0.3': {}
-
   '@guanghechen/chalk.types@1.0.4': {}
 
   '@guanghechen/chalk@1.0.4':
     dependencies:
       '@guanghechen/chalk.types': 1.0.4
 
-  '@guanghechen/config.types@1.0.3':
-    dependencies:
-      '@guanghechen/resource.types': 1.0.3
-
   '@guanghechen/conventional-changelog@6.0.4':
     dependencies:
       gitmojis: 3.15.0
-
-  '@guanghechen/disposable.types@1.0.3': {}
-
-  '@guanghechen/disposable@1.0.3':
-    dependencies:
-      '@guanghechen/disposable.types': 1.0.3
-
-  '@guanghechen/error.types@1.0.6': {}
 
   '@guanghechen/eslint-config@7.0.20(@typescript-eslint/eslint-plugin@8.41.0(@typescript-eslint/parser@8.41.0(eslint@9.39.2)(typescript@5.9.3))(eslint@9.39.2)(typescript@5.9.3))(@typescript-eslint/parser@8.41.0(eslint@9.39.2)(typescript@5.9.3))(eslint@9.39.2)(jest@30.1.1(@types/node@25.2.0)(ts-node@10.9.2(@types/node@25.2.0)(typescript@5.9.3)))(prettier@3.8.1)(typescript@5.9.3)':
     dependencies:
@@ -5540,13 +5481,6 @@ snapshots:
       - supports-color
       - typescript
 
-  '@guanghechen/filepart.types@1.0.3': {}
-
-  '@guanghechen/filepart@1.0.4':
-    dependencies:
-      '@guanghechen/filepart.types': 1.0.3
-      '@guanghechen/invariant': 6.0.5
-
   '@guanghechen/fs@1.0.11':
     dependencies:
       '@guanghechen/invariant': 6.0.5
@@ -5563,16 +5497,7 @@ snapshots:
 
   '@guanghechen/invariant@6.0.5': {}
 
-  '@guanghechen/middleware@1.0.6': {}
-
   '@guanghechen/monorepo@1.0.5': {}
-
-  '@guanghechen/observable@6.1.8':
-    dependencies:
-      '@guanghechen/disposable': 1.0.3
-      '@guanghechen/subscriber': 1.0.3
-
-  '@guanghechen/path.types@1.0.3': {}
 
   '@guanghechen/reporter.types@1.0.5': {}
 
@@ -5582,8 +5507,6 @@ snapshots:
       '@guanghechen/reporter.types': 1.0.5
       dayjs: 1.11.15
       json5: 2.2.3
-
-  '@guanghechen/resource.types@1.0.3': {}
 
   '@guanghechen/rollup-config@6.0.11(rollup@4.57.1)(tslib@2.8.1)(typescript@5.9.3)':
     dependencies:
@@ -5609,19 +5532,6 @@ snapshots:
       minimist: 1.2.8
 
   '@guanghechen/std@1.0.4': {}
-
-  '@guanghechen/stream@1.0.3':
-    dependencies:
-      '@guanghechen/byte': 1.0.3
-
-  '@guanghechen/subscriber@1.0.3':
-    dependencies:
-      '@guanghechen/disposable': 1.0.3
-
-  '@guanghechen/task@1.0.6':
-    dependencies:
-      '@guanghechen/error.types': 1.0.6
-      '@guanghechen/observable': 6.1.8
 
   '@humanfs/core@0.19.1': {}
 
@@ -7402,8 +7312,6 @@ snapshots:
     dependencies:
       array-ify: 1.0.0
       dot-prop: 5.3.0
-
-  compare-versions@6.1.1: {}
 
   concat-map@0.0.1: {}
 

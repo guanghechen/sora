@@ -47,6 +47,6 @@
     "README.md"
   ],
   "dependencies": {
-    "@guanghechen/byte": "^1.0.3"
+    "@guanghechen/byte": "workspace:^"
   }
 }

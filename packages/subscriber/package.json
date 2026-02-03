@@ -41,6 +41,6 @@
     "README.md"
   ],
   "dependencies": {
-    "@guanghechen/disposable": "^1.0.3"
+    "@guanghechen/disposable": "workspace:^"
   }
 }

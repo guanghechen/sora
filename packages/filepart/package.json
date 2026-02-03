@@ -47,7 +47,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@guanghechen/filepart.types": "^1.0.3",
-    "@guanghechen/invariant": "^6.0.5"
+    "@guanghechen/filepart.types": "workspace:^",
+    "@guanghechen/invariant": "workspace:^"
   }
 }

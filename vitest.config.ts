@@ -53,6 +53,9 @@ const coverageMap: Record<
   '@guanghechen/task': {
     global: { branches: 91, statements: 99 },
   },
+  '@guanghechen/version': {
+    global: { branches: 93, functions: 94, statements: 96 },
+  },
   '@guanghechen/viewmodel': {
     global: { branches: 93, functions: 98, lines: 98, statements: 97 },
   },

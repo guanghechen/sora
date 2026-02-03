@@ -45,8 +45,8 @@
     "README.md"
   ],
   "dependencies": {
-    "@guanghechen/chalk.types": "^1.0.4",
-    "@guanghechen/reporter.types": "^1.0.5",
+    "@guanghechen/chalk.types": "workspace:^",
+    "@guanghechen/reporter.types": "workspace:^",
     "dayjs": "1.11.19",
     "json5": "2.2.3"
   }

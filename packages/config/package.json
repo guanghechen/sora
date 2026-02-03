@@ -42,10 +42,10 @@
     "README.md"
   ],
   "dependencies": {
-    "@guanghechen/byte": "^1.0.3",
-    "@guanghechen/config.types": "^1.0.3",
-    "@guanghechen/invariant": "^6.0.5",
-    "@guanghechen/resource.types": "^1.0.3",
-    "compare-versions": "6.1.1"
+    "@guanghechen/byte": "workspace:^",
+    "@guanghechen/config.types": "workspace:^",
+    "@guanghechen/invariant": "workspace:^",
+    "@guanghechen/resource.types": "workspace:^",
+    "@guanghechen/version": "workspace:^"
   }
 }

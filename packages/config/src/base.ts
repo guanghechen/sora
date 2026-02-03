@@ -2,7 +2,7 @@ import { bytes2text, randomBytes, text2bytes } from '@guanghechen/byte'
 import type { IConfig, IConfigKeeper } from '@guanghechen/config.types'
 import { invariant } from '@guanghechen/invariant'
 import type { ITextResource } from '@guanghechen/resource.types'
-import { satisfies } from 'compare-versions'
+import { satisfies } from '@guanghechen/version'
 import type { IHashAlgorithm } from './mac'
 import { calcMac } from './mac'
 
