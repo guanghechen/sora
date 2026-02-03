@@ -430,10 +430,9 @@ describe('scheduler (no consumer)', () => {
     await scheduler.start()
     await scheduler.schedule({ type: FileChangeTypeEnum.CREATE, filepath: 'a' })
 
-    await new Promise(resolve => setTimeout(resolve, 100))
+    await vi.waitFor(() => expect(pipeline.size).toBe(0), { timeout: 1000 })
 
     await pipeline.close()
-    expect(pipeline.size).toBe(0)
   })
 })
 
@@ -479,9 +478,7 @@ describe('scheduler (pipeline closed with remaining materials)', () => {
 
     await scheduler.start()
 
-    await new Promise(resolve => setTimeout(resolve, 200))
-
-    expect(pipeline.size).toBe(0)
+    await vi.waitFor(() => expect(pipeline.size).toBe(0), { timeout: 1000 })
   })
 })
 
@@ -564,14 +561,17 @@ describe('scheduler status changes', () => {
     await scheduler.start()
     await scheduler.schedule({ type: FileChangeTypeEnum.CREATE, filepath: 'a' })
 
-    await new Promise(resolve => setTimeout(resolve, 50))
+    // Wait for task to be picked up by scheduler
+    await vi.waitFor(() => expect(pipeline.size).toBe(0), { timeout: 1000 })
 
     await scheduler.pause()
 
-    await new Promise(resolve => setTimeout(resolve, 10))
-
-    expect([TaskStatusEnum.SUSPENDED, TaskStatusEnum.ATTEMPT_SUSPENDING]).toContain(
-      scheduler.status.getSnapshot(),
+    await vi.waitFor(
+      () =>
+        expect([TaskStatusEnum.SUSPENDED, TaskStatusEnum.ATTEMPT_SUSPENDING]).toContain(
+          scheduler.status.getSnapshot(),
+        ),
+      { timeout: 1000 },
     )
 
     await scheduler.resume()
@@ -583,7 +583,8 @@ describe('scheduler status changes', () => {
     await scheduler.start()
     await scheduler.schedule({ type: FileChangeTypeEnum.CREATE, filepath: 'a' })
 
-    await new Promise(resolve => setTimeout(resolve, 50))
+    // Wait for task to be picked up by scheduler
+    await vi.waitFor(() => expect(pipeline.size).toBe(0), { timeout: 1000 })
 
     await scheduler.cancel()
     expect(scheduler.status.getSnapshot()).toBe(TaskStatusEnum.CANCELLED)
@@ -593,7 +594,8 @@ describe('scheduler status changes', () => {
     await scheduler.start()
     await scheduler.schedule({ type: FileChangeTypeEnum.CREATE, filepath: 'a' })
 
-    await new Promise(resolve => setTimeout(resolve, 50))
+    // Wait for task to be picked up by scheduler
+    await vi.waitFor(() => expect(pipeline.size).toBe(0), { timeout: 1000 })
 
     scheduler.status.next(TaskStatusEnum.ATTEMPT_COMPLETING)
 

@@ -13,7 +13,7 @@ export class Styler implements IChalkStyler {
       this.closeAll = close
     } else {
       this.openAll = parent.openAll + open
-      this.closeAll = parent.close + parent.closeAll
+      this.closeAll = close + parent.closeAll
     }
 
     this.open = open

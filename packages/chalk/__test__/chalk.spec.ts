@@ -278,18 +278,18 @@ describe('Chalk', () => {
     const chalk = Chalk.create(ColorSupportLevelEnum.BASIC)
 
     it('should support chaining styles', () => {
-      expect(chalk.red.bold('text')).toBe('\u001B[31m\u001B[1mtext\u001B[39m\u001B[39m')
-      expect(chalk.bold.red('text')).toBe('\u001B[1m\u001B[31mtext\u001B[22m\u001B[22m')
+      expect(chalk.red.bold('text')).toBe('\u001B[31m\u001B[1mtext\u001B[22m\u001B[39m')
+      expect(chalk.bold.red('text')).toBe('\u001B[1m\u001B[31mtext\u001B[39m\u001B[22m')
     })
 
     it('should support multiple chained styles', () => {
       expect(chalk.red.bold.underline('text')).toBe(
-        '\u001B[31m\u001B[1m\u001B[4mtext\u001B[22m\u001B[39m\u001B[39m',
+        '\u001B[31m\u001B[1m\u001B[4mtext\u001B[24m\u001B[22m\u001B[39m',
       )
     })
 
     it('should support chaining foreground and background', () => {
-      expect(chalk.red.bgBlue('text')).toBe('\u001B[31m\u001B[44mtext\u001B[39m\u001B[39m')
+      expect(chalk.red.bgBlue('text')).toBe('\u001B[31m\u001B[44mtext\u001B[49m\u001B[39m')
     })
   })
 
