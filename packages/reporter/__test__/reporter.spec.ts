@@ -250,7 +250,7 @@ describe('Reporter', () => {
 
     it('should handle non-string messageFormat', () => {
       const result = reporter.format(ReporterLevelEnum.INFO, { key: 'value' }, ['extra'])
-      expect(result).toContain("key:'value'")
+      expect(result).toContain('"key":"value"')
       expect(result).toContain('extra')
     })
 
@@ -396,7 +396,7 @@ describe('Reporter', () => {
     it('should format object message', () => {
       const reporter = new Reporter(chalk, { flights: { inline: true } })
       const result = reporter.formatSingleMessage({ key: 'value' })
-      expect(result).toBe("{key:'value'}")
+      expect(result).toBe('{"key":"value"}')
     })
 
     it('should format null message', () => {

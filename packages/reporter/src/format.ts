@@ -1,5 +1,3 @@
-import JSON5 from 'json5'
-
 export const formatDate = (date: Date): string => {
   const y = date.getFullYear()
   const M = String(date.getMonth() + 1).padStart(2, '0')
@@ -37,5 +35,7 @@ export const normalizeString = (
   if (message instanceof Error) return message.stack ?? message.message ?? message.name
   /* c8 ignore stop */
 
-  return inline ? JSON5.stringify(message, replacer, 0) : JSON5.stringify(message, replacer, 2)
+  return inline
+    ? JSON.stringify(message, replacer ?? undefined)
+    : JSON.stringify(message, replacer ?? undefined, 2)
 }

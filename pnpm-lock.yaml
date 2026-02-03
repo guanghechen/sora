@@ -184,9 +184,6 @@ importers:
       '@guanghechen/reporter.types':
         specifier: workspace:^
         version: link:../reporter.types
-      json5:
-        specifier: 2.2.3
-        version: 2.2.3
 
   packages/reporter.types: {}
 

@@ -233,7 +233,7 @@ describe('scheduler', () => {
       ",
         ],
         [
-          "error [sora-scheduler] task(delete) failed. codes: [2]. error: {from:'delete',level:5,details:[{from:'delete',level:5,details:{}}]}
+          "error [sora-scheduler] task(delete) failed. codes: [2]. error: {"from":"delete","level":5,"details":[{"from":"delete","level":5,"details":{}}]}
       ",
         ],
       ]
@@ -282,7 +282,7 @@ describe('scheduler', () => {
       ",
         ],
         [
-          "error [sora-scheduler] task(delete) failed. codes: [2]. error: {from:'delete',level:5,details:[{from:'delete',level:5,details:{}}]}
+          "error [sora-scheduler] task(delete) failed. codes: [2]. error: {"from":"delete","level":5,"details":[{"from":"delete","level":5,"details":{}}]}
       ",
         ],
         [

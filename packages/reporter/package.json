@@ -46,7 +46,6 @@
   ],
   "dependencies": {
     "@guanghechen/chalk.types": "workspace:^",
-    "@guanghechen/reporter.types": "workspace:^",
-    "json5": "2.2.3"
+    "@guanghechen/reporter.types": "workspace:^"
   }
 }
