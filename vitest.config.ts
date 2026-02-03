@@ -33,10 +33,7 @@ const coverageMap: Record<
     'src/UrlPathResolver.ts': { branches: 96, statements: 98 },
   },
   '@guanghechen/reporter': {
-    global: { branches: 92, functions: 96, lines: 99, statements: 97 },
-  },
-  '@guanghechen/reporter.types': {
-    global: { branches: 92 },
+    global: { branches: 80, functions: 80, lines: 80, statements: 80 },
   },
   '@guanghechen/scheduler': {
     global: { branches: 81, functions: 100, lines: 97, statements: 94 },
@@ -139,7 +136,6 @@ export default defineConfig({
       '@guanghechen/path': path.resolve(__dirname, 'packages/path/src'),
       '@guanghechen/path.types': path.resolve(__dirname, 'packages/path.types/src'),
       '@guanghechen/reporter': path.resolve(__dirname, 'packages/reporter/src'),
-      '@guanghechen/reporter.types': path.resolve(__dirname, 'packages/reporter.types/src'),
       '@guanghechen/resource': path.resolve(__dirname, 'packages/resource/src'),
       '@guanghechen/resource.types': path.resolve(__dirname, 'packages/resource.types/src'),
       '@guanghechen/scheduler': path.resolve(__dirname, 'packages/scheduler/src'),

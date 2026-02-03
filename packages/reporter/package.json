@@ -1,19 +1,21 @@
 {
   "name": "@guanghechen/reporter",
-  "version": "1.0.7",
-  "description": "A simple colorful reporter",
+  "version": "2.0.0",
+  "description": "A minimal, level-based logging utility with colored output and breadcrumb prefix support",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/reporter@1.0.7",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/reporter@2.0.0",
     "directory": "packages/reporter"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/reporter@1.0.7/packages/reporter#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/reporter@2.0.0/packages/reporter#readme",
   "keywords": [
-    "reporter"
+    "reporter",
+    "logger",
+    "console"
   ],
   "type": "module",
   "exports": {
@@ -43,9 +45,5 @@
     "CHANGELOG.md",
     "LICENSE",
     "README.md"
-  ],
-  "dependencies": {
-    "@guanghechen/chalk.types": "workspace:^",
-    "@guanghechen/reporter.types": "workspace:^"
-  }
+  ]
 }

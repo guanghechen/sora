@@ -1,4 +1,4 @@
-import type { IReporter } from '@guanghechen/reporter.types'
+import type { Reporter } from '@guanghechen/reporter'
 import fs from 'node:fs'
 import path from 'node:path'
 import url from 'node:url'
@@ -196,9 +196,7 @@ export function createConsoleMock(
 }
 
 export interface ICreateReporterMockOptions {
-  reporter: IReporter
-  spyOnGlobalConsole?: boolean
-  consoleMethods?: ReadonlyArray<IConsoleMethodField>
+  reporter: Reporter
   desensitize?(args: ReadonlyArray<unknown>): unknown[]
 }
 
@@ -209,54 +207,29 @@ export interface IReporterMock {
 }
 
 export function createReporterMock(options: ICreateReporterMockOptions): IReporterMock {
-  const {
-    reporter,
-    spyOnGlobalConsole = true,
-    consoleMethods = ['debug', 'log', 'info', 'warn', 'error'],
-    desensitize: desensitizeFn,
-  } = options
-
+  const { reporter, desensitize: desensitizeFn } = options
   const allCalls: unknown[][] = []
-  const mocks: MockInstance[] = []
-  const consoleMockFnMap: Record<string, MockInstance> = {}
 
-  const logMock = vi
-    .spyOn(reporter, 'log')
-    .mockImplementation((level: unknown, messageFormat: unknown, messages: unknown[]) => {
-      const args = desensitizeFn ? desensitizeFn(messages) : messages
-      const text = reporter.format(level as number, messageFormat as string, args as unknown[])
-      if (text !== undefined) {
-        const processedText = desensitizeFn ? desensitizeFn([text]) : [text]
-        allCalls.push(processedText)
-      }
-    })
-  mocks.push(logMock)
-
-  if (spyOnGlobalConsole) {
-    for (const field of consoleMethods) {
-      consoleMockFnMap[field] = vi
-        .spyOn(console, field as IConsoleMethodField)
-        .mockImplementation((...args: unknown[]) => {
-          const data = desensitizeFn ? desensitizeFn(args) : args
-          allCalls.push(data)
-        })
-    }
-  }
+  // Enable mock mode on reporter to capture logs
+  reporter.mock()
 
   return {
     getIndiscriminateAll(): ReadonlyArray<ReadonlyArray<unknown>> {
+      const entries = reporter.collect()
+      reporter.mock() // Re-enable mock mode after collect
+      for (const entry of entries) {
+        const args = desensitizeFn ? desensitizeFn(entry.args) : entry.args
+        allCalls.push(args)
+      }
       return allCalls.slice()
     },
     reset(): void {
+      reporter.collect() // Clear by collecting
+      reporter.mock() // Re-enable mock mode
       allCalls.length = 0
     },
     restore(): void {
-      logMock.mockRestore()
-      if (spyOnGlobalConsole) {
-        for (const field of consoleMethods) {
-          consoleMockFnMap[field]?.mockRestore()
-        }
-      }
+      reporter.collect() // Exit mock mode
     },
   }
 }

@@ -176,16 +176,7 @@ importers:
 
   packages/path.types: {}
 
-  packages/reporter:
-    dependencies:
-      '@guanghechen/chalk.types':
-        specifier: workspace:^
-        version: link:../chalk.types
-      '@guanghechen/reporter.types':
-        specifier: workspace:^
-        version: link:../reporter.types
-
-  packages/reporter.types: {}
+  packages/reporter: {}
 
   packages/resource:
     dependencies:
@@ -209,9 +200,9 @@ importers:
       '@guanghechen/observable':
         specifier: workspace:^
         version: link:../observable
-      '@guanghechen/reporter.types':
+      '@guanghechen/reporter':
         specifier: workspace:^
-        version: link:../reporter.types
+        version: link:../reporter
       '@guanghechen/subscriber':
         specifier: workspace:^
         version: link:../subscriber

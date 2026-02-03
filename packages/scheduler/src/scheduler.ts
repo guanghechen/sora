@@ -1,5 +1,5 @@
 import { ErrorLevelEnum, type ISoraError } from '@guanghechen/error.types'
-import type { IReporter } from '@guanghechen/reporter.types'
+import type { Reporter } from '@guanghechen/reporter'
 import { Subscriber } from '@guanghechen/subscriber'
 import type { ISubscriber, IUnsubscribable } from '@guanghechen/subscriber'
 import type { ITask } from '@guanghechen/task'
@@ -18,7 +18,7 @@ interface IProps<D, T> {
   readonly strategy: TaskStrategyEnum
   readonly idleInterval?: number
   readonly pollInterval?: number
-  readonly reporter?: IReporter
+  readonly reporter?: Reporter
 }
 
 export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
@@ -26,7 +26,7 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
   protected readonly _consumerApi: IProductConsumerApi
   protected readonly _idleInterval: number
   protected readonly _pipeline: IPipeline<D, T>
-  protected readonly _reporter: IReporter | undefined
+  protected readonly _reporter: Reporter | undefined
   protected _task: ITask | undefined
   protected _lastScheduledMaterialCode: number
 
@@ -152,8 +152,8 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
     const task: ITask | null = await reducer(null)
     if (task === null) return delay(this._idleInterval)
 
-    const reporter: IReporter | undefined = this._reporter
-    reporter?.verbose('[{}] task({}) starting. codes: [{}]', this.name, task.name, codes.join(', '))
+    const reporter: Reporter | undefined = this._reporter
+    reporter?.debug(`[${this.name}] task(${task.name}) starting. codes: [${codes.join(', ')}]`)
 
     this._task = task
     void task.start()
@@ -165,12 +165,8 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
         onNext: status => {
           if (resolved) return
           if (task.status.terminated) {
-            reporter?.verbose(
-              '[{}] task({}) {}. codes: {}.',
-              this.name,
-              task.name,
-              TaskStatusEnum[status],
-              codes.join(', '),
+            reporter?.debug(
+              `[${this.name}] task(${task.name}) ${TaskStatusEnum[status]}. codes: ${codes.join(', ')}.`,
             )
             if (status === TaskStatusEnum.FAILED) reject(task.errors)
             else resolve()
@@ -193,10 +189,7 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
         this._errors.push(error)
 
         reporter?.error(
-          '[{}] task({}) failed. codes: {}. error: {}',
-          this.name,
-          task.name,
-          codes,
+          `[${this.name}] task(${task.name}) failed. codes: ${JSON.stringify(codes)}. error:`,
           error,
         )
 

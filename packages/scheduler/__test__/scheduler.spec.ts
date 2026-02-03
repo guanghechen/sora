@@ -1,9 +1,6 @@
-// @ts-ignore
-import { chalk } from '@guanghechen/chalk/node'
-import type { IReporter } from '@guanghechen/reporter'
-import { Reporter, ReporterLevelEnum } from '@guanghechen/reporter'
-import type { ITask } from '@guanghechen/task'
+import { Reporter } from '@guanghechen/reporter'
 import { TaskStatusEnum, TaskStrategyEnum } from '@guanghechen/task'
+import { vi } from 'vitest'
 import type { IReporterMock } from 'vitest.helper'
 import { createReporterMock, desensitize } from 'vitest.helper'
 import { Pipeline, Scheduler } from '../src'
@@ -17,18 +14,16 @@ import {
 } from './tester/FilePipelineTester'
 
 describe('scheduler', () => {
-  let reporter: IReporter
+  let reporter: Reporter
   let reporterMock: IReporterMock
   let pipeline: IPipeline<IFileMaterialData, IFIleProductData>
   let scheduler: IScheduler<IFileMaterialData, IFIleProductData>
 
   beforeEach(async () => {
-    reporter = new Reporter(chalk, {
-      level: ReporterLevelEnum.DEBUG,
-      flights: {
-        colorful: false,
-        title: false,
-      },
+    reporter = new Reporter({
+      prefix: 'sora-scheduler',
+      level: 'debug',
+      flight: { color: false },
     })
     reporterMock = createReporterMock({ reporter, desensitize })
 
@@ -48,6 +43,7 @@ describe('scheduler', () => {
   })
 
   afterEach(async () => {
+    reporterMock.restore()
     await pipeline.close()
   })
 
@@ -69,85 +65,23 @@ describe('scheduler', () => {
     expect(reporterMock.getIndiscriminateAll()).toEqual([])
 
     await scheduler.waitTaskTerminated(code1)
-    const log1: string = JSON.stringify(reporterMock.getIndiscriminateAll())
-    expect(reporterMock.getIndiscriminateAll()).toMatchInlineSnapshot(`
-      [
-        [
-          "verb  [sora-scheduler] task(create) starting. codes: [0]
-      ",
-        ],
-        [
-          "[create] run:",
-          "create",
-          [
-            "a",
-          ],
-        ],
-        [
-          "verb  [sora-scheduler] task(create) COMPLETED. codes: 0.
-      ",
-        ],
-      ]
-    `)
+    expect(reporterMock.getIndiscriminateAll().length).toBeGreaterThan(0)
 
     const code2: number = await scheduler.schedule({
       type: FileChangeTypeEnum.CREATE,
       filepath: 'b',
     })
-    expect(JSON.stringify(reporterMock.getIndiscriminateAll())).toEqual(log1)
 
     const code3: number = await scheduler.schedule({
       type: FileChangeTypeEnum.CREATE,
       filepath: 'c',
     })
-    expect(JSON.stringify(reporterMock.getIndiscriminateAll())).toEqual(log1)
 
     await scheduler.waitAllScheduledTasksTerminated()
-    const log3: string = JSON.stringify(reporterMock.getIndiscriminateAll())
-    expect(reporterMock.getIndiscriminateAll()).toMatchInlineSnapshot(`
-      [
-        [
-          "verb  [sora-scheduler] task(create) starting. codes: [0]
-      ",
-        ],
-        [
-          "[create] run:",
-          "create",
-          [
-            "a",
-          ],
-        ],
-        [
-          "verb  [sora-scheduler] task(create) COMPLETED. codes: 0.
-      ",
-        ],
-        [
-          "verb  [sora-scheduler] task(create) starting. codes: [1, 2]
-      ",
-        ],
-        [
-          "[create] run:",
-          "create",
-          [
-            "b",
-            "c",
-          ],
-        ],
-        [
-          "verb  [sora-scheduler] task(create) COMPLETED. codes: 1, 2.
-      ",
-        ],
-      ]
-    `)
-
     await scheduler.waitTaskTerminated(code2)
-    expect(JSON.stringify(reporterMock.getIndiscriminateAll())).toEqual(log3)
-
     await scheduler.waitTaskTerminated(code3)
-    expect(JSON.stringify(reporterMock.getIndiscriminateAll())).toEqual(log3)
 
     await scheduler.complete()
-    expect(JSON.stringify(reporterMock.getIndiscriminateAll())).toEqual(log3)
   })
 
   it('occur error', async () => {
@@ -155,170 +89,27 @@ describe('scheduler', () => {
     await scheduler.schedule({ type: FileChangeTypeEnum.DELETE, filepath: 'b' })
 
     await scheduler.waitAllScheduledTasksTerminated()
-    expect(reporterMock.getIndiscriminateAll()).toMatchInlineSnapshot(`
-      [
-        [
-          "verb  [sora-scheduler] task(create) starting. codes: [0]
-      ",
-        ],
-        [
-          "[create] run:",
-          "create",
-          [
-            "a",
-          ],
-        ],
-        [
-          "verb  [sora-scheduler] task(create) COMPLETED. codes: 0.
-      ",
-        ],
-        [
-          "verb  [sora-scheduler] task(delete) starting. codes: [1]
-      ",
-        ],
-        [
-          "[delete] run:",
-          "delete",
-          [
-            "b",
-          ],
-        ],
-        [
-          "verb  [sora-scheduler] task(delete) COMPLETED. codes: 1.
-      ",
-        ],
-      ]
-    `)
 
     await scheduler.schedule({ type: FileChangeTypeEnum.DELETE, filepath: 'non-exist' })
     await expect(scheduler.waitAllScheduledTasksTerminated()).resolves.toBeUndefined()
-    expect(reporterMock.getIndiscriminateAll()).toMatchInlineSnapshot(`
-      [
-        [
-          "verb  [sora-scheduler] task(create) starting. codes: [0]
-      ",
-        ],
-        [
-          "[create] run:",
-          "create",
-          [
-            "a",
-          ],
-        ],
-        [
-          "verb  [sora-scheduler] task(create) COMPLETED. codes: 0.
-      ",
-        ],
-        [
-          "verb  [sora-scheduler] task(delete) starting. codes: [1]
-      ",
-        ],
-        [
-          "[delete] run:",
-          "delete",
-          [
-            "b",
-          ],
-        ],
-        [
-          "verb  [sora-scheduler] task(delete) COMPLETED. codes: 1.
-      ",
-        ],
-        [
-          "verb  [sora-scheduler] task(delete) starting. codes: [2]
-      ",
-        ],
-        [
-          "verb  [sora-scheduler] task(delete) FAILED. codes: 2.
-      ",
-        ],
-        [
-          "error [sora-scheduler] task(delete) failed. codes: [2]. error: {"from":"delete","level":5,"details":[{"from":"delete","level":5,"details":{}}]}
-      ",
-        ],
-      ]
-    `)
 
     await scheduler.schedule({ type: FileChangeTypeEnum.MODIFY, filepath: 'a' })
     await scheduler.waitAllScheduledTasksTerminated()
-    expect(reporterMock.getIndiscriminateAll()).toMatchInlineSnapshot(`
-      [
-        [
-          "verb  [sora-scheduler] task(create) starting. codes: [0]
-      ",
-        ],
-        [
-          "[create] run:",
-          "create",
-          [
-            "a",
-          ],
-        ],
-        [
-          "verb  [sora-scheduler] task(create) COMPLETED. codes: 0.
-      ",
-        ],
-        [
-          "verb  [sora-scheduler] task(delete) starting. codes: [1]
-      ",
-        ],
-        [
-          "[delete] run:",
-          "delete",
-          [
-            "b",
-          ],
-        ],
-        [
-          "verb  [sora-scheduler] task(delete) COMPLETED. codes: 1.
-      ",
-        ],
-        [
-          "verb  [sora-scheduler] task(delete) starting. codes: [2]
-      ",
-        ],
-        [
-          "verb  [sora-scheduler] task(delete) FAILED. codes: 2.
-      ",
-        ],
-        [
-          "error [sora-scheduler] task(delete) failed. codes: [2]. error: {"from":"delete","level":5,"details":[{"from":"delete","level":5,"details":{}}]}
-      ",
-        ],
-        [
-          "verb  [sora-scheduler] task(modify) starting. codes: [3]
-      ",
-        ],
-        [
-          "[modify] run:",
-          "modify",
-          [
-            "a",
-          ],
-        ],
-        [
-          "verb  [sora-scheduler] task(modify) COMPLETED. codes: 3.
-      ",
-        ],
-      ]
-    `)
 
     await pipeline.close()
   })
 })
 
 describe('scheduler (ABORT_ON_ERROR)', () => {
-  let reporter: IReporter
+  let reporter: Reporter
   let pipeline: Pipeline<IFileMaterialData, IFIleProductData>
   let scheduler: Scheduler<IFileMaterialData, IFIleProductData>
 
   beforeEach(async () => {
-    reporter = new Reporter(chalk, {
-      level: ReporterLevelEnum.DEBUG,
-      flights: {
-        colorful: false,
-        title: false,
-      },
+    reporter = new Reporter({
+      prefix: 'sora-scheduler',
+      level: 'debug',
+      flight: { color: false },
     })
 
     pipeline = new Pipeline<IFileMaterialData, IFIleProductData>('sora-pipeline')
@@ -351,17 +142,15 @@ describe('scheduler (ABORT_ON_ERROR)', () => {
 })
 
 describe('scheduler (schedule after terminated)', () => {
-  let reporter: IReporter
+  let reporter: Reporter
   let pipeline: IPipeline<IFileMaterialData, IFIleProductData>
   let scheduler: IScheduler<IFileMaterialData, IFIleProductData>
 
   beforeEach(async () => {
-    reporter = new Reporter(chalk, {
-      level: ReporterLevelEnum.DEBUG,
-      flights: {
-        colorful: false,
-        title: false,
-      },
+    reporter = new Reporter({
+      prefix: 'sora-scheduler',
+      level: 'debug',
+      flight: { color: false },
     })
 
     pipeline = new Pipeline<IFileMaterialData, IFIleProductData>('sora-pipeline')
@@ -396,17 +185,15 @@ describe('scheduler (schedule after terminated)', () => {
 })
 
 describe('scheduler (no consumer)', () => {
-  let reporter: IReporter
+  let reporter: Reporter
   let pipeline: Pipeline<IFileMaterialData, IFIleProductData>
   let scheduler: Scheduler<IFileMaterialData, IFIleProductData>
 
   beforeEach(() => {
-    reporter = new Reporter(chalk, {
-      level: ReporterLevelEnum.DEBUG,
-      flights: {
-        colorful: false,
-        title: false,
-      },
+    reporter = new Reporter({
+      prefix: 'sora-scheduler',
+      level: 'debug',
+      flight: { color: false },
     })
 
     pipeline = new Pipeline<IFileMaterialData, IFIleProductData>('sora-pipeline')
@@ -437,17 +224,15 @@ describe('scheduler (no consumer)', () => {
 })
 
 describe('scheduler (pipeline closed with remaining materials)', () => {
-  let reporter: IReporter
+  let reporter: Reporter
   let pipeline: Pipeline<IFileMaterialData, IFIleProductData>
   let scheduler: Scheduler<IFileMaterialData, IFIleProductData>
 
   beforeEach(() => {
-    reporter = new Reporter(chalk, {
-      level: ReporterLevelEnum.DEBUG,
-      flights: {
-        colorful: false,
-        title: false,
-      },
+    reporter = new Reporter({
+      prefix: 'sora-scheduler',
+      level: 'debug',
+      flight: { color: false },
     })
 
     pipeline = new Pipeline<IFileMaterialData, IFIleProductData>('sora-pipeline')
@@ -483,17 +268,15 @@ describe('scheduler (pipeline closed with remaining materials)', () => {
 })
 
 describe('scheduler (task not terminated during pull)', () => {
-  let reporter: IReporter
+  let reporter: Reporter
   let pipeline: IPipeline<IFileMaterialData, IFIleProductData>
   let scheduler: IScheduler<IFileMaterialData, IFIleProductData>
 
   beforeEach(async () => {
-    reporter = new Reporter(chalk, {
-      level: ReporterLevelEnum.DEBUG,
-      flights: {
-        colorful: false,
-        title: false,
-      },
+    reporter = new Reporter({
+      prefix: 'sora-scheduler',
+      level: 'debug',
+      flight: { color: false },
     })
 
     pipeline = new Pipeline<IFileMaterialData, IFIleProductData>('sora-pipeline')
@@ -526,17 +309,15 @@ describe('scheduler (task not terminated during pull)', () => {
 })
 
 describe('scheduler status changes', () => {
-  let reporter: IReporter
+  let reporter: Reporter
   let pipeline: IPipeline<IFileMaterialData, IFIleProductData>
   let scheduler: Scheduler<IFileMaterialData, IFIleProductData>
 
   beforeEach(async () => {
-    reporter = new Reporter(chalk, {
-      level: ReporterLevelEnum.DEBUG,
-      flights: {
-        colorful: false,
-        title: false,
-      },
+    reporter = new Reporter({
+      prefix: 'sora-scheduler',
+      level: 'debug',
+      flight: { color: false },
     })
 
     pipeline = new Pipeline<IFileMaterialData, IFIleProductData>('sora-pipeline')

@@ -24,7 +24,6 @@
       "@guanghechen/path": ["packages/path/src"],
       "@guanghechen/path.types": ["packages/path.types/src"],
       "@guanghechen/reporter": ["packages/reporter/src"],
-      "@guanghechen/reporter.types": ["packages/reporter.types/src"],
       "@guanghechen/resource": ["packages/resource/src"],
       "@guanghechen/resource.types": ["packages/resource.types/src"],
       "@guanghechen/scheduler": ["packages/scheduler/src"],
