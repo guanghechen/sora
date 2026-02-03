@@ -129,14 +129,9 @@ importers:
 
   packages/filepart:
     dependencies:
-      '@guanghechen/filepart.types':
-        specifier: workspace:^
-        version: link:../filepart.types
       '@guanghechen/invariant':
         specifier: workspace:^
         version: link:../invariant
-
-  packages/filepart.types: {}
 
   packages/invariant: {}
 

@@ -123,7 +123,6 @@ export default defineConfig({
       '@guanghechen/event-bus': path.resolve(__dirname, 'packages/event-bus/src'),
       '@guanghechen/file-split': path.resolve(__dirname, 'packages/file-split/src'),
       '@guanghechen/filepart': path.resolve(__dirname, 'packages/filepart/src'),
-      '@guanghechen/filepart.types': path.resolve(__dirname, 'packages/filepart.types/src'),
       '@guanghechen/invariant': path.resolve(__dirname, 'packages/invariant/src'),
       '@guanghechen/middleware': path.resolve(__dirname, 'packages/middleware/src'),
       '@guanghechen/monitor': path.resolve(__dirname, 'packages/monitor/src'),

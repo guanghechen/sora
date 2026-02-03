@@ -1,4 +1,3 @@
+export * from './constant'
 export * from './filepart'
-
-// Re-export types and constants
-export * from '@guanghechen/filepart.types'
+export * from './types'
