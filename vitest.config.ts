@@ -9,9 +9,6 @@ const coverageMap: Record<
   string,
   Record<string, { branches?: number; functions?: number; lines?: number; statements?: number }>
 > = {
-  '@guanghechen/chalk': {
-    global: { branches: 53, functions: 95, lines: 83, statements: 80 },
-  },
   '@guanghechen/config': {
     global: { functions: 94, statements: 98 },
   },
@@ -116,8 +113,6 @@ export default defineConfig({
     alias: {
       'vitest.helper': path.resolve(__dirname, 'vitest.helper.mts'),
       '@guanghechen/byte': path.resolve(__dirname, 'packages/byte/src'),
-      '@guanghechen/chalk': path.resolve(__dirname, 'packages/chalk/src'),
-      '@guanghechen/chalk.types': path.resolve(__dirname, 'packages/chalk.types/src'),
       '@guanghechen/config': path.resolve(__dirname, 'packages/config/src'),
       '@guanghechen/config.types': path.resolve(__dirname, 'packages/config.types/src'),
       '@guanghechen/disposable': path.resolve(__dirname, 'packages/disposable/src'),
