@@ -132,7 +132,6 @@ export default defineConfig({
       '@guanghechen/path.types': path.resolve(__dirname, 'packages/path.types/src'),
       '@guanghechen/reporter': path.resolve(__dirname, 'packages/reporter/src'),
       '@guanghechen/resource': path.resolve(__dirname, 'packages/resource/src'),
-      '@guanghechen/resource.types': path.resolve(__dirname, 'packages/resource.types/src'),
       '@guanghechen/scheduler': path.resolve(__dirname, 'packages/scheduler/src'),
       '@guanghechen/std': path.resolve(__dirname, 'packages/std/src'),
       '@guanghechen/stream': path.resolve(__dirname, 'packages/stream/src'),

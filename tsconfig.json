@@ -23,7 +23,6 @@
       "@guanghechen/path.types": ["packages/path.types/src"],
       "@guanghechen/reporter": ["packages/reporter/src"],
       "@guanghechen/resource": ["packages/resource/src"],
-      "@guanghechen/resource.types": ["packages/resource.types/src"],
       "@guanghechen/scheduler": ["packages/scheduler/src"],
       "@guanghechen/std": ["packages/std/src"],
       "@guanghechen/stream": ["packages/stream/src"],

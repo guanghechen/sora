@@ -45,7 +45,7 @@
     "@guanghechen/byte": "workspace:^",
     "@guanghechen/config.types": "workspace:^",
     "@guanghechen/invariant": "workspace:^",
-    "@guanghechen/resource.types": "workspace:^",
+    "@guanghechen/resource": "workspace:^",
     "@guanghechen/version": "workspace:^"
   }
 }

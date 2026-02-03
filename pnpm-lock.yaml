@@ -77,14 +77,6 @@ importers:
 
   packages/byte: {}
 
-  packages/chalk:
-    dependencies:
-      '@guanghechen/chalk.types':
-        specifier: workspace:^
-        version: link:../chalk.types
-
-  packages/chalk.types: {}
-
   packages/config:
     dependencies:
       '@guanghechen/byte':
@@ -96,18 +88,18 @@ importers:
       '@guanghechen/invariant':
         specifier: workspace:^
         version: link:../invariant
-      '@guanghechen/resource.types':
+      '@guanghechen/resource':
         specifier: workspace:^
-        version: link:../resource.types
+        version: link:../resource
       '@guanghechen/version':
         specifier: workspace:^
         version: link:../version
 
   packages/config.types:
     dependencies:
-      '@guanghechen/resource.types':
+      '@guanghechen/resource':
         specifier: workspace:^
-        version: link:../resource.types
+        version: link:../resource
 
   packages/disposable:
     dependencies:
@@ -183,11 +175,6 @@ importers:
       '@guanghechen/invariant':
         specifier: workspace:^
         version: link:../invariant
-      '@guanghechen/resource.types':
-        specifier: workspace:^
-        version: link:../resource.types
-
-  packages/resource.types: {}
 
   packages/scheduler:
     dependencies:
