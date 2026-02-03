@@ -144,6 +144,7 @@ export default defineConfig({
       '@guanghechen/stream': path.resolve(__dirname, 'packages/stream/src'),
       '@guanghechen/subscriber': path.resolve(__dirname, 'packages/subscriber/src'),
       '@guanghechen/task': path.resolve(__dirname, 'packages/task/src'),
+      '@guanghechen/version': path.resolve(__dirname, 'packages/version/src'),
       '@guanghechen/viewmodel': path.resolve(__dirname, 'packages/viewmodel/src'),
     },
   },

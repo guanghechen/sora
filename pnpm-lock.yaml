@@ -248,6 +248,8 @@ importers:
         specifier: ^6.1.8
         version: 6.1.8
 
+  packages/version: {}
+
   packages/viewmodel:
     dependencies:
       '@guanghechen/disposable':
