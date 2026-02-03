@@ -1,9 +1,8 @@
 import type { IChalk } from '@guanghechen/chalk.types'
 import type { IReporter, IReporterFlights } from '@guanghechen/reporter.types'
 import { ReporterLevelEnum } from '@guanghechen/reporter.types'
-import dayjs from 'dayjs'
 import { parseOptionsFromArgs } from './args'
-import { normalizeString } from './format'
+import { formatDate, normalizeString } from './format'
 import type { ILevelStyleMap } from './level'
 
 type Mutable<T extends object> = { -readonly [P in keyof T]: T[P] }
@@ -180,9 +179,7 @@ export class Reporter implements IReporter {
 
   // format a log record's header.
   protected formatHeader(level: ReporterLevelEnum, date: Date): string {
-    const dateText: string = this.flights.date
-      ? this.formatContent(level, dayjs(date).format('YYYY-MM-DD HH:mm:ss'))
-      : ''
+    const dateText: string = this.flights.date ? this.formatContent(level, formatDate(date)) : ''
 
     const levelStyle = this.levelStyleMap[level]
     let levelText = levelStyle.title
