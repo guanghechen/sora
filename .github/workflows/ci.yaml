@@ -15,19 +15,27 @@ on:
       - release-*
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       matrix:
         node:
           - 20
           - 22
+          - 24
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v5
       - name: Install pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 9
       - name: Use Node.js ${{ matrix.node }}
         uses: actions/setup-node@v4
         with:
