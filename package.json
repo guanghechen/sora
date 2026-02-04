@@ -45,7 +45,6 @@
     "@guanghechen/monorepo": "^1.0.5",
     "@guanghechen/rollup-config": "^6.0.11",
     "@guanghechen/script-doc-link": "^6.0.9",
-    "@rollup/plugin-replace": "6.0.3",
     "@types/node": "25.2.0",
     "@vitest/coverage-v8": "^4.0.18",
     "cross-env": "10.1.0",

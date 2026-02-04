@@ -2,10 +2,8 @@ import {
   DependencyCategory,
   createRollupConfig,
   dtsPresetConfigBuilder,
-  modify,
   tsPresetConfigBuilder,
 } from '@guanghechen/rollup-config'
-import replace from '@rollup/plugin-replace'
 import path from 'node:path'
 
 const builtins = new Set([])
@@ -25,17 +23,6 @@ export default async function rollupConfig() {
             moduleResolution: 'node',
           },
         },
-        additionalPlugins: [
-          replace({
-            include: ['src/node.ts', 'src/browser.ts'],
-            delimiters: ['', ''],
-            preventAssignment: true,
-            values: {
-              "} from '.';": "} from './index.mjs';",
-            },
-          }),
-          modify(),
-        ],
       }),
       dtsPresetConfigBuilder({
         dtsOptions: {
