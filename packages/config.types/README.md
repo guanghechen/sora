@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/config.types@1.0.3/packages/config.types#readme">@guanghechen/config.types</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/config.types@2.0.0/packages/config.types#readme">@guanghechen/config.types</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/config.types">
@@ -68,4 +68,4 @@ TypeScript type definitions for @guanghechen/config.
 ## Usage
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/config.types@1.0.3/packages/config.types#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/config.types@2.0.0/packages/config.types#readme

@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/task@1.0.6/packages/task#readme">@guanghechen/task</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/task@2.0.0/packages/task#readme">@guanghechen/task</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/task">
@@ -68,4 +68,4 @@ Atomic and resumable tasks implementation with observable status tracking.
 ## Usage
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/task@1.0.6/packages/task#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/task@2.0.0/packages/task#readme

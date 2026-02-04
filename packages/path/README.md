@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/path@1.0.3/packages/path#readme">@guanghechen/path</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/path@2.0.0/packages/path#readme">@guanghechen/path</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/path">
@@ -68,4 +68,4 @@ Path utilities for file system operations and workspace path resolution.
 ## Usage
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/path@1.0.3/packages/path#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/path@2.0.0/packages/path#readme

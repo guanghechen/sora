@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/path.types@1.0.3/packages/path.types#readme">@guanghechen/path.types</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/path.types@2.0.0/packages/path.types#readme">@guanghechen/path.types</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/path.types">
@@ -68,4 +68,4 @@ TypeScript type definitions for @guanghechen/path.
 ## Usage
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/path.types@1.0.3/packages/path.types#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/path.types@2.0.0/packages/path.types#readme

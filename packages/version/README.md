@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/version@0.0.1/packages/version#readme">@guanghechen/version</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/version@1.0.0/packages/version#readme">@guanghechen/version</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/version">
@@ -165,4 +165,4 @@ interface ISatisfiesOptions {
 | `toFullVersion(v: IPartialSemVer)`                    | Convert partial version to full (fill with 0s) |
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/version@0.0.1/packages/version#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/version@1.0.0/packages/version#readme

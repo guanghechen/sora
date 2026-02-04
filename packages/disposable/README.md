@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/disposable@1.0.3/packages/disposable#readme">@guanghechen/disposable</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/disposable@2.0.0/packages/disposable#readme">@guanghechen/disposable</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/disposable">
@@ -130,4 +130,4 @@ Disposable pattern implementation for resource cleanup and memory management.
   ```
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/disposable@1.0.3/packages/disposable#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/disposable@2.0.0/packages/disposable#readme

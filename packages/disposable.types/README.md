@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/disposable.types@1.0.3/packages/disposable.types#readme">@guanghechen/disposable.types</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/disposable.types@2.0.0/packages/disposable.types#readme">@guanghechen/disposable.types</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/disposable.types">
@@ -68,4 +68,4 @@ Disposable related TypeScript type definitions.
 ## Usage
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/disposable.types@1.0.3/packages/disposable.types#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/disposable.types@2.0.0/packages/disposable.types#readme

@@ -1,16 +1,16 @@
 {
   "name": "@guanghechen/disposable",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/disposable@1.0.3",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/disposable@2.0.0",
     "directory": "packages/disposable"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/disposable@1.0.3/packages/disposable#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/disposable@2.0.0/packages/disposable#readme",
   "keywords": [
     "disposable"
   ],

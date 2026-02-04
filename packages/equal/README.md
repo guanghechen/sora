@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/equal@1.0.3/packages/equal#readme">@guanghechen/equal</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/equal@2.0.0/packages/equal#readme">@guanghechen/equal</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/equal">

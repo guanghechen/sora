@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/filepart@1.0.4/packages/filepart#readme">@guanghechen/filepart</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/filepart@2.0.0/packages/filepart#readme">@guanghechen/filepart</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/filepart">
@@ -68,4 +68,4 @@ File helper utilities for splitting files and merging streams.
 ## Usage
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/filepart@1.0.4/packages/filepart#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/filepart@2.0.0/packages/filepart#readme

@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/reporter",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "A minimal, level-based logging utility with colored output and breadcrumb prefix support",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/reporter@2.0.0",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/reporter@3.0.0",
     "directory": "packages/reporter"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/reporter@2.0.0/packages/reporter#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/reporter@3.0.0/packages/reporter#readme",
   "keywords": [
     "reporter",
     "logger",

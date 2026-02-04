@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/stream@1.0.3/packages/stream#readme">@guanghechen/stream</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/stream@2.0.0/packages/stream#readme">@guanghechen/stream</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/stream">
@@ -107,4 +107,4 @@ Utilities for handling node streams.
   ```
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/stream@1.0.3/packages/stream#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/stream@2.0.0/packages/stream#readme

@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/observable@6.1.8/packages/observable#readme">@guanghechen/observable</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/observable@7.0.0/packages/observable#readme">@guanghechen/observable</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/observable">
@@ -151,4 +151,4 @@ Observable pattern implementation with ticker functionality for reactive program
   ```
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/observable@6.1.8/packages/observable#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/observable@7.0.0/packages/observable#readme

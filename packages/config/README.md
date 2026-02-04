@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/config@1.0.5/packages/config#readme">@guanghechen/config</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/config@2.0.0/packages/config#readme">@guanghechen/config</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/config">
@@ -68,4 +68,4 @@ Utilities for defining config followed by semantic version.
 ## Usage
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/config@1.0.5/packages/config#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/config@2.0.0/packages/config#readme

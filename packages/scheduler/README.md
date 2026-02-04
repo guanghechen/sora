@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@6.0.8/packages/scheduler#readme">@guanghechen/scheduler</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@7.0.0/packages/scheduler#readme">@guanghechen/scheduler</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/scheduler">
@@ -150,4 +150,4 @@ Task scheduler for managing and executing tasks with pipeline support.
   ```
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@6.0.8/packages/scheduler#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@7.0.0/packages/scheduler#readme

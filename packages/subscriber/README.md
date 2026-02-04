@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/subscriber@1.0.3/packages/subscriber#readme">@guanghechen/subscriber</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/subscriber@2.0.0/packages/subscriber#readme">@guanghechen/subscriber</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/subscriber">
@@ -68,4 +68,4 @@ Publisher-subscriber pattern implementation with disposable subscription support
 ## Usage
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/subscriber@1.0.3/packages/subscriber#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/subscriber@2.0.0/packages/subscriber#readme

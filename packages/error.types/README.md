@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/error.types@1.0.6/packages/error.types#readme">@guanghechen/error.types</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/error.types@2.0.0/packages/error.types#readme">@guanghechen/error.types</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/error.types">
@@ -68,4 +68,4 @@ TypeScript type definitions for error handling.
 ## Usage
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/error.types@1.0.6/packages/error.types#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/error.types@2.0.0/packages/error.types#readme

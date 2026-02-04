@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/resource@1.0.4/packages/resource#readme">@guanghechen/resource</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/resource@2.0.0/packages/resource#readme">@guanghechen/resource</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/resource">
@@ -68,4 +68,4 @@ Text resource management with file and memory-based implementations.
 ## Usage
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/resource@1.0.4/packages/resource#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/resource@2.0.0/packages/resource#readme

@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/task",
-  "version": "1.0.6",
+  "version": "2.0.0",
   "description": "Atomic and resumable tasks",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/task@1.0.6",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/task@2.0.0",
     "directory": "packages/task"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/task@1.0.6/packages/task#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/task@2.0.0/packages/task#readme",
   "type": "module",
   "exports": {
     ".": {

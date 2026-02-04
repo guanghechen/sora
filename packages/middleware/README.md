@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/middleware@1.0.6/packages/middleware#readme">@guanghechen/middleware</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/middleware@2.0.0/packages/middleware#readme">@guanghechen/middleware</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/middleware">
@@ -117,4 +117,4 @@ Middleware pattern implementation for both synchronous and asynchronous processi
   ```
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/middleware@1.0.6/packages/middleware#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/middleware@2.0.0/packages/middleware#readme

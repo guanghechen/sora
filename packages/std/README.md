@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/std@1.0.4/packages/std#readme">@guanghechen/std</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/std@2.0.0/packages/std#readme">@guanghechen/std</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/std">
@@ -126,4 +126,4 @@ Standard utility functions.
 
 
 
-[homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/std@1.0.4/packages/std#readme
+[homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/std@2.0.0/packages/std#readme

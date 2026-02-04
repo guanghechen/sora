@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/monitor@1.0.4/packages/monitor#readme">@guanghechen/monitor</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/monitor@2.0.0/packages/monitor#readme">@guanghechen/monitor</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/monitor">
@@ -68,4 +68,4 @@ Event monitoring and subscription management with disposable pattern support.
 ## Usage
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/monitor@1.0.4/packages/monitor#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/monitor@2.0.0/packages/monitor#readme
