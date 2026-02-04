@@ -9,6 +9,10 @@ const coverageMap: Record<
   string,
   Record<string, { branches?: number; functions?: number; lines?: number; statements?: number }>
 > = {
+  '@guanghechen/commander': {
+    global: { branches: 95, functions: 91, lines: 98, statements: 98 },
+    'src/index.ts': { branches: 0, functions: 0, lines: 0, statements: 0 },
+  },
   '@guanghechen/config': {
     global: { functions: 94, statements: 98 },
   },

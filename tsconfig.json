@@ -5,6 +5,7 @@
     "paths": {
       "vitest.helper": ["vitest.helper.mts"],
       "@guanghechen/byte": ["packages/byte/src"],
+      "@guanghechen/commander": ["packages/commander/src"],
       "@guanghechen/config": ["packages/config/src"],
       "@guanghechen/config.types": ["packages/config.types/src"],
       "@guanghechen/disposable": ["packages/disposable/src"],

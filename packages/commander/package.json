@@ -1,0 +1,56 @@
+{
+  "name": "@guanghechen/commander",
+  "version": "1.0.0",
+  "description": "A minimal, type-safe command-line interface builder with fluent API",
+  "author": {
+    "name": "guanghechen",
+    "url": "https://github.com/guanghechen/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/commander@1.0.0",
+    "directory": "packages/commander"
+  },
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/commander@1.0.0/packages/commander#readme",
+  "keywords": [
+    "cli",
+    "command",
+    "commander",
+    "completion"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "import": "./lib/esm/index.mjs",
+      "require": "./lib/cjs/index.cjs",
+      "types": "./lib/types/index.d.ts"
+    }
+  },
+  "source": "./src/index.ts",
+  "main": "./lib/cjs/index.cjs",
+  "module": "./lib/esm/index.mjs",
+  "types": "./lib/types/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "rollup -c ../../rollup.config.mjs",
+    "clean": "rimraf lib",
+    "test": "vitest run --config ../../vitest.config.ts",
+    "test:coverage": "vitest run --config ../../vitest.config.ts --coverage",
+    "test:update": "vitest run --config ../../vitest.config.ts -u"
+  },
+  "engines": {
+    "node": ">= 18.0.0"
+  },
+  "dependencies": {
+    "@guanghechen/reporter": "workspace:^"
+  },
+  "files": [
+    "lib/",
+    "!lib/**/*.map",
+    "package.json",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ]
+}

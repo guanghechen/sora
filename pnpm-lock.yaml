@@ -74,6 +74,12 @@ importers:
 
   packages/byte: {}
 
+  packages/commander:
+    dependencies:
+      '@guanghechen/reporter':
+        specifier: workspace:^
+        version: link:../reporter
+
   packages/config:
     dependencies:
       '@guanghechen/byte':
