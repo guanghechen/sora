@@ -14,9 +14,6 @@
     "url": "https://github.com/guanghechen/sora/tree/release-2.x.x"
   },
   "homepage": "https://github.com/guanghechen/sora/tree/release-2.x.x/#readme",
-  "engines": {
-    "node": ">= 18.0.0"
-  },
   "type": "module",
   "scripts": {
     ":publish": "pnpm clean && pnpm build:production && pnpm test:coverage && lerna publish",
