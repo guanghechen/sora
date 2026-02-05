@@ -1,9 +1,9 @@
-import { randomBytes as randomBytesFromCrypto } from 'crypto'
+import { randomBytes as randomBytesFromCrypto } from 'node:crypto'
 
 /**
  * Generate a random bytes with the given size.
  *
- * Use randomBytes from 'crypto' cause it returns true random numbers.
+ * Use randomBytes from 'node:crypto' cause it returns true random numbers.
  *
  * @param size
  * @returns

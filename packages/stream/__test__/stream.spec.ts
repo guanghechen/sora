@@ -1,4 +1,4 @@
-import crypto from 'crypto'
+import crypto from 'node:crypto'
 import fs from 'node:fs'
 import { locateFixtures, unlinkSync } from 'vitest.helper'
 import { consumeStream, consumeStreams, stream2buffer, stream2bytes } from '../src'
