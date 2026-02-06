@@ -129,7 +129,6 @@ export default defineConfig({
       '@guanghechen/filepart': path.resolve(__dirname, 'packages/filepart/src'),
       '@guanghechen/invariant': path.resolve(__dirname, 'packages/invariant/src'),
       '@guanghechen/middleware': path.resolve(__dirname, 'packages/middleware/src'),
-      '@guanghechen/monitor': path.resolve(__dirname, 'packages/monitor/src'),
       '@guanghechen/observable': path.resolve(__dirname, 'packages/observable/src'),
       '@guanghechen/path': path.resolve(__dirname, 'packages/path/src'),
       '@guanghechen/reporter': path.resolve(__dirname, 'packages/reporter/src'),

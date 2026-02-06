@@ -154,15 +154,6 @@ importers:
 
   packages/middleware: {}
 
-  packages/monitor:
-    dependencies:
-      '@guanghechen/subscriber':
-        specifier: workspace:^
-        version: link:../subscriber
-      '@guanghechen/types':
-        specifier: workspace:^
-        version: link:../types
-
   packages/observable:
     dependencies:
       '@guanghechen/disposable':

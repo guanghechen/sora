@@ -15,7 +15,6 @@
       "@guanghechen/filepart": ["packages/filepart/src"],
       "@guanghechen/invariant": ["packages/invariant/src"],
       "@guanghechen/middleware": ["packages/middleware/src"],
-      "@guanghechen/monitor": ["packages/monitor/src"],
       "@guanghechen/observable": ["packages/observable/src"],
       "@guanghechen/path": ["packages/path/src"],
       "@guanghechen/reporter": ["packages/reporter/src"],
