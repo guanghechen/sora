@@ -123,7 +123,14 @@ importers:
 
   packages/equal: {}
 
-  packages/event-bus: {}
+  packages/eventbus:
+    dependencies:
+      '@guanghechen/disposable':
+        specifier: workspace:^
+        version: link:../disposable
+      '@guanghechen/types':
+        specifier: workspace:^
+        version: link:../types
 
   packages/filepart:
     dependencies:

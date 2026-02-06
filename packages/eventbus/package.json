@@ -1,27 +1,29 @@
 {
-  "name": "@guanghechen/event-bus",
+  "name": "@guanghechen/eventbus",
   "version": "7.0.0",
-  "description": "A simple event bus.",
+  "description": "A simple event bus with disposable support.",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/event-bus@7.0.0",
-    "directory": "packages/event-bus"
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/eventbus@7.0.0",
+    "directory": "packages/eventbus"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/event-bus@7.0.0/packages/event-bus#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/eventbus@7.0.0/packages/eventbus#readme",
   "keywords": [
-    "event bus"
+    "event bus",
+    "eventbus",
+    "pub-sub"
   ],
   "type": "module",
   "exports": {
     ".": {
+      "types": "./lib/types/index.d.ts",
       "source": "./src/index.ts",
       "import": "./lib/esm/index.mjs",
-      "require": "./lib/cjs/index.cjs",
-      "types": "./lib/types/index.d.ts"
+      "require": "./lib/cjs/index.cjs"
     }
   },
   "source": "./src/index.ts",
@@ -35,6 +37,10 @@
     "test": "vitest run --config ../../vitest.config.ts",
     "test:coverage": "vitest run --config ../../vitest.config.ts --coverage",
     "test:update": "vitest run --config ../../vitest.config.ts -u"
+  },
+  "dependencies": {
+    "@guanghechen/disposable": "workspace:^",
+    "@guanghechen/types": "workspace:^"
   },
   "files": [
     "lib/",

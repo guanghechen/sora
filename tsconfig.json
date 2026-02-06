@@ -10,7 +10,7 @@
       "@guanghechen/disposable": ["packages/disposable/src"],
       "@guanghechen/env": ["packages/env/src"],
       "@guanghechen/equal": ["packages/equal/src"],
-      "@guanghechen/event-bus": ["packages/event-bus/src"],
+      "@guanghechen/eventbus": ["packages/eventbus/src"],
       "@guanghechen/filesplit": ["packages/filesplit/src"],
       "@guanghechen/filepart": ["packages/filepart/src"],
       "@guanghechen/invariant": ["packages/invariant/src"],

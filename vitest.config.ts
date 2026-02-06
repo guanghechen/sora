@@ -22,6 +22,9 @@ const coverageMap: Record<
   '@guanghechen/equal': {
     global: { branches: 95, statements: 97 },
   },
+  '@guanghechen/eventbus': {
+    global: { functions: 92, statements: 97 },
+  },
   '@guanghechen/invariant': {
     global: { branches: 87 },
   },
@@ -121,7 +124,7 @@ export default defineConfig({
       '@guanghechen/disposable': path.resolve(__dirname, 'packages/disposable/src'),
       '@guanghechen/env': path.resolve(__dirname, 'packages/env/src'),
       '@guanghechen/equal': path.resolve(__dirname, 'packages/equal/src'),
-      '@guanghechen/event-bus': path.resolve(__dirname, 'packages/event-bus/src'),
+      '@guanghechen/eventbus': path.resolve(__dirname, 'packages/eventbus/src'),
       '@guanghechen/filesplit': path.resolve(__dirname, 'packages/filesplit/src'),
       '@guanghechen/filepart': path.resolve(__dirname, 'packages/filepart/src'),
       '@guanghechen/invariant': path.resolve(__dirname, 'packages/invariant/src'),
