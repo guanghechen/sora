@@ -1,5 +1,6 @@
-import type { ISubscriber, ISubscribers, IUnsubscribable } from '@guanghechen/subscriber'
+import type { ISubscriber, ISubscribers } from '@guanghechen/subscriber'
 import { Subscriber, Subscribers } from '@guanghechen/subscriber'
+import type { IUnsubscribable } from '@guanghechen/types'
 import type { IMonitor, IMonitorCallback } from './types'
 
 const noop = (): void => {}

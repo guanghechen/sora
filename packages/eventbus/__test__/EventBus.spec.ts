@@ -7,9 +7,16 @@ enum EventTypes {
 }
 
 describe('EventBus', function () {
+  describe('name', function () {
+    test('name property is set from constructor', function () {
+      const eventBus = new EventBus<EventTypes>('myBus')
+      expect(eventBus.name).toBe('myBus')
+    })
+  })
+
   describe('listener', function () {
     test('Only event emitted after the listener register could be received', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages, handle] = mockEventHandler()
 
       eventBus.dispatch({ type: EventTypes.INIT, payload: { id: 1 } })
@@ -25,7 +32,7 @@ describe('EventBus', function () {
     })
 
     test('Only be executed once if the listener registered through the `.once()`', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages, handle] = mockEventHandler()
 
       eventBus.once(EventTypes.INIT, handle)
@@ -37,7 +44,7 @@ describe('EventBus', function () {
     })
 
     test('Only listened events will trigger listener', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages, handle] = mockEventHandler()
 
       eventBus.dispatch({ type: EventTypes.INIT, payload: { id: 1 } })
@@ -56,7 +63,7 @@ describe('EventBus', function () {
     })
 
     test('Event listener could be unregistered manually', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages, handle] = mockEventHandler()
       const [messages2, handle2] = mockEventHandler()
 
@@ -88,7 +95,7 @@ describe('EventBus', function () {
     })
 
     test('Event listener can only be registered once for each particular event', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages, handle] = mockEventHandler()
 
       eventBus.dispatch({ type: EventTypes.INIT, payload: { id: 1 } })
@@ -120,7 +127,7 @@ describe('EventBus', function () {
     })
 
     test('Remove all subscriber after called cleanup()', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages, handle] = mockEventHandler()
 
       eventBus.dispatch({ type: EventTypes.INIT, payload: { id: 1 } })
@@ -137,7 +144,7 @@ describe('EventBus', function () {
     })
 
     test('off() is alias for removeListener()', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages, handle] = mockEventHandler()
 
       eventBus.on(EventTypes.INIT, handle)
@@ -150,7 +157,7 @@ describe('EventBus', function () {
     })
 
     test('on() returns IUnsubscribable', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages, handle] = mockEventHandler()
 
       const unsub = eventBus.on(EventTypes.INIT, handle)
@@ -163,7 +170,7 @@ describe('EventBus', function () {
     })
 
     test('once() returns IUnsubscribable', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages, handle] = mockEventHandler()
 
       const unsub = eventBus.once(EventTypes.INIT, handle)
@@ -176,7 +183,7 @@ describe('EventBus', function () {
 
   describe('subscriber', function () {
     test('Only event emitted after the subscriber register could be received', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages, handle] = mockEventHandler()
 
       eventBus.dispatch({ type: EventTypes.INIT, payload: { id: 1 } })
@@ -192,7 +199,7 @@ describe('EventBus', function () {
     })
 
     test('Only be executed once if the subscriber registered with once flag `true`', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages, handle] = mockEventHandler()
 
       eventBus.subscribe(handle, true)
@@ -204,7 +211,7 @@ describe('EventBus', function () {
     })
 
     test('No matter what event will trigger the subscriber', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages, handle] = mockEventHandler()
 
       eventBus.dispatch({ type: EventTypes.INIT, payload: { id: 1 } })
@@ -224,7 +231,7 @@ describe('EventBus', function () {
     })
 
     test('Event subscriber could be unregistered manually', async function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages, handle] = mockEventHandler()
       const [messages2, handle2] = mockEventHandler()
 
@@ -256,7 +263,7 @@ describe('EventBus', function () {
     })
 
     test('Event subscriber can only be registered once', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages, handle] = mockEventHandler()
 
       eventBus.dispatch({ type: EventTypes.INIT, payload: { id: 1 } })
@@ -281,7 +288,7 @@ describe('EventBus', function () {
     })
 
     test('subscribe() returns IUnsubscribable', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages, handle] = mockEventHandler()
 
       const unsub = eventBus.subscribe(handle)
@@ -294,7 +301,7 @@ describe('EventBus', function () {
     })
 
     test('subscribe() defaults to once=false', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages, handle] = mockEventHandler()
 
       eventBus.subscribe(handle)
@@ -307,7 +314,7 @@ describe('EventBus', function () {
 
   describe('emit', function () {
     test('emit() is alias for dispatch()', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages, handle] = mockEventHandler()
 
       eventBus.on(EventTypes.INIT, handle)
@@ -324,7 +331,7 @@ describe('EventBus', function () {
 
   describe('listenerCount', function () {
     test('listenerCount() returns total count', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [, handle1] = mockEventHandler()
       const [, handle2] = mockEventHandler()
       const [, handle3] = mockEventHandler()
@@ -345,7 +352,7 @@ describe('EventBus', function () {
     })
 
     test('listenerCount(type) returns type-specific count', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [, handle1] = mockEventHandler()
       const [, handle2] = mockEventHandler()
       const [, handle3] = mockEventHandler()
@@ -364,14 +371,14 @@ describe('EventBus', function () {
 
   describe('dispose', function () {
     test('disposed property reflects state', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       expect(eventBus.disposed).toBe(false)
       eventBus.dispose()
       expect(eventBus.disposed).toBe(true)
     })
 
     test('dispose() clears all listeners and subscribers', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages, handle] = mockEventHandler()
 
       eventBus.on(EventTypes.INIT, handle)
@@ -382,7 +389,7 @@ describe('EventBus', function () {
     })
 
     test('dispatch() does nothing after dispose()', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages, handle] = mockEventHandler()
 
       eventBus.on(EventTypes.INIT, handle)
@@ -393,14 +400,14 @@ describe('EventBus', function () {
     })
 
     test('dispose() is idempotent', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       eventBus.dispose()
       eventBus.dispose()
       expect(eventBus.disposed).toBe(true)
     })
 
     test('registerDisposable() registers disposable', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       let disposed = false
       const disposable = {
         disposed: false,
@@ -418,7 +425,7 @@ describe('EventBus', function () {
     })
 
     test('registerDisposable() disposes immediately if already disposed', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       eventBus.dispose()
 
       let disposed = false
@@ -435,7 +442,7 @@ describe('EventBus', function () {
     })
 
     test('registerDisposable() ignores already disposed disposables', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const disposable = {
         disposed: true,
         dispose: vi.fn(),
@@ -450,7 +457,7 @@ describe('EventBus', function () {
 
   describe('exception isolation', function () {
     test('handler error does not stop other handlers', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages1, handle1] = mockEventHandler()
       const [messages2, handle2] = mockEventHandler()
       const errorHandler = (): void => {
@@ -470,7 +477,7 @@ describe('EventBus', function () {
     })
 
     test('subscriber error does not stop listeners', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
       const [messages, handle] = mockEventHandler()
       const errorSubscriber = (): void => {
         throw new Error('subscriber error')
@@ -487,7 +494,7 @@ describe('EventBus', function () {
     })
 
     test('dispose collects all errors', function () {
-      const eventBus = new EventBus<EventTypes>()
+      const eventBus = new EventBus<EventTypes>('test')
 
       eventBus.registerDisposable({
         disposed: false,

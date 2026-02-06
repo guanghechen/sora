@@ -44,6 +44,10 @@ export interface IEventSubscription<
 
 export interface IEventBus<T extends IEventType> extends IBatchDisposable {
   /**
+   * Name of the event bus instance, useful for debugging.
+   */
+  readonly name: string
+  /**
    * Listen for a specific event type.
    * @param type
    * @param handle

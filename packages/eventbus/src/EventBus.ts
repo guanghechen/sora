@@ -26,12 +26,14 @@ import { filterInPlace } from './util'
  *  Use `on()` + manual `unsubscribe()` if you need more control over handler lifecycle.
  */
 export class EventBus<T extends IEventType> implements IEventBus<T> {
+  public readonly name: string
   protected _disposed: boolean
   protected _listeners: Map<T, Array<IEventSubscription<T>>>
   protected _subscribers: Array<IEventSubscription<T>>
   protected _disposables: IDisposable[]
 
-  constructor() {
+  constructor(name: string) {
+    this.name = name
     this._disposed = false
     this._listeners = new Map<T, Array<IEventSubscription<T>>>()
     this._subscribers = []
