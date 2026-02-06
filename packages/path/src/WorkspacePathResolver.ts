@@ -1,4 +1,4 @@
-import type { IPathResolver, IWorkspacePathResolver } from '@guanghechen/path.types'
+import type { IPathResolver, IWorkspacePathResolver } from '@guanghechen/types'
 
 export class WorkspacePathResolver implements IWorkspacePathResolver {
   public readonly root: string

@@ -42,11 +42,11 @@
     "README.md"
   ],
   "dependencies": {
-    "@guanghechen/error.types": "workspace:^",
     "@guanghechen/middleware": "workspace:^",
     "@guanghechen/observable": "workspace:^",
     "@guanghechen/reporter": "workspace:^",
     "@guanghechen/subscriber": "workspace:^",
-    "@guanghechen/task": "workspace:^"
+    "@guanghechen/task": "workspace:^",
+    "@guanghechen/types": "workspace:^"
   }
 }

@@ -1,4 +1,8 @@
-import type { ErrorLevelEnum } from './constant'
+export enum ErrorLevelEnum {
+  WARN = 4,
+  ERROR = 5,
+  FATAL = 6,
+}
 
 export interface ISoraError {
   from: string

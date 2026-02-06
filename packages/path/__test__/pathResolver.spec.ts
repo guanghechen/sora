@@ -1,4 +1,4 @@
-import type { IPathResolver } from '@guanghechen/path.types'
+import type { IPathResolver } from '@guanghechen/types'
 import path from 'node:path'
 import { PathResolver } from '../src'
 

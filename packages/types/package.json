@@ -1,17 +1,17 @@
 {
-  "name": "@guanghechen/path.types",
+  "name": "@guanghechen/types",
   "version": "2.0.0",
-  "description": "types of @guanghechen/path",
+  "description": "Common type definitions for @guanghechen packages",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/path.types@2.0.0",
-    "directory": "packages/path.types"
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/types@2.0.0",
+    "directory": "packages/types"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/path.types@2.0.0/packages/path.types#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/types@2.0.0/packages/types#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -35,7 +35,6 @@
     "!lib/**/*.map",
     "package.json",
     "CHANGELOG.md",
-    "LICENSE",
     "README.md"
   ]
 }

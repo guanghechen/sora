@@ -1,4 +1,4 @@
-import type { IDisposable } from '@guanghechen/disposable.types'
+import type { IDisposable } from '@guanghechen/types'
 
 export function isDisposable(obj: unknown): obj is IDisposable {
   if (obj === null || typeof obj !== 'object') return false

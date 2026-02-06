@@ -1,5 +1,5 @@
-import type { IDisposable } from '@guanghechen/disposable.types'
 import type { IUnsubscribable } from '@guanghechen/subscriber'
+import type { IDisposable } from '@guanghechen/types'
 
 export type IMonitorCallback<P extends any[]> = (...args: P) => void
 

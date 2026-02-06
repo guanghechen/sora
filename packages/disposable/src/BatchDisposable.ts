@@ -1,4 +1,4 @@
-import type { IBatchDisposable, IDisposable } from '@guanghechen/disposable.types'
+import type { IBatchDisposable, IDisposable } from '@guanghechen/types'
 import { disposeAll } from './util/disposeAll'
 
 export class BatchDisposable implements IBatchDisposable {

@@ -1,4 +1,4 @@
-import type { IPathResolver } from '@guanghechen/path.types'
+import type { IPathResolver } from '@guanghechen/types'
 
 const clazz: string = 'UrlPathResolver'
 

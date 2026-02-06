@@ -112,17 +112,13 @@ importers:
 
   packages/disposable:
     dependencies:
-      '@guanghechen/disposable.types':
+      '@guanghechen/types':
         specifier: workspace:^
-        version: link:../disposable.types
-
-  packages/disposable.types: {}
+        version: link:../types
 
   packages/env: {}
 
   packages/equal: {}
-
-  packages/error.types: {}
 
   packages/event-bus: {}
 
@@ -150,12 +146,12 @@ importers:
 
   packages/monitor:
     dependencies:
-      '@guanghechen/disposable.types':
-        specifier: workspace:^
-        version: link:../disposable.types
       '@guanghechen/subscriber':
         specifier: workspace:^
         version: link:../subscriber
+      '@guanghechen/types':
+        specifier: workspace:^
+        version: link:../types
 
   packages/observable:
     dependencies:
@@ -168,11 +164,9 @@ importers:
 
   packages/path:
     dependencies:
-      '@guanghechen/path.types':
+      '@guanghechen/types':
         specifier: workspace:^
-        version: link:../path.types
-
-  packages/path.types: {}
+        version: link:../types
 
   packages/reporter: {}
 
@@ -184,9 +178,6 @@ importers:
 
   packages/scheduler:
     dependencies:
-      '@guanghechen/error.types':
-        specifier: workspace:^
-        version: link:../error.types
       '@guanghechen/middleware':
         specifier: workspace:^
         version: link:../middleware
@@ -202,6 +193,9 @@ importers:
       '@guanghechen/task':
         specifier: workspace:^
         version: link:../task
+      '@guanghechen/types':
+        specifier: workspace:^
+        version: link:../types
 
   packages/std: {}
 
@@ -219,12 +213,14 @@ importers:
 
   packages/task:
     dependencies:
-      '@guanghechen/error.types':
-        specifier: workspace:^
-        version: link:../error.types
       '@guanghechen/observable':
         specifier: workspace:^
         version: link:../observable
+      '@guanghechen/types':
+        specifier: workspace:^
+        version: link:../types
+
+  packages/types: {}
 
   packages/version: {}
 

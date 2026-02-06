@@ -1,4 +1,4 @@
-import { ErrorLevelEnum } from '@guanghechen/error.types'
+import { ErrorLevelEnum } from '@guanghechen/types'
 import { vi } from 'vitest'
 import { AtomicTask, TaskStatusEnum, TaskStrategyEnum } from '../src'
 

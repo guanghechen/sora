@@ -8,9 +8,8 @@
       "@guanghechen/commander": ["packages/commander/src"],
       "@guanghechen/config": ["packages/config/src"],
       "@guanghechen/disposable": ["packages/disposable/src"],
-      "@guanghechen/disposable.types": ["packages/disposable.types/src"],
+      "@guanghechen/env": ["packages/env/src"],
       "@guanghechen/equal": ["packages/equal/src"],
-      "@guanghechen/error.types": ["packages/error.types/src"],
       "@guanghechen/event-bus": ["packages/event-bus/src"],
       "@guanghechen/file-split": ["packages/file-split/src"],
       "@guanghechen/filepart": ["packages/filepart/src"],
@@ -19,7 +18,6 @@
       "@guanghechen/monitor": ["packages/monitor/src"],
       "@guanghechen/observable": ["packages/observable/src"],
       "@guanghechen/path": ["packages/path/src"],
-      "@guanghechen/path.types": ["packages/path.types/src"],
       "@guanghechen/reporter": ["packages/reporter/src"],
       "@guanghechen/resource": ["packages/resource/src"],
       "@guanghechen/scheduler": ["packages/scheduler/src"],
@@ -27,6 +25,7 @@
       "@guanghechen/stream": ["packages/stream/src"],
       "@guanghechen/subscriber": ["packages/subscriber/src"],
       "@guanghechen/task": ["packages/task/src"],
+      "@guanghechen/types": ["packages/types/src"],
       "@guanghechen/version": ["packages/version/src"],
       "@guanghechen/viewmodel": ["packages/viewmodel/src"]
     }

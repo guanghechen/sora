@@ -1,4 +1,4 @@
-import type { IDisposable } from '@guanghechen/disposable.types'
+import type { IDisposable } from '@guanghechen/types'
 
 export class Disposable implements IDisposable {
   protected readonly _onDispose: () => void

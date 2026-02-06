@@ -1,5 +1,5 @@
-import type { ISoraError } from '@guanghechen/error.types'
-import { ErrorLevelEnum } from '@guanghechen/error.types'
+import type { ISoraError } from '@guanghechen/types'
+import { ErrorLevelEnum } from '@guanghechen/types'
 import type { TaskStrategyEnum } from './constant'
 import { TaskStatusEnum } from './constant'
 import { TaskStatus } from './status'

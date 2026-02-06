@@ -1,4 +1,4 @@
-import type { IDisposable } from '@guanghechen/disposable.types'
+import type { IDisposable } from '@guanghechen/types'
 
 export class SafeBatchHandler {
   private readonly _errors: unknown[]
