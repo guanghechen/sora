@@ -1,9 +1,16 @@
 import { bytes2text, text2bytes } from '@guanghechen/byte'
-import { emptyDir, isFileSync, mkdirsIfNotExists, rm, writeFile } from '@guanghechen/fs'
 import { FileTextResource } from '@guanghechen/resource'
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import { assertPromiseThrow, locateFixtures } from 'vitest.helper'
+import {
+  assertPromiseThrow,
+  emptyDir,
+  isFileSync,
+  locateFixtures,
+  mkdirsIfNotExists,
+  rm,
+  writeFile,
+} from 'vitest.helper'
 import type { IConfigKeeper } from '../src'
 import { JsonConfigKeeper, PlainJsonConfigKeeper } from '../src'
 import { calcMac } from '../src/mac'

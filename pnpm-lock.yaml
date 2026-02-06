@@ -14,12 +14,6 @@ importers:
       '@guanghechen/eslint-config':
         specifier: ^7.0.20
         version: 7.0.20(@typescript-eslint/eslint-plugin@8.41.0(@typescript-eslint/parser@8.41.0(eslint@9.39.2)(typescript@5.9.3))(eslint@9.39.2)(typescript@5.9.3))(@typescript-eslint/parser@8.41.0(eslint@9.39.2)(typescript@5.9.3))(eslint@9.39.2)(jest@30.1.1(@types/node@25.2.0)(ts-node@10.9.2(@types/node@25.2.0)(typescript@5.9.3)))(prettier@3.8.1)(typescript@5.9.3)
-      '@guanghechen/fs':
-        specifier: ^1.0.11
-        version: 1.0.11
-      '@guanghechen/monorepo':
-        specifier: ^1.0.5
-        version: 1.0.5
       '@guanghechen/script-doc-link':
         specifier: ^6.0.9
         version: 6.0.9
@@ -658,10 +652,6 @@ packages:
   '@guanghechen/invariant@6.0.5':
     resolution: {integrity: sha512-2nJji5qeTCONKEuYahiGf4Pnm5CHc63GySL8wB11e6YUhR2zPxgx7ivG5H+N0kjw3tGs6E4NJ5GcAjk79Gd1PA==}
     engines: {node: '>= 18.0.0'}
-
-  '@guanghechen/monorepo@1.0.5':
-    resolution: {integrity: sha512-ODu2wzglPGdJPi6QREIgkctt/+Jx1dru5r57fYS54RpQpEOGjYL9PXsksXHkv8+2gYsrP104ry3thJM/CMGDWw==}
-    engines: {node: '>= 20.0.0'}
 
   '@guanghechen/reporter.types@1.0.5':
     resolution: {integrity: sha512-lQc5uWsrqqjzpG7z5i21whRAYBPF0iys6oq3VpXkgx5MPa4T/mKM6O6sL+bU11huVhnruOFtVvOyDosUhlUSzQ==}
@@ -5466,8 +5456,6 @@ snapshots:
       ignore: 7.0.5
 
   '@guanghechen/invariant@6.0.5': {}
-
-  '@guanghechen/monorepo@1.0.5': {}
 
   '@guanghechen/reporter.types@1.0.5': {}
 

@@ -1,5 +1,6 @@
 import type { Reporter } from '@guanghechen/reporter'
 import fs from 'node:fs'
+import fsp from 'node:fs/promises'
 import path from 'node:path'
 import url from 'node:url'
 import { expect, vi } from 'vitest'
@@ -124,6 +125,74 @@ export const locateFixtures = (...p: string[]): string => {
  */
 export const loadFixtures = (...p: string[]): string =>
   fs.readFileSync(locateFixtures(...p), 'utf-8')
+
+// ============================================================================
+// File system utilities (ported from @guanghechen/fs)
+// ============================================================================
+
+/**
+ * Remove all files under the given directory path.
+ * @param dirpath
+ * @param createIfNotExist
+ */
+export async function emptyDir(dirpath: string, createIfNotExist = true): Promise<void> {
+  if (fs.existsSync(dirpath)) {
+    if (!fs.statSync(dirpath).isDirectory()) {
+      throw new Error(`[emptyDir] not a directory. (${dirpath})`)
+    }
+    await rm(dirpath)
+    await fsp.mkdir(dirpath, { recursive: true })
+  } else {
+    if (createIfNotExist) await fsp.mkdir(dirpath, { recursive: true })
+  }
+}
+
+/**
+ * Create a path of directories.
+ * @param filepath  the give file path
+ * @param isDir     Whether the given path is a directory
+ */
+export function mkdirsIfNotExists(filepath: string, isDir: boolean): void {
+  const dirpath = isDir ? filepath : path.dirname(filepath)
+  if (fs.existsSync(dirpath)) return
+  fs.mkdirSync(dirpath, { recursive: true })
+}
+
+/**
+ * Remove filepath/dirpath recursively.
+ * @param fileOrDirPath
+ */
+export async function rm(fileOrDirPath: string): Promise<void> {
+  if (fs.existsSync(fileOrDirPath)) {
+    await fsp.rm(fileOrDirPath, { recursive: true, force: true })
+  }
+}
+
+/**
+ * Check whether if the filepath is a file path. (synchronizing)
+ * @param filepath   file path
+ */
+export function isFileSync(filepath: string | null): boolean {
+  if (filepath == null) return false
+  if (!fs.existsSync(filepath)) return false
+  return fs.statSync(filepath).isFile()
+}
+
+/**
+ * If the path is not existed, created before write.
+ * @param filepath
+ * @param content
+ * @param options
+ */
+export async function writeFile(
+  filepath: string,
+  content: string | NodeJS.ArrayBufferView,
+  options?: fs.WriteFileOptions,
+): Promise<void> {
+  const dirpath = path.dirname(filepath)
+  await fsp.mkdir(dirpath, { recursive: true })
+  await fsp.writeFile(filepath, content, options)
+}
 
 /**
  * Remove filepaths
