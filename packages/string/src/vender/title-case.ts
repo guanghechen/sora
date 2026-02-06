@@ -61,7 +61,7 @@ export function titleCase(input: string, options: Options | string[] | string = 
     typeof options === 'string' || Array.isArray(options) ? { locale: options } : options
 
   // tslint:disable-next-line
-  // eslint-disable-next-line no-cond-assign
+
   while ((m = TOKENS.exec(input)) !== null) {
     const { 0: token, index } = m
 

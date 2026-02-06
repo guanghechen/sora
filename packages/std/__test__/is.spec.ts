@@ -1,6 +1,3 @@
-/* eslint-disable no-new-func */
-/* eslint-disable no-new-object */
-/* eslint-disable no-new-wrappers */
 import {
   isArray,
   isArrayOfT,

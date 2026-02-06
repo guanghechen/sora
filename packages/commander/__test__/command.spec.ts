@@ -745,7 +745,7 @@ describe('Command', () => {
 
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.action(() => {
-        throw 'string error' // eslint-disable-line no-throw-literal
+        throw 'string error'
       })
 
       await cmd.run({ argv: [], envs: {} })

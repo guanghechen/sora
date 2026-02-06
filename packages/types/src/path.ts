@@ -55,7 +55,7 @@ export interface IPathResolver {
    * Join path
    * @param filepath should be an absolute path.
    * @param pathPieces non-absolute path pieces.
-   * @throws when the `filepath` is not an absolute path or any path piece should be non-absolute path.
+   * @throws when `filepath` is not absolute or any path piece is absolute.
    */
   join(filepath: string, ...pathPieces: string[]): string | never
 

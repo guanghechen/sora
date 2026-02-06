@@ -59,7 +59,7 @@ describe('AtomicTask', () => {
     const processor: ITaskProcessor = {
       process: vi.fn(async () => {
         await delay(20)
-        // eslint-disable-next-line no-throw-literal
+
         throw 'Something went wrong'
       }),
     }
