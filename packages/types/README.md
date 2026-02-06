@@ -56,6 +56,11 @@ import type {
   IPathResolver,
   IPathResolverParams,
   IWorkspacePathResolver,
+  // Subscriber types
+  ISubscriber,
+  ISubscribable,
+  ISubscribers,
+  IUnsubscribable,
 } from '@guanghechen/types'
 ```
 

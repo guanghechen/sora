@@ -1,4 +1,4 @@
-import type { ISubscriber } from './types'
+import type { ISubscriber } from '@guanghechen/types'
 
 type IOnDisposable = () => void
 type IOnNext<T> = (value: T, prevValue: T | undefined) => void

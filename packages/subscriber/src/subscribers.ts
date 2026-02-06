@@ -1,5 +1,5 @@
 import { SafeBatchHandler } from '@guanghechen/disposable'
-import type { ISubscriber, ISubscribers, IUnsubscribable } from './types'
+import type { ISubscriber, ISubscribers, IUnsubscribable } from '@guanghechen/types'
 
 interface ISubscriberItem<T> {
   readonly subscriber: ISubscriber<T>

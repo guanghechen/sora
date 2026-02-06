@@ -9,3 +9,4 @@ All notable changes to this project will be documented in this file. See
 
 - ✨ Initial release consolidating types from `@guanghechen/disposable.types`,
   `@guanghechen/error.types`, and `@guanghechen/path.types`
+- ✨ Add subscriber types: `ISubscriber`, `ISubscribable`, `ISubscribers`, `IUnsubscribable`
