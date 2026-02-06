@@ -1,6 +1,7 @@
 import { destroyBytes, destroyBytesList } from '@guanghechen/byte'
 import type { ReadableOptions } from 'node:stream'
 import { Readable } from 'node:stream'
+import { pipeline } from 'node:stream/promises'
 
 /**
  * Concatenate readable streams to async iterator.
@@ -34,6 +35,11 @@ export function mergeStreams(
 /**
  * Consume readable stream.
  *
+ * Uses Node.js pipeline which automatically handles:
+ * - Error propagation across all streams
+ * - Destroying all streams on error
+ * - Proper cleanup of listeners
+ *
  * @param reader
  * @param writer
  * @param transformers
@@ -44,15 +50,11 @@ export function consumeStream(
   writer: NodeJS.WritableStream,
   ...transformers: NodeJS.ReadWriteStream[]
 ): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
-    let stream = reader.on('error', reject)
-    for (const middleware of transformers) stream = stream.pipe(middleware, { end: true })
-    stream //
-      .pipe(writer, { end: true })
-      .on('error', reject)
-      .on('finish', resolve)
-      .on('close', resolve)
-  })
+  if (transformers.length === 0) {
+    return pipeline(reader, writer)
+  }
+  // pipeline accepts a variadic list of streams
+  return pipeline(reader, ...transformers, writer)
 }
 
 /**

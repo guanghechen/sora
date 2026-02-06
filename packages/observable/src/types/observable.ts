@@ -12,6 +12,10 @@ export interface IObservableOptions<T> {
    * Determine whether the two values are equal.
    */
   readonly equals?: IEquals<T>
+  /**
+   * Error handler for async notifications.
+   */
+  readonly onError?: (error: unknown) => void
 }
 
 export interface IObservableNextOptions {

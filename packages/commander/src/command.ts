@@ -294,8 +294,9 @@ export class Command {
       if (opt.choices && opts[opt.long] !== undefined) {
         const value = opts[opt.long]
         const values = Array.isArray(value) ? value : [value]
+        const choices: ReadonlyArray<unknown> = opt.choices
         for (const v of values) {
-          if (!(opt.choices as unknown[]).includes(v)) {
+          if (!choices.includes(v)) {
             throw new CommanderError(
               'InvalidChoice',
               `invalid value "${v}" for option "--${opt.long}". Allowed: ${opt.choices.join(', ')}`,
@@ -646,7 +647,8 @@ export class Command {
 
     // Handle array types (append) vs scalar types (overwrite)
     if (type === 'string[]' || type === 'number[]') {
-      const current = (opts[opt.long] as unknown[]) ?? []
+      const currentValue = opts[opt.long]
+      const current: unknown[] = Array.isArray(currentValue) ? currentValue : []
       opts[opt.long] = [...current, parsedValue]
     } else {
       opts[opt.long] = parsedValue

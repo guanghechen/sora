@@ -159,7 +159,20 @@ export abstract class ResumableTask implements ITask {
   }
 
   private async _queueStep(): Promise<void> {
-    await new Promise<void>(resolve => setTimeout(resolve, this._pollInterval))
-    await this._launchStep()
+    try {
+      await new Promise<void>(resolve => setTimeout(resolve, this._pollInterval))
+      await this._launchStep()
+    } catch (error) {
+      /* c8 ignore start */
+      if (this.status.terminated) return
+      const soraError: ISoraError = {
+        from: this.name,
+        level: ErrorLevelEnum.ERROR,
+        details: error,
+      }
+      this._errors.push(soraError)
+      this.status.next(TaskStatusEnum.FAILED, { strict: false })
+      /* c8 ignore stop */
+    }
   }
 }

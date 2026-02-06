@@ -14,6 +14,15 @@ import {
   toTrim,
   toUpperCase,
 } from '../src'
+import {
+  camelCase,
+  noCase,
+  pascalCase,
+  pascalSnakeCase,
+  split,
+  trainCase,
+} from '../src/vender/change-case'
+import { titleCase } from '../src/vender/title-case'
 
 describe('string', function () {
   describe('toLowerCase', function () {
@@ -83,4 +92,51 @@ describe('composeTextTransformers', function () {
     const text: string = transform(' TeSt_StrinG ')
     expect(text).toEqual('test-string')
   })
+})
+
+describe('change-case additional coverage', function () {
+  describe('trainCase', function () {
+    test("'test string' => 'Test-String'", () =>
+      expect(trainCase('test string')).toEqual('Test-String'))
+  })
+
+  describe('pascalSnakeCase', function () {
+    test("'test string' => 'Test_String'", () =>
+      expect(pascalSnakeCase('test string')).toEqual('Test_String'))
+  })
+
+  describe('noCase', function () {
+    test("'testString' => 'test string'", () => expect(noCase('testString')).toEqual('test string'))
+  })
+
+  describe('split with separateNumbers', function () {
+    test("'test123abc' => ['test', '123', 'abc']", () =>
+      expect(split('test123abc', { separateNumbers: true })).toEqual(['test', '123', 'abc']))
+  })
+
+  describe('locale: false', function () {
+    test('camelCase with locale: false', () =>
+      expect(camelCase('TEST STRING', { locale: false })).toEqual('testString'))
+
+    test('pascalCase with locale: false', () =>
+      expect(pascalCase('test string', { locale: false })).toEqual('TestString'))
+  })
+})
+
+describe('titleCase additional coverage', function () {
+  test('preserves manual case like iPhone', () =>
+    expect(titleCase('iPhone app')).toEqual('iPhone App'))
+
+  test('keeps small words lowercase in the middle', () =>
+    expect(titleCase('the lord of the rings')).toEqual('The Lord of the Rings'))
+
+  test('handles word separators like dash', () =>
+    expect(titleCase('well-known fact')).toEqual('Well-Known Fact'))
+
+  test('does not capitalize after non-separator', () =>
+    expect(titleCase("don't stop")).toEqual("Don't Stop"))
+
+  test('locale as string', () => expect(titleCase('hello world', 'en')).toEqual('Hello World'))
+
+  test('locale as array', () => expect(titleCase('hello world', ['en'])).toEqual('Hello World'))
 })

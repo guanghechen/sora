@@ -1,4 +1,17 @@
-import { Observable, isObservable } from '../src'
+import { Observable, isObservable, noop, noopUnobservable, noopUnsubscribable } from '../src'
+
+test('noop', () => {
+  noop()
+  noop(1, 2, 3)
+})
+
+test('noopUnsubscribable', () => {
+  noopUnsubscribable.unsubscribe()
+})
+
+test('noopUnobservable', () => {
+  noopUnobservable.unobserve()
+})
 
 test('isObservable', () => {
   expect(isObservable(null)).toEqual(false)

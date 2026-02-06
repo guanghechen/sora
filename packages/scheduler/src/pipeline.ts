@@ -118,9 +118,10 @@ export class Pipeline<D, T> implements IPipeline<D, T> {
     if (code <= this._maxContinuousHandledCode || this._handledCodes.has(code)) return
 
     let resolved = false
+    let subscriber: ISubscriber<number> | undefined
     let unsubscribable: IUnsubscribable | undefined
     await new Promise<void>(resolve => {
-      const subscriber: ISubscriber<number> = new Subscriber<number>({
+      subscriber = new Subscriber<number>({
         onNext: () => {
           /* c8 ignore next */
           if (resolved) return
@@ -131,6 +132,7 @@ export class Pipeline<D, T> implements IPipeline<D, T> {
     }).finally(() => {
       resolved = true
       unsubscribable?.unsubscribe()
+      subscriber?.dispose()
     })
   }
 
@@ -138,9 +140,10 @@ export class Pipeline<D, T> implements IPipeline<D, T> {
     if (code <= this._maxContinuousHandledCode) return
 
     let resolved = false
+    let subscriber: ISubscriber<number> | undefined
     let unsubscribable: IUnsubscribable | undefined
     await new Promise<void>(resolve => {
-      const subscriber: ISubscriber<number> = new Subscriber<number>({
+      subscriber = new Subscriber<number>({
         onNext: () => {
           /* c8 ignore next */
           if (resolved) return
@@ -151,6 +154,7 @@ export class Pipeline<D, T> implements IPipeline<D, T> {
     }).finally(() => {
       resolved = true
       unsubscribable?.unsubscribe()
+      subscriber?.dispose()
     })
   }
 

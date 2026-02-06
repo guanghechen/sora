@@ -111,9 +111,10 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
 
       // Waiting the pipeline to be idle.
       let resolved = false
+      let subscriber: ISubscriber<PipelineStatusEnum> | undefined
       let unsubscribable: IUnsubscribable | undefined
       yield new Promise<void>(resolve => {
-        const subscriber: ISubscriber<PipelineStatusEnum> = new Subscriber<PipelineStatusEnum>({
+        subscriber = new Subscriber<PipelineStatusEnum>({
           onNext: nextStatus => {
             if (resolved) return
             if (nextStatus !== PipelineStatusEnum.DRIED) resolve()
@@ -123,6 +124,7 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
       }).finally(() => {
         resolved = true
         unsubscribable?.unsubscribe()
+        subscriber?.dispose()
       })
     }
 
@@ -159,9 +161,10 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
     void task.start()
 
     let resolved = false
+    let subscriber: ISubscriber<TaskStatusEnum> | undefined
     let unsubscribable: IUnsubscribable | undefined
     await new Promise<void>((resolve, reject) => {
-      const subscriber: ISubscriber<TaskStatusEnum> = new Subscriber<TaskStatusEnum>({
+      subscriber = new Subscriber<TaskStatusEnum>({
         onNext: status => {
           if (resolved) return
           if (task.status.terminated) {
@@ -177,6 +180,7 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
     }).finally(() => {
       resolved = true
       unsubscribable?.unsubscribe()
+      subscriber?.dispose()
       pipeline.notifyMaterialHandled(codes)
 
       this._task = undefined

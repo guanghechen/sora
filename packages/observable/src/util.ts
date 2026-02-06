@@ -2,7 +2,7 @@ import type { IUnsubscribable } from '@guanghechen/subscriber'
 import type { IObservable } from './types/observable'
 import type { IUnobservable } from './types/ticker'
 
-export const noop = (..._args: any[]): void => {}
+export const noop = (..._args: unknown[]): void => {}
 export const noopUnsubscribable: IUnsubscribable = { unsubscribe: noop }
 export const noopUnobservable: IUnobservable = { unobserve: noop }
 

@@ -1,3 +1,5 @@
+import { Subscriber } from '@guanghechen/subscriber'
+import { vi } from 'vitest'
 import type { IObservable } from '../src'
 import { Observable } from '../src'
 import { TestSubscriber } from './common'
@@ -599,5 +601,56 @@ describe('async', () => {
     expect(subscriber3.value).toEqual(100)
     expect(subscriber3.updateTick).toEqual(1)
     expect(subscriber3.disposed).toEqual(true)
+  })
+
+  it('onError', async () => {
+    const duration = 20
+    let captured: unknown | undefined
+    let calledTimes = 0
+    const observable: IObservable<number> = new Observable<number>(0, {
+      delay: duration,
+      onError: error => {
+        captured = error
+        calledTimes += 1
+      },
+    })
+    let notifiedOnce = false
+    const subscriber = new Subscriber<number>({
+      onNext: (): void => {
+        if (notifiedOnce) throw new Error('boom')
+        notifiedOnce = true
+      },
+    })
+
+    observable.subscribe(subscriber)
+    observable.next(1)
+    await new Promise<void>(resolve => setTimeout(resolve, duration + 20))
+
+    expect(calledTimes).toEqual(1)
+    expect(captured).toBeInstanceOf(Error)
+  })
+
+  it('default onError handler', async () => {
+    const duration = 20
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const observable: IObservable<number> = new Observable<number>(0, { delay: duration })
+    let notifiedOnce = false
+    const subscriber = new Subscriber<number>({
+      onNext: (): void => {
+        if (notifiedOnce) throw new Error('boom')
+        notifiedOnce = true
+      },
+    })
+
+    observable.subscribe(subscriber)
+    observable.next(1)
+    await new Promise<void>(resolve => setTimeout(resolve, duration + 20))
+
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Error in observable notification:',
+      expect.any(Error),
+    )
+    consoleErrorSpy.mockRestore()
   })
 })

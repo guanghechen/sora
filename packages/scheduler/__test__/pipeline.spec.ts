@@ -1,11 +1,7 @@
+import { Subscriber } from '@guanghechen/subscriber'
+import { vi } from 'vitest'
 import { Pipeline, PipelineStatusEnum } from '../src'
-import type {
-  IMaterial,
-  IMaterialCooker,
-  IMaterialCookerApi,
-  IMaterialCookerNext,
-  IPipeline,
-} from '../src'
+import type { IMaterialCooker, IMaterialCookerApi, IMaterialCookerNext, IPipeline } from '../src'
 import type { IFIleProductData, IFileMaterialData } from './tester/FilePipelineTester'
 import { FileChangeTypeEnum, FileMaterialCooker } from './tester/FilePipelineTester'
 
@@ -35,6 +31,24 @@ class InvalidatingCooker implements IMaterialCooker<IFileMaterialData, IFIleProd
     return next(productData)
   }
 }
+
+const getHandledTicker = (
+  pipeline: Pipeline<any, any>,
+): {
+  _subscribers: { size: number }
+  subscribe: (subscriber: Subscriber<number>) => { unsubscribe: () => void }
+} =>
+  (
+    pipeline as unknown as {
+      _handledTicker: {
+        _subscribers: { size: number }
+        subscribe: (subscriber: Subscriber<number>) => { unsubscribe: () => void }
+      }
+    }
+  )._handledTicker
+
+const getHandledSubscriberSize = (pipeline: Pipeline<any, any>): number =>
+  getHandledTicker(pipeline)._subscribers.size
 
 describe('pipeline', () => {
   let pipeline: IPipeline<IFileMaterialData, IFIleProductData>
@@ -267,5 +281,70 @@ describe('pipeline (waitAllMaterialsHandledAt)', () => {
     pipeline.notifyMaterialHandled([code1])
 
     await pipeline.waitAllMaterialsHandledAt(code1)
+  })
+})
+
+describe('pipeline (wait cleanup)', () => {
+  let pipeline: Pipeline<IFileMaterialData, IFIleProductData>
+
+  beforeEach(() => {
+    pipeline = new Pipeline('sora-pipeline')
+    pipeline.use(new FileMaterialCooker('sora-cooker'))
+  })
+
+  afterEach(async () => {
+    await pipeline.close()
+  })
+
+  it('cleans up subscribers after waitMaterialHandled resolves', async () => {
+    const code = await pipeline.push({ type: FileChangeTypeEnum.CREATE, filepath: 'a' })
+    const waitPromise = pipeline.waitMaterialHandled(code)
+
+    await vi.waitFor(() => expect(getHandledSubscriberSize(pipeline)).toBe(1))
+
+    await pipeline.pull()
+    pipeline.notifyMaterialHandled([code])
+    await waitPromise
+
+    expect(getHandledSubscriberSize(pipeline)).toBe(0)
+  })
+
+  it('cleans up when notify throws during waiting', async () => {
+    const ticker = getHandledTicker(pipeline)
+    let notifiedOnce = false
+    const throwSubscriber = new Subscriber<number>({
+      onNext: (): void => {
+        if (notifiedOnce) throw new Error('boom')
+        notifiedOnce = true
+      },
+    })
+    const throwUnsubscribable = ticker.subscribe(throwSubscriber)
+
+    const code = await pipeline.push({ type: FileChangeTypeEnum.CREATE, filepath: 'a' })
+    const waitPromise = pipeline.waitMaterialHandled(code)
+    await vi.waitFor(() => expect(getHandledSubscriberSize(pipeline)).toBe(2))
+
+    await pipeline.pull()
+    expect(() => pipeline.notifyMaterialHandled([code])).toThrow()
+    await waitPromise
+
+    expect(getHandledSubscriberSize(pipeline)).toBe(1)
+    throwUnsubscribable.unsubscribe()
+    throwSubscriber.dispose()
+    expect(getHandledSubscriberSize(pipeline)).toBe(0)
+  })
+
+  it('cleans up after close while waiting', async () => {
+    const code = await pipeline.push({ type: FileChangeTypeEnum.CREATE, filepath: 'a' })
+    const waitPromise = pipeline.waitMaterialHandled(code)
+
+    await vi.waitFor(() => expect(getHandledSubscriberSize(pipeline)).toBe(1))
+    await pipeline.close()
+    await pipeline.pull()
+    pipeline.notifyMaterialHandled([code])
+    await waitPromise
+
+    expect(getHandledSubscriberSize(pipeline)).toBe(0)
+    expect(pipeline.status.closed).toBe(true)
   })
 })

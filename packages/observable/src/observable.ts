@@ -15,6 +15,7 @@ export class Observable<T> extends BatchDisposable implements IObservable<T> {
   public readonly equals: IEquals<T>
   protected readonly _delay: number
   protected readonly _subscribers: ISubscribers<T>
+  protected readonly _onError: (error: unknown) => void
   protected _value: T
   protected _updateTick: number
   protected _notifyTick: number
@@ -24,7 +25,7 @@ export class Observable<T> extends BatchDisposable implements IObservable<T> {
   constructor(defaultValue: T, options: IObservableOptions<T> = {}) {
     super()
 
-    const { equals = defaultEquals } = options
+    const { equals = defaultEquals, onError } = options
     this._delay = Math.max(0, Number(options.delay) || 0)
     this._subscribers = new Subscribers()
     this._value = defaultValue
@@ -33,6 +34,11 @@ export class Observable<T> extends BatchDisposable implements IObservable<T> {
     this._lastNotifiedValue = undefined
     this._timer = undefined
     this.equals = equals
+    this._onError =
+      onError ??
+      (error => {
+        console.error('Error in observable notification:', error)
+      })
   }
 
   public override dispose(): void {
@@ -116,7 +122,7 @@ export class Observable<T> extends BatchDisposable implements IObservable<T> {
               this._notifyImmediate()
             }
           } catch (error) {
-            console.error('Error in observable notification:', error)
+            this._onError(error)
           } finally {
             this._timer = undefined
           }

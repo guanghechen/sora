@@ -13,7 +13,7 @@ export const delay = (duration: number): Promise<void> =>
  * @param _args
  * @returns
  */
-export const falsy = (..._args: any[]): boolean => false
+export const falsy = (..._args: unknown[]): boolean => false
 
 /**
  * Transparent transmission the given parameter.
@@ -29,11 +29,11 @@ export const identity = <T>(data: T): T => data
  * @param _args
  * @returns
  */
-export const truthy = (..._args: any[]): boolean => true
+export const truthy = (..._args: unknown[]): boolean => true
 
 /**
  * Do nothing.
  *
  * @param _args
  */
-export const noop = (..._args: any[]): void => {}
+export const noop = (..._args: unknown[]): void => {}
