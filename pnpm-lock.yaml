@@ -162,7 +162,11 @@ importers:
         specifier: workspace:^
         version: link:../types
 
-  packages/reporter: {}
+  packages/reporter:
+    dependencies:
+      '@guanghechen/types':
+        specifier: workspace:^
+        version: link:../types
 
   packages/resource:
     dependencies:

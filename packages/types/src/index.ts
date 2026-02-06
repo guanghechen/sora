@@ -1,5 +1,6 @@
 export * from './disposable'
 export * from './error'
 export * from './path'
+export * from './reporter'
 export * from './resource'
 export * from './subscriber'

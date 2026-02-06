@@ -4,7 +4,8 @@
  * @module @guanghechen/reporter
  */
 
-export type IReporterLevel = 'debug' | 'info' | 'warn' | 'error'
+import type { IReporter, IReporterLevel } from '@guanghechen/types'
+export type { IReporter, IReporterLevel } from '@guanghechen/types'
 
 export type IReporterOutput = (level: IReporterLevel, parts: string[], args: unknown[]) => void
 
@@ -74,7 +75,7 @@ function isLevel(s: string): s is IReporterLevel {
   return s === 'debug' || s === 'info' || s === 'warn' || s === 'error'
 }
 
-export class Reporter {
+export class Reporter implements IReporter {
   #prefixes: string[] = []
   #threshold: number
   #level: IReporterLevel
