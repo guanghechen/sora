@@ -33,23 +33,23 @@ interface IOption<T = unknown> {
 
 ## 解析优先级
 
-| 场景                  | 解析方式                                      |
-| --------------------- | --------------------------------------------- |
-| 有 resolver           | resolver（忽略 type、coerce、内置逻辑）       |
-| 有 coerce 无 resolver | 内置解析器 + coerce                           |
-| 无 coerce 无 resolver | 内置解析器                                    |
+| 场景                  | 解析方式                                |
+| --------------------- | --------------------------------------- |
+| 有 resolver           | resolver（忽略 type、coerce、内置逻辑） |
+| 有 coerce 无 resolver | 内置解析器 + coerce                     |
+| 无 coerce 无 resolver | 内置解析器                              |
 
 ## 内置解析器
 
 根据 `type` 自动处理值的消费和 reduce：
 
-| type       | 多次出现的行为 | 示例                                      |
-| ---------- | -------------- | ----------------------------------------- |
-| `boolean`  | Last Write Wins| `--foo --no-foo` → `false`                |
-| `string`   | Last Write Wins| `--name=a --name=b` → `'b'`               |
-| `number`   | Last Write Wins| `--count=1 --count=2` → `2`               |
-| `string[]` | append         | `--include=a --include=b` → `['a', 'b']`  |
-| `number[]` | append         | `--port=80 --port=443` → `[80, 443]`      |
+| type       | 多次出现的行为  | 示例                                     |
+| ---------- | --------------- | ---------------------------------------- |
+| `boolean`  | Last Write Wins | `--foo --no-foo` → `false`               |
+| `string`   | Last Write Wins | `--name=a --name=b` → `'b'`              |
+| `number`   | Last Write Wins | `--count=1 --count=2` → `2`              |
+| `string[]` | append          | `--include=a --include=b` → `['a', 'b']` |
+| `number[]` | append          | `--port=80 --port=443` → `[80, 443]`     |
 
 ## Coerce 回调
 
@@ -71,13 +71,13 @@ interface IOption<T = unknown> {
 // 2. coerce("443") → 443 → append → [80, 443]
 ```
 
-| 规则             | 说明                                    |
-| ---------------- | --------------------------------------- |
-| 执行时机         | 解析到选项值后立即调用                  |
-| 作用域           | 每次出现的单个值（array 类型逐项调用）  |
-| 与 choices 顺序  | 先 coerce 转换，再 choices 校验         |
-| 异常处理         | 抛出异常则中止解析并报错                |
-| 与 resolver 互斥 | 有 resolver 时忽略 coerce               |
+| 规则             | 说明                                   |
+| ---------------- | -------------------------------------- |
+| 执行时机         | 解析到选项值后立即调用                 |
+| 作用域           | 每次出现的单个值（array 类型逐项调用） |
+| 与 choices 顺序  | 先 coerce 转换，再 choices 校验        |
+| 异常处理         | 抛出异常则中止解析并报错               |
+| 与 resolver 互斥 | 有 resolver 时忽略 coerce              |
 
 ## Resolver 回调
 
@@ -111,11 +111,13 @@ interface IOption<T = unknown> {
 ```
 
 适用场景：
+
 - 自定义收集逻辑（如 header 解析为对象）
 - 可选值选项（如 `--config` 或 `--config=path`）
 - 多 token 值（如 `--point 1 2 3`）
 
 约束：
+
 - 只能消费本命令的 argv，不得跨 `--`
 - 有 resolver 时忽略 coerce 和内置解析逻辑
 - resolver 需自行处理 default 值（内置解析器不参与）
@@ -138,13 +140,13 @@ interface IOption<T = unknown> {
 })
 ```
 
-| 规则       | 说明                                    |
-| ---------- | --------------------------------------- |
-| 执行时机   | 选项解析完成后、action 执行前           |
-| 触发条件   | 仅在解析值非 undefined 时执行           |
-| 调用顺序   | 按合并后 options 集合的顺序             |
-| 覆盖行为   | 子命令覆盖选项时使用子命令的 apply      |
-| 幂等性     | apply 应该是幂等的                      |
+| 规则     | 说明                               |
+| -------- | ---------------------------------- |
+| 执行时机 | 选项解析完成后、action 执行前      |
+| 触发条件 | 仅在解析值非 undefined 时执行      |
+| 调用顺序 | 按合并后 options 集合的顺序        |
+| 覆盖行为 | 子命令覆盖选项时使用子命令的 apply |
+| 幂等性   | apply 应该是幂等的                 |
 
 ## 继承与合并
 
@@ -191,12 +193,12 @@ root.subcommand(sub)
 
 ### 运行时
 
-| 规则            | 说明                                   | 适用范围           |
-| --------------- | -------------------------------------- | ------------------ |
-| required 检查   | `required: true` 且值为 undefined 报错 | 所有选项           |
-| choices 校验    | 值必须在 choices 列表中                | 所有选项           |
-| type 校验       | number 必须解析为有效数字              | 仅内置解析器       |
-| boolean 值校验  | `--foo=xxx` 只接受 `true`/`false`      | 仅内置解析器       |
-| unknown option  | 未定义的选项报错                       | 所有选项           |
+| 规则           | 说明                                   | 适用范围     |
+| -------------- | -------------------------------------- | ------------ |
+| required 检查  | `required: true` 且值为 undefined 报错 | 所有选项     |
+| choices 校验   | 值必须在 choices 列表中                | 所有选项     |
+| type 校验      | number 必须解析为有效数字              | 仅内置解析器 |
+| boolean 值校验 | `--foo=xxx` 只接受 `true`/`false`      | 仅内置解析器 |
+| unknown option | 未定义的选项报错                       | 所有选项     |
 
 注意：`required` 和 `choices` 校验对 resolver 输出仍然生效。

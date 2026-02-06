@@ -172,7 +172,8 @@ reporter.attach('c')  // Even if inner code fails to detach
 detach()              // Restores directly to before 'a', skipping all inner prefixes
 ```
 
-The callback captures prefix length at attach time. If any outer detach is called, all inner prefixes are automatically discarded.
+The callback captures prefix length at attach time. If any outer detach is called, all inner
+prefixes are automatically discarded.
 
 ### Error-Safe Context Pattern
 

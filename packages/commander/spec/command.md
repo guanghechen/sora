@@ -74,39 +74,39 @@ const cmd = new Command({
 
 ## 属性
 
-| 属性          | 类型          | 说明                     |
-| ------------- | ------------- | ------------------------ |
-| `name`        | `string`      | 命令名称                 |
-| `aliases`     | `string[]`    | 命令别名                 |
-| `description` | `string`      | 命令描述                 |
-| `version`     | `string?`     | 版本号（沿祖先链查找）   |
-| `parent`      | `Command?`    | 父节点                   |
-| `options`     | `IOption[]`   | 当前节点定义的选项       |
-| `arguments`   | `IArgument[]` | 当前节点定义的参数       |
+| 属性          | 类型          | 说明                   |
+| ------------- | ------------- | ---------------------- |
+| `name`        | `string`      | 命令名称               |
+| `aliases`     | `string[]`    | 命令别名               |
+| `description` | `string`      | 命令描述               |
+| `version`     | `string?`     | 版本号（沿祖先链查找） |
+| `parent`      | `Command?`    | 父节点                 |
+| `options`     | `IOption[]`   | 当前节点定义的选项     |
+| `arguments`   | `IArgument[]` | 当前节点定义的参数     |
 
 ## 方法
 
 ### 定义
 
-| 方法                          | 说明           |
-| ----------------------------- | -------------- |
-| `.option(opt: IOption)`       | 添加选项定义   |
-| `.argument(arg: IArgument)`   | 添加参数定义   |
-| `.action(fn: IAction)`        | 设置 action    |
+| 方法                        | 说明         |
+| --------------------------- | ------------ |
+| `.option(opt: IOption)`     | 添加选项定义 |
+| `.argument(arg: IArgument)` | 添加参数定义 |
+| `.action(fn: IAction)`      | 设置 action  |
 
 ### 组装
 
-| 方法                          | 说明         |
-| ----------------------------- | ------------ |
-| `.subcommand(cmd: Command)`   | 添加子命令   |
+| 方法                        | 说明       |
+| --------------------------- | ---------- |
+| `.subcommand(cmd: Command)` | 添加子命令 |
 
 ### 执行
 
-| 方法                                     | 说明                           |
-| ---------------------------------------- | ------------------------------ |
-| `.run(params: IRunParams)`               | 解析 + 执行（入口方法）        |
-| `.parse(argv: string[])`                 | 解析 argv，返回 `{ opts, args }` |
-| `.formatHelp()`                          | 生成帮助文本                   |
+| 方法                       | 说明                             |
+| -------------------------- | -------------------------------- |
+| `.run(params: IRunParams)` | 解析 + 执行（入口方法）          |
+| `.parse(argv: string[])`   | 解析 argv，返回 `{ opts, args }` |
+| `.formatHelp()`            | 生成帮助文本                     |
 
 ```typescript
 /** run 方法参数 */
@@ -195,6 +195,7 @@ interface IArgument {
 ```
 
 约束：
+
 - `required` 必须在 `optional` 之前
 - `variadic` 只能出现一次，且必须在最后
 - 子命令存在时，父命令的 arguments 不参与解析
@@ -297,10 +298,10 @@ pm --verbose start myapp    # ❌ 错误：遇到 --verbose 时路由停止，st
 
 Command 创建时自动挂载以下选项：
 
-| 选项          | 短选项 | 说明                 |
-| ------------- | ------ | -------------------- |
-| `--help`      | `-h`   | 显示帮助并退出       |
-| `--version`   | `-V`   | 显示版本并退出       |
+| 选项        | 短选项 | 说明           |
+| ----------- | ------ | -------------- |
+| `--help`    | `-h`   | 显示帮助并退出 |
+| `--version` | `-V`   | 显示版本并退出 |
 
 用户可通过定义同名选项覆盖默认行为。
 

@@ -88,10 +88,10 @@ pm.subcommand(new CompletionCommand(pm))
 new CompletionCommand(root: Command, config?: ICompletionCommandConfig)
 ```
 
-| 参数          | 类型                      | 说明                           |
-| ------------- | ------------------------- | ------------------------------ |
-| `root`        | `Command`                 | 根命令（用于生成元数据）       |
-| `config.name` | `string?`                 | 子命令名称，默认 `completion`  |
+| 参数          | 类型      | 说明                          |
+| ------------- | --------- | ----------------------------- |
+| `root`        | `Command` | 根命令（用于生成元数据）      |
+| `config.name` | `string?` | 子命令名称，默认 `completion` |
 
 ### 使用示例
 
@@ -130,11 +130,11 @@ pm completion --pwsh >> $PROFILE
 
 ### 选项
 
-| 选项     | 说明                       |
-| -------- | -------------------------- |
-| `--bash` | 生成 Bash 补全脚本         |
-| `--fish` | 生成 Fish 补全脚本         |
-| `--pwsh` | 生成 PowerShell 补全脚本   |
+| 选项     | 说明                     |
+| -------- | ------------------------ |
+| `--bash` | 生成 Bash 补全脚本       |
+| `--fish` | 生成 Fish 补全脚本       |
+| `--pwsh` | 生成 PowerShell 补全脚本 |
 
 必须且只能指定一个 shell 选项。
 
@@ -215,12 +215,12 @@ Register-ArgumentCompleter -Native -CommandName pm -ScriptBlock {
 
 ## 安装路径
 
-| Shell      | 路径                                                | 说明             |
-| ---------- | --------------------------------------------------- | ---------------- |
-| Bash       | `~/.local/share/bash-completion/completions/<name>` | XDG 标准         |
-| Bash (备选)| `~/.bash_completion.d/<name>`                       | 旧路径           |
-| Fish       | `~/.config/fish/completions/<name>.fish`            | XDG 标准         |
-| PowerShell | `$PROFILE`                                          | 追加到配置       |
+| Shell       | 路径                                                | 说明       |
+| ----------- | --------------------------------------------------- | ---------- |
+| Bash        | `~/.local/share/bash-completion/completions/<name>` | XDG 标准   |
+| Bash (备选) | `~/.bash_completion.d/<name>`                       | 旧路径     |
+| Fish        | `~/.config/fish/completions/<name>.fish`            | XDG 标准   |
+| PowerShell  | `$PROFILE`                                          | 追加到配置 |
 
 ## Command.getCompletionMeta()
 
@@ -246,6 +246,7 @@ const meta = pm.getCompletionMeta()
 ## Negative 选项补全
 
 对于 boolean 选项，补全脚本会同时包含：
+
 - `--{long}` — 原选项
 - `--no-{long}` — negative 形式
 
