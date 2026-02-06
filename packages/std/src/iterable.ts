@@ -55,7 +55,7 @@ export const mapIterable = <T, R>(elements: Iterable<T>, map: IMapper<T, R>): R[
  * console.log(map); // Map { 'foo-0' => 'foo', 'bar-1' => 'bar', 'baz-2' => 'baz' }
  */
 export const iterable2map = <K, T>(elements: Iterable<T>, getKey: IMapper<T, K>): Map<K, T> => {
-  const map: Map<K, T> = new Map()
+  const map = new Map<K, T>()
   let i = 0
   for (const value of elements) {
     const key = getKey(value, i)

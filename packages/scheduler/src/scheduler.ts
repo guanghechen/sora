@@ -110,7 +110,7 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
       }
 
       // Waiting the pipeline to be idle.
-      let resolved: boolean = false
+      let resolved = false
       let unsubscribable: IUnsubscribable | undefined
       yield new Promise<void>(resolve => {
         const subscriber: ISubscriber<PipelineStatusEnum> = new Subscriber<PipelineStatusEnum>({
@@ -158,7 +158,7 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
     this._task = task
     void task.start()
 
-    let resolved: boolean = false
+    let resolved = false
     let unsubscribable: IUnsubscribable | undefined
     await new Promise<void>((resolve, reject) => {
       const subscriber: ISubscriber<TaskStatusEnum> = new Subscriber<TaskStatusEnum>({

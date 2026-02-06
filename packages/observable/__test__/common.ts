@@ -5,7 +5,7 @@ export class TestSubscriber extends Subscriber<number> implements ISubscriber<nu
   protected _value: number
   protected _updateTick: number
 
-  constructor(initialValue: number = 0) {
+  constructor(initialValue = 0) {
     super({
       onNext: (value: number): void => {
         this._updateTick += 1

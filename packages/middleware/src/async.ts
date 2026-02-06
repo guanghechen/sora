@@ -1,15 +1,13 @@
-export interface IAsyncMiddlewareNext<Output> {
-  (embryo: Readonly<Output | null>): Promise<Output | null>
-}
+export type IAsyncMiddlewareNext<Output> = (
+  embryo: Readonly<Output | null>,
+) => Promise<Output | null>
 
-export interface IAsyncMiddleware<Input, Output, Api> {
-  (
-    input: Readonly<Input>,
-    embryo: Readonly<Output> | null,
-    api: Readonly<Api>,
-    next: IAsyncMiddlewareNext<Output>,
-  ): Promise<Output | null>
-}
+export type IAsyncMiddleware<Input, Output, Api> = (
+  input: Readonly<Input>,
+  embryo: Readonly<Output> | null,
+  api: Readonly<Api>,
+  next: IAsyncMiddlewareNext<Output>,
+) => Promise<Output | null>
 
 export interface IAsyncMiddlewares<Input, Output, Api> {
   /**

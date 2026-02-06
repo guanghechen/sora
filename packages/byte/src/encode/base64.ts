@@ -1,5 +1,5 @@
-const CODES: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-const CODE_PADDING: string = '='
+const CODES = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+const CODE_PADDING = '='
 
 const CODE_LIST: string[] = CODES.split('')
 const CODE_REFLECT = Object.fromEntries(

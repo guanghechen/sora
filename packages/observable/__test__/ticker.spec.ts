@@ -3,7 +3,7 @@ import { TestSubscriber } from './common'
 
 describe('async', () => {
   it('tick', async () => {
-    const duration: number = 50
+    const duration = 50
     const ticker = new Ticker({ start: 0, delay: duration })
 
     // ----------------------------------------------------------------------------------
@@ -49,7 +49,7 @@ describe('async', () => {
   })
 
   it('observe', async () => {
-    const duration: number = 50
+    const duration = 50
     const ticker = new Ticker({ start: 0, delay: duration })
 
     expect(ticker.getSnapshot()).toEqual(0)

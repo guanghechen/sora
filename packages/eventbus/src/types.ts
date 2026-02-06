@@ -11,18 +11,16 @@ export interface IEvent<
   payload?: P
 }
 
-export interface IEventHandler<
+/**
+ * The returned value will be ignored.
+ * @param evt
+ * @param eventBus
+ */
+export type IEventHandler<
   T extends IEventType = IEventType,
   P extends IEventPayload = IEventPayload,
   E extends IEvent<T, P> = IEvent<T, P>,
-> {
-  /**
-   * The returned value will be ignored.
-   * @param evt
-   * @param eventBus
-   */
-  (evt: Readonly<E>, eventBus: IEventBus<T>): void
-}
+> = (evt: Readonly<E>, eventBus: IEventBus<T>) => void
 
 /**
  * Internal subscription record.

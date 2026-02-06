@@ -6,7 +6,7 @@ export interface IMemoTextResourceProps {
   content: string | undefined
 }
 
-const clazz: string = 'MemoTextResource'
+const clazz = 'MemoTextResource'
 
 export class MemoTextResource implements ITextResource {
   public readonly strict: boolean

@@ -29,13 +29,11 @@ export function isEqual(x: any, y: any): boolean {
     const keys = Object.keys(x)
     if (keys.length !== Object.keys(y).length) return false
 
-    for (let i = 0; i < keys.length; ++i) {
-      if (!Object.prototype.hasOwnProperty.call(y, keys[i])) return false
+    for (const key of keys) {
+      if (!Object.prototype.hasOwnProperty.call(y, key)) return false
     }
 
-    for (let i = 0; i < keys.length; ++i) {
-      const key = keys[i]
-
+    for (const key of keys) {
       // React-specific: avoid traversing React elements' _owner.
       //  _owner contains circular references
       // and is not needed when comparing the actual elements (and not their owners)

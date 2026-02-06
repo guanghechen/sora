@@ -110,7 +110,7 @@ export class EventBus<T extends IEventType> implements IEventBus<T> {
 
   public subscribe<P extends IEventPayload = IEventPayload, E extends IEvent<T, P> = IEvent<T, P>>(
     handle: IEventHandler<T, P, E>,
-    once: boolean = false,
+    once = false,
   ): IUnsubscribable {
     // A subscriber can only be registered once
     const existing = this._subscribers.find(subscriber => subscriber.handle === handle)

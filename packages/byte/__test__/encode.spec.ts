@@ -69,8 +69,7 @@ describe('encode / decode', () => {
 
   describe('hex', () => {
     it('basic', () => {
-      const originalText: string =
-        '5b68774ab64c5d83a71ed329ee95eed5e156ccd89500693c3157c88fce380f30'
+      const originalText = '5b68774ab64c5d83a71ed329ee95eed5e156ccd89500693c3157c88fce380f30'
       const bytes: Uint8Array = text2bytes(originalText, 'hex')
       const text: string = bytes2text(bytes, 'hex')
       expect(text).toEqual(originalText)
@@ -84,7 +83,7 @@ describe('encode / decode', () => {
   })
 
   it('utf8', () => {
-    const originalText: string = 'Hello, world. 你好，世界。'
+    const originalText = 'Hello, world. 你好，世界。'
     const bytes: Uint8Array = text2bytes(originalText, 'utf8')
     const text: string = bytes2text(bytes, 'utf8')
     expect(text).toEqual(originalText)

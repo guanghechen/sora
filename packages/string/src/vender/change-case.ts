@@ -14,17 +14,14 @@ export interface Options extends SplitOptions {
   locale?: Locale
 }
 
-export interface ICaseTransformer {
-  (input: string): string
-}
+export type ICaseTransformer = (input: string) => string
 
-export interface ICaseTransformerWithIndex {
-  (input: string, index: number): string
-}
+export type ICaseTransformerWithIndex = (input: string, index: number) => string
 
-export interface ICaseTransformFactor {
-  (lower: ICaseTransformer, upper: ICaseTransformer): ICaseTransformerWithIndex
-}
+export type ICaseTransformFactor = (
+  lower: ICaseTransformer,
+  upper: ICaseTransformer,
+) => ICaseTransformerWithIndex
 
 /**
  * Convert a string to space separated lower case (`foo bar`).

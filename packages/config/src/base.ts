@@ -18,7 +18,7 @@ export interface IBaseConfigKeeperProps {
   readonly hashAlgorithm?: IHashAlgorithm
 }
 
-const clazz: string = 'BaseConfigKeeper'
+const clazz = 'BaseConfigKeeper'
 
 export abstract class BaseConfigKeeper<Instance, Data> implements IConfigKeeper<Instance> {
   public readonly hashAlgorithm: IHashAlgorithm

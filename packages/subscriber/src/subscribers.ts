@@ -40,8 +40,7 @@ export class Subscribers<T> implements ISubscribers<T> {
 
     const batcher = new SafeBatchHandler()
     const items: Array<ISubscriberItem<T>> = this._items
-    for (let i = 0; i < items.length; ++i) {
-      const item: ISubscriberItem<T> = items[i]
+    for (const item of items) {
       if (item.unsubscribed) continue
       item.unsubscribed = true
 
@@ -96,8 +95,7 @@ export class Subscribers<T> implements ISubscribers<T> {
     const items: Array<ISubscriberItem<T>> = this._items
     if (items.length >= this.ARRANGE_THRESHOLD && this._subscribingCount * 2 <= items.length) {
       const nextItems: Array<ISubscriberItem<T>> = []
-      for (let i = 0; i < items.length; ++i) {
-        const item = items[i]
+      for (const item of items) {
         if (item.unsubscribed || item.subscriber.disposed) continue
         nextItems.push(item)
       }

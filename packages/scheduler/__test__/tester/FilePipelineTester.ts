@@ -142,7 +142,7 @@ export class SlowFileTask extends AtomicTask implements ITask {
   protected readonly data: IFIleProductData
   protected readonly delay: number
 
-  constructor(name: string, data: IFIleProductData, delay: number = 100) {
+  constructor(name: string, data: IFIleProductData, delay = 100) {
     super(name, TaskStrategyEnum.ABORT_ON_ERROR)
     this.data = data
     this.delay = delay
@@ -164,7 +164,7 @@ export class SlowFileProductConsumer implements IProductConsumer<IFIleProductDat
   public readonly name: string
   private readonly delay: number
 
-  constructor(name: string, delay: number = 50) {
+  constructor(name: string, delay = 50) {
     this.name = name
     this.delay = delay
   }

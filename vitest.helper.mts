@@ -66,7 +66,7 @@ export function createJsonDesensitizer(
 
 export function createFilepathDesensitizer(
   baseDir: string,
-  replaceString: string = '<WORKSPACE>',
+  replaceString = '<WORKSPACE>',
 ): IDesensitizer<string> {
   const source = baseDir
     .replace(/[\\/]*$/, '')
@@ -78,7 +78,7 @@ export function createFilepathDesensitizer(
 }
 
 export function composeStringDesensitizers(
-  ...desensitizers: Array<IDesensitizer<string>>
+  ...desensitizers: IDesensitizer<string>[]
 ): IDesensitizer<string> {
   return (text: string, key?: string): string => {
     let result = text
@@ -198,7 +198,7 @@ export async function writeFile(
  * Remove filepaths
  * @param filepaths
  */
-export const unlinkSync = (...filepaths: Array<string | null | undefined | string[]>): void => {
+export const unlinkSync = (...filepaths: (string | null | undefined | string[])[]): void => {
   for (let filepath of filepaths) {
     if (filepath == null) continue
     if (!Array.isArray(filepath)) filepath = [filepath]
@@ -214,20 +214,20 @@ export const assertPromiseThrow = async (
 }
 
 export const assertPromiseNotThrow = async (fn: () => Promise<unknown>): Promise<void> => {
-  await expect(fn().then(() => {})).resolves.toBeUndefined()
+  await expect(fn().then(() => undefined)).resolves.toBeUndefined()
 }
 
 export type IConsoleMethodField = 'debug' | 'log' | 'info' | 'warn' | 'error'
 
 export interface IConsoleMock {
-  get(methodName: IConsoleMethodField): ReadonlyArray<ReadonlyArray<unknown>>
-  getIndiscriminateAll(): ReadonlyArray<ReadonlyArray<unknown>>
+  get(methodName: IConsoleMethodField): readonly (readonly unknown[])[]
+  getIndiscriminateAll(): readonly (readonly unknown[])[]
   reset(): void
   restore(): void
 }
 
 export function createConsoleMock(
-  methodNames: ReadonlyArray<IConsoleMethodField> = ['debug', 'log', 'info', 'warn', 'error'],
+  methodNames: readonly IConsoleMethodField[] = ['debug', 'log', 'info', 'warn', 'error'],
   desensitizeFn?: (args: unknown[]) => unknown[],
 ): IConsoleMock {
   const mockFnMap: Record<string, MockInstance> = {}
@@ -244,10 +244,10 @@ export function createConsoleMock(
   }
 
   return {
-    get(methodName: IConsoleMethodField): ReadonlyArray<ReadonlyArray<unknown>> {
+    get(methodName: IConsoleMethodField): readonly (readonly unknown[])[] {
       return callsMap[methodName] ?? []
     },
-    getIndiscriminateAll(): ReadonlyArray<ReadonlyArray<unknown>> {
+    getIndiscriminateAll(): readonly (readonly unknown[])[] {
       return allCalls
     },
     reset(): void {
@@ -266,11 +266,11 @@ export function createConsoleMock(
 
 export interface ICreateReporterMockOptions {
   reporter: Reporter
-  desensitize?(args: ReadonlyArray<unknown>): unknown[]
+  desensitize?(args: readonly unknown[]): unknown[]
 }
 
 export interface IReporterMock {
-  getIndiscriminateAll(): ReadonlyArray<ReadonlyArray<unknown>>
+  getIndiscriminateAll(): readonly (readonly unknown[])[]
   reset(): void
   restore(): void
 }
@@ -283,7 +283,7 @@ export function createReporterMock(options: ICreateReporterMockOptions): IReport
   reporter.mock()
 
   return {
-    getIndiscriminateAll(): ReadonlyArray<ReadonlyArray<unknown>> {
+    getIndiscriminateAll(): readonly (readonly unknown[])[] {
       const entries = reporter.collect()
       reporter.mock() // Re-enable mock mode after collect
       for (const entry of entries) {

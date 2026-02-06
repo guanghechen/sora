@@ -35,7 +35,7 @@ describe('CONTINUE_ON_ERROR', () => {
 function basicTests(strategy: TaskStrategyEnum): void {
   describe('basic', () => {
     it('should start and finish successfully', async () => {
-      let result: number = 0
+      let result = 0
       const processor: ITaskProcessor = {
         process: vi.fn(function* (): IterableIterator<Promise<void>> {
           result = 1
@@ -127,7 +127,7 @@ function basicTests(strategy: TaskStrategyEnum): void {
     })
 
     it('should start and auto finish successfully', async () => {
-      let result: number = 0
+      let result = 0
       const processor: ITaskProcessor = {
         process: vi.fn(function* (): IterableIterator<Promise<void>> {
           result = 1
@@ -178,7 +178,7 @@ function basicTests(strategy: TaskStrategyEnum): void {
     })
 
     it('should start and fail', async () => {
-      let result: number = 0
+      let result = 0
       const processor: ITaskProcessor = {
         process: vi.fn(function* (): IterableIterator<Promise<void>> {
           result = 1
@@ -220,7 +220,7 @@ function basicTests(strategy: TaskStrategyEnum): void {
     })
 
     it('should start and auto fail', async () => {
-      let result: number = 0
+      let result = 0
       const processor: ITaskProcessor = {
         process: vi.fn(function* (): IterableIterator<Promise<void>> {
           result = 1
@@ -262,7 +262,7 @@ function basicTests(strategy: TaskStrategyEnum): void {
     })
 
     it('should finish from pending', async () => {
-      let result: number = 0
+      let result = 0
       const processor: ITaskProcessor = {
         process: vi.fn(function* (): IterableIterator<Promise<void>> {
           result = 1
@@ -288,7 +288,7 @@ function basicTests(strategy: TaskStrategyEnum): void {
     })
 
     it('should cancel from pending', async () => {
-      let result: number = 0
+      let result = 0
       const processor: ITaskProcessor = {
         process: vi.fn(function* (): IterableIterator<Promise<void>> {
           result = 1
@@ -314,7 +314,7 @@ function basicTests(strategy: TaskStrategyEnum): void {
     })
 
     it('should be cancelled', async () => {
-      let result: number = 0
+      let result = 0
       const processor: ITaskProcessor = {
         process: vi.fn(function* (): IterableIterator<Promise<void>> {
           result = 1

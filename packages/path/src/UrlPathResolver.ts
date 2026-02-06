@@ -1,6 +1,6 @@
 import type { IPathResolver } from '@guanghechen/types'
 
-const clazz: string = 'UrlPathResolver'
+const clazz = 'UrlPathResolver'
 
 export class UrlPathResolver implements IPathResolver {
   public basename(filepath: string): string {
@@ -95,7 +95,7 @@ export class UrlPathResolver implements IPathResolver {
     const fromPieces: string[] = from.split('/')
     const toPieces: string[] = to.split('/')
 
-    let ci: number = 0
+    let ci = 0
     const L: number = fromPieces.length < toPieces.length ? fromPieces.length : toPieces.length
     for (; ci < L; ++ci) {
       if (fromPieces[ci] !== toPieces[ci]) break

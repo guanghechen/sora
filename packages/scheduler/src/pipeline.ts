@@ -30,13 +30,12 @@ export class Pipeline<D, T> implements IPipeline<D, T> {
         material.alive = false
       },
       subsequent: function* (): IterableIterator<IMaterial<D>> {
-        for (let i = 0; i < materials.length; ++i) {
-          const material: IMaterial<D> = materials[i]
+        for (const material of materials) {
           if (material.alive) yield material
         }
       },
     }
-    const code: number = 0
+    const code = 0
     const maxContinuousHandledCode: number = code - 1
     const handledCodes: Set<number> = new Set<number>()
     const handledTicker: ITicker = new Ticker()
@@ -118,7 +117,7 @@ export class Pipeline<D, T> implements IPipeline<D, T> {
   public async waitMaterialHandled(code: number): Promise<void> {
     if (code <= this._maxContinuousHandledCode || this._handledCodes.has(code)) return
 
-    let resolved: boolean = false
+    let resolved = false
     let unsubscribable: IUnsubscribable | undefined
     await new Promise<void>(resolve => {
       const subscriber: ISubscriber<number> = new Subscriber<number>({
@@ -138,7 +137,7 @@ export class Pipeline<D, T> implements IPipeline<D, T> {
   public async waitAllMaterialsHandledAt(code: number): Promise<void> {
     if (code <= this._maxContinuousHandledCode) return
 
-    let resolved: boolean = false
+    let resolved = false
     let unsubscribable: IUnsubscribable | undefined
     await new Promise<void>(resolve => {
       const subscriber: ISubscriber<number> = new Subscriber<number>({

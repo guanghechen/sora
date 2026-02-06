@@ -7,7 +7,7 @@ import { TestSubscriber } from './_common'
 class ImmutableSet<V> implements IImmutableSet<V> {
   protected _set: Set<V>
 
-  constructor(set: Set<V> = new Set()) {
+  constructor(set = new Set<V>()) {
     this._set = set
   }
 
@@ -53,7 +53,7 @@ class ImmutableSet<V> implements IImmutableSet<V> {
 class MutableSet<V> implements IImmutableSet<V> {
   protected _set: Set<V>
 
-  constructor(set: Set<V> = new Set()) {
+  constructor(set = new Set<V>()) {
     this._set = new Set(set)
   }
 

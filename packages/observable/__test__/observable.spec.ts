@@ -208,7 +208,7 @@ describe('sync', () => {
 
 describe('async', () => {
   it('notifier', async () => {
-    const duration: number = 50
+    const duration = 50
     const observable: IObservable<number> = new Observable<number>(0, { delay: duration })
     const subscriber1 = new TestSubscriber(1)
     const subscriber2 = new TestSubscriber(2)
@@ -490,7 +490,7 @@ describe('async', () => {
   })
 
   it('subscribe', async () => {
-    const duration: number = 50
+    const duration = 50
     const observable: IObservable<number> = new Observable<number>(0, { delay: duration })
 
     expect(observable.getSnapshot()).toEqual(0)

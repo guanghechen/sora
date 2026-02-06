@@ -1,15 +1,11 @@
-export interface IMiddlewareNext<Output> {
-  (embryo: Readonly<Output | null>): Output | null
-}
+export type IMiddlewareNext<Output> = (embryo: Readonly<Output | null>) => Output | null
 
-export interface IMiddleware<Input, Output, Api> {
-  (
-    input: Readonly<Input>,
-    embryo: Readonly<Output> | null,
-    api: Readonly<Api>,
-    next: IMiddlewareNext<Output>,
-  ): Output | null
-}
+export type IMiddleware<Input, Output, Api> = (
+  input: Readonly<Input>,
+  embryo: Readonly<Output> | null,
+  api: Readonly<Api>,
+  next: IMiddlewareNext<Output>,
+) => Output | null
 
 export interface IMiddlewares<Input, Output, Api> {
   /**

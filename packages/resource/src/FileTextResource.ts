@@ -10,7 +10,7 @@ export interface IFileTextResourceProps {
   encoding: BufferEncoding
 }
 
-const clazz: string = 'FileTextResource'
+const clazz = 'FileTextResource'
 
 export class FileTextResource implements ITextResource {
   public readonly strict: boolean

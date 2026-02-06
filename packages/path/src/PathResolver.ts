@@ -1,7 +1,7 @@
 import type { IPathResolver, IPathResolverParams } from '@guanghechen/types'
 import path from 'node:path'
 
-const clazz: string = 'PathResolver'
+const clazz = 'PathResolver'
 
 export class PathResolver implements IPathResolver {
   protected readonly defaultPreferSlash: boolean

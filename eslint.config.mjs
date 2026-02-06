@@ -1,7 +1,6 @@
 import eslint from '@eslint/js'
-import stylisticPlugin from '@stylistic/eslint-plugin'
-import importPlugin from 'eslint-plugin-import'
-import prettierPlugin from 'eslint-plugin-prettier/recommended'
+import eslintConfigPrettier from 'eslint-config-prettier'
+import { importX } from 'eslint-plugin-import-x'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
@@ -19,9 +18,7 @@ export default [
     ],
   },
   eslint.configs.recommended,
-  prettierPlugin,
-  importPlugin.flatConfigs.errors,
-  importPlugin.flatConfigs.warnings,
+  importX.flatConfigs.recommended,
   {
     files: ['**/*.{mjs,ts}'],
     languageOptions: {
@@ -56,6 +53,7 @@ export default [
   },
   ...tseslint.configs.recommended,
   ...tseslint.configs.strict,
+  ...tseslint.configs.stylistic,
   {
     files: ['**/*.ts'],
     languageOptions: {
@@ -115,35 +113,18 @@ export default [
   },
   {
     rules: {
-      'import/first': 'error',
-      'import/no-cycle': ['error', { ignoreExternal: true }],
-      'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
-      'import/no-self-import': 'error',
-      'import/no-unresolved': 'off',
-      'import/order': [
+      'import-x/first': 'error',
+      'import-x/no-cycle': ['error', { ignoreExternal: true }],
+      'import-x/no-extraneous-dependencies': ['error', { devDependencies: true }],
+      'import-x/no-self-import': 'error',
+      'import-x/no-unresolved': 'off',
+      'import-x/order': [
         'error',
         {
           alphabetize: { order: 'asc', caseInsensitive: true },
           groups: [['builtin', 'external'], 'internal', 'parent', 'sibling'],
           'newlines-between': 'never',
         },
-      ],
-    },
-  },
-  {
-    files: ['**/*.ts'],
-    plugins: { '@stylistic': stylisticPlugin },
-    rules: {
-      '@stylistic/member-delimiter-style': [
-        'error',
-        {
-          multiline: { delimiter: 'none' },
-          singleline: { delimiter: 'semi', requireLast: false },
-        },
-      ],
-      '@stylistic/type-annotation-spacing': [
-        'error',
-        { before: false, after: true, overrides: { arrow: { before: true, after: true } } },
       ],
     },
   },
@@ -155,7 +136,7 @@ export default [
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
-      'import/no-extraneous-dependencies': 'off',
+      'import-x/no-extraneous-dependencies': 'off',
       'no-plusplus': 'off',
       'no-template-curly-in-string': 'off',
     },
@@ -169,7 +150,8 @@ export default [
   {
     files: ['eslint.config.mjs', 'rollup.config.mjs'],
     rules: {
-      'import/no-anonymous-default-export': 'off',
+      'import-x/no-anonymous-default-export': 'off',
     },
   },
+  eslintConfigPrettier,
 ]
