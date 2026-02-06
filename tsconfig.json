@@ -11,7 +11,7 @@
       "@guanghechen/env": ["packages/env/src"],
       "@guanghechen/equal": ["packages/equal/src"],
       "@guanghechen/event-bus": ["packages/event-bus/src"],
-      "@guanghechen/file-split": ["packages/file-split/src"],
+      "@guanghechen/filesplit": ["packages/filesplit/src"],
       "@guanghechen/filepart": ["packages/filepart/src"],
       "@guanghechen/invariant": ["packages/invariant/src"],
       "@guanghechen/middleware": ["packages/middleware/src"],

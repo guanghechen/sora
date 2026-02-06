@@ -122,7 +122,7 @@ export default defineConfig({
       '@guanghechen/env': path.resolve(__dirname, 'packages/env/src'),
       '@guanghechen/equal': path.resolve(__dirname, 'packages/equal/src'),
       '@guanghechen/event-bus': path.resolve(__dirname, 'packages/event-bus/src'),
-      '@guanghechen/file-split': path.resolve(__dirname, 'packages/file-split/src'),
+      '@guanghechen/filesplit': path.resolve(__dirname, 'packages/filesplit/src'),
       '@guanghechen/filepart': path.resolve(__dirname, 'packages/filepart/src'),
       '@guanghechen/invariant': path.resolve(__dirname, 'packages/invariant/src'),
       '@guanghechen/middleware': path.resolve(__dirname, 'packages/middleware/src'),

@@ -125,7 +125,13 @@ importers:
 
   packages/event-bus: {}
 
-  packages/file-split:
+  packages/filepart:
+    dependencies:
+      '@guanghechen/invariant':
+        specifier: workspace:^
+        version: link:../invariant
+
+  packages/filesplit:
     dependencies:
       '@guanghechen/filepart':
         specifier: workspace:^
@@ -136,12 +142,6 @@ importers:
       '@guanghechen/stream':
         specifier: workspace:^
         version: link:../stream
-
-  packages/filepart:
-    dependencies:
-      '@guanghechen/invariant':
-        specifier: workspace:^
-        version: link:../invariant
 
   packages/invariant: {}
 

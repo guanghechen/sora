@@ -1,24 +1,24 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/file-split@2.0.0/packages/file-split#readme">@guanghechen/file-split</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/filesplit@2.0.0/packages/filesplit#readme">@guanghechen/filesplit</a>
   </h1>
   <div align="center">
-    <a href="https://www.npmjs.com/package/@guanghechen/file-split">
+    <a href="https://www.npmjs.com/package/@guanghechen/filesplit">
       <img
         alt="Npm Version"
-        src="https://img.shields.io/npm/v/@guanghechen/file-split.svg"
+        src="https://img.shields.io/npm/v/@guanghechen/filesplit.svg"
       />
     </a>
-    <a href="https://www.npmjs.com/package/@guanghechen/file-split">
+    <a href="https://www.npmjs.com/package/@guanghechen/filesplit">
       <img
         alt="Npm Download"
-        src="https://img.shields.io/npm/dm/@guanghechen/file-split.svg"
+        src="https://img.shields.io/npm/dm/@guanghechen/filesplit.svg"
       />
     </a>
-    <a href="https://www.npmjs.com/package/@guanghechen/file-split">
+    <a href="https://www.npmjs.com/package/@guanghechen/filesplit">
       <img
         alt="Npm License"
-        src="https://img.shields.io/npm/l/@guanghechen/file-split.svg"
+        src="https://img.shields.io/npm/l/@guanghechen/filesplit.svg"
       />
     </a>
     <a href="#install">
@@ -30,7 +30,7 @@
     <a href="https://github.com/nodejs/node">
       <img
         alt="Node.js Version"
-        src="https://img.shields.io/node/v/@guanghechen/file-split"
+        src="https://img.shields.io/node/v/@guanghechen/filesplit"
       />
     </a>
     <a href="https://github.com/facebook/jest">
@@ -57,13 +57,13 @@ files.
 - npm
 
   ```bash
-  npm install --save @guanghechen/file-split
+  npm install --save @guanghechen/filesplit
   ```
 
 - yarn
 
   ```bash
-  yarn add @guanghechen/file-split
+  yarn add @guanghechen/filesplit
   ```
 
 ## Usage
@@ -71,7 +71,7 @@ files.
 - `FileSplitter` (inspired by [file-split][])
 
   ```typescript
-  import { FileSplitter } from '@guanghechen/file-split'
+  import { FileSplitter } from '@guanghechen/filesplit'
   import { calcFilePartItemsBySize } from '@guanghechen/filepart'
 
   async function splitFile(filepath: string): Promise<string[]> {
@@ -91,5 +91,5 @@ files.
 |  `FileSplitter`  | A utility class for splitting / merging files |
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/file-split@2.0.0/packages/file-split#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/filesplit@2.0.0/packages/filesplit#readme
 [file-split]: https://github.com/tomvlk/node-file-split

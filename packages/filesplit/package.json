@@ -1,5 +1,5 @@
 {
-  "name": "@guanghechen/file-split",
+  "name": "@guanghechen/filesplit",
   "version": "2.0.0",
   "description": "File helper",
   "author": {
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/file-split@2.0.0",
-    "directory": "packages/file-split"
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/filesplit@2.0.0",
+    "directory": "packages/filesplit"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/file-split@2.0.0/packages/file-split#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/filesplit@2.0.0/packages/filesplit#readme",
   "keywords": [
     "file helper",
     "split file",
