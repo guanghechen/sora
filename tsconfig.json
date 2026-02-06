@@ -7,7 +7,6 @@
       "@guanghechen/byte": ["packages/byte/src"],
       "@guanghechen/commander": ["packages/commander/src"],
       "@guanghechen/config": ["packages/config/src"],
-      "@guanghechen/config.types": ["packages/config.types/src"],
       "@guanghechen/disposable": ["packages/disposable/src"],
       "@guanghechen/disposable.types": ["packages/disposable.types/src"],
       "@guanghechen/equal": ["packages/equal/src"],

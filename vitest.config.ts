@@ -118,7 +118,6 @@ export default defineConfig({
       'vitest.helper': path.resolve(__dirname, 'vitest.helper.mts'),
       '@guanghechen/byte': path.resolve(__dirname, 'packages/byte/src'),
       '@guanghechen/config': path.resolve(__dirname, 'packages/config/src'),
-      '@guanghechen/config.types': path.resolve(__dirname, 'packages/config.types/src'),
       '@guanghechen/disposable': path.resolve(__dirname, 'packages/disposable/src'),
       '@guanghechen/disposable.types': path.resolve(__dirname, 'packages/disposable.types/src'),
       '@guanghechen/env': path.resolve(__dirname, 'packages/env/src'),

@@ -100,9 +100,6 @@ importers:
       '@guanghechen/byte':
         specifier: workspace:^
         version: link:../byte
-      '@guanghechen/config.types':
-        specifier: workspace:^
-        version: link:../config.types
       '@guanghechen/invariant':
         specifier: workspace:^
         version: link:../invariant
@@ -112,12 +109,6 @@ importers:
       '@guanghechen/version':
         specifier: workspace:^
         version: link:../version
-
-  packages/config.types:
-    dependencies:
-      '@guanghechen/resource':
-        specifier: workspace:^
-        version: link:../resource
 
   packages/disposable:
     dependencies:

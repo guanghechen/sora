@@ -1,6 +1,6 @@
-import type { IConfig, IConfigKeeper } from '@guanghechen/config.types'
 import type { IBaseConfigKeeperProps } from './base'
 import { BaseConfigKeeper } from './base'
+import type { IConfig, IConfigKeeper } from './types'
 
 export interface IJsonConfigKeeperProps extends IBaseConfigKeeperProps {}
 
