@@ -1,4 +1,6 @@
-import type { IMapper, IPredicate } from './types'
+type IMapper<T, R> = (element: T, index: number) => R
+
+type IPredicate<T> = (element: T, index: number) => boolean
 
 /**
  * `.filter` method for Iterable structure.
