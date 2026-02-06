@@ -45,8 +45,11 @@ const coverageMap: Record<
   '@guanghechen/std': {
     global: { branches: 88, functions: 94, lines: 94, statements: 94 },
     'src/root.ts': { branches: 0 },
-    'src/string/vender/change-case.ts': { branches: 53, functions: 80, lines: 84, statements: 81 },
-    'src/string/vender/title-case.ts': { branches: 50, lines: 83, statements: 83 },
+  },
+  '@guanghechen/string': {
+    global: { branches: 88, functions: 94, lines: 94, statements: 94 },
+    'src/vender/change-case.ts': { branches: 53, functions: 80, lines: 84, statements: 81 },
+    'src/vender/title-case.ts': { branches: 50, lines: 83, statements: 83 },
   },
   '@guanghechen/subscriber': {
     global: { branches: 94, functions: 93, statements: 98 },
@@ -136,6 +139,7 @@ export default defineConfig({
       '@guanghechen/scheduler': path.resolve(__dirname, 'packages/scheduler/src'),
       '@guanghechen/std': path.resolve(__dirname, 'packages/std/src'),
       '@guanghechen/stream': path.resolve(__dirname, 'packages/stream/src'),
+      '@guanghechen/string': path.resolve(__dirname, 'packages/string/src'),
       '@guanghechen/subscriber': path.resolve(__dirname, 'packages/subscriber/src'),
       '@guanghechen/task': path.resolve(__dirname, 'packages/task/src'),
       '@guanghechen/types': path.resolve(__dirname, 'packages/types/src'),

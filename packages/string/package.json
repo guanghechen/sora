@@ -1,21 +1,24 @@
 {
-  "name": "@guanghechen/std",
+  "name": "@guanghechen/string",
   "version": "2.0.0",
-  "description": "Standard utilities codes and types.",
+  "description": "String utilities including case transformers and parsers.",
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/std@2.0.0",
-    "directory": "packages/std"
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/string@2.0.0",
+    "directory": "packages/string"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/std@2.0.0/packages/std#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/string@2.0.0/packages/string#readme",
   "keywords": [
-    "array",
-    "is",
-    "iterable"
+    "string",
+    "case",
+    "camel-case",
+    "kebab-case",
+    "snake-case",
+    "pascal-case"
   ],
   "type": "module",
   "exports": {

@@ -206,6 +206,8 @@ importers:
         specifier: workspace:^
         version: link:../byte
 
+  packages/string: {}
+
   packages/subscriber:
     dependencies:
       '@guanghechen/disposable':
