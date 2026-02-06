@@ -4,11 +4,11 @@
   "npmClient": "pnpm",
   "ignoreChanges": ["*.md", "**/__test__/**/*"],
   "changelog": {
-    "preset": "@guanghechen/conventional-changelog"
+    "preset": "./script/changelog.mjs"
   },
   "command": {
     "publish": {
-      "changelogPreset": "@guanghechen/conventional-changelog",
+      "changelogPreset": "./script/changelog.mjs",
       "conventionalCommits": false,
       "forcePublish": false,
       "graphType": "all",
@@ -18,7 +18,7 @@
     },
     "version": {
       "allowBranch": ["main", "release-*"],
-      "changelogPreset": "@guanghechen/conventional-changelog",
+      "changelogPreset": "./script/changelog.mjs",
       "conventionalCommits": false,
       "forcePublish": false,
       "message": ":bookmark:  release",
