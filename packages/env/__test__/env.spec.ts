@@ -115,6 +115,31 @@ describe('parse', () => {
     const result = parse('NAME: value')
     expect(result).toEqual({ NAME: 'value' })
   })
+
+  it('should handle unclosed quotes', () => {
+    const result = parse('NAME="unclosed')
+    expect(result).toEqual({ NAME: '"unclosed' })
+  })
+
+  it('should skip lines without separator', () => {
+    const result = parse('NOSEP\nNAME=value')
+    expect(result).toEqual({ NAME: 'value' })
+  })
+
+  it('should skip lines with invalid key', () => {
+    const result = parse('=value\nNAME=value')
+    expect(result).toEqual({ NAME: 'value' })
+  })
+
+  it('should skip lines with special characters in key', () => {
+    const result = parse('bad@key=value\nNAME=value')
+    expect(result).toEqual({ NAME: 'value' })
+  })
+
+  it('should handle colon-only separator (no equals)', () => {
+    const result = parse('NAME:value')
+    expect(result).toEqual({ NAME: 'value' })
+  })
 })
 
 describe('stringify', () => {
