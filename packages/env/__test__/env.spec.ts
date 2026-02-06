@@ -36,9 +36,9 @@ describe('parse', () => {
     expect(result).toEqual({ NAME: 'value' })
   })
 
-  it('should handle spaces around equals sign', () => {
-    const result = parse('NAME = value')
-    expect(result).toEqual({ NAME: 'value' })
+  it('should skip lines with spaces around equals sign', () => {
+    const result = parse('NAME = value\nVALID=ok')
+    expect(result).toEqual({ VALID: 'ok' })
   })
 
   it('should handle single-quoted values without processing', () => {
@@ -106,19 +106,38 @@ describe('parse', () => {
     expect(result).toEqual({ NAME: 'value', PORT: '3000' })
   })
 
-  it('should handle keys with dots and dashes', () => {
-    const result = parse('my.key=value\nmy-key=value2')
-    expect(result).toEqual({ 'my.key': 'value', 'my-key': 'value2' })
+  it('should skip keys with dots (non-standard)', () => {
+    const result = parse('my.key=value\nVALID=ok')
+    expect(result).toEqual({ VALID: 'ok' })
   })
 
-  it('should handle colon as separator', () => {
-    const result = parse('NAME: value')
-    expect(result).toEqual({ NAME: 'value' })
+  it('should skip keys with dashes (non-standard)', () => {
+    const result = parse('my-key=value\nVALID=ok')
+    expect(result).toEqual({ VALID: 'ok' })
   })
 
-  it('should handle unclosed quotes', () => {
-    const result = parse('NAME="unclosed')
-    expect(result).toEqual({ NAME: '"unclosed' })
+  it('should accept keys starting with underscore', () => {
+    const result = parse('_PRIVATE=secret\n__DOUBLE=value')
+    expect(result).toEqual({ _PRIVATE: 'secret', __DOUBLE: 'value' })
+  })
+
+  it('should skip keys starting with number', () => {
+    const result = parse('1KEY=value\nVALID=ok')
+    expect(result).toEqual({ VALID: 'ok' })
+  })
+
+  it('should throw on unclosed double quote', () => {
+    expect(() => parse('NAME="unclosed')).toThrow(SyntaxError)
+    expect(() => parse('NAME="unclosed')).toThrow('Unclosed quote at line 1')
+  })
+
+  it('should throw on unclosed single quote', () => {
+    expect(() => parse("NAME='unclosed")).toThrow(SyntaxError)
+    expect(() => parse("NAME='unclosed")).toThrow('Unclosed quote at line 1')
+  })
+
+  it('should report correct line number for unclosed quote', () => {
+    expect(() => parse('VALID=ok\nNAME="unclosed')).toThrow('Unclosed quote at line 2')
   })
 
   it('should skip lines without separator', () => {
@@ -131,14 +150,9 @@ describe('parse', () => {
     expect(result).toEqual({ NAME: 'value' })
   })
 
-  it('should skip lines with special characters in key', () => {
-    const result = parse('bad@key=value\nNAME=value')
-    expect(result).toEqual({ NAME: 'value' })
-  })
-
-  it('should handle colon-only separator (no equals)', () => {
-    const result = parse('NAME:value')
-    expect(result).toEqual({ NAME: 'value' })
+  it('should handle values containing colons', () => {
+    const result = parse('URL=http://example.com:8080')
+    expect(result).toEqual({ URL: 'http://example.com:8080' })
   })
 })
 

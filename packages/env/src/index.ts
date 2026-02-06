@@ -13,11 +13,15 @@ export interface IStringifyEnvOptions {
   exclude?: string[]
 }
 
+/** Key pattern: standard shell variable naming ([A-Za-z_][A-Za-z0-9_]*) */
+const KEY_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/
+
 /**
  * Parse .env content string into an object.
  * Supports comments, export prefix, quoted values, and variable interpolation.
  * @param content - .env file content
  * @returns Parsed environment record
+ * @throws {SyntaxError} If unclosed quote is detected
  */
 export function parse(content: string): IEnvRecord {
   const env: IEnvRecord = {}
@@ -25,7 +29,8 @@ export function parse(content: string): IEnvRecord {
 
   const lines = content.replace(/\r\n?/g, '\n').split('\n')
 
-  for (const line of lines) {
+  for (let lineNum = 0; lineNum < lines.length; lineNum++) {
+    const line = lines[lineNum]
     const trimmed = line.trim()
 
     // Skip empty lines and comments
@@ -34,26 +39,16 @@ export function parse(content: string): IEnvRecord {
     // Remove optional export prefix
     const withoutExport = trimmed.startsWith('export ') ? trimmed.slice(7).trim() : trimmed
 
-    // Find key and value separator (= or :)
-    const eqIndex = withoutExport.indexOf('=')
-    const colonIndex = withoutExport.indexOf(':')
-    let sepIndex = -1
-
-    if (eqIndex !== -1 && colonIndex !== -1) {
-      sepIndex = Math.min(eqIndex, colonIndex)
-    } else if (eqIndex !== -1) {
-      sepIndex = eqIndex
-    } else if (colonIndex !== -1) {
-      sepIndex = colonIndex
-    }
-
+    // Find key and value separator (only =, no spaces allowed around it)
+    const sepIndex = withoutExport.indexOf('=')
     if (sepIndex === -1) continue
 
-    const key = withoutExport.slice(0, sepIndex).trim()
-    if (!key || !/^[\w.-]+$/.test(key)) continue
+    const key = withoutExport.slice(0, sepIndex)
+    if (!key || !KEY_PATTERN.test(key)) continue
 
-    let value = withoutExport.slice(sepIndex + 1).trim()
+    let value = withoutExport.slice(sepIndex + 1)
 
+    // Handle empty value
     if (!value) {
       env[key] = ''
       continue
@@ -66,18 +61,20 @@ export function parse(content: string): IEnvRecord {
     if (isDoubleQuote || isSingleQuote) {
       // Find closing quote
       const closeIndex = findClosingQuote(value, quoteChar)
-      if (closeIndex !== -1) {
-        value = value.slice(1, closeIndex)
-
-        if (isDoubleQuote) {
-          // Process escape sequences in double quotes (order matters: \\ first)
-          value = processEscapeSequences(value)
-
-          // Variable interpolation (only in double quotes)
-          value = interpolate(value, env)
-        }
-        // Single quotes: no escape processing, no interpolation
+      if (closeIndex === -1) {
+        throw new SyntaxError(`Unclosed quote at line ${lineNum + 1}: ${line}`)
       }
+
+      value = value.slice(1, closeIndex)
+
+      if (isDoubleQuote) {
+        // Process escape sequences in double quotes (order matters: \\ first)
+        value = processEscapeSequences(value)
+
+        // Variable interpolation (only in double quotes)
+        value = interpolate(value, env)
+      }
+      // Single quotes: no escape processing, no interpolation
     } else {
       // Unquoted value: handle inline comments
       const commentIndex = value.search(/\s+#/)
