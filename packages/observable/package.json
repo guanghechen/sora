@@ -42,6 +42,7 @@
   ],
   "dependencies": {
     "@guanghechen/disposable": "workspace:^",
-    "@guanghechen/subscriber": "workspace:^"
+    "@guanghechen/subscriber": "workspace:^",
+    "@guanghechen/types": "workspace:^"
   }
 }

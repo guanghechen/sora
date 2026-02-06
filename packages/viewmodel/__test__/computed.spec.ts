@@ -1,6 +1,7 @@
+import { Observable } from '@guanghechen/observable'
 import type { IConsoleMock } from 'vitest.helper'
 import { createConsoleMock } from 'vitest.helper'
-import { Computed, Observable, State } from '../src'
+import { Computed, State } from '../src'
 import { TestSubscriber } from './_common'
 
 describe('Computed', () => {

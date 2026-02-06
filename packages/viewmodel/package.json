@@ -43,6 +43,7 @@
   "dependencies": {
     "@guanghechen/disposable": "workspace:^",
     "@guanghechen/observable": "workspace:^",
-    "@guanghechen/subscriber": "workspace:^"
+    "@guanghechen/subscriber": "workspace:^",
+    "@guanghechen/types": "workspace:^"
   }
 }

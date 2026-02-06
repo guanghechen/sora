@@ -1,6 +1,6 @@
 import { bytes2text, randomBytes, text2bytes } from '@guanghechen/byte'
 import { invariant } from '@guanghechen/invariant'
-import type { ITextResource } from '@guanghechen/resource'
+import type { ITextResource } from '@guanghechen/types'
 import { satisfies } from '@guanghechen/version'
 import type { IHashAlgorithm } from './mac'
 import { calcMac } from './mac'

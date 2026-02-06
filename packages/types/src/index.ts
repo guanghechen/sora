@@ -1,4 +1,5 @@
 export * from './disposable'
 export * from './error'
 export * from './path'
+export * from './resource'
 export * from './subscriber'

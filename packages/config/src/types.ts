@@ -1,4 +1,4 @@
-import type { ITextResource } from '@guanghechen/resource'
+import type { ITextResource } from '@guanghechen/types'
 
 export interface IConfig<Data> {
   /**

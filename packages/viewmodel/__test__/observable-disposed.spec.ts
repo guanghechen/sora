@@ -1,6 +1,7 @@
+import { noopUnsubscribable } from '@guanghechen/observable'
 import type { IConsoleMock } from 'vitest.helper'
 import { createConsoleMock } from 'vitest.helper'
-import { DisposedObservable, noopUnsubscribable } from '../src'
+import { DisposedObservable } from '../src'
 import { TestSubscriber } from './_common'
 
 describe('DisposedObservable', () => {

@@ -1,4 +1,4 @@
-import type { ITextResource } from './types'
+import type { ITextResource } from '@guanghechen/types'
 
 export interface IMemoTextResourceProps {
   strict: boolean

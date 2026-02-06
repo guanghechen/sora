@@ -1,8 +1,8 @@
 import { invariant } from '@guanghechen/invariant'
+import type { ITextResource } from '@guanghechen/types'
 import { existsSync, mkdirSync, statSync, unlinkSync } from 'node:fs'
 import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import type { ITextResource } from './types'
 
 export interface IFileTextResourceProps {
   strict: boolean

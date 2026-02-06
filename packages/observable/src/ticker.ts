@@ -1,7 +1,7 @@
-import type { IDisposable } from '@guanghechen/disposable'
 import { Disposable } from '@guanghechen/disposable'
 import type { ISubscriber } from '@guanghechen/subscriber'
 import { Subscriber } from '@guanghechen/subscriber'
+import type { IDisposable } from '@guanghechen/types'
 import { Observable } from './observable'
 import type { IBaseObservable, IEquals, IObservableNextOptions } from './types/observable'
 import type { ITicker, ITickerObserveOptions, ITickerOptions, IUnobservable } from './types/ticker'

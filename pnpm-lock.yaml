@@ -106,6 +106,9 @@ importers:
       '@guanghechen/resource':
         specifier: workspace:^
         version: link:../resource
+      '@guanghechen/types':
+        specifier: workspace:^
+        version: link:../types
       '@guanghechen/version':
         specifier: workspace:^
         version: link:../version
@@ -161,6 +164,9 @@ importers:
       '@guanghechen/subscriber':
         specifier: workspace:^
         version: link:../subscriber
+      '@guanghechen/types':
+        specifier: workspace:^
+        version: link:../types
 
   packages/path:
     dependencies:
@@ -175,6 +181,9 @@ importers:
       '@guanghechen/invariant':
         specifier: workspace:^
         version: link:../invariant
+      '@guanghechen/types':
+        specifier: workspace:^
+        version: link:../types
 
   packages/scheduler:
     dependencies:
@@ -238,6 +247,9 @@ importers:
       '@guanghechen/subscriber':
         specifier: workspace:^
         version: link:../subscriber
+      '@guanghechen/types':
+        specifier: workspace:^
+        version: link:../types
 
 packages:
 

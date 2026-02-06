@@ -1,4 +1,3 @@
-import type { IDisposable } from '@guanghechen/disposable'
 import { noopUnsubscribable } from '@guanghechen/observable'
 import type {
   IEquals,
@@ -7,6 +6,7 @@ import type {
   IObservableOptions,
 } from '@guanghechen/observable'
 import type { ISubscriber, IUnsubscribable } from '@guanghechen/subscriber'
+import type { IDisposable } from '@guanghechen/types'
 
 const defaultEquals = <T>(x: T, y: T): boolean => Object.is(x, y)
 

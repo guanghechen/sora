@@ -1,7 +1,7 @@
-import type { IDisposable } from '@guanghechen/disposable'
 import { Disposable } from '@guanghechen/disposable'
 import { Observable } from '@guanghechen/observable'
 import { type ISubscriber, Subscriber } from '@guanghechen/subscriber'
+import type { IDisposable } from '@guanghechen/types'
 import type { IState, IValuePatcher } from './types/state'
 
 export class State<T> extends Observable<T> implements IState<T> {

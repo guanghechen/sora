@@ -1,6 +1,7 @@
+import { Observable } from '@guanghechen/observable'
 import type { IConsoleMock } from 'vitest.helper'
 import { createConsoleMock } from 'vitest.helper'
-import { Observable, State, ViewModel } from '../src'
+import { State, ViewModel } from '../src'
 import type { IViewModelTicker } from '../src'
 import { TestSubscriber } from './_common'
 

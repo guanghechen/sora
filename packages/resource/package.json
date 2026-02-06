@@ -41,6 +41,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@guanghechen/invariant": "workspace:^"
+    "@guanghechen/invariant": "workspace:^",
+    "@guanghechen/types": "workspace:^"
   }
 }
