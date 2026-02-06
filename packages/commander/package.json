@@ -39,9 +39,6 @@
     "test:coverage": "vitest run --config ../../vitest.config.ts --coverage",
     "test:update": "vitest run --config ../../vitest.config.ts -u"
   },
-  "dependencies": {
-    "@guanghechen/reporter": "workspace:^"
-  },
   "files": [
     "lib/",
     "!lib/**/*.map",

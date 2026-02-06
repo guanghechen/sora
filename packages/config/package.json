@@ -44,7 +44,6 @@
   "dependencies": {
     "@guanghechen/byte": "workspace:^",
     "@guanghechen/invariant": "workspace:^",
-    "@guanghechen/resource": "workspace:^",
     "@guanghechen/types": "workspace:^",
     "@guanghechen/version": "workspace:^"
   }
