@@ -96,12 +96,12 @@ Task scheduler for managing and executing tasks with pipeline support.
   const scheduler = new Scheduler({
     name: 'my-scheduler',
     pipeline,
-    strategy: TaskStrategyEnum.CONCURRENT
+    strategy: TaskStrategyEnum.ABORT_ON_ERROR
   })
 
-  // Process items
-  await pipeline.push('hello')
-  await pipeline.push('world')
+  // Schedule items for processing
+  await scheduler.schedule('hello')
+  await scheduler.schedule('world')
 
   // Start processing
   await scheduler.start()
@@ -148,6 +148,10 @@ Task scheduler for managing and executing tasks with pipeline support.
     }
   })
   ```
+
+## Reference
+
+- [homepage][homepage]
 
 [homepage]:
   https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@7.0.0/packages/scheduler#readme

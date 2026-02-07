@@ -85,9 +85,9 @@ enum EventTypes {
   EXIT = 'EXIT',
 }
 
-const eventBus = new EventBus<EventTypes>()
+const eventBus = new EventBus<EventTypes>('my-bus')
 
-const handle: IEventHandler<EventTypes> = (evt: IEvent<EventTypes>): void => {
+const handle: IEventHandler<EventTypes> = (evt, eventBus): void => {
   console.log('evt:', evt)
 }
 
@@ -139,5 +139,9 @@ eventBus.dispose()
 | `cleanup()`                         | Remove all listeners and subscribers                  |
 | `dispose()`                         | Dispose the event bus                                 |
 | `registerDisposable(disposable)`    | Register a disposable to be disposed with the bus     |
+
+## Reference
+
+- [homepage][homepage]
 
 [homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/eventbus@7.0.0/packages/eventbus#readme

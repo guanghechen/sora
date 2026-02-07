@@ -71,9 +71,10 @@ Utilities for handling node streams.
 | :--------------: | :--------------------------------------------------------: |
 | `concatStreams`  |      Concatenate readable streams to async iterator.       |
 | `consumeStream`  |                  Consume readable stream.                  |
-| `consumeStreams` |         Consume multiple streams serially.         |
+| `consumeStreams` |             Consume multiple streams serially.             |
 |  `mergeStreams`  | Merge multiple readable streams into one readable streams. |
 | `stream2buffer`  |  Consume read stream and encode the contents into buffer.  |
+| `stream2bytes`   |   Consume read stream and encode the contents into bytes.  |
 
 ## Example
 
@@ -105,6 +106,10 @@ Utilities for handling node streams.
   const cipher: crypto.Cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
   await consumeStreams(readers, writer, cipher)
   ```
+
+## Reference
+
+- [homepage][homepage]
 
 [homepage]:
   https://github.com/guanghechen/sora/tree/@guanghechen/stream@2.0.0/packages/stream#readme

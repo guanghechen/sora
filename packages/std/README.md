@@ -49,81 +49,135 @@
 </header>
 <br/>
 
-Standard utility functions.
+Standard utility functions for type checking, iterable operations, and common helper functions.
 
 ## Install
 
 - npm
 
   ```bash
-  npm install --save-dev @guanghechen/std
+  npm install --save @guanghechen/std
   ```
 
 - yarn
 
   ```bash
-  yarn add --dev @guanghechen/std
+  yarn add @guanghechen/std
   ```
 
 ## Usage
 
-- is
+### Type Checking Functions
 
-  Name                  | Description
-  :--------------------:|:----------------------------------------------------------------
-  `isArray`             | Check if the given data is a `Array` type
-  `isBigint`            | Check if the given data is a `bigint` type
-  `isBoolean`           | Check if the given data is a `boolean` / `Boolean` type
-  `isDate`              | Check if the given data is a `Date` type
-  `isFunction`          | Check if the given data is a `Function` type
-  `isInteger`           | Check if the given data is a `Integer` type
-  `isNumber`            | Check if the given data is a `number` / `Number` type
-  `isObject`            | Check if the given data is a `Object` type
-  `isString`            | Check if the given data is a `string` / `String` type
-  `isSymbol`            | Check if the given data is a `symbol` type
-  `isUndefined`         | Check if the given data is a `undefined` type
-  `isPlainObject`       | Check if the given value is a plain object.
-  `isPrimitiveBoolean`  | Check if the given data is a `boolean` type
-  `isPrimitiveInteger`  | Check if the given data is a `integer` type
-  `isPrimitiveNumber`   | Check if the given data is a `number` type
-  `isPrimitiveString`   | Check if the given data is a `string` type
-  `isNonBlankString`    | Check if the given data is an non-blank `string` / `String` type
-  `isNotEmptyArray`     | Check if the given data is an not-empty `Array` type
-  `isNotEmptyObject`    | Check if the given data is an not-empty `Object` type
-  `isEmptyObject`       | Check if the given data is an empty `Object` type
-  `isNumberLike`        | Check if the given data is an `number` / `Number` or number like `string` type
+```typescript
+import {
+  isArray,
+  isString,
+  isNumber,
+  isObject,
+  isFunction,
+  isPromise,
+  isPlainObject,
+  isNonBlankString,
+  isNotEmptyArray,
+} from '@guanghechen/std'
 
-- string `transformer` utilities
+isArray([1, 2, 3])      // true
+isString('hello')       // true
+isNumber(42)            // true
+isObject({})            // true
+isFunction(() => {})    // true
+isPromise(Promise.resolve()) // true
 
-  Name                  | Description
-  :--------------------:|:---------------------------------------
-  `toCamelCase`         | `'test string' => 'testString'`
-  `toCapitalCase`       | `'test string' => 'Test String'`
-  `toConstantCase`      | `'test string' => 'TEST_STRING'`
-  `toDotCase`           | `'test string' => 'test.string'`
-  `toKebabCase`         | `'test string' => 'test-string'`
-  `toLowerCase`         | `'TEST STRING' => 'test string'`
-  `toPascalCase`        | `'test string' => 'TestString'`
-  `toPathCase`          | `'test string' => 'test/string'`
-  `toSentenceCase`      | `'testString' => 'Test string'`
-  `toSnakeCase`         | `'test string' => 'test_string'`
-  `toTitleCase`         | `'a simple test' => 'A Simple Test'`
-  `toUpperCase`         | `'test string' => 'TEST STRING'`
+isPlainObject({})       // true
+isPlainObject(new Date()) // false
 
-  - `composeTextTransformers`: Compose multiple ITextTransformer into one.
+isNonBlankString('')    // false
+isNonBlankString('hi')  // true
 
-    ```typescript
-    import { composeTextTransformers, toKebabCase, toTrim } from '@guanghechen/std'
+isNotEmptyArray([])     // false
+isNotEmptyArray([1])    // true
+```
 
-    // function composeTextTransformers (
-    //   ...transformers: ReadonlyArray<ITextTransformer>
-    // ): ITextTransformer
+### Complete Type Check List
 
-    const transform = composeTextTransformers(toTrim, toKebabCase)
-    const text: string = transform(' TeSt_StrinG ')
-    // => 'test-string'
-    ```
+| Function                  | Description                                               |
+| :-----------------------: | :-------------------------------------------------------: |
+| `isArray`                 | Check if the given data is an `Array` type                |
+| `isBigint`                | Check if the given data is a `bigint` type                |
+| `isBoolean`               | Check if the given data is a `boolean` / `Boolean` type   |
+| `isDate`                  | Check if the given data is a `Date` type                  |
+| `isFunction`              | Check if the given data is a `Function` type              |
+| `isAsyncFunction`         | Check if the given data is an `AsyncFunction` type        |
+| `isInteger`               | Check if the given data is an `Integer` type              |
+| `isNumber`                | Check if the given data is a `number` / `Number` type     |
+| `isObject`                | Check if the given data is an `Object` type               |
+| `isString`                | Check if the given data is a `string` / `String` type     |
+| `isSymbol`                | Check if the given data is a `symbol` type                |
+| `isUndefined`             | Check if the given data is `undefined`                    |
+| `isPrimitiveBoolean`      | Check if the given data is a primitive `boolean`          |
+| `isPrimitiveInteger`      | Check if the given data is a primitive integer            |
+| `isPrimitiveNumber`       | Check if the given data is a primitive `number`           |
+| `isPrimitiveString`       | Check if the given data is a primitive `string`           |
+| `isNonBlankString`        | Check if the given data is a non-blank string             |
+| `isNotEmptyArray`         | Check if the given data is a non-empty array              |
+| `isNotEmptyObject`        | Check if the given data is a non-empty object             |
+| `isEmptyObject`           | Check if the given data is an empty object                |
+| `isNumberLike`            | Check if the given data is a number or number-like string |
+| `isPlainObject`           | Check if the given data is a plain object                 |
+| `isPromise`               | Check if the given data is a Promise                      |
+| `isArrayOfT`              | Check if array elements match a type guard                |
+| `isTwoDimensionArrayOfT`  | Check if 2D array elements match a type guard             |
 
+### Helper Functions
 
+```typescript
+import { delay, noop, identity, truthy, falsy } from '@guanghechen/std'
+
+// Delay execution
+await delay(1000) // Wait 1 second
+
+// No-operation function
+const callback = noop // () => {}
+
+// Identity function (returns input unchanged)
+identity(42) // 42
+
+// Always return true/false
+truthy() // true
+falsy()  // false
+```
+
+### Iterable Utilities
+
+```typescript
+import { filterIterable, mapIterable, iterable2map } from '@guanghechen/std'
+
+const set = new Set([1, 2, 3, 4, 5])
+
+// Filter iterable
+const evens = filterIterable(set, x => x % 2 === 0) // [2, 4]
+
+// Map iterable
+const doubled = mapIterable(set, x => x * 2) // [2, 4, 6, 8, 10]
+
+// Convert iterable to Map
+const arr = ['foo', 'bar', 'baz']
+const map = iterable2map(arr, (el, i) => `${el}-${i}`)
+// Map { 'foo-0' => 'foo', 'bar-1' => 'bar', 'baz-2' => 'baz' }
+```
+
+### Global Root Reference
+
+```typescript
+import { root } from '@guanghechen/std'
+
+// Cross-environment global reference (globalThis, global, self, or window)
+root.setTimeout(() => {}, 100)
+```
+
+## Reference
+
+- [homepage][homepage]
 
 [homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/std@2.0.0/packages/std#readme

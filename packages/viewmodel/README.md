@@ -259,5 +259,9 @@ class DashboardViewModel extends ViewModel {
 ```
 
 
+## Reference
+
+- [homepage][homepage]
+
 [homepage]:
   https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@2.0.0/packages/viewmodel#readme

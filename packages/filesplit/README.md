@@ -49,8 +49,8 @@
 </header>
 <br/>
 
-A collection of utility functions for handling files, such as split big file or merge multiple small
-files.
+A utility class for splitting large files into smaller chunks and merging them back. Inspired by
+[node-split-file](https://github.com/tomvlk/node-split-file).
 
 ## Install
 
@@ -68,28 +68,78 @@ files.
 
 ## Usage
 
-- `FileSplitter` (inspired by [file-split][])
+### Split a File
 
-  ```typescript
-  import { FileSplitter } from '@guanghechen/filesplit'
-  import { calcFilePartItemsBySize } from '@guanghechen/filepart'
+```typescript
+import { FileSplitter } from '@guanghechen/filesplit'
+import { calcFilePartItemsBySize } from '@guanghechen/filepart'
+import fs from 'node:fs'
 
-  async function splitFile(filepath: string): Promise<string[]> {
-    const splitter = new FileSplitter()
-    const parts = calcFilePartItemsBySize(filepath, 1024 * 1024 * 80) // 80MB per chunk
-    const partFilepaths: string[] = await splitter.split(filepath, parts)
-    return partFilepaths
-  }
+async function splitFile(filepath: string): Promise<string[]> {
+  const splitter = new FileSplitter()
+  const fileSize = fs.statSync(filepath).size
+  const parts = [...calcFilePartItemsBySize(fileSize, 1024 * 1024 * 80)] // 80MB per chunk
+  const partFilepaths: string[] = await splitter.split(filepath, parts)
+  return partFilepaths
+}
 
-  splitFile('big-file.txt')
-  ```
+// Split 'large-file.zip' into 80MB chunks
+// Result: ['large-file.zip.ghc-part01', 'large-file.zip.ghc-part02', ...]
+await splitFile('large-file.zip')
+```
 
-### Overview
+### Merge Files
 
-|       Name       |                  Description                  |
-| :--------------: | :-------------------------------------------: |
-|  `FileSplitter`  | A utility class for splitting / merging files |
+```typescript
+import { FileSplitter } from '@guanghechen/filesplit'
+
+const splitter = new FileSplitter()
+
+// Merge chunks back into original file
+await splitter.merge(
+  ['large-file.zip.ghc-part01', 'large-file.zip.ghc-part02', 'large-file.zip.ghc-part03'],
+  'large-file-restored.zip'
+)
+```
+
+### Custom Part Code Prefix
+
+```typescript
+import { FileSplitter } from '@guanghechen/filesplit'
+
+// Use custom suffix for part files
+const splitter = new FileSplitter({ partCodePrefix: '.chunk' })
+
+// Split will create: file.txt.chunk01, file.txt.chunk02, etc.
+```
+
+### Using Default Instance
+
+```typescript
+import { fileSplitter } from '@guanghechen/filesplit'
+
+// Use the default singleton instance
+await fileSplitter.split(filepath, parts)
+await fileSplitter.merge(inputFilepaths, outputFilepath)
+```
+
+### Calculate Part Filepaths
+
+```typescript
+import { FileSplitter } from '@guanghechen/filesplit'
+import { calcFilePartItemsByCount } from '@guanghechen/filepart'
+
+const splitter = new FileSplitter()
+const parts = [...calcFilePartItemsByCount(1000000, 3)]
+
+// Get the expected part filepaths without actually splitting
+const partFilepaths = splitter.calcPartFilepaths('/path/to/file.zip', parts)
+// Result: ['/path/to/file.zip.ghc-part1', '/path/to/file.zip.ghc-part2', '/path/to/file.zip.ghc-part3']
+```
+
+## Reference
+
+- [homepage][homepage]
 
 [homepage]:
   https://github.com/guanghechen/sora/tree/@guanghechen/filesplit@2.0.0/packages/filesplit#readme
-[file-split]: https://github.com/tomvlk/node-file-split

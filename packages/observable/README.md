@@ -49,7 +49,8 @@
 </header>
 <br/>
 
-Observable pattern implementation with ticker functionality for reactive programming.
+Observable pattern implementation with ticker functionality for reactive programming. Provides value
+change notification with optional delay debouncing and custom equality comparison.
 
 ## Install
 
@@ -67,88 +68,120 @@ Observable pattern implementation with ticker functionality for reactive program
 
 ## Usage
 
-|       Name       |                        Description                        |
-| :--------------: | :-------------------------------------------------------: |
-|   `Observable`   |     Reactive observable value with change notification   |
-|    `Ticker`      |     Timer-based ticker for scheduled notifications       |
+### Basic Observable
 
-## Example
+```typescript
+import { Observable } from '@guanghechen/observable'
+import { Subscriber } from '@guanghechen/subscriber'
 
-- Basic observable:
+const count = new Observable<number>(0)
 
-  ```typescript
-  import { Observable } from '@guanghechen/observable'
-  import { Subscriber } from '@guanghechen/subscriber'
+const subscriber = new Subscriber({
+  onNext: (newValue, oldValue) => {
+    console.log(`Value changed from ${oldValue} to ${newValue}`)
+  }
+})
 
-  const observable = new Observable<number>(0)
+const unsubscribable = count.subscribe(subscriber)
 
-  // Create a subscriber
-  const subscriber = new Subscriber({
-    onNext: (newValue, oldValue) => {
-      console.log(`Value changed from ${oldValue} to ${newValue}`)
-    },
-    onDispose: () => {
-      console.log('Subscriber disposed')
-    }
-  })
+count.next(1) // "Value changed from 0 to 1"
+count.next(2) // "Value changed from 1 to 2"
+count.next(2) // No notification (same value)
 
-  // Subscribe to changes
-  const unsubscribe = observable.subscribe(subscriber)
+console.log(count.getSnapshot()) // 2
 
-  observable.next(1) // Output: "Value changed from undefined to 1"
-  observable.next(2) // Output: "Value changed from 1 to 2"
+unsubscribable.unsubscribe()
+count.dispose()
+```
 
-  unsubscribe.unsubscribe()
-  ```
+### Observable with Custom Equality
 
-- Observable with custom equality:
+```typescript
+import { Observable } from '@guanghechen/observable'
+import { Subscriber } from '@guanghechen/subscriber'
 
-  ```typescript
-  import { Observable } from '@guanghechen/observable'
-  import { Subscriber } from '@guanghechen/subscriber'
+interface IUser {
+  id: number
+  name: string
+}
 
-  const observable = new Observable<{id: number, name: string}>(
-    { id: 1, name: 'John' },
-    { equals: (a, b) => a.id === b.id }
-  )
+const user = new Observable<IUser>(
+  { id: 1, name: 'John' },
+  { equals: (a, b) => a.id === b.id }
+)
 
-  const subscriber = new Subscriber({
-    onNext: (newVal) => {
-      console.log('Object changed:', newVal)
-    }
-  })
+const subscriber = new Subscriber<IUser>({
+  onNext: (value) => console.log('User changed:', value)
+})
 
-  observable.subscribe(subscriber)
+user.subscribe(subscriber)
 
-  // This won't trigger notification (same id)
-  observable.next({ id: 1, name: 'Jane' })
+// This won't trigger notification (same id)
+user.next({ id: 1, name: 'Jane' })
 
-  // This will trigger notification (different id)
-  observable.next({ id: 2, name: 'Bob' })
-  ```
+// This will trigger notification (different id)
+user.next({ id: 2, name: 'Bob' })
 
-- Using ticker:
+// Force notification even if equal
+user.next({ id: 2, name: 'Bob Updated' }, { force: true })
+```
 
-  ```typescript
-  import { Ticker } from '@guanghechen/observable'
-  import { Subscriber } from '@guanghechen/subscriber'
+### Observable with Delay (Debouncing)
 
-  const ticker = new Ticker<string>('initial', { interval: 1000 })
+```typescript
+import { Observable } from '@guanghechen/observable'
+import { Subscriber } from '@guanghechen/subscriber'
 
-  const subscriber = new Subscriber({
-    onNext: (value) => {
-      console.log('Ticker value:', value)
-    }
-  })
+// Debounce notifications by 100ms
+const search = new Observable<string>('', { delay: 100 })
 
-  ticker.subscribe(subscriber)
-  ticker.start()
-  
-  // Update ticker value
-  setTimeout(() => {
-    ticker.next('updated value')
-  }, 2000)
-  ```
+const subscriber = new Subscriber<string>({
+  onNext: (value) => console.log('Search:', value)
+})
+
+search.subscribe(subscriber)
+
+// Rapid updates - only the last value will be notified after 100ms
+search.next('h')
+search.next('he')
+search.next('hel')
+search.next('hell')
+search.next('hello')
+// Output after 100ms: "Search: hello"
+```
+
+### Ticker
+
+Ticker is a specialized observable that increments a counter value:
+
+```typescript
+import { Observable, Ticker } from '@guanghechen/observable'
+import { Subscriber } from '@guanghechen/subscriber'
+
+const ticker = new Ticker({ start: 0, delay: 100 })
+
+const subscriber = new Subscriber<number>({
+  onNext: (tick) => console.log('Tick:', tick)
+})
+
+ticker.subscribe(subscriber)
+
+ticker.tick() // Tick: 1
+ticker.tick() // Tick: 2
+
+// Observe other observables - ticker increments when they change
+const name = new Observable<string>('John')
+const unobservable = ticker.observe(name)
+
+name.next('Jane') // Also triggers: Tick: 3
+
+unobservable.unobserve()
+ticker.dispose()
+```
+
+## Reference
+
+- [homepage][homepage]
 
 [homepage]:
   https://github.com/guanghechen/sora/tree/@guanghechen/observable@7.0.0/packages/observable#readme

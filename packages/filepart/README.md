@@ -49,7 +49,8 @@
 </header>
 <br/>
 
-File helper utilities for splitting files and merging streams.
+File helper utilities for calculating file part ranges and generating part names. Useful for
+splitting large files into smaller chunks.
 
 ## Install
 
@@ -66,6 +67,78 @@ File helper utilities for splitting files and merging streams.
   ```
 
 ## Usage
+
+### Calculate File Parts by Size
+
+Split a file into parts of a specific size:
+
+```typescript
+import { calcFilePartItemsBySize } from '@guanghechen/filepart'
+
+const fileSize = 1000 // bytes
+const partSize = 300  // bytes per part
+
+const parts = [...calcFilePartItemsBySize(fileSize, partSize)]
+// Result:
+// [
+//   { sid: 1, start: 0, end: 300 },
+//   { sid: 2, start: 300, end: 600 },
+//   { sid: 3, start: 600, end: 900 },
+//   { sid: 4, start: 900, end: 1000 }
+// ]
+```
+
+### Calculate File Parts by Count
+
+Split a file into a specific number of parts:
+
+```typescript
+import { calcFilePartItemsByCount } from '@guanghechen/filepart'
+
+const fileSize = 1000 // bytes
+const partCount = 3   // number of parts
+
+const parts = [...calcFilePartItemsByCount(fileSize, partCount)]
+// Result:
+// [
+//   { sid: 1, start: 0, end: 334 },
+//   { sid: 2, start: 334, end: 668 },
+//   { sid: 3, start: 668, end: 1000 }
+// ]
+```
+
+### Generate Part Names
+
+Generate file part names with padded sequence numbers:
+
+```typescript
+import { calcFilePartNames, calcFilePartNamesByCount } from '@guanghechen/filepart'
+
+// From existing parts
+const parts = [{ sid: 1 }, { sid: 2 }, { sid: 3 }]
+const names = [...calcFilePartNames(parts, '.part')]
+// Result: ['.part1', '.part2', '.part3']
+
+// For 14 parts (with zero-padding)
+const names14 = [...calcFilePartNamesByCount(14, '.part')]
+// Result: ['.part01', '.part02', ... '.part14']
+
+// Single part returns empty string (no suffix needed)
+const singlePart = [...calcFilePartNamesByCount(1, '.part')]
+// Result: ['']
+```
+
+### Constants
+
+```typescript
+import { DEFAULT_FILEPART_CODE_PREFIX } from '@guanghechen/filepart'
+
+console.log(DEFAULT_FILEPART_CODE_PREFIX) // '.ghc-part'
+```
+
+## Reference
+
+- [homepage][homepage]
 
 [homepage]:
   https://github.com/guanghechen/sora/tree/@guanghechen/filepart@2.0.0/packages/filepart#readme

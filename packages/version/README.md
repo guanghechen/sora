@@ -153,16 +153,20 @@ interface ISatisfiesOptions {
 
 ### Functions
 
-| Function                                              | Description                                    |
-| ----------------------------------------------------- | ---------------------------------------------- |
-| `parseVersion(version: string)`                       | Parse a full semver string to `ISemVer`        |
-| `parsePartialVersion(version: string)`                | Parse a partial version to `IPartialSemVer`    |
-| `compareVersions(v1: string, v2: string)`             | Compare two version strings (-1, 0, 1)         |
-| `compareSemVer(v1: ISemVer, v2: ISemVer)`             | Compare two parsed versions (-1, 0, 1)         |
-| `satisfies(version: string, range: string, options?)` | Check if version satisfies the range           |
-| `formatVersion(v: ISemVer)`                           | Format a parsed version back to string         |
-| `isFullVersion(v: IPartialSemVer)`                    | Check if partial version is a full version     |
-| `toFullVersion(v: IPartialSemVer)`                    | Convert partial version to full (fill with 0s) |
+| Function                       | Description                               |
+| ------------------------------ | ----------------------------------------- |
+| `parseVersion(version)`        | Parse a full semver string to `ISemVer`   |
+| `parsePartialVersion(version)` | Parse a partial version                   |
+| `compareVersions(v1, v2)`      | Compare two version strings (-1, 0, 1)    |
+| `compareSemVer(v1, v2)`        | Compare two parsed versions (-1, 0, 1)    |
+| `satisfies(version, range)`    | Check if version satisfies the range      |
+| `formatVersion(v)`             | Format a parsed version back to string    |
+| `isFullVersion(v)`             | Check if partial version is full          |
+| `toFullVersion(v)`             | Convert partial to full (fill with 0s)    |
+
+## Reference
+
+- [homepage][homepage]
 
 [homepage]:
   https://github.com/guanghechen/sora/tree/@guanghechen/version@1.0.0/packages/version#readme

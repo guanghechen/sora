@@ -79,22 +79,27 @@ Middleware pattern implementation for both synchronous and asynchronous processi
   ```typescript
   import { AsyncMiddlewares } from '@guanghechen/middleware'
 
-  const middlewares = new AsyncMiddlewares<string, string, any>()
+  const middlewares = new AsyncMiddlewares<string, string, { prefix: string }>()
 
-  // Add middlewares
+  // Add middlewares (executed in registration order)
   middlewares.use(async (input, embryo, api, next) => {
-    const result = await next(input.toUpperCase())
-    return result
+    // Transform input to uppercase, pass to next middleware
+    return next(input.toUpperCase())
   })
 
   middlewares.use(async (input, embryo, api, next) => {
-    const result = await next(`[${input}]`)
-    return result
+    // Wrap with brackets, embryo contains result from previous middleware
+    return next(embryo ? `[${embryo}]` : null)
+  })
+
+  middlewares.use(async (input, embryo, api, next) => {
+    // Add prefix from api
+    return embryo ? `${api.prefix}${embryo}` : null
   })
 
   // Execute middleware chain
-  const reducer = middlewares.reducer('hello', {})
-  const result = await reducer(null) // Result: "[HELLO]"
+  const reducer = middlewares.reducer('hello', { prefix: '> ' })
+  const result = await reducer(null) // Result: "> [HELLO]"
   ```
 
 - Sync middleware:
@@ -102,19 +107,25 @@ Middleware pattern implementation for both synchronous and asynchronous processi
   ```typescript
   import { Middlewares } from '@guanghechen/middleware'
 
-  const middlewares = new Middlewares<number, number, any>()
+  const middlewares = new Middlewares<number, number, { multiplier: number }>()
 
   middlewares.use((input, embryo, api, next) => {
-    return next(input * 2)
+    // First middleware: multiply input
+    return next(input * api.multiplier)
   })
 
   middlewares.use((input, embryo, api, next) => {
-    return next(input + 1)
+    // Second middleware: add 1 to embryo (result from previous)
+    return embryo !== null ? embryo + 1 : null
   })
 
-  const reducer = middlewares.reducer(5, {})
+  const reducer = middlewares.reducer(5, { multiplier: 2 })
   const result = reducer(null) // Result: 11 (5 * 2 + 1)
   ```
+
+## Reference
+
+- [homepage][homepage]
 
 [homepage]:
   https://github.com/guanghechen/sora/tree/@guanghechen/middleware@2.0.0/packages/middleware#readme

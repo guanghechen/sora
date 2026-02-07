@@ -112,22 +112,29 @@ Disposable pattern implementation for resource cleanup and memory management.
 - Utility functions:
 
   ```typescript
-  import { disposeAll, isDisposable } from '@guanghechen/disposable'
+  import { Disposable, disposeAll, isDisposable } from '@guanghechen/disposable'
 
-  const items = [
+  const items: unknown[] = [
     new Disposable(() => console.log('Disposed 1')),
     new Disposable(() => console.log('Disposed 2')),
     'not disposable'
   ]
 
+  // Check if an item is disposable
   items.forEach(item => {
     if (isDisposable(item)) {
       console.log('Item is disposable')
     }
   })
 
-  disposeAll(items) // Disposes all disposable items in the array
+  // Filter and dispose only disposable items
+  const disposables = items.filter(isDisposable)
+  disposeAll(disposables) // Disposes all disposable items
   ```
+
+## Reference
+
+- [homepage][homepage]
 
 [homepage]:
   https://github.com/guanghechen/sora/tree/@guanghechen/disposable@2.0.0/packages/disposable#readme

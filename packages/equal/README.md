@@ -49,20 +49,83 @@
 </header>
 <br/>
 
-Inspired by https://github.com/epoberezkin/fast-deep-equal, re-published because it doesn't support ESM.
+The fastest deep equal with ES6 Map, Set and Typed arrays support. Inspired by
+[fast-deep-equal](https://github.com/epoberezkin/fast-deep-equal), re-published with ESM support.
+
+## Install
+
+- npm
+
+  ```bash
+  npm install --save @guanghechen/equal
+  ```
+
+- yarn
+
+  ```bash
+  yarn add @guanghechen/equal
+  ```
 
 ## Usage
 
-- Use within ESM.
+### Basic Comparison
 
-  ```javascript
-  import isEqual from '@guanghechen/equal'
-  console.log(isEqual({foo: 'bar'}, {foo: 'bar'})); // true
-  ```
+```typescript
+import isEqual from '@guanghechen/equal'
 
-- Use within CommonJS.
+// Primitives
+isEqual(1, 1)           // true
+isEqual('a', 'a')       // true
+isEqual(null, null)     // true
+isEqual(undefined, undefined) // true
 
-  ```javascript
-  const isEqual = require('@guanghechen/equal')
-  console.log(isEqual({foo: 'bar'}, {foo: 'bar'})); // true
-  ```
+// Objects
+isEqual({ a: 1, b: 2 }, { a: 1, b: 2 })  // true
+isEqual({ a: 1 }, { a: 2 })              // false
+
+// Arrays
+isEqual([1, 2, 3], [1, 2, 3])  // true
+isEqual([1, 2], [1, 2, 3])     // false
+
+// Nested structures
+isEqual(
+  { user: { name: 'John', tags: ['admin'] } },
+  { user: { name: 'John', tags: ['admin'] } }
+) // true
+```
+
+### Named Export
+
+```typescript
+import { isEqual } from '@guanghechen/equal'
+
+isEqual({ foo: 'bar' }, { foo: 'bar' }) // true
+```
+
+### Special Types
+
+```typescript
+import isEqual from '@guanghechen/equal'
+
+// RegExp
+isEqual(/abc/gi, /abc/gi)  // true
+isEqual(/abc/g, /abc/i)    // false
+
+// Date
+isEqual(new Date('2024-01-01'), new Date('2024-01-01'))  // true
+
+// Custom valueOf/toString
+class Point {
+  constructor(public x: number, public y: number) {}
+  valueOf() { return this.x * 1000 + this.y }
+}
+isEqual(new Point(1, 2), new Point(1, 2))  // true
+```
+
+## Reference
+
+- [homepage][homepage]
+- Inspired by [fast-deep-equal](https://github.com/epoberezkin/fast-deep-equal)
+
+[homepage]:
+  https://github.com/guanghechen/sora/tree/@guanghechen/equal@2.0.0/packages/equal#readme
