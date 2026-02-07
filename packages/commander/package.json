@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/commander",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A minimal, type-safe command-line interface builder with fluent API",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/commander@1.0.0",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/commander@2.0.0",
     "directory": "packages/commander"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/commander@1.0.0/packages/commander#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/commander@2.0.0/packages/commander#readme",
   "keywords": [
     "cli",
     "command",

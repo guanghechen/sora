@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/env",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A minimal .env parser with typed value support and variable interpolation.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/env@1.0.0",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/env@2.0.0",
     "directory": "packages/env"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/env@1.0.0/packages/env#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/env@2.0.0/packages/env#readme",
   "keywords": [
     "env",
     "dotenv",
