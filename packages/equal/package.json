@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/equal",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "The fastest deep equal with ES6 Map, Set and Typed arrays support.",
   "author": {
     "name": "guanghechen",

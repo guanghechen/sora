@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/env",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A minimal .env parser with typed value support and variable interpolation.",
   "author": {
     "name": "guanghechen",

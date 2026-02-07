@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/reporter",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "A minimal, level-based logging utility with colored output and breadcrumb prefix support",
   "author": {
     "name": "guanghechen",
