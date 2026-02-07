@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 7.0.1 (2025-02-07)
+
+### Improvements
+
+- Clean up build configs and standardize package exports
+- Enhance type safety and resource cleanup
+
+### Documentation
+
+- Update README.md
+
+### Miscellaneous
+
+- Add LICENSE file
+- Migrate from lerna to changesets
+
+## 7.0.0 (2025-01-15)
+
+### Improvements
+
+- Upgrade to stable release
+
+
 ## <small>6.1.3 (2024-09-19)</small>
 
 - :art: improve(viewmodel): support to create Computed from another Computed

@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.1 (2025-02-07)
+
+### Improvements
+
+- Clean up build configs and standardize package exports
+
+### Documentation
+
+- Update README.md
+
+### Miscellaneous
+
+- Add LICENSE file
+- Migrate from lerna to changesets
+
+## 2.0.0 (2025-01-15)
+
+### Breaking Changes
+
+- Move disposable types to @guanghechen/types
+
+
 ## 1.0.0-alpha.5 (2024-09-18)
 
 - :wrench: chore: upgrade devDependencies and fix configs

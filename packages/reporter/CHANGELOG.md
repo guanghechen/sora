@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 3.0.1 (2025-02-07)
+
+### Improvements
+
+- Clean up build configs and standardize package exports
+
+### Documentation
+
+- Update README.md
+- Format markdown tables in spec documents
+
+### Miscellaneous
+
+- Add LICENSE file
+- Migrate from lerna to changesets
+
+## 3.0.0 (2025-01-15)
+
+### Features
+
+- Add IReporter interface to @guanghechen/types
+
+
 ## 1.0.0-alpha.30 (2024-09-18)
 
 - :rotating_light: improve: fix lint ([3083212](https://github.com/guanghechen/sora/commit/3083212))

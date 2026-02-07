@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.1 (2025-02-07)
+
+### Improvements
+
+- Clean up build configs and standardize package exports
+- Enhance type safety and resource cleanup
+
+### Documentation
+
+- Update README.md
+
+### Miscellaneous
+
+- Add LICENSE file
+- Migrate from lerna to changesets
+
+## 2.0.0 (2025-01-15)
+
+### Improvements
+
+- Switch to recommended ESLint stack
+
+
 ## 1.0.0-beta.7 (2024-09-19)
 
 **Note:** Version bump only for package @guanghechen/task
