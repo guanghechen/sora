@@ -14,6 +14,7 @@
   "type": "module",
   "scripts": {
     ":publish": "pnpm clean && pnpm build:production && pnpm test:coverage && changeset publish",
+    ":publish:all": "pnpm -r exec npm version patch --no-git-tag-version && pnpm -r publish --no-git-checks",
     ":version": "changeset version",
     ":upgrade": "pnpm update -i && pnpm clean && pnpm format && pnpm build && pnpm test",
     "build": "cross-env NODE_ENV=production ROLLUP_SHOULD_SOURCEMAP=true pnpm -r run build",
