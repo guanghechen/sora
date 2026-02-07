@@ -1,6 +1,7 @@
 {
   "version": "0.2",
   "language": "en",
+  "ignorePaths": ["node_modules", "**/node_modules", "**/lib", "**/coverage", "pnpm-lock.yaml"],
   "words": [
     "clazz",
     "colorterm",

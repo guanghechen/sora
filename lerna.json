@@ -6,7 +6,6 @@
   "changelogPreset": "./script/changelog.mjs",
   "command": {
     "publish": {
-      "changelogPreset": "./script/changelog.mjs",
       "conventionalCommits": false,
       "forcePublish": false,
       "graphType": "all",
@@ -16,7 +15,6 @@
     },
     "version": {
       "allowBranch": ["main", "release-*"],
-      "changelogPreset": "./script/changelog.mjs",
       "conventionalCommits": false,
       "forcePublish": false,
       "message": ":bookmark:  release",

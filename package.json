@@ -2,9 +2,6 @@
   "name": "root",
   "version": "0.0.0",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
   "author": {
     "name": "guanghechen",
     "url": "https://github.com/guanghechen/"
