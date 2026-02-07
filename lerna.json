@@ -3,9 +3,7 @@
   "version": "independent",
   "npmClient": "pnpm",
   "ignoreChanges": ["*.md", "**/__test__/**/*"],
-  "changelog": {
-    "preset": "./script/changelog.mjs"
-  },
+  "changelogPreset": "./script/changelog.mjs",
   "command": {
     "publish": {
       "changelogPreset": "./script/changelog.mjs",
