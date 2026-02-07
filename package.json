@@ -13,8 +13,8 @@
   "homepage": "https://github.com/guanghechen/sora/tree/release-2.x.x/#readme",
   "type": "module",
   "scripts": {
-    ":publish": "pnpm clean && pnpm build:production && pnpm test:coverage && lerna publish",
-    ":publish-recover": "git stash && lerna publish from-package",
+    ":publish": "pnpm clean && pnpm build:production && pnpm test:coverage && changeset publish",
+    ":version": "changeset version",
     ":upgrade": "pnpm update -i && pnpm clean && pnpm format && pnpm build && pnpm test",
     "build": "cross-env NODE_ENV=production ROLLUP_SHOULD_SOURCEMAP=true pnpm -r run build",
     "build:production": "cross-env NODE_ENV=production ROLLUP_SHOULD_SOURCEMAP=false pnpm -r run build",
@@ -32,6 +32,8 @@
     "version": "pnpm install && node script/sync-doc-link.mjs && git stage -u pnpm-lock.yaml packages/**/package.json packages/**/*.md"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^0.5.2",
+    "@changesets/cli": "^2.29.8",
     "@eslint/js": "9.39.2",
     "@rollup/plugin-commonjs": "28.0.6",
     "@rollup/plugin-json": "6.1.0",
@@ -46,7 +48,6 @@
     "globals": "17.3.0",
     "husky": "9.1.7",
     "is-ci": "4.1.0",
-    "lerna": "9.0.3",
     "lint-staged": "16.2.7",
     "pinst": "3.0.0",
     "prettier": "3.8.1",
