@@ -966,4 +966,154 @@ describe('Command', () => {
       expect(error.name).toBe('CommanderError')
     })
   })
+
+  describe('help subcommand', () => {
+    it('should show subcommand help with "help <subcommand>"', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+      const root = new Command({ name: 'cli', description: 'CLI tool', help: true })
+
+      const sub = new Command({ name: 'init', description: 'Initialize project' })
+      sub.option({ type: 'string', long: 'template', description: 'Template name' })
+      sub.action(() => {})
+      root.subcommand(sub)
+
+      await root.run({ argv: ['help', 'init'], envs: {} })
+
+      expect(consoleSpy).toHaveBeenCalled()
+      const output = consoleSpy.mock.calls[0][0]
+      expect(output).toContain('Initialize project')
+      expect(output).toContain('--template')
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should show root help with "help" alone when has subcommands', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+      const root = new Command({ name: 'cli', description: 'CLI tool', help: true })
+      const sub = new Command({ name: 'init', description: 'Initialize' })
+      sub.action(() => {})
+      root.subcommand(sub)
+
+      await root.run({ argv: ['help'], envs: {} })
+
+      expect(consoleSpy).toHaveBeenCalled()
+      const output = consoleSpy.mock.calls[0][0]
+      expect(output).toContain('CLI tool')
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should show help subcommand in help output when has subcommands', () => {
+      const root = new Command({ name: 'cli', description: 'CLI tool', help: true })
+      const sub = new Command({ name: 'init', description: 'Initialize' })
+      root.subcommand(sub)
+
+      const help = root.formatHelp()
+
+      expect(help).toContain('Commands:')
+      expect(help).toContain('help')
+      expect(help).toContain('Show help for a command')
+    })
+
+    it('should not show help subcommand when no subcommands', () => {
+      const root = new Command({ name: 'cli', description: 'CLI tool', help: true })
+
+      const help = root.formatHelp()
+
+      expect(help).not.toContain('Commands:')
+      expect(help).not.toContain('Show help for a command')
+    })
+
+    it('should not process help subcommand when not enabled', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+
+      const root = new Command({ name: 'cli', description: 'CLI tool' })
+      // NOT setting help: true
+
+      const sub = new Command({ name: 'init', description: 'Initialize' })
+      sub.action(() => {})
+      root.subcommand(sub)
+
+      await root.run({ argv: ['help', 'init'], envs: {} })
+
+      // Should show help (no action defined for root), not route to init
+      expect(consoleSpy).toHaveBeenCalled()
+      const output = consoleSpy.mock.calls[0][0]
+      expect(output).toContain('CLI tool')
+
+      consoleSpy.mockRestore()
+      consoleErrorSpy.mockRestore()
+      exitSpy.mockRestore()
+    })
+
+    it('should handle unknown subcommand in help', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+      const root = new Command({ name: 'cli', description: 'CLI tool', help: true })
+
+      const sub = new Command({ name: 'init', description: 'Initialize' })
+      sub.action(() => {})
+      root.subcommand(sub)
+
+      // "help unknown" - unknown is not a subcommand, so normal routing handles it
+      await root.run({ argv: ['help', 'unknown'], envs: {} })
+
+      // Should show root help since "help unknown" doesn't match any subcommand
+      expect(consoleSpy).toHaveBeenCalled()
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should work with subcommand aliases', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+      const root = new Command({ name: 'cli', description: 'CLI tool', help: true })
+
+      const sub = new Command({
+        name: 'initialize',
+        description: 'Initialize project',
+        aliases: ['init', 'i'],
+      })
+      sub.action(() => {})
+      root.subcommand(sub)
+
+      await root.run({ argv: ['help', 'init'], envs: {} })
+
+      expect(consoleSpy).toHaveBeenCalled()
+      const output = consoleSpy.mock.calls[0][0]
+      expect(output).toContain('Initialize project')
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should throw when subcommand name conflicts with reserved "help"', () => {
+      const root = new Command({ name: 'cli', description: 'CLI tool', help: true })
+
+      const helpCmd = new Command({ name: 'help', description: 'Custom help' })
+
+      expect(() => root.subcommand(helpCmd)).toThrow('reserved subcommand name')
+    })
+
+    it('should throw when subcommand alias conflicts with reserved "help"', () => {
+      const root = new Command({ name: 'cli', description: 'CLI tool', help: true })
+
+      const cmd = new Command({ name: 'info', description: 'Info', aliases: ['help'] })
+
+      expect(() => root.subcommand(cmd)).toThrow('reserved subcommand name')
+    })
+
+    it('should allow "help" subcommand when help is not enabled', () => {
+      const root = new Command({ name: 'cli', description: 'CLI tool' })
+
+      const helpCmd = new Command({ name: 'help', description: 'Custom help' })
+      helpCmd.action(() => {})
+
+      // Should not throw
+      expect(() => root.subcommand(helpCmd)).not.toThrow()
+    })
+  })
 })

@@ -60,6 +60,7 @@ export class Command implements ICommand {
   readonly #description: string
   readonly #version: string | undefined
   readonly #aliases: string[]
+  readonly #helpSubcommandEnabled: boolean
 
   #options: IOption[] = []
   #arguments: IArgument[] = []
@@ -72,6 +73,7 @@ export class Command implements ICommand {
     this.#description = config.description
     this.#version = config.version
     this.#aliases = config.aliases ?? []
+    this.#helpSubcommandEnabled = config.help ?? false
   }
 
   // ==================== Properties ====================
@@ -127,6 +129,14 @@ export class Command implements ICommand {
   // ==================== Assembly Methods ====================
 
   public subcommand(cmd: Command): this {
+    // Check for reserved name conflict
+    if (this.#helpSubcommandEnabled && (cmd.#name === 'help' || cmd.#aliases.includes('help'))) {
+      throw new CommanderError(
+        'ConfigurationError',
+        '"help" is a reserved subcommand name when help subcommand is enabled',
+        this.#getCommandPath(),
+      )
+    }
     // eslint-disable-next-line no-param-reassign
     cmd.#parent = this
     this.#subcommands.push(cmd)
@@ -139,8 +149,11 @@ export class Command implements ICommand {
     const { argv, envs, reporter } = params
 
     try {
+      // 0. Handle "help <subcommand>" syntax if enabled
+      const processedArgv = this.#processHelpSubcommand(argv)
+
       // 1. Route to target command
-      const { command, remaining } = this.#route(argv)
+      const { command, remaining } = this.#route(processedArgv)
 
       // 2. Check for built-in --help / --version BEFORE parsing (to avoid required argument errors)
       const allOptions = command.#getMergedOptions()
@@ -382,9 +395,16 @@ export class Command implements ICommand {
     }
 
     // Commands
+    const showHelpSubcommand = this.#helpSubcommandEnabled && this.#subcommands.length > 0
     if (this.#subcommands.length > 0) {
       lines.push('Commands:')
       const cmdLines: Array<{ name: string; desc: string }> = []
+
+      // Add help subcommand if enabled and has subcommands
+      if (showHelpSubcommand) {
+        cmdLines.push({ name: 'help', desc: 'Show help for a command' })
+      }
+
       for (const sub of this.#subcommands) {
         let name = sub.#name
         if (sub.#aliases.length > 0) {
@@ -429,6 +449,27 @@ export class Command implements ICommand {
   }
 
   // ==================== Private: Routing ====================
+
+  #processHelpSubcommand(argv: string[]): string[] {
+    // Only process if help subcommand is enabled AND we have subcommands
+    if (!this.#helpSubcommandEnabled || this.#subcommands.length === 0) return argv
+    if (argv.length < 1 || argv[0] !== 'help') return argv
+
+    // "help" alone -> show current command's help
+    if (argv.length === 1) {
+      return ['--help']
+    }
+
+    // "help <subcommand>" -> "<subcommand> --help"
+    const subName = argv[1]
+    const sub = this.#subcommands.find(c => c.#name === subName || c.#aliases.includes(subName))
+    if (sub) {
+      return [subName, '--help', ...argv.slice(2)]
+    }
+
+    // Unknown subcommand, let normal routing handle the error
+    return argv
+  }
 
   #route(argv: string[]): { command: Command; remaining: string[] } {
     // eslint-disable-next-line @typescript-eslint/no-this-alias

@@ -76,6 +76,8 @@ export interface ICommandConfig {
   description: string
   /** Version (only effective for root command) */
   version?: string
+  /** Enable built-in "help" subcommand (only effective when command has subcommands) */
+  help?: boolean
 }
 
 /** Forward declaration for Command class */
