@@ -18,6 +18,7 @@ export type {
   ICompletionCommandConfig,
   ICompletionMeta,
   ICompletionOptionMeta,
+  ICompletionPaths,
   IOption,
   IOptionType,
   IParseResult,

@@ -4,8 +4,10 @@
  * @module @guanghechen/commander
  */
 
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { Command } from './command'
-import type { ICompletionCommandConfig, ICompletionMeta } from './types'
+import type { ICompletionCommandConfig, ICompletionMeta, ICompletionPaths } from './types'
 
 // ==================== CompletionCommand ====================
 
@@ -15,17 +17,24 @@ import type { ICompletionCommandConfig, ICompletionMeta } from './types'
  * @example
  * ```typescript
  * const root = new Command({ name: 'mycli', description: 'My CLI' })
- * root.subcommand(new CompletionCommand(root))
+ * root.subcommand(new CompletionCommand(root, {
+ *   paths: {
+ *     bash: `~/.local/share/bash-completion/completions/mycli`,
+ *     fish: `~/.config/fish/completions/mycli.fish`,
+ *     pwsh: `~/.config/powershell/Microsoft.PowerShell_profile.ps1`,
+ *   }
+ * }))
  *
  * // Usage:
  * // mycli completion --bash > ~/.local/share/bash-completion/completions/mycli
- * // mycli completion --fish > ~/.config/fish/completions/mycli.fish
- * // mycli completion --pwsh >> $PROFILE
+ * // mycli completion --fish --write  (writes to default path)
+ * // mycli completion --fish --write /custom/path.fish
  * ```
  */
 export class CompletionCommand extends Command {
-  constructor(root: Command, config?: ICompletionCommandConfig) {
-    const name = config?.name ?? 'completion'
+  constructor(root: Command, config: ICompletionCommandConfig) {
+    const name = config.name ?? 'completion'
+    const paths = config.paths
 
     super({
       name,
@@ -47,6 +56,13 @@ export class CompletionCommand extends Command {
         type: 'boolean',
         description: 'Generate PowerShell completion script',
       })
+      .option({
+        long: 'write',
+        short: 'w',
+        type: 'string',
+        description: 'Write to file (default path if no value given)',
+        resolver: argv => resolveOptionalStringOption(argv, 'write', 'w'),
+      })
       .action(({ opts }) => {
         const meta = root.getCompletionMeta()
         const programName = root.name
@@ -55,31 +71,127 @@ export class CompletionCommand extends Command {
           opts['bash'] && 'bash',
           opts['fish'] && 'fish',
           opts['pwsh'] && 'pwsh',
-        ].filter(Boolean) as string[]
+        ].filter(Boolean) as Array<keyof ICompletionPaths>
 
         if (selectedShells.length === 0) {
           console.error('Please specify a shell: --bash, --fish, or --pwsh')
           process.exit(1)
+          return
         }
 
         if (selectedShells.length > 1) {
           console.error('Please specify only one shell option')
           process.exit(1)
+          return
         }
 
-        switch (selectedShells[0]) {
+        const shell = selectedShells[0]
+        let script: string
+
+        switch (shell) {
           case 'bash':
-            console.log(new BashCompletion(meta, programName).generate())
+            script = new BashCompletion(meta, programName).generate()
             break
           case 'fish':
-            console.log(new FishCompletion(meta, programName).generate())
+            script = new FishCompletion(meta, programName).generate()
             break
           case 'pwsh':
-            console.log(new PwshCompletion(meta, programName).generate())
+            script = new PwshCompletion(meta, programName).generate()
             break
+        }
+
+        const writeOpt = opts['write']
+        if (writeOpt !== undefined) {
+          // --write was specified
+          const filePath = typeof writeOpt === 'string' && writeOpt !== '' ? writeOpt : paths[shell]
+          const expandedPath = expandHome(filePath)
+
+          // Ensure parent directory exists
+          const dir = path.dirname(expandedPath)
+          if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true })
+          }
+
+          fs.writeFileSync(expandedPath, script, 'utf-8')
+          console.log(`Completion script written to: ${expandedPath}`)
+        } else {
+          // Output to stdout
+          console.log(script)
         }
       })
   }
+}
+
+// ==================== Helper Functions ====================
+
+/**
+ * Expand ~ to home directory
+ */
+function expandHome(filepath: string): string {
+  if (filepath.startsWith('~/') || filepath === '~') {
+    const home = process.env['HOME'] || process.env['USERPROFILE'] || ''
+    return filepath.replace(/^~/, home)
+  }
+  return filepath
+}
+
+/**
+ * Resolve an optional string option that can be:
+ * - Not present: undefined
+ * - Present without value (--write): empty string '' to indicate "use default"
+ * - Present with value (--write /path): the value
+ */
+function resolveOptionalStringOption(
+  argv: string[],
+  longName: string,
+  shortName?: string,
+): { value: string | undefined; remaining: string[] } {
+  const remaining: string[] = []
+  let value: string | undefined
+
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i]
+
+    // Check --long=value
+    if (arg.startsWith(`--${longName}=`)) {
+      value = arg.slice(`--${longName}=`.length)
+      continue
+    }
+
+    // Check --long or --long value
+    if (arg === `--${longName}`) {
+      const next = argv[i + 1]
+      if (next !== undefined && !next.startsWith('-')) {
+        value = next
+        i += 1
+      } else {
+        value = '' // Flag present but no value
+      }
+      continue
+    }
+
+    // Check -w=value
+    if (shortName && arg.startsWith(`-${shortName}=`)) {
+      value = arg.slice(`-${shortName}=`.length)
+      continue
+    }
+
+    // Check -w or -w value
+    if (shortName && arg === `-${shortName}`) {
+      const next = argv[i + 1]
+      if (next !== undefined && !next.startsWith('-')) {
+        value = next
+        i += 1
+      } else {
+        value = ''
+      }
+      continue
+    }
+
+    remaining.push(arg)
+  }
+
+  return { value, remaining }
 }
 
 // ==================== BashCompletion ====================

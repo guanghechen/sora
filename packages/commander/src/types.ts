@@ -190,8 +190,20 @@ export interface ICompletionMeta {
   subcommands: ICompletionMeta[]
 }
 
+/** Shell completion paths configuration */
+export interface ICompletionPaths {
+  /** Bash completion file path (e.g., ~/.local/share/bash-completion/completions/{name}) */
+  bash: string
+  /** Fish completion file path (e.g., ~/.config/fish/completions/{name}.fish) */
+  fish: string
+  /** PowerShell completion file path (only ~ expansion supported, not $PROFILE) */
+  pwsh: string
+}
+
 /** CompletionCommand configuration */
 export interface ICompletionCommandConfig {
   /** Subcommand name, defaults to 'completion' */
   name?: string
+  /** Default completion file paths for each shell (required for --write support) */
+  paths: ICompletionPaths
 }
