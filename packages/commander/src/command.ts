@@ -141,33 +141,32 @@ export class Command {
       // 1. Route to target command
       const { command, remaining } = this.#route(argv)
 
-      // 2. Parse options and arguments
-      const { opts, args } = command.parse(remaining)
-
-      // 3. Build context
-      const ctx: ICommandContext = {
-        cmd: command,
-        envs,
-        reporter: reporter ?? new DefaultReporter(),
-        argv,
-      }
-
-      // 4. Handle built-in options
+      // 2. Check for built-in --help / --version BEFORE parsing (to avoid required argument errors)
       const allOptions = command.#getMergedOptions()
-      // Check ancestor chain for user-defined help/version (not just current command)
       const hasUserHelp = allOptions.some(o => o.long === 'help' && !command.#isBuiltinOption(o))
       const hasUserVersion = allOptions.some(
         o => o.long === 'version' && !command.#isBuiltinOption(o),
       )
 
-      if (!hasUserHelp && opts['help'] === true) {
+      if (!hasUserHelp && command.#hasHelpFlag(remaining, allOptions)) {
         console.log(command.formatHelp())
         return
       }
 
-      if (!hasUserVersion && opts['version'] === true) {
+      if (!hasUserVersion && command.#hasVersionFlag(remaining, allOptions)) {
         console.log(command.version ?? 'unknown')
         return
+      }
+
+      // 3. Parse options and arguments
+      const { opts, args } = command.parse(remaining)
+
+      // 4. Build context
+      const ctx: ICommandContext = {
+        cmd: command,
+        envs,
+        reporter: reporter ?? new DefaultReporter(),
+        argv,
       }
 
       // 5. Apply callbacks
@@ -799,6 +798,89 @@ export class Command {
   #isBuiltinOption(opt: IOption): boolean {
     // Use object identity comparison with built-in option constants
     return opt === BUILTIN_HELP_OPTION || opt === BUILTIN_VERSION_OPTION
+  }
+
+  #hasHelpFlag(argv: string[], allOptions: IOption[]): boolean {
+    return this.#hasBuiltinFlag(argv, 'help', 'h', allOptions)
+  }
+
+  #hasVersionFlag(argv: string[], allOptions: IOption[]): boolean {
+    return this.#hasBuiltinFlag(argv, 'version', 'V', allOptions)
+  }
+
+  #hasBuiltinFlag(
+    argv: string[],
+    flagLong: string,
+    flagShort: string | undefined,
+    allOptions: IOption[],
+  ): boolean {
+    const optionByLong = new Map<string, IOption>()
+    const optionByShort = new Map<string, IOption>()
+    for (const opt of allOptions) {
+      optionByLong.set(opt.long, opt)
+      if (opt.short) {
+        optionByShort.set(opt.short, opt)
+      }
+    }
+
+    for (let i = 0; i < argv.length; i++) {
+      const arg = argv[i]
+      if (arg === '--') {
+        break
+      }
+
+      if (arg === `--${flagLong}` || (flagShort && arg === `-${flagShort}`)) {
+        return true
+      }
+
+      if (this.#optionConsumesNextValue(arg, optionByLong, optionByShort)) {
+        i += 1
+      }
+    }
+
+    return false
+  }
+
+  #optionConsumesNextValue(
+    arg: string,
+    optionByLong: Map<string, IOption>,
+    optionByShort: Map<string, IOption>,
+  ): boolean {
+    if (arg === '--') {
+      return false
+    }
+
+    if (arg.startsWith('--')) {
+      const eqIdx = arg.indexOf('=')
+      if (eqIdx !== -1) {
+        return false
+      }
+
+      const optName = arg.slice(2)
+      if (optName.startsWith('no-')) {
+        return false
+      }
+
+      const opt = optionByLong.get(optName)
+      if (!opt) {
+        return false
+      }
+
+      const type = opt.type ?? 'string'
+      return type !== 'boolean'
+    }
+
+    if (arg.startsWith('-') && arg.length === 2) {
+      const opt = optionByShort.get(arg[1])
+      if (!opt) {
+        return false
+      }
+
+      const type = opt.type ?? 'string'
+      return type !== 'boolean'
+    }
+
+    return false
   }
 
   #getCommandPath(): string {
