@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.1.0 (2025-02-08)
+
+### Features
+
+- Add `--write` option to `CompletionCommand` for direct file output
+- Add `help` subcommand support for commands with subcommands
+- Detect `--help`/`--version` before parsing to avoid required argument errors
+- Add `#normalizeArgv()` preprocessing to simplify `--no-*` option handling
+- Add `implements ICommand` for explicit interface implementation
+
 ## 2.0.1 (2025-02-07)
 
 ### Documentation
