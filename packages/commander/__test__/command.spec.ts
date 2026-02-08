@@ -383,6 +383,33 @@ describe('Command', () => {
       expect(params!.opts['name']).toBe('foo')
       expect(params!.args).toEqual(['input.txt'])
     })
+
+    it('should use default reporter when none provided', async () => {
+      const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {})
+      const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.action(({ ctx }) => {
+        ctx.reporter.debug('debug message')
+        ctx.reporter.info('info message')
+        ctx.reporter.warn('warn message')
+        ctx.reporter.error('error message')
+      })
+
+      await cmd.run({ argv: [], envs: {} })
+
+      expect(debugSpy).toHaveBeenCalledWith('debug message')
+      expect(infoSpy).toHaveBeenCalledWith('info message')
+      expect(warnSpy).toHaveBeenCalledWith('warn message')
+      expect(errorSpy).toHaveBeenCalledWith('error message')
+
+      debugSpy.mockRestore()
+      infoSpy.mockRestore()
+      warnSpy.mockRestore()
+      errorSpy.mockRestore()
+    })
   })
 
   describe('parse rest arguments', () => {
@@ -718,6 +745,88 @@ describe('Command', () => {
       const output = consoleSpy.mock.calls[0][0]
       expect(output).toContain('Test command')
       expect(output).toContain('Usage: test')
+      consoleSpy.mockRestore()
+    })
+
+    it('should not show help when --help is after -- terminator', async () => {
+      const actionSpy = vi.fn()
+      const cmd = new Command({ name: 'test', description: 'Test command' })
+      cmd.action(actionSpy)
+
+      await cmd.run({ argv: ['--', '--help'], envs: {} })
+
+      expect(actionSpy).toHaveBeenCalled()
+    })
+
+    it('should show help even with unknown option before --help', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const cmd = new Command({ name: 'test', description: 'Test command' })
+      cmd.action(() => {})
+
+      await cmd.run({ argv: ['--unknown', '--help'], envs: {} })
+
+      expect(consoleSpy).toHaveBeenCalled()
+      const output = consoleSpy.mock.calls[0][0]
+      expect(output).toContain('Test command')
+      consoleSpy.mockRestore()
+    })
+
+    it('should show help even with unknown short option before --help', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const cmd = new Command({ name: 'test', description: 'Test command' })
+      cmd.action(() => {})
+
+      await cmd.run({ argv: ['-x', '--help'], envs: {} })
+
+      expect(consoleSpy).toHaveBeenCalled()
+      const output = consoleSpy.mock.calls[0][0]
+      expect(output).toContain('Test command')
+      consoleSpy.mockRestore()
+    })
+
+    it('should show help with string option followed by -- and then --help', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const cmd = new Command({ name: 'test', description: 'Test command' })
+      cmd.option({ type: 'string', long: 'config', short: 'c', description: 'Config file' })
+      cmd.action(() => {})
+
+      // -c consumes next value, then -- terminates options, so --help is treated as arg
+      await cmd.run({ argv: ['-c', 'file.json', '--', '--help'], envs: {} })
+
+      // Action should be called since --help is after --
+      expect(consoleSpy).not.toHaveBeenCalled()
+      consoleSpy.mockRestore()
+    })
+
+    it('should show help with option without explicit type (defaults to string) before --help', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const cmd = new Command({ name: 'test', description: 'Test command' })
+      // Option without explicit type defaults to string
+      cmd.option({ long: 'config', short: 'c', description: 'Config file' })
+      cmd.action(() => {})
+
+      // --config consumes next value "foo", then --help should be detected
+      await cmd.run({ argv: ['--config', 'foo', '--help'], envs: {} })
+
+      expect(consoleSpy).toHaveBeenCalled()
+      const output = consoleSpy.mock.calls[0][0]
+      expect(output).toContain('Test command')
+      consoleSpy.mockRestore()
+    })
+
+    it('should show help with short option without explicit type before --help', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const cmd = new Command({ name: 'test', description: 'Test command' })
+      // Option without explicit type defaults to string
+      cmd.option({ long: 'config', short: 'c', description: 'Config file' })
+      cmd.action(() => {})
+
+      // -c consumes next value "foo", then --help should be detected
+      await cmd.run({ argv: ['-c', 'foo', '--help'], envs: {} })
+
+      expect(consoleSpy).toHaveBeenCalled()
+      const output = consoleSpy.mock.calls[0][0]
+      expect(output).toContain('Test command')
       consoleSpy.mockRestore()
     })
 

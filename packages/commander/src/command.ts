@@ -632,7 +632,7 @@ export class Command implements ICommand {
     const type = opt.type ?? 'string'
 
     // Apply coerce if present
-    let parsedValue: unknown
+    let parsedValue: unknown = rawValue
     if (opt.coerce) {
       parsedValue = opt.coerce(rawValue)
     } else {
@@ -656,9 +656,6 @@ export class Command implements ICommand {
           parsedValue = num
           break
         }
-
-        default:
-          parsedValue = rawValue
       }
     }
 
@@ -885,10 +882,6 @@ export class Command implements ICommand {
     optionByLong: Map<string, IOption>,
     optionByShort: Map<string, IOption>,
   ): boolean {
-    if (arg === '--') {
-      return false
-    }
-
     if (arg.startsWith('--')) {
       const eqIdx = arg.indexOf('=')
       if (eqIdx !== -1) {

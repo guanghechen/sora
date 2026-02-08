@@ -529,6 +529,60 @@ describe('CompletionCommand', () => {
 
       consoleSpy.mockRestore()
     })
+
+    it('should use default path with -w shorthand without value', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const fishPath = path.join(tempDir, 'fish-shorthand.fish')
+
+      const root = new Command({ name: 'mycli', description: 'My CLI' })
+      const completionCmd = new CompletionCommand(root, {
+        paths: { ...testPaths, fish: fishPath },
+      })
+      root.subcommand(completionCmd)
+
+      await root.run({ argv: ['completion', '--fish', '-w'], envs: {} })
+
+      expect(consoleSpy).toHaveBeenCalledWith(`Completion script written to: ${fishPath}`)
+      expect(fs.existsSync(fishPath)).toBe(true)
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should expand ~ using USERPROFILE when HOME is not set', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const fishPath = path.join(tempDir, 'userprofile-test.fish')
+      const originalHome = process.env['HOME']
+      const originalUserProfile = process.env['USERPROFILE']
+
+      // Simulate Windows environment where HOME is not set but USERPROFILE is
+      delete process.env['HOME']
+      process.env['USERPROFILE'] = tempDir
+
+      const root = new Command({ name: 'mycli', description: 'My CLI' })
+      const completionCmd = new CompletionCommand(root, {
+        paths: { ...testPaths, fish: '~/userprofile-test.fish' },
+      })
+      root.subcommand(completionCmd)
+
+      await root.run({ argv: ['completion', '--fish', '--write'], envs: {} })
+
+      expect(consoleSpy).toHaveBeenCalledWith(`Completion script written to: ${fishPath}`)
+      expect(fs.existsSync(fishPath)).toBe(true)
+
+      // Restore environment
+      if (originalHome !== undefined) {
+        process.env['HOME'] = originalHome
+      } else {
+        delete process.env['HOME']
+      }
+      if (originalUserProfile !== undefined) {
+        process.env['USERPROFILE'] = originalUserProfile
+      } else {
+        delete process.env['USERPROFILE']
+      }
+
+      consoleSpy.mockRestore()
+    })
   })
 })
 
