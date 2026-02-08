@@ -198,9 +198,9 @@ describe('Integration with Command', () => {
     const root = new Command({ name: 'mycli', description: 'My CLI', version: '1.0.0' })
     root.option({ type: 'string', short: 'c', long: 'config', description: 'Config file' })
 
-    const init = new Command({ name: 'init', description: 'Initialize project' })
+    const init = new Command({ description: 'Initialize project' })
     init.option({ type: 'string', long: 'template', description: 'Template' })
-    root.subcommand(init)
+    root.subcommand('init', init)
 
     const meta = root.getCompletionMeta()
 
@@ -217,17 +217,19 @@ describe('Integration with Command', () => {
 })
 
 describe('CompletionCommand', () => {
-  it('should create a completion subcommand with default name', () => {
+  it('should create a completion subcommand', () => {
     const root = new Command({ name: 'mycli', description: 'My CLI' })
     const completionCmd = new CompletionCommand(root, { paths: testPaths })
+    root.subcommand('completion', completionCmd)
 
     expect(completionCmd.name).toBe('completion')
     expect(completionCmd.description).toBe('Generate shell completion script')
   })
 
-  it('should allow custom name via config', () => {
+  it('should allow custom name via registration', () => {
     const root = new Command({ name: 'mycli', description: 'My CLI' })
-    const completionCmd = new CompletionCommand(root, { name: 'completions', paths: testPaths })
+    const completionCmd = new CompletionCommand(root, { paths: testPaths })
+    root.subcommand('completions', completionCmd)
 
     expect(completionCmd.name).toBe('completions')
   })
@@ -235,6 +237,7 @@ describe('CompletionCommand', () => {
   it('should have bash, fish, pwsh, and write options', () => {
     const root = new Command({ name: 'mycli', description: 'My CLI' })
     const completionCmd = new CompletionCommand(root, { paths: testPaths })
+    root.subcommand('completion', completionCmd)
 
     const cmdMeta = completionCmd.getCompletionMeta()
 
@@ -257,7 +260,7 @@ describe('CompletionCommand', () => {
     const root = new Command({ name: 'mycli', description: 'My CLI' })
     root.option({ type: 'boolean', long: 'verbose', description: 'Verbose' })
     const completionCmd = new CompletionCommand(root, { paths: testPaths })
-    root.subcommand(completionCmd)
+    root.subcommand('completion', completionCmd)
 
     await root.run({ argv: ['completion', '--bash'], envs: {} })
 
@@ -274,7 +277,7 @@ describe('CompletionCommand', () => {
 
     const root = new Command({ name: 'mycli', description: 'My CLI' })
     const completionCmd = new CompletionCommand(root, { paths: testPaths })
-    root.subcommand(completionCmd)
+    root.subcommand('completion', completionCmd)
 
     await root.run({ argv: ['completion', '--fish'], envs: {} })
 
@@ -290,7 +293,7 @@ describe('CompletionCommand', () => {
 
     const root = new Command({ name: 'mycli', description: 'My CLI' })
     const completionCmd = new CompletionCommand(root, { paths: testPaths })
-    root.subcommand(completionCmd)
+    root.subcommand('completion', completionCmd)
 
     await root.run({ argv: ['completion', '--pwsh'], envs: {} })
 
@@ -307,7 +310,7 @@ describe('CompletionCommand', () => {
 
     const root = new Command({ name: 'mycli', description: 'My CLI' })
     const completionCmd = new CompletionCommand(root, { paths: testPaths })
-    root.subcommand(completionCmd)
+    root.subcommand('completion', completionCmd)
 
     await root.run({ argv: ['completion'], envs: {} })
 
@@ -326,7 +329,7 @@ describe('CompletionCommand', () => {
 
     const root = new Command({ name: 'mycli', description: 'My CLI' })
     const completionCmd = new CompletionCommand(root, { paths: testPaths })
-    root.subcommand(completionCmd)
+    root.subcommand('completion', completionCmd)
 
     await root.run({ argv: ['completion', '--bash', '--fish'], envs: {} })
 
@@ -356,7 +359,7 @@ describe('CompletionCommand', () => {
       const completionCmd = new CompletionCommand(root, {
         paths: { ...testPaths, fish: fishPath },
       })
-      root.subcommand(completionCmd)
+      root.subcommand('completion', completionCmd)
 
       await root.run({ argv: ['completion', '--fish', '--write'], envs: {} })
 
@@ -374,7 +377,7 @@ describe('CompletionCommand', () => {
 
       const root = new Command({ name: 'mycli', description: 'My CLI' })
       const completionCmd = new CompletionCommand(root, { paths: testPaths })
-      root.subcommand(completionCmd)
+      root.subcommand('completion', completionCmd)
 
       await root.run({ argv: ['completion', '--fish', '--write', customPath], envs: {} })
 
@@ -392,7 +395,7 @@ describe('CompletionCommand', () => {
 
       const root = new Command({ name: 'mycli', description: 'My CLI' })
       const completionCmd = new CompletionCommand(root, { paths: testPaths })
-      root.subcommand(completionCmd)
+      root.subcommand('completion', completionCmd)
 
       await root.run({ argv: ['completion', '--bash', '-w', customPath], envs: {} })
 
@@ -408,7 +411,7 @@ describe('CompletionCommand', () => {
 
       const root = new Command({ name: 'mycli', description: 'My CLI' })
       const completionCmd = new CompletionCommand(root, { paths: testPaths })
-      root.subcommand(completionCmd)
+      root.subcommand('completion', completionCmd)
 
       await root.run({ argv: ['completion', '--fish', '--write', nestedPath], envs: {} })
 
@@ -425,7 +428,7 @@ describe('CompletionCommand', () => {
       const completionCmd = new CompletionCommand(root, {
         paths: { ...testPaths, bash: bashPath },
       })
-      root.subcommand(completionCmd)
+      root.subcommand('completion', completionCmd)
 
       await root.run({ argv: ['completion', '--bash', '--write'], envs: {} })
 
@@ -444,7 +447,7 @@ describe('CompletionCommand', () => {
       const completionCmd = new CompletionCommand(root, {
         paths: { ...testPaths, pwsh: pwshPath },
       })
-      root.subcommand(completionCmd)
+      root.subcommand('completion', completionCmd)
 
       await root.run({ argv: ['completion', '--pwsh', '--write'], envs: {} })
 
@@ -461,7 +464,7 @@ describe('CompletionCommand', () => {
 
       const root = new Command({ name: 'mycli', description: 'My CLI' })
       const completionCmd = new CompletionCommand(root, { paths: testPaths })
-      root.subcommand(completionCmd)
+      root.subcommand('completion', completionCmd)
 
       await root.run({ argv: ['completion', '--fish', `--write=${customPath}`], envs: {} })
 
@@ -477,7 +480,7 @@ describe('CompletionCommand', () => {
 
       const root = new Command({ name: 'mycli', description: 'My CLI' })
       const completionCmd = new CompletionCommand(root, { paths: testPaths })
-      root.subcommand(completionCmd)
+      root.subcommand('completion', completionCmd)
 
       await root.run({ argv: ['completion', '--fish', `-w=${customPath}`], envs: {} })
 
@@ -494,7 +497,7 @@ describe('CompletionCommand', () => {
 
       const root = new Command({ name: 'mycli', description: 'My CLI' })
       const completionCmd = new CompletionCommand(root, { paths: testPaths })
-      root.subcommand(completionCmd)
+      root.subcommand('completion', completionCmd)
 
       await root.run({ argv: ['completion', '--write'], envs: {} })
 
@@ -520,7 +523,7 @@ describe('CompletionCommand', () => {
       const completionCmd = new CompletionCommand(root, {
         paths: { ...testPaths, fish: relativePath },
       })
-      root.subcommand(completionCmd)
+      root.subcommand('completion', completionCmd)
 
       await root.run({ argv: ['completion', '--fish', '--write'], envs: {} })
 
@@ -538,7 +541,7 @@ describe('CompletionCommand', () => {
       const completionCmd = new CompletionCommand(root, {
         paths: { ...testPaths, fish: fishPath },
       })
-      root.subcommand(completionCmd)
+      root.subcommand('completion', completionCmd)
 
       await root.run({ argv: ['completion', '--fish', '-w'], envs: {} })
 
@@ -562,7 +565,7 @@ describe('CompletionCommand', () => {
       const completionCmd = new CompletionCommand(root, {
         paths: { ...testPaths, fish: '~/userprofile-test.fish' },
       })
-      root.subcommand(completionCmd)
+      root.subcommand('completion', completionCmd)
 
       await root.run({ argv: ['completion', '--fish', '--write'], envs: {} })
 

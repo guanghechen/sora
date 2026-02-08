@@ -68,10 +68,8 @@ export interface IArgument {
 
 /** Command configuration */
 export interface ICommandConfig {
-  /** Command name (used for routing) */
-  name: string
-  /** Command aliases */
-  aliases?: string[]
+  /** Command name (only effective for root command) */
+  name?: string
   /** Command description */
   description: string
   /** Version (only effective for root command) */
@@ -83,10 +81,8 @@ export interface ICommandConfig {
 /** Forward declaration for Command class */
 export interface ICommand {
   readonly name: string
-  readonly aliases: string[]
   readonly description: string
   readonly version: string | undefined
-  readonly parent: ICommand | undefined
   readonly options: IOption[]
   readonly arguments: IArgument[]
 }
@@ -101,6 +97,13 @@ export interface ICommandContext {
   reporter: IReporter
   /** Original argv */
   argv: string[]
+}
+
+/** Subcommand registration entry (internal) */
+export interface ISubcommandEntry {
+  name: string
+  aliases: string[]
+  command: ICommand
 }
 
 /** Action parameters */
@@ -202,8 +205,8 @@ export interface ICompletionPaths {
 
 /** CompletionCommand configuration */
 export interface ICompletionCommandConfig {
-  /** Subcommand name, defaults to 'completion' */
-  name?: string
+  /** Program name for completion scripts (defaults to root.name) */
+  programName?: string
   /** Default completion file paths for each shell (required for --write support) */
   paths: ICompletionPaths
 }

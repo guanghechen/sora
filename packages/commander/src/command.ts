@@ -17,6 +17,7 @@ import type {
   IParseResult,
   IReporter,
   IRunParams,
+  ISubcommandEntry,
 } from './types'
 import { CommanderError } from './types'
 
@@ -56,23 +57,20 @@ const BUILTIN_VERSION_OPTION: IOption = {
 // ==================== Command Class ====================
 
 export class Command implements ICommand {
-  readonly #name: string
+  #name: string
   readonly #description: string
   readonly #version: string | undefined
-  readonly #aliases: string[]
   readonly #helpSubcommandEnabled: boolean
 
   #options: IOption[] = []
   #arguments: IArgument[] = []
-  #subcommands: Command[] = []
+  #subcommands: ISubcommandEntry[] = []
   #action: IAction | undefined
-  #parent: Command | undefined
 
   constructor(config: ICommandConfig) {
-    this.#name = config.name
+    this.#name = config.name ?? ''
     this.#description = config.description
     this.#version = config.version
-    this.#aliases = config.aliases ?? []
     this.#helpSubcommandEnabled = config.help ?? false
   }
 
@@ -82,20 +80,12 @@ export class Command implements ICommand {
     return this.#name
   }
 
-  public get aliases(): string[] {
-    return this.#aliases
-  }
-
   public get description(): string {
     return this.#description
   }
 
   public get version(): string | undefined {
-    return this.#version ?? this.#parent?.version
-  }
-
-  public get parent(): Command | undefined {
-    return this.#parent
+    return this.#version
   }
 
   public get options(): IOption[] {
@@ -128,18 +118,27 @@ export class Command implements ICommand {
 
   // ==================== Assembly Methods ====================
 
-  public subcommand(cmd: Command): this {
+  public subcommand(name: string, cmd: Command): this {
     // Check for reserved name conflict
-    if (this.#helpSubcommandEnabled && (cmd.#name === 'help' || cmd.#aliases.includes('help'))) {
+    if (this.#helpSubcommandEnabled && name === 'help') {
       throw new CommanderError(
         'ConfigurationError',
         '"help" is a reserved subcommand name when help subcommand is enabled',
         this.#getCommandPath(),
       )
     }
-    // eslint-disable-next-line no-param-reassign
-    cmd.#parent = this
-    this.#subcommands.push(cmd)
+
+    // Check if cmd is already registered
+    const existing = this.#subcommands.find(e => e.command === cmd)
+    if (existing) {
+      // Add name as alias
+      existing.aliases.push(name)
+    } else {
+      // New registration
+      // eslint-disable-next-line no-param-reassign
+      cmd.#name = name
+      this.#subcommands.push({ name, aliases: [], command: cmd })
+    }
     return this
   }
 
@@ -405,12 +404,12 @@ export class Command implements ICommand {
         cmdLines.push({ name: 'help', desc: 'Show help for a command' })
       }
 
-      for (const sub of this.#subcommands) {
-        let name = sub.#name
-        if (sub.#aliases.length > 0) {
-          name += `, ${sub.#aliases.join(', ')}`
+      for (const entry of this.#subcommands) {
+        let name = entry.name
+        if (entry.aliases.length > 0) {
+          name += `, ${entry.aliases.join(', ')}`
         }
-        cmdLines.push({ name, desc: sub.#description })
+        cmdLines.push({ name, desc: (entry.command as Command).#description })
       }
       const maxNameLen = Math.max(...cmdLines.map(l => l.name.length))
       for (const { name, desc } of cmdLines) {
@@ -442,9 +441,16 @@ export class Command implements ICommand {
     return {
       name: this.#name,
       description: this.#description,
-      aliases: this.#aliases,
+      aliases: [],
       options,
-      subcommands: this.#subcommands.map(sub => sub.getCompletionMeta()),
+      subcommands: this.#subcommands.map(entry => {
+        const subMeta = (entry.command as Command).getCompletionMeta()
+        return {
+          ...subMeta,
+          name: entry.name,
+          aliases: entry.aliases,
+        }
+      }),
     }
   }
 
@@ -462,8 +468,8 @@ export class Command implements ICommand {
 
     // "help <subcommand>" -> "<subcommand> --help"
     const subName = argv[1]
-    const sub = this.#subcommands.find(c => c.#name === subName || c.#aliases.includes(subName))
-    if (sub) {
+    const entry = this.#subcommands.find(e => e.name === subName || e.aliases.includes(subName))
+    if (entry) {
       return [subName, '--help', ...argv.slice(2)]
     }
 
@@ -483,10 +489,10 @@ export class Command implements ICommand {
       if (token.startsWith('-')) break
 
       // Try to match subcommand
-      const sub = current.#subcommands.find(c => c.#name === token || c.#aliases.includes(token))
-      if (!sub) break
+      const entry = current.#subcommands.find(e => e.name === token || e.aliases.includes(token))
+      if (!entry) break
 
-      current = sub
+      current = entry.command as Command
       idx += 1
     }
 
@@ -673,19 +679,12 @@ export class Command implements ICommand {
   // ==================== Private: Option Merging ====================
 
   #getMergedOptions(): IOption[] {
-    // Collect options from ancestor chain (root to current)
-    const ancestors: Command[] = []
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    for (let node: Command | undefined = this; node; node = node.#parent) {
-      ancestors.unshift(node)
-    }
-
-    // Merge with long as key, later overrides earlier
+    // No parent inheritance - just return this command's options with builtins
     const optionMap = new Map<string, IOption>()
 
     // Add built-in options first (can be overridden)
-    const hasUserHelp = ancestors.some(c => c.#options.some(o => o.long === 'help'))
-    const hasUserVersion = ancestors.some(c => c.#options.some(o => o.long === 'version'))
+    const hasUserHelp = this.#options.some(o => o.long === 'help')
+    const hasUserVersion = this.#options.some(o => o.long === 'version')
 
     if (!hasUserHelp) {
       optionMap.set('help', BUILTIN_HELP_OPTION)
@@ -694,27 +693,9 @@ export class Command implements ICommand {
       optionMap.set('version', BUILTIN_VERSION_OPTION)
     }
 
-    // Add options from ancestors (root to current)
-    for (const ancestor of ancestors) {
-      for (const opt of ancestor.#options) {
-        optionMap.set(opt.long, opt)
-      }
-    }
-
-    // Check for short option conflicts
-    const shortToLong = new Map<string, string>()
-    for (const [long, opt] of optionMap) {
-      if (opt.short) {
-        const existing = shortToLong.get(opt.short)
-        if (existing && existing !== long) {
-          throw new CommanderError(
-            'OptionConflict',
-            `short option "-${opt.short}" is used by both "--${existing}" and "--${long}"`,
-            this.#getCommandPath(),
-          )
-        }
-        shortToLong.set(opt.short, long)
-      }
+    // Add this command's options
+    for (const opt of this.#options) {
+      optionMap.set(opt.long, opt)
     }
 
     return Array.from(optionMap.values())
@@ -951,11 +932,6 @@ export class Command implements ICommand {
   }
 
   #getCommandPath(): string {
-    const parts: string[] = []
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    for (let node: Command | undefined = this; node; node = node.#parent) {
-      parts.unshift(node.#name)
-    }
-    return parts.join(' ')
+    return this.#name
   }
 }

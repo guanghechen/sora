@@ -17,7 +17,7 @@ import type { ICompletionCommandConfig, ICompletionMeta, ICompletionPaths } from
  * @example
  * ```typescript
  * const root = new Command({ name: 'mycli', description: 'My CLI' })
- * root.subcommand(new CompletionCommand(root, {
+ * root.subcommand('completion', new CompletionCommand(root, {
  *   paths: {
  *     bash: `~/.local/share/bash-completion/completions/mycli`,
  *     fish: `~/.config/fish/completions/mycli.fish`,
@@ -33,11 +33,10 @@ import type { ICompletionCommandConfig, ICompletionMeta, ICompletionPaths } from
  */
 export class CompletionCommand extends Command {
   constructor(root: Command, config: ICompletionCommandConfig) {
-    const name = config.name ?? 'completion'
     const paths = config.paths
+    const programName = config.programName ?? root.name
 
     super({
-      name,
       description: 'Generate shell completion script',
     })
 
@@ -65,7 +64,6 @@ export class CompletionCommand extends Command {
       })
       .action(({ opts }) => {
         const meta = root.getCompletionMeta()
-        const programName = root.name
 
         const selectedShells = [
           opts['bash'] && 'bash',

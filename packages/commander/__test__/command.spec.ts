@@ -15,20 +15,6 @@ describe('Command', () => {
       expect(cmd.version).toBe('1.0.0')
     })
 
-    it('should accept aliases', () => {
-      const cmd = new Command({ name: 'test', description: 'Test', aliases: ['t', 'tst'] })
-      expect(cmd.aliases).toEqual(['t', 'tst'])
-    })
-
-    it('should expose parent property', () => {
-      const root = new Command({ name: 'cli', description: 'CLI' })
-      const sub = new Command({ name: 'init', description: 'Init' })
-      root.subcommand(sub)
-
-      expect(root.parent).toBeUndefined()
-      expect(sub.parent).toBe(root)
-    })
-
     it('should expose options property', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.option({ type: 'boolean', long: 'verbose', description: 'Verbose' })
@@ -290,13 +276,13 @@ describe('Command', () => {
   describe('subcommand', () => {
     it('should route to subcommand via run', async () => {
       const root = new Command({ name: 'cli', description: 'CLI tool' })
-      const sub = new Command({ name: 'init', description: 'Initialize' })
+      const sub = new Command({ description: 'Initialize' })
 
       let receivedArgs: string[] = []
       sub.action(({ args }) => {
         receivedArgs = args
       })
-      root.subcommand(sub)
+      root.subcommand('init', sub)
 
       await root.run({ argv: ['init', 'arg'], envs: {} })
       expect(receivedArgs).toEqual(['arg'])
@@ -304,57 +290,51 @@ describe('Command', () => {
 
     it('should resolve subcommand by alias', async () => {
       const root = new Command({ name: 'cli', description: 'CLI tool' })
-      const sub = new Command({
-        name: 'initialize',
-        description: 'Initialize',
-        aliases: ['init', 'i'],
-      })
+      const sub = new Command({ description: 'Initialize' })
 
       let executed = false
       sub.action(() => {
         executed = true
       })
-      root.subcommand(sub)
+      root.subcommand('initialize', sub).subcommand('init', sub).subcommand('i', sub)
 
       await root.run({ argv: ['i'], envs: {} })
       expect(executed).toBe(true)
     })
 
-    it('should inherit options from parent', async () => {
-      const root = new Command({ name: 'cli', description: 'CLI' })
-      root.option({ type: 'boolean', long: 'debug', description: 'Debug mode' })
-
-      const sub = new Command({ name: 'build', description: 'Build' })
-      let debugValue: boolean | undefined
-      sub.action(({ opts }) => {
-        debugValue = opts['debug'] as boolean
-      })
-      root.subcommand(sub)
-
-      await root.run({ argv: ['build', '--debug'], envs: {} })
-      expect(debugValue).toBe(true)
-    })
-
-    it('subcommand should inherit version from parent', () => {
-      const root = new Command({ name: 'cli', description: 'CLI', version: '2.0.0' })
-      const sub = new Command({ name: 'init', description: 'Init' })
-      root.subcommand(sub)
-
-      expect(sub.version).toBe('2.0.0')
-    })
-
     it('should stop routing at option-like token', () => {
       const root = new Command({ name: 'cli', description: 'CLI' })
       root.option({ type: 'boolean', long: 'verbose', description: 'Verbose' })
-      const sub = new Command({ name: 'start', description: 'Start' })
+      const sub = new Command({ description: 'Start' })
       sub.action(() => {})
-      root.subcommand(sub)
+      root.subcommand('start', sub)
 
       // pm --verbose start should NOT route to start
       // start becomes a positional argument for root
       const result = root.parse(['--verbose', 'start'])
       expect(result.opts['verbose']).toBe(true)
       expect(result.args).toEqual(['start'])
+    })
+
+    it('should set registered name on subcommand', () => {
+      const root = new Command({ name: 'cli', description: 'CLI' })
+      const sub = new Command({ description: 'Build' })
+      root.subcommand('build', sub)
+
+      expect(sub.name).toBe('build')
+    })
+
+    it('should collect aliases when same command registered multiple times', () => {
+      const root = new Command({ name: 'cli', description: 'CLI' })
+      const sub = new Command({ description: 'Build' })
+      root.subcommand('build', sub).subcommand('b', sub).subcommand('compile', sub)
+
+      // First registration is the name, subsequent are aliases
+      expect(sub.name).toBe('build')
+      // Aliases are stored in the entry, accessible via getCompletionMeta
+      const meta = root.getCompletionMeta()
+      const subMeta = meta.subcommands.find(s => s.name === 'build')
+      expect(subMeta?.aliases).toEqual(['b', 'compile'])
     })
   })
 
@@ -475,8 +455,8 @@ describe('Command', () => {
 
     it('should show subcommands in help', () => {
       const root = new Command({ name: 'cli', description: 'CLI' })
-      root.subcommand(new Command({ name: 'init', description: 'Initialize project' }))
-      root.subcommand(new Command({ name: 'build', description: 'Build project' }))
+      root.subcommand('init', new Command({ description: 'Initialize project' }))
+      root.subcommand('build', new Command({ description: 'Build project' }))
 
       const help = root.formatHelp()
 
@@ -488,13 +468,8 @@ describe('Command', () => {
 
     it('should show subcommand aliases in help', () => {
       const root = new Command({ name: 'cli', description: 'CLI' })
-      root.subcommand(
-        new Command({
-          name: 'initialize',
-          description: 'Initialize project',
-          aliases: ['init', 'i'],
-        }),
-      )
+      const sub = new Command({ description: 'Initialize project' })
+      root.subcommand('initialize', sub).subcommand('init', sub).subcommand('i', sub)
 
       const help = root.formatHelp()
 
@@ -546,8 +521,8 @@ describe('Command', () => {
       const root = new Command({ name: 'cli', description: 'CLI tool' })
       root.option({ type: 'string', short: 'c', long: 'config', description: 'Config file' })
 
-      const sub = new Command({ name: 'init', description: 'Initialize' })
-      root.subcommand(sub)
+      const sub = new Command({ description: 'Initialize' })
+      root.subcommand('init', sub)
 
       const meta = root.getCompletionMeta()
 
@@ -556,6 +531,17 @@ describe('Command', () => {
       expect(meta.options).toContainEqual(expect.objectContaining({ long: 'config' }))
       expect(meta.subcommands).toHaveLength(1)
       expect(meta.subcommands[0].name).toBe('init')
+    })
+
+    it('should include aliases in subcommand metadata', () => {
+      const root = new Command({ name: 'cli', description: 'CLI tool' })
+      const sub = new Command({ description: 'Build' })
+      root.subcommand('build', sub).subcommand('b', sub)
+
+      const meta = root.getCompletionMeta()
+
+      expect(meta.subcommands[0].name).toBe('build')
+      expect(meta.subcommands[0].aliases).toEqual(['b'])
     })
   })
 
@@ -663,51 +649,6 @@ describe('Command', () => {
           required: true,
         }),
       ).toThrow('cannot be required')
-    })
-  })
-
-  describe('option inheritance', () => {
-    it('should merge options from ancestor chain', () => {
-      const root = new Command({ name: 'cli', description: 'CLI' })
-      root.option({ type: 'boolean', long: 'verbose', short: 'v', description: 'Verbose' })
-
-      const sub = new Command({ name: 'build', description: 'Build' })
-      sub.option({ type: 'string', long: 'target', description: 'Target' })
-      sub.action(() => {})
-      root.subcommand(sub)
-
-      // When parsing build command, both verbose and target should be available
-      // We test this indirectly via parse
-    })
-
-    it('should allow child to override parent option', () => {
-      const root = new Command({ name: 'cli', description: 'CLI' })
-      root.option({ type: 'string', long: 'log-level', description: 'Log level' })
-
-      const sub = new Command({ name: 'build', description: 'Build' })
-      sub.option({
-        type: 'string',
-        long: 'log-level',
-        description: 'Build log level',
-        default: 'debug',
-      })
-      sub.action(() => {})
-      root.subcommand(sub)
-
-      // Child's log-level definition should be used
-    })
-
-    it('should detect short option conflict in merged options', () => {
-      const root = new Command({ name: 'cli', description: 'CLI' })
-      root.option({ type: 'boolean', long: 'verbose', short: 'v', description: 'Verbose' })
-
-      const sub = new Command({ name: 'build', description: 'Build' })
-      sub.option({ type: 'boolean', long: 'version', short: 'v', description: 'Version' })
-      sub.action(() => {})
-      root.subcommand(sub)
-
-      // Should throw when trying to parse due to short option conflict
-      expect(() => sub.parse(['--verbose'])).toThrow('short option "-v" is used by both')
     })
   })
 
@@ -890,9 +831,9 @@ describe('Command', () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
       const root = new Command({ name: 'cli', description: 'CLI tool' })
-      const sub = new Command({ name: 'init', description: 'Initialize' })
+      const sub = new Command({ description: 'Initialize' })
       sub.action(() => {})
-      root.subcommand(sub)
+      root.subcommand('init', sub)
 
       // Running root without specifying subcommand
       await root.run({ argv: [], envs: {} })
@@ -1082,10 +1023,10 @@ describe('Command', () => {
 
       const root = new Command({ name: 'cli', description: 'CLI tool', help: true })
 
-      const sub = new Command({ name: 'init', description: 'Initialize project' })
+      const sub = new Command({ description: 'Initialize project' })
       sub.option({ type: 'string', long: 'template', description: 'Template name' })
       sub.action(() => {})
-      root.subcommand(sub)
+      root.subcommand('init', sub)
 
       await root.run({ argv: ['help', 'init'], envs: {} })
 
@@ -1101,9 +1042,9 @@ describe('Command', () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
       const root = new Command({ name: 'cli', description: 'CLI tool', help: true })
-      const sub = new Command({ name: 'init', description: 'Initialize' })
+      const sub = new Command({ description: 'Initialize' })
       sub.action(() => {})
-      root.subcommand(sub)
+      root.subcommand('init', sub)
 
       await root.run({ argv: ['help'], envs: {} })
 
@@ -1116,8 +1057,8 @@ describe('Command', () => {
 
     it('should show help subcommand in help output when has subcommands', () => {
       const root = new Command({ name: 'cli', description: 'CLI tool', help: true })
-      const sub = new Command({ name: 'init', description: 'Initialize' })
-      root.subcommand(sub)
+      const sub = new Command({ description: 'Initialize' })
+      root.subcommand('init', sub)
 
       const help = root.formatHelp()
 
@@ -1143,9 +1084,9 @@ describe('Command', () => {
       const root = new Command({ name: 'cli', description: 'CLI tool' })
       // NOT setting help: true
 
-      const sub = new Command({ name: 'init', description: 'Initialize' })
+      const sub = new Command({ description: 'Initialize' })
       sub.action(() => {})
-      root.subcommand(sub)
+      root.subcommand('init', sub)
 
       await root.run({ argv: ['help', 'init'], envs: {} })
 
@@ -1164,9 +1105,9 @@ describe('Command', () => {
 
       const root = new Command({ name: 'cli', description: 'CLI tool', help: true })
 
-      const sub = new Command({ name: 'init', description: 'Initialize' })
+      const sub = new Command({ description: 'Initialize' })
       sub.action(() => {})
-      root.subcommand(sub)
+      root.subcommand('init', sub)
 
       // "help unknown" - unknown is not a subcommand, so normal routing handles it
       await root.run({ argv: ['help', 'unknown'], envs: {} })
@@ -1182,13 +1123,9 @@ describe('Command', () => {
 
       const root = new Command({ name: 'cli', description: 'CLI tool', help: true })
 
-      const sub = new Command({
-        name: 'initialize',
-        description: 'Initialize project',
-        aliases: ['init', 'i'],
-      })
+      const sub = new Command({ description: 'Initialize project' })
       sub.action(() => {})
-      root.subcommand(sub)
+      root.subcommand('initialize', sub).subcommand('init', sub).subcommand('i', sub)
 
       await root.run({ argv: ['help', 'init'], envs: {} })
 
@@ -1202,27 +1139,28 @@ describe('Command', () => {
     it('should throw when subcommand name conflicts with reserved "help"', () => {
       const root = new Command({ name: 'cli', description: 'CLI tool', help: true })
 
-      const helpCmd = new Command({ name: 'help', description: 'Custom help' })
+      const helpCmd = new Command({ description: 'Custom help' })
 
-      expect(() => root.subcommand(helpCmd)).toThrow('reserved subcommand name')
+      expect(() => root.subcommand('help', helpCmd)).toThrow('reserved subcommand name')
     })
 
     it('should throw when subcommand alias conflicts with reserved "help"', () => {
       const root = new Command({ name: 'cli', description: 'CLI tool', help: true })
 
-      const cmd = new Command({ name: 'info', description: 'Info', aliases: ['help'] })
+      const cmd = new Command({ description: 'Info' })
+      root.subcommand('info', cmd)
 
-      expect(() => root.subcommand(cmd)).toThrow('reserved subcommand name')
+      expect(() => root.subcommand('help', cmd)).toThrow('reserved subcommand name')
     })
 
     it('should allow "help" subcommand when help is not enabled', () => {
       const root = new Command({ name: 'cli', description: 'CLI tool' })
 
-      const helpCmd = new Command({ name: 'help', description: 'Custom help' })
+      const helpCmd = new Command({ description: 'Custom help' })
       helpCmd.action(() => {})
 
       // Should not throw
-      expect(() => root.subcommand(helpCmd)).not.toThrow()
+      expect(() => root.subcommand('help', helpCmd)).not.toThrow()
     })
   })
 })
