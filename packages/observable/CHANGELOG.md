@@ -25,7 +25,6 @@ All notable changes to this project will be documented in this file. See
 
 - Upgrade to stable release
 
-
 ## <small>6.1.3 (2024-09-19)</small>
 
 - :art: improve(viewmodel): support to create Computed from another Computed

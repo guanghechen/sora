@@ -30,4 +30,3 @@ All notable changes to this project will be documented in this file. See
 ### Features
 
 - Initial stable release: A minimal, type-safe command-line interface builder with fluent API
-

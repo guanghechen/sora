@@ -28,7 +28,6 @@ All notable changes to this project will be documented in this file. See
 
 - Switch to recommended ESLint stack
 
-
 ## 1.0.0-alpha.22 (2024-09-19)
 
 - :art: improve(viewmodel): add new method updateState to align the React setState method

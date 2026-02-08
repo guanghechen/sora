@@ -25,7 +25,6 @@ All notable changes to this project will be documented in this file. See
 
 - Switch to recommended ESLint stack
 
-
 ## 1.0.0-beta.7 (2024-09-19)
 
 **Note:** Version bump only for package @guanghechen/task

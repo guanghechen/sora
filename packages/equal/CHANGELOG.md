@@ -24,7 +24,6 @@ All notable changes to this project will be documented in this file. See
 
 - Switch to recommended ESLint stack
 
-
 ## 1.0.0-alpha.7 (2024-09-18)
 
 - :wrench: chore: upgrade devDependencies and fix configs

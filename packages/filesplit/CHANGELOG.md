@@ -25,7 +25,6 @@ All notable changes to this project will be documented in this file. See
 
 - Rename package from file-split to filesplit
 
-
 ## 1.0.0-alpha.23 (2024-09-18)
 
 - :wrench: chore: upgrade devDependencies and fix configs

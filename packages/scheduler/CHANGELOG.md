@@ -25,7 +25,6 @@ All notable changes to this project will be documented in this file. See
 
 - Upgrade to stable release
 
-
 ## 6.0.0-beta.8 (2024-09-19)
 
 **Note:** Version bump only for package @guanghechen/scheduler

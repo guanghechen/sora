@@ -1,10 +1,12 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this
+repository.
 
 ## Overview
 
-This is a TypeScript monorepo (`@guanghechen/*`) containing utility packages. Uses pnpm workspaces with independent versioning via changesets.
+This is a TypeScript monorepo (`@guanghechen/*`) containing utility packages. Uses pnpm workspaces
+with independent versioning via changesets.
 
 ## Commands
 
@@ -46,6 +48,7 @@ pnpm :publish:all       # Patch bump and publish all packages
 ## Package Structure
 
 Each package in `packages/` follows:
+
 - `src/` - TypeScript source
 - `lib/` - Build output (esm, cjs, types)
 - Dual ESM/CJS exports via rollup

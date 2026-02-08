@@ -23,13 +23,13 @@ All notable changes to this project will be documented in this file. See
 
 ### Features
 
-- Initial stable release: Unified types package consolidating error, disposable, path, subscriber, and resource types
+- Initial stable release: Unified types package consolidating error, disposable, path, subscriber,
+  and resource types
 
 ### Features
 
 - Add IReporter interface
 - Move utility types from std
-
 
 ## 2.0.0 (2026-02-06)
 

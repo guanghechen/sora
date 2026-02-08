@@ -28,4 +28,3 @@ All notable changes to this project will be documented in this file. See
 ### Breaking Changes
 
 - Enforce strict shell-compliant .env syntax
-

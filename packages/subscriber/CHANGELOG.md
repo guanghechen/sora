@@ -28,7 +28,6 @@ All notable changes to this project will be documented in this file. See
 
 - Switch to recommended ESLint stack
 
-
 ## 1.0.0-alpha.2 (2024-09-18)
 
 - :rotating_light: improve: fix lint ([3083212](https://github.com/guanghechen/sora/commit/3083212))

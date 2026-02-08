@@ -28,7 +28,6 @@ All notable changes to this project will be documented in this file. See
 
 - Switch to recommended ESLint stack
 
-
 ## 1.0.0-alpha.18 (2024-09-18)
 
 - :art: format codes ([177eb54](https://github.com/guanghechen/sora/commit/177eb54))

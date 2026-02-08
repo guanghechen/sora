@@ -32,4 +32,3 @@ All notable changes to this project will be documented in this file. See
 
 - Switch to recommended ESLint stack
 - Remove node engine restrictions
-

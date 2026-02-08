@@ -30,7 +30,6 @@ All notable changes to this project will be documented in this file. See
 - Remove unused workspace dependencies
 - Switch to recommended ESLint stack
 
-
 ## 1.0.0-alpha.18 (2024-09-18)
 
 - :rotating_light: improve: fix lint ([3083212](https://github.com/guanghechen/sora/commit/3083212))

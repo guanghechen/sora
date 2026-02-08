@@ -25,7 +25,6 @@ All notable changes to this project will be documented in this file. See
 
 - Add IReporter interface to @guanghechen/types
 
-
 ## 1.0.0-alpha.30 (2024-09-18)
 
 - :rotating_light: improve: fix lint ([3083212](https://github.com/guanghechen/sora/commit/3083212))
