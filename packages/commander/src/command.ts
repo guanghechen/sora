@@ -8,6 +8,7 @@ import type {
   IAction,
   IActionParams,
   IArgument,
+  ICommand,
   ICommandConfig,
   ICommandContext,
   ICompletionMeta,
@@ -54,7 +55,7 @@ const BUILTIN_VERSION_OPTION: IOption = {
 
 // ==================== Command Class ====================
 
-export class Command {
+export class Command implements ICommand {
   readonly #name: string
   readonly #description: string
   readonly #version: string | undefined
@@ -237,17 +238,11 @@ export class Command {
       remaining = result.remaining
     }
 
-    // Create option map for quick lookup
-    const optionByLong = new Map<string, IOption>()
-    const optionByShort = new Map<string, IOption>()
-    for (const opt of allOptions) {
-      if (!opt.resolver) {
-        optionByLong.set(opt.long, opt)
-        if (opt.short) {
-          optionByShort.set(opt.short, opt)
-        }
-      }
-    }
+    // Build option maps (excluding resolver options which are already processed)
+    const { optionByLong, optionByShort, booleanOptions } = this.#buildOptionMaps(allOptions, true)
+
+    // Normalize --no-* to --*=false
+    remaining = this.#normalizeArgv(remaining, booleanOptions)
 
     // Parse remaining argv
     let i = 0
@@ -476,24 +471,6 @@ export class Command {
       inlineValue = token.slice(eqIdx + 1)
     } else {
       optName = token.slice(2)
-    }
-
-    // Handle --no-{name} for boolean options
-    if (optName.startsWith('no-')) {
-      const actualName = optName.slice(3)
-      const opt = optionByLong.get(actualName)
-      if (opt && opt.type === 'boolean') {
-        if (inlineValue !== undefined) {
-          throw new CommanderError(
-            'InvalidBooleanValue',
-            `"--no-${actualName}" does not accept a value`,
-            this.#getCommandPath(),
-          )
-        }
-        opts[actualName] = false
-        return idx + 1
-      }
-      // If not a boolean option, fall through to unknown option error
     }
 
     const opt = optionByLong.get(optName)
@@ -800,6 +777,33 @@ export class Command {
     return opt === BUILTIN_HELP_OPTION || opt === BUILTIN_VERSION_OPTION
   }
 
+  #buildOptionMaps(
+    allOptions: IOption[],
+    excludeResolver = false,
+  ): {
+    optionByLong: Map<string, IOption>
+    optionByShort: Map<string, IOption>
+    booleanOptions: Set<string>
+  } {
+    const optionByLong = new Map<string, IOption>()
+    const optionByShort = new Map<string, IOption>()
+    const booleanOptions = new Set<string>()
+
+    for (const opt of allOptions) {
+      if (excludeResolver && opt.resolver) continue
+
+      optionByLong.set(opt.long, opt)
+      if (opt.short) {
+        optionByShort.set(opt.short, opt)
+      }
+      if (opt.type === 'boolean') {
+        booleanOptions.add(opt.long)
+      }
+    }
+
+    return { optionByLong, optionByShort, booleanOptions }
+  }
+
   #hasHelpFlag(argv: string[], allOptions: IOption[]): boolean {
     return this.#hasBuiltinFlag(argv, 'help', 'h', allOptions)
   }
@@ -814,17 +818,11 @@ export class Command {
     flagShort: string | undefined,
     allOptions: IOption[],
   ): boolean {
-    const optionByLong = new Map<string, IOption>()
-    const optionByShort = new Map<string, IOption>()
-    for (const opt of allOptions) {
-      optionByLong.set(opt.long, opt)
-      if (opt.short) {
-        optionByShort.set(opt.short, opt)
-      }
-    }
+    const { optionByLong, optionByShort, booleanOptions } = this.#buildOptionMaps(allOptions)
+    const normalizedArgv = this.#normalizeArgv(argv, booleanOptions)
 
-    for (let i = 0; i < argv.length; i++) {
-      const arg = argv[i]
+    for (let i = 0; i < normalizedArgv.length; i++) {
+      const arg = normalizedArgv[i]
       if (arg === '--') {
         break
       }
@@ -857,10 +855,6 @@ export class Command {
       }
 
       const optName = arg.slice(2)
-      if (optName.startsWith('no-')) {
-        return false
-      }
-
       const opt = optionByLong.get(optName)
       if (!opt) {
         return false
@@ -881,6 +875,45 @@ export class Command {
     }
 
     return false
+  }
+
+  #normalizeArgv(argv: string[], booleanOptions: Set<string>): string[] {
+    const result: string[] = []
+    let seenDoubleDash = false
+
+    for (const arg of argv) {
+      if (arg === '--') {
+        seenDoubleDash = true
+        result.push(arg)
+        continue
+      }
+
+      if (!seenDoubleDash && arg.startsWith('--no-')) {
+        const eqIdx = arg.indexOf('=')
+        if (eqIdx !== -1) {
+          // --no-foo=value: check if it's a boolean option and throw error
+          const optName = arg.slice(5, eqIdx)
+          if (booleanOptions.has(optName)) {
+            throw new CommanderError(
+              'InvalidBooleanValue',
+              `"--no-${optName}" does not accept a value`,
+              this.#getCommandPath(),
+            )
+          }
+        } else {
+          // --no-foo: normalize to --foo=false if it's a boolean option
+          const optName = arg.slice(5)
+          if (booleanOptions.has(optName)) {
+            result.push(`--${optName}=false`)
+            continue
+          }
+        }
+      }
+
+      result.push(arg)
+    }
+
+    return result
   }
 
   #getCommandPath(): string {
