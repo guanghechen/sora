@@ -25,5 +25,6 @@ export type {
   IReporter,
   IRunParams,
   IShellType,
+  IShiftResult,
 } from './types'
 export { CommanderError } from './types'

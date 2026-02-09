@@ -137,11 +137,20 @@ export interface IParseResult {
   args: string[]
 }
 
+/** shift() method result */
+export interface IShiftResult {
+  /** Options consumed by this command */
+  opts: Record<string, unknown>
+  /** Tokens not consumed, to be passed to parent */
+  remaining: string[]
+}
+
 // ==================== Error Types ====================
 
 /** Error kinds for command parsing */
 export type ICommanderErrorKind =
   | 'UnknownOption'
+  | 'UnexpectedArgument'
   | 'MissingValue'
   | 'InvalidType'
   | 'UnsupportedShortSyntax'

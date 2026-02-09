@@ -17,6 +17,7 @@ import type {
   IParseResult,
   IReporter,
   IRunParams,
+  IShiftResult,
   ISubcommandEntry,
 } from './types'
 import { CommanderError } from './types'
@@ -151,52 +152,64 @@ export class Command implements ICommand {
       // 0. Handle "help <subcommand>" syntax if enabled
       const processedArgv = this.#processHelpSubcommand(argv)
 
-      // 1. Route to target command
-      const { command, remaining } = this.#route(processedArgv)
+      // 1. Route: determine command chain
+      const { chain, remaining } = this.#routeChain(processedArgv)
+      const leafCommand = chain[chain.length - 1]
 
-      // 2. Check for built-in --help / --version BEFORE parsing (to avoid required argument errors)
-      const allOptions = command.#getMergedOptions()
-      const hasUserHelp = allOptions.some(o => o.long === 'help' && !command.#isBuiltinOption(o))
-      const hasUserVersion = allOptions.some(
-        o => o.long === 'version' && !command.#isBuiltinOption(o),
-      )
+      // 2. Split options and arguments at '--'
+      const { optionTokens, restArgs } = this.#splitAtDoubleDash(remaining)
 
-      if (!hasUserHelp && command.#hasHelpFlag(remaining, allOptions)) {
-        console.log(command.formatHelp())
+      // 3. Check for built-in --help / --version BEFORE parsing
+      const leafOptions = leafCommand.#getMergedOptions()
+      const hasUserHelp = leafCommand.#options.some(o => o.long === 'help')
+      const hasUserVersion = leafCommand.#options.some(o => o.long === 'version')
+
+      if (!hasUserHelp && leafCommand.#hasHelpFlag(optionTokens, leafOptions)) {
+        console.log(leafCommand.formatHelp())
         return
       }
 
-      if (!hasUserVersion && command.#hasVersionFlag(remaining, allOptions)) {
-        console.log(command.version ?? 'unknown')
+      if (!hasUserVersion && leafCommand.#hasVersionFlag(optionTokens, leafOptions)) {
+        console.log(leafCommand.version ?? 'unknown')
         return
       }
 
-      // 3. Parse options and arguments
-      const { opts, args } = command.parse(remaining)
+      // 4. Shift: bottom-up option consumption
+      const optsMap = this.#shiftChain(chain, optionTokens)
 
-      // 4. Build context
+      // 5. Build context
       const ctx: ICommandContext = {
-        cmd: command,
+        cmd: leafCommand,
         envs,
         reporter: reporter ?? new DefaultReporter(),
         argv,
       }
 
-      // 5. Apply callbacks
-      for (const opt of allOptions) {
-        if (opt.apply && opts[opt.long] !== undefined) {
-          opt.apply(opts[opt.long], ctx)
-        }
+      // 6. Apply: top-down context building
+      this.#applyChain(chain, optsMap, ctx)
+
+      // 7. Merge options (root → leaf, later overwrites earlier)
+      const mergedOpts = this.#mergeOpts(chain, optsMap)
+
+      // 8. Validate required arguments
+      const args = restArgs
+      const requiredArgs = leafCommand.#arguments.filter(a => a.kind === 'required')
+      if (args.length < requiredArgs.length) {
+        const missing = requiredArgs.slice(args.length).map(a => a.name)
+        throw new CommanderError(
+          'MissingRequiredArgument',
+          `missing required argument(s): ${missing.join(', ')}`,
+          leafCommand.#getCommandPath(),
+        )
       }
 
-      // 6. Execute action
-      const actionParams: IActionParams = { ctx, opts, args }
+      // 9. Execute action
+      const actionParams: IActionParams = { ctx, opts: mergedOpts, args }
 
-      if (command.#action) {
+      if (leafCommand.#action) {
         try {
-          await command.#action(actionParams)
+          await leafCommand.#action(actionParams)
         } catch (err) {
-          // Action errors exit with code 1 (per spec §8.1)
           if (err instanceof Error) {
             console.error(`Error: ${err.message}`)
           } else {
@@ -204,22 +217,20 @@ export class Command implements ICommand {
           }
           process.exit(1)
         }
-      } else if (command.#subcommands.length > 0) {
-        // No action but has subcommands: show help
-        console.log(command.formatHelp())
+      } else if (leafCommand.#subcommands.length > 0) {
+        console.log(leafCommand.formatHelp())
       } else {
         throw new CommanderError(
           'ConfigurationError',
-          `no action defined for command "${command.#getCommandPath()}"`,
-          command.#getCommandPath(),
+          `no action defined for command "${leafCommand.#getCommandPath()}"`,
+          leafCommand.#getCommandPath(),
         )
       }
     } catch (err) {
-      // Parsing/configuration errors exit with code 2 (per spec §8.1)
       if (err instanceof CommanderError) {
         console.error(err.format())
         process.exit(2)
-        return // For test mocking - exit() mock doesn't terminate execution
+        return
       }
       throw err
     }
@@ -325,6 +336,124 @@ export class Command implements ICommand {
     }
 
     return { opts, args }
+  }
+
+  /**
+   * Shift options from tokens that this command recognizes.
+   * Unrecognized tokens are returned in `remaining` for parent commands.
+   */
+  public shift(tokens: string[]): IShiftResult {
+    return this.#shiftWithShadowed(tokens, new Set())
+  }
+
+  /**
+   * Shift options with shadowed set support.
+   * Options in the shadowed set are excluded from processing.
+   */
+  #shiftWithShadowed(tokens: string[], shadowed: Set<string>): IShiftResult {
+    const allDirectOptions = this.#getMergedOptions()
+    // Filter out shadowed options (already handled by child commands)
+    const directOptions = allDirectOptions.filter(o => !shadowed.has(o.long))
+    const opts: Record<string, unknown> = {}
+
+    // Initialize defaults for effective options only
+    for (const opt of directOptions) {
+      if (opt.default !== undefined) {
+        opts[opt.long] = opt.default
+      } else if (opt.type === 'boolean') {
+        opts[opt.long] = false
+      } else if (opt.type === 'string[]' || opt.type === 'number[]') {
+        opts[opt.long] = []
+      }
+    }
+
+    // Process resolver options first (only non-shadowed)
+    let remaining = [...tokens]
+    const resolverOptions = directOptions.filter(o => o.resolver)
+    for (const opt of resolverOptions) {
+      const result = opt.resolver!(remaining)
+      opts[opt.long] = result.value
+      remaining = result.remaining
+    }
+
+    // Build option maps (excluding resolver options)
+    const { optionByLong, optionByShort, booleanOptions } = this.#buildOptionMaps(
+      directOptions,
+      true,
+    )
+
+    // Normalize --no-* to --*=false
+    const normalizedTokens = this.#normalizeArgv(remaining, booleanOptions)
+
+    const finalRemaining: string[] = []
+    let i = 0
+    while (i < normalizedTokens.length) {
+      const token = normalizedTokens[i]
+
+      // Long option
+      if (token.startsWith('--')) {
+        const consumed = this.#tryConsumeLongOption(normalizedTokens, i, optionByLong, opts)
+        if (consumed > 0) {
+          i += consumed
+          continue
+        }
+        // Unknown option - pass to parent
+        finalRemaining.push(token)
+        i += 1
+        continue
+      }
+
+      // Short option
+      if (token.startsWith('-') && token.length > 1) {
+        const result = this.#tryConsumeShortOption(normalizedTokens, i, optionByShort, opts)
+        if (result.consumed) {
+          i = result.nextIdx
+          if (result.remainingToken) {
+            finalRemaining.push(result.remainingToken)
+          }
+          continue
+        }
+        // Unknown option - pass to parent
+        finalRemaining.push(token)
+        i += 1
+        continue
+      }
+
+      // Non-option token
+      finalRemaining.push(token)
+      i += 1
+    }
+
+    // Validate required options (only for non-shadowed options)
+    for (const opt of directOptions) {
+      if (opt.required && opts[opt.long] === undefined) {
+        throw new CommanderError(
+          'MissingRequired',
+          `missing required option "--${opt.long}" for command "${this.#getCommandPath()}"`,
+          this.#getCommandPath(),
+        )
+      }
+    }
+
+    // Validate choices (only for non-shadowed options)
+    for (const opt of directOptions) {
+      if (opt.choices && opts[opt.long] !== undefined) {
+        const value = opts[opt.long]
+        const values = Array.isArray(value) ? value : [value]
+        const choices: ReadonlyArray<unknown> = opt.choices
+        for (const v of values) {
+          if (!choices.includes(v)) {
+            throw new CommanderError(
+              'InvalidChoice',
+              `invalid value "${v}" for option "--${opt.long}". Allowed: ${opt.choices.join(', ')}`,
+              this.#getCommandPath(),
+            )
+          }
+        }
+      }
+    }
+
+    return { opts, remaining: finalRemaining }
   }
 
   public formatHelp(): string {
@@ -477,7 +606,11 @@ export class Command implements ICommand {
     return argv
   }
 
-  #route(argv: string[]): { command: Command; remaining: string[] } {
+  /**
+   * Route and return the full command chain (root → leaf).
+   */
+  #routeChain(argv: string[]): { chain: Command[]; remaining: string[] } {
+    const chain: Command[] = [this]
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let current: Command = this
     let idx = 0
@@ -493,10 +626,109 @@ export class Command implements ICommand {
       if (!entry) break
 
       current = entry.command as Command
+      chain.push(current)
       idx += 1
     }
 
-    return { command: current, remaining: argv.slice(idx) }
+    return { chain, remaining: argv.slice(idx) }
+  }
+
+  /**
+   * Split tokens at '--' separator.
+   * Before '--': options for shift chain
+   * After '--': args passed directly to action (not parsed)
+   */
+  #splitAtDoubleDash(tokens: string[]): { optionTokens: string[]; restArgs: string[] } {
+    const ddIdx = tokens.indexOf('--')
+    if (ddIdx === -1) {
+      // No '--': all tokens are options, no positional args
+      return { optionTokens: tokens, restArgs: [] }
+    }
+
+    return {
+      optionTokens: tokens.slice(0, ddIdx),
+      restArgs: tokens.slice(ddIdx + 1),
+    }
+  }
+
+  /**
+   * Shift options bottom-up through the command chain.
+   * Returns a map of command → parsed options.
+   */
+  #shiftChain(chain: Command[], tokens: string[]): Map<Command, Record<string, unknown>> {
+    const optsMap = new Map<Command, Record<string, unknown>>()
+    let remaining = [...tokens]
+
+    // Build shadowed set: options defined by child commands
+    // Child options shadow parent options with the same name
+    const shadowed = new Set<string>()
+
+    // Process from leaf to root
+    for (let i = chain.length - 1; i >= 0; i--) {
+      const cmd = chain[i]
+      const result = cmd.#shiftWithShadowed(remaining, shadowed)
+      optsMap.set(cmd, result.opts)
+      remaining = result.remaining
+
+      // Add this command's options to shadowed set for parent commands
+      for (const opt of cmd.#options) {
+        shadowed.add(opt.long)
+      }
+    }
+
+    // Any remaining tokens are errors
+    if (remaining.length > 0) {
+      const leafCommand = chain[chain.length - 1]
+      const firstToken = remaining[0]
+
+      if (firstToken.startsWith('-')) {
+        throw new CommanderError(
+          'UnknownOption',
+          `unknown option "${firstToken}" for command "${leafCommand.#getCommandPath()}"`,
+          leafCommand.#getCommandPath(),
+        )
+      } else {
+        throw new CommanderError(
+          'UnexpectedArgument',
+          `unexpected argument "${firstToken}". Positional arguments must come after "--"`,
+          leafCommand.#getCommandPath(),
+        )
+      }
+    }
+
+    return optsMap
+  }
+
+  /**
+   * Apply option callbacks top-down through the command chain.
+   */
+  #applyChain(
+    chain: Command[],
+    optsMap: Map<Command, Record<string, unknown>>,
+    ctx: ICommandContext,
+  ): void {
+    for (const cmd of chain) {
+      const opts = optsMap.get(cmd) ?? {}
+      for (const opt of cmd.#getMergedOptions()) {
+        if (opt.apply && opts[opt.long] !== undefined) {
+          opt.apply(opts[opt.long], ctx)
+        }
+      }
+    }
+  }
+
+  /**
+   * Merge options from all commands in chain (root → leaf, later overwrites earlier).
+   */
+  #mergeOpts(
+    chain: Command[],
+    optsMap: Map<Command, Record<string, unknown>>,
+  ): Record<string, unknown> {
+    const merged: Record<string, unknown> = {}
+    for (const cmd of chain) {
+      Object.assign(merged, optsMap.get(cmd) ?? {})
+    }
+    return merged
   }
 
   // ==================== Private: Option Parsing ====================
@@ -791,11 +1023,6 @@ export class Command implements ICommand {
 
   // ==================== Private: Utilities ====================
 
-  #isBuiltinOption(opt: IOption): boolean {
-    // Use object identity comparison with built-in option constants
-    return opt === BUILTIN_HELP_OPTION || opt === BUILTIN_VERSION_OPTION
-  }
-
   #buildOptionMaps(
     allOptions: IOption[],
     excludeResolver = false,
@@ -934,4 +1161,161 @@ export class Command implements ICommand {
   #getCommandPath(): string {
     return this.#name
   }
+
+  /**
+   * Try to consume a long option token.
+   * Returns the number of tokens consumed (0 if not recognized).
+   */
+  /* eslint-disable no-param-reassign */
+  #tryConsumeLongOption(
+    tokens: string[],
+    idx: number,
+    optionByLong: Map<string, IOption>,
+    opts: Record<string, unknown>,
+  ): number {
+    const token = tokens[idx]
+    const eqIdx = token.indexOf('=')
+    let optName: string
+    let inlineValue: string | undefined
+
+    if (eqIdx !== -1) {
+      optName = token.slice(2, eqIdx)
+      inlineValue = token.slice(eqIdx + 1)
+    } else {
+      optName = token.slice(2)
+    }
+
+    const opt = optionByLong.get(optName)
+    if (!opt) {
+      return 0 // Not recognized
+    }
+
+    // Boolean option
+    if (opt.type === 'boolean') {
+      if (inlineValue !== undefined) {
+        if (inlineValue === 'true') {
+          opts[optName] = true
+        } else if (inlineValue === 'false') {
+          opts[optName] = false
+        } else {
+          throw new CommanderError(
+            'InvalidBooleanValue',
+            `invalid value "${inlineValue}" for boolean option "--${optName}". Use "true" or "false"`,
+            this.#getCommandPath(),
+          )
+        }
+      } else {
+        opts[optName] = true
+      }
+      return 1
+    }
+
+    // Value option
+    let value: string
+    let consumed = 1
+    if (inlineValue !== undefined) {
+      value = inlineValue
+    } else if (idx + 1 < tokens.length) {
+      value = tokens[idx + 1]
+      consumed = 2
+    } else {
+      throw new CommanderError(
+        'MissingValue',
+        `option "--${optName}" requires a value`,
+        this.#getCommandPath(),
+      )
+    }
+
+    this.#applyValue(opt, value, opts)
+    return consumed
+  }
+  /* eslint-enable no-param-reassign */
+
+  /**
+   * Try to consume a short option token.
+   * Returns consumption info including any remaining portion to pass to parent.
+   */
+  /* eslint-disable no-param-reassign */
+  #tryConsumeShortOption(
+    tokens: string[],
+    idx: number,
+    optionByShort: Map<string, IOption>,
+    opts: Record<string, unknown>,
+  ): { consumed: boolean; nextIdx: number; remainingToken?: string } {
+    const token = tokens[idx]
+
+    // Check for unsupported syntax: -o=value
+    if (token.includes('=')) {
+      // If we don't recognize the first flag, pass it to parent
+      const firstFlag = token[1]
+      if (!optionByShort.has(firstFlag)) {
+        return { consumed: false, nextIdx: idx + 1 }
+      }
+      throw new CommanderError(
+        'UnsupportedShortSyntax',
+        `"-${token.slice(1)}" is not supported. Use "-${token[1]} ${token.slice(3)}" instead`,
+        this.#getCommandPath(),
+      )
+    }
+
+    const flags = token.slice(1)
+    let j = 0
+    const consumedFlags: string[] = []
+    const unconsumedFlags: string[] = []
+    let nextIdx = idx + 1
+
+    while (j < flags.length) {
+      const flag = flags[j]
+      const opt = optionByShort.get(flag)
+
+      if (!opt) {
+        // Unknown flag - collect remaining flags for parent
+        unconsumedFlags.push(...flags.slice(j).split(''))
+        break
+      }
+
+      consumedFlags.push(flag)
+
+      // Boolean option
+      if (opt.type === 'boolean') {
+        opts[opt.long] = true
+        j += 1
+        continue
+      }
+
+      // Value option - must be last in group
+      if (j < flags.length - 1) {
+        // Not the last flag - this is an error
+        throw new CommanderError(
+          'UnsupportedShortSyntax',
+          `"-${flags}" is not supported. Use "-${flags.slice(0, j + 1)} ${flags.slice(j + 1)}" or separate options`,
+          this.#getCommandPath(),
+        )
+      }
+
+      // Last flag, get value from next token
+      if (idx + 1 < tokens.length && !tokens[idx + 1].startsWith('-')) {
+        const value = tokens[idx + 1]
+        this.#applyValue(opt, value, opts)
+        nextIdx = idx + 2
+      } else {
+        throw new CommanderError(
+          'MissingValue',
+          `option "-${flag}" requires a value`,
+          this.#getCommandPath(),
+        )
+      }
+
+      j += 1
+    }
+
+    // If we consumed some flags, report success
+    if (consumedFlags.length > 0) {
+      const remainingToken = unconsumedFlags.length > 0 ? `-${unconsumedFlags.join('')}` : undefined
+      return { consumed: true, nextIdx, remainingToken }
+    }
+
+    return { consumed: false, nextIdx: idx + 1 }
+  }
+  /* eslint-enable no-param-reassign */
 }

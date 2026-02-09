@@ -284,7 +284,7 @@ describe('Command', () => {
       })
       root.subcommand('init', sub)
 
-      await root.run({ argv: ['init', 'arg'], envs: {} })
+      await root.run({ argv: ['init', '--', 'arg'], envs: {} })
       expect(receivedArgs).toEqual(['arg'])
     })
 
@@ -357,7 +357,7 @@ describe('Command', () => {
         params = p
       })
 
-      await cmd.run({ argv: ['--name', 'foo', 'input.txt'], envs: {} })
+      await cmd.run({ argv: ['--name', 'foo', '--', 'input.txt'], envs: {} })
 
       expect(params).toBeDefined()
       expect(params!.opts['name']).toBe('foo')
@@ -1077,7 +1077,6 @@ describe('Command', () => {
     })
 
     it('should not process help subcommand when not enabled', async () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
 
@@ -1088,20 +1087,21 @@ describe('Command', () => {
       sub.action(() => {})
       root.subcommand('init', sub)
 
+      // "help" is not a registered subcommand, so it becomes an unexpected argument
       await root.run({ argv: ['help', 'init'], envs: {} })
 
-      // Should show help (no action defined for root), not route to init
-      expect(consoleSpy).toHaveBeenCalled()
-      const output = consoleSpy.mock.calls[0][0]
-      expect(output).toContain('CLI tool')
+      // Should throw UnexpectedArgument error since "help" is not a subcommand
+      expect(consoleErrorSpy).toHaveBeenCalled()
+      const errorOutput = consoleErrorSpy.mock.calls[0][0]
+      expect(errorOutput).toContain('unexpected argument')
 
-      consoleSpy.mockRestore()
       consoleErrorSpy.mockRestore()
       exitSpy.mockRestore()
     })
 
     it('should handle unknown subcommand in help', async () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
 
       const root = new Command({ name: 'cli', description: 'CLI tool', help: true })
 
@@ -1109,13 +1109,16 @@ describe('Command', () => {
       sub.action(() => {})
       root.subcommand('init', sub)
 
-      // "help unknown" - unknown is not a subcommand, so normal routing handles it
+      // "help unknown" transforms to "unknown --help", but "unknown" is not a subcommand
       await root.run({ argv: ['help', 'unknown'], envs: {} })
 
-      // Should show root help since "help unknown" doesn't match any subcommand
-      expect(consoleSpy).toHaveBeenCalled()
+      // Should throw UnexpectedArgument error for "unknown"
+      expect(consoleErrorSpy).toHaveBeenCalled()
+      const errorOutput = consoleErrorSpy.mock.calls[0][0]
+      expect(errorOutput).toContain('unexpected argument')
 
-      consoleSpy.mockRestore()
+      consoleErrorSpy.mockRestore()
+      exitSpy.mockRestore()
     })
 
     it('should work with subcommand aliases', async () => {
@@ -1161,6 +1164,586 @@ describe('Command', () => {
 
       // Should not throw
       expect(() => root.subcommand('help', helpCmd)).not.toThrow()
+    })
+  })
+
+  describe('option bubbling', () => {
+    it('should bubble unknown options to parent', async () => {
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'verbose',
+        short: 'v',
+        type: 'boolean',
+        description: 'Verbose',
+      })
+
+      const child = new Command({ description: 'Child' })
+        .option({ long: 'output', short: 'o', type: 'string', description: 'Output' })
+        .action(({ opts }) => {
+          expect(opts['verbose']).toBe(true)
+          expect(opts['output']).toBe('file.txt')
+        })
+
+      root.subcommand('child', child)
+
+      await root.run({ argv: ['child', '--output', 'file.txt', '--verbose'], envs: {} })
+    })
+
+    it('should let child consume first when same option name exists', async () => {
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'verbose',
+        type: 'boolean',
+        description: 'Root verbose',
+      })
+
+      const child = new Command({ description: 'Child' })
+        .option({ long: 'verbose', type: 'boolean', description: 'Child verbose' })
+        .action(({ opts }) => {
+          // Child consumes --verbose, merge order is root → leaf, so child overwrites
+          expect(opts['verbose']).toBe(true)
+        })
+
+      root.subcommand('child', child)
+
+      await root.run({ argv: ['child', '--verbose'], envs: {} })
+    })
+
+    it('should not shift options after --', async () => {
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'verbose',
+        type: 'boolean',
+        description: 'Verbose',
+      })
+
+      const child = new Command({ description: 'Child' })
+        .argument({ name: 'files', kind: 'variadic', description: 'Files' })
+        .action(({ opts, args }) => {
+          expect(opts['verbose']).toBe(false) // --verbose is after --, not parsed
+          expect(args).toEqual(['--verbose', 'file.txt'])
+        })
+
+      root.subcommand('child', child)
+
+      await root.run({ argv: ['child', '--', '--verbose', 'file.txt'], envs: {} })
+    })
+
+    it('should apply options from root to leaf', async () => {
+      const order: string[] = []
+
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'config',
+        type: 'string',
+        description: 'Config',
+        apply: () => order.push('root-config'),
+      })
+
+      const child = new Command({ description: 'Child' })
+        .option({
+          long: 'env',
+          type: 'string',
+          description: 'Env',
+          apply: () => order.push('child-env'),
+        })
+        .action(() => {
+          expect(order).toEqual(['root-config', 'child-env'])
+        })
+
+      root.subcommand('child', child)
+
+      await root.run({ argv: ['child', '--config', 'a', '--env', 'b'], envs: {} })
+    })
+
+    it('should throw for truly unknown options', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+
+      const root = new Command({ name: 'cli', description: 'CLI' })
+      const child = new Command({ description: 'Child' }).action(() => {})
+
+      root.subcommand('child', child)
+
+      await root.run({ argv: ['child', '--unknown'], envs: {} })
+
+      expect(consoleErrorSpy).toHaveBeenCalled()
+      const errorOutput = consoleErrorSpy.mock.calls[0][0]
+      expect(errorOutput).toContain('unknown option')
+
+      consoleErrorSpy.mockRestore()
+      exitSpy.mockRestore()
+    })
+
+    it('should merge options with child overwriting root for same key', async () => {
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'level',
+        type: 'number',
+        default: 1,
+        description: 'Level',
+      })
+
+      const child = new Command({ description: 'Child' })
+        .option({ long: 'level', type: 'number', default: 2, description: 'Child level' })
+        .action(({ opts }) => {
+          // No --level provided, but defaults merge with child overwriting root
+          expect(opts['level']).toBe(2)
+        })
+
+      root.subcommand('child', child)
+
+      await root.run({ argv: ['child'], envs: {} })
+    })
+
+    it('should work with multiple levels of nesting', async () => {
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'global',
+        type: 'boolean',
+        description: 'Global',
+      })
+
+      const parent = new Command({ description: 'Parent' }).option({
+        long: 'parent-opt',
+        type: 'string',
+        description: 'Parent opt',
+      })
+
+      const child = new Command({ description: 'Child' })
+        .option({ long: 'child-opt', type: 'string', description: 'Child opt' })
+        .action(({ opts }) => {
+          expect(opts['global']).toBe(true)
+          expect(opts['parent-opt']).toBe('p')
+          expect(opts['child-opt']).toBe('c')
+        })
+
+      parent.subcommand('child', child)
+      root.subcommand('parent', parent)
+
+      await root.run({
+        argv: ['parent', 'child', '--child-opt', 'c', '--parent-opt', 'p', '--global'],
+        envs: {},
+      })
+    })
+
+    it('should bubble short options to parent', async () => {
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'verbose',
+        short: 'v',
+        type: 'boolean',
+        description: 'Verbose',
+      })
+
+      const child = new Command({ description: 'Child' })
+        .option({ long: 'output', short: 'o', type: 'string', description: 'Output' })
+        .action(({ opts }) => {
+          expect(opts['verbose']).toBe(true)
+          expect(opts['output']).toBe('file.txt')
+        })
+
+      root.subcommand('child', child)
+
+      // Use -v (short) which should bubble to root
+      await root.run({ argv: ['child', '-o', 'file.txt', '-v'], envs: {} })
+    })
+
+    it('should handle combined short options with bubbling', async () => {
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'verbose',
+        short: 'v',
+        type: 'boolean',
+        description: 'Verbose',
+      })
+
+      const child = new Command({ description: 'Child' })
+        .option({ long: 'debug', short: 'd', type: 'boolean', description: 'Debug' })
+        .action(({ opts }) => {
+          expect(opts['verbose']).toBe(true)
+          expect(opts['debug']).toBe(true)
+        })
+
+      root.subcommand('child', child)
+
+      // Combined -dv, child consumes -d, -v bubbles to root
+      await root.run({ argv: ['child', '-dv'], envs: {} })
+    })
+
+    it('should handle --option=value syntax with bubbling', async () => {
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'config',
+        type: 'string',
+        description: 'Config',
+      })
+
+      const child = new Command({ description: 'Child' }).action(({ opts }) => {
+        expect(opts['config']).toBe('app.json')
+      })
+
+      root.subcommand('child', child)
+
+      await root.run({ argv: ['child', '--config=app.json'], envs: {} })
+    })
+
+    it('should handle --boolean=true/false syntax with bubbling', async () => {
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'verbose',
+        type: 'boolean',
+        description: 'Verbose',
+      })
+
+      const child = new Command({ description: 'Child' }).action(({ opts }) => {
+        expect(opts['verbose']).toBe(true)
+      })
+
+      root.subcommand('child', child)
+
+      await root.run({ argv: ['child', '--verbose=true'], envs: {} })
+    })
+
+    it('should handle --no-option syntax with bubbling', async () => {
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'verbose',
+        type: 'boolean',
+        default: true,
+        description: 'Verbose',
+      })
+
+      const child = new Command({ description: 'Child' }).action(({ opts }) => {
+        expect(opts['verbose']).toBe(false)
+      })
+
+      root.subcommand('child', child)
+
+      await root.run({ argv: ['child', '--no-verbose'], envs: {} })
+    })
+
+    it('should pass unknown -x=value syntax to parent', async () => {
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'write',
+        short: 'w',
+        type: 'string',
+        description: 'Write',
+        resolver: argv => {
+          const remaining: string[] = []
+          let value: string | undefined
+          for (let i = 0; i < argv.length; i++) {
+            const arg = argv[i]
+            if (arg === '-w' || arg === '--write') {
+              const next = argv[i + 1]
+              if (next && !next.startsWith('-')) {
+                value = next
+                i++
+              } else {
+                value = ''
+              }
+            } else if (arg.startsWith('-w=')) {
+              value = arg.slice(3)
+            } else if (arg.startsWith('--write=')) {
+              value = arg.slice(8)
+            } else {
+              remaining.push(arg)
+            }
+          }
+          return { value, remaining }
+        },
+      })
+
+      const child = new Command({ description: 'Child' }).action(({ opts }) => {
+        expect(opts['write']).toBe('file.txt')
+      })
+
+      root.subcommand('child', child)
+
+      // -w=file.txt uses resolver, bubbles to root
+      await root.run({ argv: ['child', '-w=file.txt'], envs: {} })
+    })
+
+    it('should throw error for -o=value on known short option', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'output',
+        short: 'o',
+        type: 'string',
+        description: 'Output',
+      })
+
+      const child = new Command({ description: 'Child' }).action(() => {})
+
+      root.subcommand('child', child)
+
+      await root.run({ argv: ['child', '-o=file.txt'], envs: {} })
+
+      expect(consoleErrorSpy).toHaveBeenCalled()
+      const errorOutput = consoleErrorSpy.mock.calls[0][0]
+      expect(errorOutput).toContain('not supported')
+
+      consoleErrorSpy.mockRestore()
+      exitSpy.mockRestore()
+    })
+
+    it('should throw for short option requiring value without next token', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'output',
+        short: 'o',
+        type: 'string',
+        description: 'Output',
+      })
+
+      const child = new Command({ description: 'Child' }).action(() => {})
+
+      root.subcommand('child', child)
+
+      // -o without value (no next token)
+      await root.run({ argv: ['child', '-o'], envs: {} })
+
+      expect(consoleErrorSpy).toHaveBeenCalled()
+      const errorOutput = consoleErrorSpy.mock.calls[0][0]
+      expect(errorOutput).toContain('requires a value')
+
+      consoleErrorSpy.mockRestore()
+      exitSpy.mockRestore()
+    })
+
+    it('should throw for combined short options with value option not last', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+
+      const root = new Command({ name: 'cli', description: 'CLI' })
+        .option({ long: 'output', short: 'o', type: 'string', description: 'Output' })
+        .option({ long: 'verbose', short: 'v', type: 'boolean', description: 'Verbose' })
+
+      const child = new Command({ description: 'Child' }).action(() => {})
+
+      root.subcommand('child', child)
+
+      // -ov where -o takes value but is not last
+      await root.run({ argv: ['child', '-ov'], envs: {} })
+
+      expect(consoleErrorSpy).toHaveBeenCalled()
+      const errorOutput = consoleErrorSpy.mock.calls[0][0]
+      expect(errorOutput).toContain('not supported')
+
+      consoleErrorSpy.mockRestore()
+      exitSpy.mockRestore()
+    })
+
+    it('should throw for invalid boolean value in bubbled option', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'verbose',
+        type: 'boolean',
+        description: 'Verbose',
+      })
+
+      const child = new Command({ description: 'Child' }).action(() => {})
+
+      root.subcommand('child', child)
+
+      await root.run({ argv: ['child', '--verbose=invalid'], envs: {} })
+
+      expect(consoleErrorSpy).toHaveBeenCalled()
+      const errorOutput = consoleErrorSpy.mock.calls[0][0]
+      expect(errorOutput).toContain('Use "true" or "false"')
+
+      consoleErrorSpy.mockRestore()
+      exitSpy.mockRestore()
+    })
+
+    it('should throw for missing value in bubbled string option', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'output',
+        type: 'string',
+        description: 'Output',
+      })
+
+      const child = new Command({ description: 'Child' }).action(() => {})
+
+      root.subcommand('child', child)
+
+      // --output without value at end of argv
+      await root.run({ argv: ['child', '--output'], envs: {} })
+
+      expect(consoleErrorSpy).toHaveBeenCalled()
+      const errorOutput = consoleErrorSpy.mock.calls[0][0]
+      expect(errorOutput).toContain('requires a value')
+
+      consoleErrorSpy.mockRestore()
+      exitSpy.mockRestore()
+    })
+
+    it('should handle --help after -- in subcommand', async () => {
+      const actionSpy = vi.fn()
+      const root = new Command({ name: 'cli', description: 'CLI' })
+
+      const child = new Command({ description: 'Child' })
+        .argument({ name: 'args', kind: 'variadic', description: 'Args' })
+        .action(actionSpy)
+
+      root.subcommand('child', child)
+
+      await root.run({ argv: ['child', '--', '--help'], envs: {} })
+
+      expect(actionSpy).toHaveBeenCalled()
+      expect(actionSpy.mock.calls[0][0].args).toEqual(['--help'])
+    })
+
+    it('should handle --verbose=false in bubbled option', async () => {
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'verbose',
+        type: 'boolean',
+        default: true,
+        description: 'Verbose',
+      })
+
+      const child = new Command({ description: 'Child' }).action(({ opts }) => {
+        expect(opts['verbose']).toBe(false)
+      })
+
+      root.subcommand('child', child)
+
+      await root.run({ argv: ['child', '--verbose=false'], envs: {} })
+    })
+
+    it('should handle bubbling with number options', async () => {
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'port',
+        type: 'number',
+        description: 'Port',
+      })
+
+      const child = new Command({ description: 'Child' }).action(({ opts }) => {
+        expect(opts['port']).toBe(8080)
+      })
+
+      root.subcommand('child', child)
+
+      await root.run({ argv: ['child', '--port', '8080'], envs: {} })
+    })
+
+    it('should handle bubbling with array options', async () => {
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'include',
+        type: 'string[]',
+        description: 'Include',
+      })
+
+      const child = new Command({ description: 'Child' }).action(({ opts }) => {
+        expect(opts['include']).toEqual(['a', 'b'])
+      })
+
+      root.subcommand('child', child)
+
+      await root.run({ argv: ['child', '--include', 'a', '--include', 'b'], envs: {} })
+    })
+
+    it('should throw for missing required argument in subcommand', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+
+      const root = new Command({ name: 'cli', description: 'CLI' })
+
+      const child = new Command({ description: 'Child' })
+        .argument({ name: 'file', kind: 'required', description: 'File' })
+        .action(() => {})
+
+      root.subcommand('child', child)
+
+      await root.run({ argv: ['child'], envs: {} })
+
+      expect(consoleErrorSpy).toHaveBeenCalled()
+      const errorOutput = consoleErrorSpy.mock.calls[0][0]
+      expect(errorOutput).toContain('missing required argument')
+
+      consoleErrorSpy.mockRestore()
+      exitSpy.mockRestore()
+    })
+
+    it('should validate choices in shift for bubbled options', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'env',
+        type: 'string',
+        description: 'Env',
+        choices: ['dev', 'prod'],
+      })
+
+      const child = new Command({ description: 'Child' }).action(() => {})
+
+      root.subcommand('child', child)
+
+      await root.run({ argv: ['child', '--env', 'staging'], envs: {} })
+
+      expect(consoleErrorSpy).toHaveBeenCalled()
+      const errorOutput = consoleErrorSpy.mock.calls[0][0]
+      expect(errorOutput).toContain('invalid value')
+
+      consoleErrorSpy.mockRestore()
+      exitSpy.mockRestore()
+    })
+
+    it('should handle --help after option requiring value before --', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+      const root = new Command({ name: 'cli', description: 'CLI' }).option({
+        long: 'config',
+        type: 'string',
+        description: 'Config',
+      })
+
+      const child = new Command({ description: 'Child' }).action(() => {})
+
+      root.subcommand('child', child)
+
+      // --config foo --help - help should be detected even after --config
+      await root.run({ argv: ['child', '--config', 'foo', '--help'], envs: {} })
+
+      expect(consoleSpy).toHaveBeenCalled()
+      const output = consoleSpy.mock.calls[0][0]
+      expect(output).toContain('Child')
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should not detect --help when scanning options that include -- before --help', async () => {
+      const actionSpy = vi.fn()
+
+      const root = new Command({ name: 'cli', description: 'CLI' })
+
+      const child = new Command({ description: 'Child' })
+        .argument({ name: 'args', kind: 'variadic', description: 'Args' })
+        .action(actionSpy)
+
+      root.subcommand('child', child)
+
+      // -- --help: the --help is after --, so it should not trigger help display
+      // This tests that #hasBuiltinFlag properly stops at --
+      await root.run({ argv: ['child', '--', '--help'], envs: {} })
+
+      expect(actionSpy).toHaveBeenCalled()
+      expect(actionSpy.mock.calls[0][0].args).toEqual(['--help'])
+    })
+
+    it('should support shift() method directly', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+        .option({ long: 'verbose', short: 'v', type: 'boolean', description: 'Verbose' })
+        .option({ long: 'output', short: 'o', type: 'string', description: 'Output' })
+
+      const result = cmd.shift(['--verbose', '--output', 'file.txt', '--unknown'])
+
+      expect(result.opts).toEqual({
+        verbose: true,
+        output: 'file.txt',
+        help: false,
+        version: false,
+      })
+      expect(result.remaining).toEqual(['--unknown'])
     })
   })
 })
