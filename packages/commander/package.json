@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/commander",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "A minimal, type-safe command-line interface builder with fluent API",
   "author": {
     "name": "guanghechen",
