@@ -52,12 +52,24 @@ interface IActionParams {
   ctx: ICommandContext
   /** 解析后的选项 */
   opts: Record<string, unknown>
-  /** 解析后的位置参数 */
-  args: string[]
+  /** 解析后的位置参数（按参数名索引） */
+  args: Record<string, unknown>
+  /** 原始位置参数字符串（类型转换前） */
+  rawArgs: string[]
 }
 
 /** Action 处理函数 */
 type IAction = (params: IActionParams) => void | Promise<void>
+
+/** parse() 方法结果 */
+interface IParseResult {
+  /** 解析后的选项 */
+  opts: Record<string, unknown>
+  /** 解析后的位置参数（按参数名索引） */
+  args: Record<string, unknown>
+  /** 原始位置参数字符串 */
+  rawArgs: string[]
+}
 ```
 
 ## 构造
@@ -184,13 +196,22 @@ root.subcommand(sub)
 位置参数定义在叶子节点上，**不继承**。
 
 ```typescript
-interface IArgument {
+/** 参数值类型 */
+type IArgumentType = 'string' | 'number'
+
+interface IArgument<T = unknown> {
   /** 参数名称 */
   name: string
   /** 参数描述 */
   description: string
   /** 参数类型：required / optional / variadic */
   kind: 'required' | 'optional' | 'variadic'
+  /** 值类型，默认 'string' */
+  type?: IArgumentType
+  /** 默认值（仅对 optional 有效） */
+  default?: T
+  /** 自定义转换（优先于 type 转换） */
+  coerce?: (rawValue: string) => T
 }
 ```
 
@@ -198,6 +219,7 @@ interface IArgument {
 
 - `required` 必须在 `optional` 之前
 - `variadic` 只能出现一次，且必须在最后
+- `required` 不能有 `default` 值
 - 子命令存在时，父命令的 arguments 不参与解析
 
 ```typescript
@@ -207,19 +229,73 @@ const cmd = new Command({ name: 'copy', description: 'Copy files' })
   .argument({ name: 'extras', description: 'Extra files', kind: 'variadic' })
 ```
 
+### 参数类型转换
+
+参数支持 `type` 和 `coerce` 进行值转换：
+
+```typescript
+// 使用 type 进行内置转换
+const cmd = new Command({ name: 'server', description: 'Start server' })
+  .argument({ name: 'port', description: 'Port number', kind: 'required', type: 'number' })
+  .action(({ args }) => {
+    // args.port: number (已转换)
+    console.log(`Listening on port ${args.port}`)
+  })
+
+// 使用 coerce 进行自定义转换
+const cmd2 = new Command({ name: 'connect', description: 'Connect' })
+  .argument({
+    name: 'port',
+    description: 'Port',
+    kind: 'required',
+    coerce: v => {
+      const n = parseInt(v, 10)
+      if (n < 0 || n > 65535) throw new Error('Invalid port')
+      return n
+    },
+  })
+
+// variadic + type: number → number[]
+const cmd3 = new Command({ name: 'sum', description: 'Sum numbers' })
+  .argument({ name: 'numbers', description: 'Numbers to sum', kind: 'variadic', type: 'number' })
+  .action(({ args }) => {
+    // args.numbers: number[]
+    const sum = (args.numbers as number[]).reduce((a, b) => a + b, 0)
+    console.log(`Sum: ${sum}`)
+  })
+```
+
+### 参数默认值
+
+仅 `optional` 参数支持 `default`：
+
+```typescript
+const cmd = new Command({ name: 'build', description: 'Build' })
+  .argument({ name: 'env', description: 'Environment', kind: 'optional', default: 'development' })
+  .action(({ args }) => {
+    // 未提供时 args.env === 'development'
+    // 提供时 args.env === 提供的值
+  })
+```
+
 ## Action
 
 Action 是命令的执行逻辑：
 
 ```typescript
-.action(async ({ ctx, opts, args }) => {
+.action(async ({ ctx, opts, args, rawArgs }) => {
   // ctx.cmd: 当前命令节点
   // ctx.envs: 传入的环境变量
   // ctx.reporter: Reporter 实例
   // ctx.argv: 原始 argv
 
   // opts: 解析后的选项（已合并祖先链）
-  // args: 解析后的位置参数
+  // args: 解析后的位置参数（Record<string, unknown>，按参数名索引）
+  // rawArgs: 原始位置参数字符串数组（类型转换前）
+
+  // 示例：访问参数
+  const name = args.name as string  // 通过参数名访问
+  const port = args.port as number  // 已经过 type 转换
 })
 ```
 
@@ -364,7 +440,7 @@ const start = new Command({
   .argument({ name: 'name', description: 'Process name', kind: 'required' })
   .option({ long: 'detach', short: 'd', type: 'boolean', description: 'Run in background' })
   .action(async ({ ctx, opts, args }) => {
-    const [name] = args
+    const name = args.name as string
     console.log(`Starting ${name}...`)
     console.log(`Verbose: ${opts.verbose}, Detach: ${opts.detach}`)
   })
@@ -376,7 +452,7 @@ const stop = new Command({
 })
   .argument({ name: 'name', description: 'Process name', kind: 'required' })
   .action(async ({ ctx, opts, args }) => {
-    const [name] = args
+    const name = args.name as string
     console.log(`Stopping ${name}...`)
   })
 

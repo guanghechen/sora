@@ -54,14 +54,26 @@ export interface IOption<T = unknown> {
 /** Argument kind */
 export type IArgumentKind = 'required' | 'optional' | 'variadic'
 
-/** Positional argument definition */
-export interface IArgument {
+/** Argument value type */
+export type IArgumentType = 'string' | 'number'
+
+/**
+ * Positional argument definition.
+ * @template T - The type of the argument value
+ */
+export interface IArgument<T = unknown> {
   /** Argument name */
   name: string
   /** Argument description */
   description: string
   /** Argument kind: required / optional / variadic */
   kind: IArgumentKind
+  /** Value type, defaults to 'string' */
+  type?: IArgumentType
+  /** Default value when not provided (only effective for optional arguments) */
+  default?: T
+  /** Custom value transformation (takes precedence over type conversion) */
+  coerce?: (rawValue: string) => T
 }
 
 // ==================== Command Types ====================
@@ -112,8 +124,10 @@ export interface IActionParams {
   ctx: ICommandContext
   /** Parsed options */
   opts: Record<string, unknown>
-  /** Parsed positional arguments */
-  args: string[]
+  /** Parsed positional arguments (keyed by argument name) */
+  args: Record<string, unknown>
+  /** Raw positional argument strings (before type conversion) */
+  rawArgs: string[]
 }
 
 /** Action handler function */
@@ -133,8 +147,10 @@ export interface IRunParams {
 export interface IParseResult {
   /** Parsed options */
   opts: Record<string, unknown>
-  /** Parsed positional arguments */
-  args: string[]
+  /** Parsed positional arguments (keyed by argument name) */
+  args: Record<string, unknown>
+  /** Raw positional argument strings (before type conversion) */
+  rawArgs: string[]
 }
 
 /** shift() method result */
@@ -159,6 +175,7 @@ export type ICommanderErrorKind =
   | 'InvalidChoice'
   | 'InvalidBooleanValue'
   | 'MissingRequiredArgument'
+  | 'TooManyArguments'
   | 'ConfigurationError'
 
 /** Commander error with structured information */

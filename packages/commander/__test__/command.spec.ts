@@ -228,7 +228,8 @@ describe('Command', () => {
       cmd.argument({ name: 'input', description: 'Input file', kind: 'required' })
 
       const result = cmd.parse(['file.txt'])
-      expect(result.args).toEqual(['file.txt'])
+      expect(result.args).toEqual({ input: 'file.txt' })
+      expect(result.rawArgs).toEqual(['file.txt'])
     })
 
     it('should parse optional argument', () => {
@@ -236,7 +237,8 @@ describe('Command', () => {
       cmd.argument({ name: 'output', description: 'Output file', kind: 'optional' })
 
       const result = cmd.parse([])
-      expect(result.args).toEqual([])
+      expect(result.args).toEqual({ output: undefined })
+      expect(result.rawArgs).toEqual([])
     })
 
     it('should parse variadic argument', () => {
@@ -244,7 +246,8 @@ describe('Command', () => {
       cmd.argument({ name: 'files', description: 'Input files', kind: 'variadic' })
 
       const result = cmd.parse(['a.txt', 'b.txt', 'c.txt'])
-      expect(result.args).toEqual(['a.txt', 'b.txt', 'c.txt'])
+      expect(result.args).toEqual({ files: ['a.txt', 'b.txt', 'c.txt'] })
+      expect(result.rawArgs).toEqual(['a.txt', 'b.txt', 'c.txt'])
     })
 
     it('should throw for missing required argument', () => {
@@ -276,16 +279,38 @@ describe('Command', () => {
   describe('subcommand', () => {
     it('should route to subcommand via run', async () => {
       const root = new Command({ name: 'cli', description: 'CLI tool' })
-      const sub = new Command({ description: 'Initialize' })
+      const sub = new Command({ description: 'Initialize' }).argument({
+        name: 'args',
+        kind: 'variadic',
+        description: 'Args',
+      })
 
-      let receivedArgs: string[] = []
+      let receivedArgs: Record<string, unknown> = {}
       sub.action(({ args }) => {
         receivedArgs = args
       })
       root.subcommand('init', sub)
 
       await root.run({ argv: ['init', '--', 'arg'], envs: {} })
-      expect(receivedArgs).toEqual(['arg'])
+      expect(receivedArgs).toEqual({ args: ['arg'] })
+    })
+
+    it('should route to subcommand with argument via run', async () => {
+      const root = new Command({ name: 'cli', description: 'CLI tool' })
+      const sub = new Command({ description: 'Initialize' }).argument({
+        name: 'name',
+        description: 'Name',
+        kind: 'required',
+      })
+
+      let receivedArgs: Record<string, unknown> = {}
+      sub.action(({ args }) => {
+        receivedArgs = args
+      })
+      root.subcommand('init', sub)
+
+      await root.run({ argv: ['init', '--', 'myarg'], envs: {} })
+      expect(receivedArgs).toEqual({ name: 'myarg' })
     })
 
     it('should resolve subcommand by alias', async () => {
@@ -305,6 +330,7 @@ describe('Command', () => {
     it('should stop routing at option-like token', () => {
       const root = new Command({ name: 'cli', description: 'CLI' })
       root.option({ type: 'boolean', long: 'verbose', description: 'Verbose' })
+      root.argument({ name: 'args', kind: 'variadic', description: 'Args' })
       const sub = new Command({ description: 'Start' })
       sub.action(() => {})
       root.subcommand('start', sub)
@@ -313,7 +339,8 @@ describe('Command', () => {
       // start becomes a positional argument for root
       const result = root.parse(['--verbose', 'start'])
       expect(result.opts['verbose']).toBe(true)
-      expect(result.args).toEqual(['start'])
+      expect(result.rawArgs).toEqual(['start'])
+      expect(result.args).toEqual({ args: ['start'] })
     })
 
     it('should set registered name on subcommand', () => {
@@ -361,7 +388,8 @@ describe('Command', () => {
 
       expect(params).toBeDefined()
       expect(params!.opts['name']).toBe('foo')
-      expect(params!.args).toEqual(['input.txt'])
+      expect(params!.args).toEqual({ file: 'input.txt' })
+      expect(params!.rawArgs).toEqual(['input.txt'])
     })
 
     it('should use default reporter when none provided', async () => {
@@ -394,10 +422,15 @@ describe('Command', () => {
 
   describe('parse rest arguments', () => {
     it('should collect arguments after --', () => {
-      const cmd = new Command({ name: 'test', description: 'Test' })
+      const cmd = new Command({ name: 'test', description: 'Test' }).argument({
+        name: 'extras',
+        kind: 'variadic',
+        description: 'Extras',
+      })
 
       const result = cmd.parse(['--', 'extra1', '--extra2'])
-      expect(result.args).toEqual(['extra1', '--extra2'])
+      expect(result.rawArgs).toEqual(['extra1', '--extra2'])
+      expect(result.args).toEqual({ extras: ['extra1', '--extra2'] })
     })
   })
 
@@ -691,7 +724,11 @@ describe('Command', () => {
 
     it('should not show help when --help is after -- terminator', async () => {
       const actionSpy = vi.fn()
-      const cmd = new Command({ name: 'test', description: 'Test command' })
+      const cmd = new Command({ name: 'test', description: 'Test command' }).argument({
+        name: 'args',
+        kind: 'variadic',
+        description: 'Args',
+      })
       cmd.action(actionSpy)
 
       await cmd.run({ argv: ['--', '--help'], envs: {} })
@@ -726,17 +763,17 @@ describe('Command', () => {
     })
 
     it('should show help with string option followed by -- and then --help', async () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const actionSpy = vi.fn()
       const cmd = new Command({ name: 'test', description: 'Test command' })
       cmd.option({ type: 'string', long: 'config', short: 'c', description: 'Config file' })
-      cmd.action(() => {})
+      cmd.argument({ name: 'args', kind: 'variadic', description: 'Args' })
+      cmd.action(actionSpy)
 
       // -c consumes next value, then -- terminates options, so --help is treated as arg
       await cmd.run({ argv: ['-c', 'file.json', '--', '--help'], envs: {} })
 
       // Action should be called since --help is after --
-      expect(consoleSpy).not.toHaveBeenCalled()
-      consoleSpy.mockRestore()
+      expect(actionSpy).toHaveBeenCalled()
     })
 
     it('should show help with option without explicit type (defaults to string) before --help', async () => {
@@ -978,6 +1015,170 @@ describe('Command', () => {
         'variadic argument must be the last',
       )
     })
+
+    it('should throw for required argument with default', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+
+      expect(() =>
+        cmd.argument({
+          name: 'input',
+          description: 'Input',
+          kind: 'required',
+          default: 'default.txt',
+        }),
+      ).toThrow('required argument "input" cannot have a default value')
+    })
+  })
+
+  describe('argument type conversion', () => {
+    it('should convert argument to number when type is number', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.argument({ name: 'port', description: 'Port', kind: 'required', type: 'number' })
+
+      const result = cmd.parse(['8080'])
+      expect(result.args).toEqual({ port: 8080 })
+      expect(result.rawArgs).toEqual(['8080'])
+    })
+
+    it('should throw for invalid number argument', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.argument({ name: 'port', description: 'Port', kind: 'required', type: 'number' })
+
+      expect(() => cmd.parse(['abc'])).toThrow('invalid number "abc" for argument "port"')
+    })
+
+    it('should use coerce callback for argument conversion', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.argument({
+        name: 'port',
+        description: 'Port',
+        kind: 'required',
+        coerce: v => {
+          const n = parseInt(v, 10)
+          if (n < 0 || n > 65535) throw new Error('Invalid port')
+          return n
+        },
+      })
+
+      expect(cmd.parse(['8080']).args).toEqual({ port: 8080 })
+      expect(() => cmd.parse(['99999'])).toThrow('invalid value "99999" for argument "port"')
+    })
+
+    it('should prefer coerce over type conversion', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.argument({
+        name: 'value',
+        description: 'Value',
+        kind: 'required',
+        type: 'number',
+        coerce: v => `prefix_${v}`,
+      })
+
+      const result = cmd.parse(['123'])
+      expect(result.args).toEqual({ value: 'prefix_123' })
+    })
+
+    it('should use default value for optional argument when not provided', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.argument({
+        name: 'env',
+        description: 'Environment',
+        kind: 'optional',
+        default: 'development',
+      })
+
+      const result = cmd.parse([])
+      expect(result.args).toEqual({ env: 'development' })
+    })
+
+    it('should override default when optional argument is provided', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.argument({
+        name: 'env',
+        description: 'Environment',
+        kind: 'optional',
+        default: 'development',
+      })
+
+      const result = cmd.parse(['production'])
+      expect(result.args).toEqual({ env: 'production' })
+    })
+
+    it('should return undefined for optional argument without default', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.argument({ name: 'output', description: 'Output', kind: 'optional' })
+
+      const result = cmd.parse([])
+      expect(result.args).toEqual({ output: undefined })
+    })
+
+    it('should convert variadic arguments to number[]', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.argument({ name: 'ports', description: 'Ports', kind: 'variadic', type: 'number' })
+
+      const result = cmd.parse(['80', '443', '8080'])
+      expect(result.args).toEqual({ ports: [80, 443, 8080] })
+    })
+
+    it('should throw for invalid number in variadic arguments', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.argument({ name: 'ports', description: 'Ports', kind: 'variadic', type: 'number' })
+
+      expect(() => cmd.parse(['80', 'abc', '8080'])).toThrow(
+        'invalid number "abc" for argument "ports"',
+      )
+    })
+
+    it('should return empty array for variadic argument with no values', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.argument({ name: 'files', description: 'Files', kind: 'variadic' })
+
+      const result = cmd.parse([])
+      expect(result.args).toEqual({ files: [] })
+    })
+  })
+
+  describe('TooManyArguments error', () => {
+    it('should throw for too many arguments when no variadic', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.argument({ name: 'input', description: 'Input', kind: 'required' })
+
+      expect(() => cmd.parse(['a.txt', 'b.txt', 'c.txt'])).toThrow(
+        'too many arguments: expected 1, got 3',
+      )
+    })
+
+    it('should throw for extra arguments with multiple defined', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.argument({ name: 'source', description: 'Source', kind: 'required' })
+      cmd.argument({ name: 'dest', description: 'Dest', kind: 'optional' })
+
+      expect(() => cmd.parse(['a.txt', 'b.txt', 'c.txt'])).toThrow(
+        'too many arguments: expected 2, got 3',
+      )
+    })
+
+    it('should not throw when variadic consumes extra arguments', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.argument({ name: 'source', description: 'Source', kind: 'required' })
+      cmd.argument({ name: 'extras', description: 'Extras', kind: 'variadic' })
+
+      const result = cmd.parse(['a.txt', 'b.txt', 'c.txt'])
+      expect(result.args).toEqual({ source: 'a.txt', extras: ['b.txt', 'c.txt'] })
+    })
+
+    it('should not throw when no arguments defined and no arguments provided', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+
+      const result = cmd.parse([])
+      expect(result.args).toEqual({})
+    })
+
+    it('should throw when no arguments defined but arguments provided', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+
+      expect(() => cmd.parse(['unexpected'])).toThrow('too many arguments: expected 0, got 1')
+    })
   })
 
   describe('default type handling', () => {
@@ -1216,9 +1417,10 @@ describe('Command', () => {
 
       const child = new Command({ description: 'Child' })
         .argument({ name: 'files', kind: 'variadic', description: 'Files' })
-        .action(({ opts, args }) => {
+        .action(({ opts, args, rawArgs }) => {
           expect(opts['verbose']).toBe(false) // --verbose is after --, not parsed
-          expect(args).toEqual(['--verbose', 'file.txt'])
+          expect(args).toEqual({ files: ['--verbose', 'file.txt'] })
+          expect(rawArgs).toEqual(['--verbose', 'file.txt'])
         })
 
       root.subcommand('child', child)
@@ -1589,7 +1791,8 @@ describe('Command', () => {
       await root.run({ argv: ['child', '--', '--help'], envs: {} })
 
       expect(actionSpy).toHaveBeenCalled()
-      expect(actionSpy.mock.calls[0][0].args).toEqual(['--help'])
+      expect(actionSpy.mock.calls[0][0].args).toEqual({ args: ['--help'] })
+      expect(actionSpy.mock.calls[0][0].rawArgs).toEqual(['--help'])
     })
 
     it('should handle --verbose=false in bubbled option', async () => {
@@ -1727,7 +1930,8 @@ describe('Command', () => {
       await root.run({ argv: ['child', '--', '--help'], envs: {} })
 
       expect(actionSpy).toHaveBeenCalled()
-      expect(actionSpy.mock.calls[0][0].args).toEqual(['--help'])
+      expect(actionSpy.mock.calls[0][0].args).toEqual({ args: ['--help'] })
+      expect(actionSpy.mock.calls[0][0].rawArgs).toEqual(['--help'])
     })
 
     it('should support shift() method directly', () => {

@@ -191,20 +191,11 @@ export class Command implements ICommand {
       // 7. Merge options (root → leaf, later overwrites earlier)
       const mergedOpts = this.#mergeOpts(chain, optsMap)
 
-      // 8. Validate required arguments
-      const args = restArgs
-      const requiredArgs = leafCommand.#arguments.filter(a => a.kind === 'required')
-      if (args.length < requiredArgs.length) {
-        const missing = requiredArgs.slice(args.length).map(a => a.name)
-        throw new CommanderError(
-          'MissingRequiredArgument',
-          `missing required argument(s): ${missing.join(', ')}`,
-          leafCommand.#getCommandPath(),
-        )
-      }
+      // 8. Parse arguments
+      const { args, rawArgs } = leafCommand.#parseArguments(restArgs)
 
       // 9. Execute action
-      const actionParams: IActionParams = { ctx, opts: mergedOpts, args }
+      const actionParams: IActionParams = { ctx, opts: mergedOpts, args, rawArgs }
 
       if (leafCommand.#action) {
         try {
@@ -239,7 +230,7 @@ export class Command implements ICommand {
   public parse(argv: string[]): IParseResult {
     const allOptions = this.#getMergedOptions()
     const opts: Record<string, unknown> = {}
-    const args: string[] = []
+    const rawArgs: string[] = []
 
     // Initialize defaults
     for (const opt of allOptions) {
@@ -274,7 +265,7 @@ export class Command implements ICommand {
 
       // End-of-options marker
       if (token === '--') {
-        args.push(...remaining.slice(i + 1))
+        rawArgs.push(...remaining.slice(i + 1))
         break
       }
 
@@ -291,7 +282,7 @@ export class Command implements ICommand {
       }
 
       // Positional argument
-      args.push(token)
+      rawArgs.push(token)
       i += 1
     }
 
@@ -324,18 +315,10 @@ export class Command implements ICommand {
       }
     }
 
-    // Validate required arguments
-    const requiredArgs = this.#arguments.filter(a => a.kind === 'required')
-    if (args.length < requiredArgs.length) {
-      const missing = requiredArgs.slice(args.length).map(a => a.name)
-      throw new CommanderError(
-        'MissingRequiredArgument',
-        `missing required argument(s): ${missing.join(', ')}`,
-        this.#getCommandPath(),
-      )
-    }
+    // Parse arguments with type conversion
+    const { args } = this.#parseArguments(rawArgs)
 
-    return { opts, args }
+    return { opts, args, rawArgs }
   }
 
   /**
@@ -985,6 +968,15 @@ export class Command implements ICommand {
   }
 
   #validateArgumentConfig(arg: IArgument): void {
+    // Check required + default conflict
+    if (arg.kind === 'required' && arg.default !== undefined) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `required argument "${arg.name}" cannot have a default value`,
+        this.#getCommandPath(),
+      )
+    }
+
     // Check variadic is last and unique
     if (arg.kind === 'variadic') {
       if (this.#arguments.some(a => a.kind === 'variadic')) {
@@ -1022,6 +1014,97 @@ export class Command implements ICommand {
   }
 
   // ==================== Private: Utilities ====================
+
+  /**
+   * Parse raw positional arguments into typed values based on argument definitions.
+   */
+  #parseArguments(rawArgs: string[]): { args: Record<string, unknown>; rawArgs: string[] } {
+    const argumentDefs = this.#arguments
+    const args: Record<string, unknown> = {}
+
+    // 1) Required count check
+    const requiredCount = argumentDefs.filter(a => a.kind === 'required').length
+    if (rawArgs.length < requiredCount) {
+      const missing = argumentDefs
+        .filter(a => a.kind === 'required')
+        .slice(rawArgs.length)
+        .map(a => a.name)
+      throw new CommanderError(
+        'MissingRequiredArgument',
+        `missing required argument(s): ${missing.join(', ')}`,
+        this.#getCommandPath(),
+      )
+    }
+
+    let index = 0
+
+    // 2) Consume rawArgs in declaration order
+    for (const def of argumentDefs) {
+      if (def.kind === 'variadic') {
+        const rest = rawArgs.slice(index)
+        args[def.name] = rest.map(raw => this.#convertArgument(def, raw))
+        index = rawArgs.length
+        break
+      }
+
+      const raw = rawArgs[index]
+      if (raw === undefined) {
+        if (def.kind === 'optional') {
+          args[def.name] = def.default ?? undefined
+          continue
+        }
+        // Required arguments are already validated above
+      } else {
+        args[def.name] = this.#convertArgument(def, raw)
+        index += 1
+      }
+    }
+
+    // 3) Too many arguments check (non-variadic)
+    const hasVariadic = argumentDefs.some(a => a.kind === 'variadic')
+    if (!hasVariadic && index < rawArgs.length) {
+      throw new CommanderError(
+        'TooManyArguments',
+        `too many arguments: expected ${argumentDefs.length}, got ${rawArgs.length}`,
+        this.#getCommandPath(),
+      )
+    }
+
+    return { args, rawArgs }
+  }
+
+  /**
+   * Convert a single raw argument value based on its definition.
+   */
+  #convertArgument(def: IArgument, raw: string): unknown {
+    // Coerce takes precedence
+    if (def.coerce) {
+      try {
+        return def.coerce(raw)
+      } catch {
+        throw new CommanderError(
+          'InvalidType',
+          `invalid value "${raw}" for argument "${def.name}"`,
+          this.#getCommandPath(),
+        )
+      }
+    }
+
+    // No coerce: use built-in type conversion
+    if (def.type === 'number') {
+      const n = Number(raw)
+      if (Number.isNaN(n)) {
+        throw new CommanderError(
+          'InvalidType',
+          `invalid number "${raw}" for argument "${def.name}"`,
+          this.#getCommandPath(),
+        )
+      }
+      return n
+    }
+
+    return raw // Default: string
+  }
 
   #buildOptionMaps(
     allOptions: IOption[],
