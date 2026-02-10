@@ -1,5 +1,14 @@
 # Change Log
 
+## 3.1.0
+
+### Minor Changes
+
+- Implement option bubbling with shift/apply flow
+  - Add `shift()` method for bottom-up option consumption (leaf → root)
+  - Refactor `run()` with new flow: route → split → shift → apply → action
+  - Add `UnexpectedArgument` error type for positional args before `--`
+
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
