@@ -124,7 +124,6 @@ const root = new Command({
 })
 
 const clone = new Command({
-  name: 'clone',
   description: 'Clone a repository',
 })
   .argument({ name: 'url', kind: 'required', description: 'Repository URL' })
@@ -134,8 +133,6 @@ const clone = new Command({
   })
 
 const commit = new Command({
-  name: 'commit',
-  aliases: ['ci'],
   description: 'Record changes to the repository',
 })
   .option({ long: 'message', short: 'm', type: 'string', required: true, description: 'Commit message' })
@@ -144,7 +141,7 @@ const commit = new Command({
     console.log(`Committing: ${opts['message']}`)
   })
 
-root.subcommand(clone).subcommand(commit)
+root.subcommand('clone', clone).subcommand('commit', commit).subcommand('ci', commit)
 
 root.run({ argv: process.argv.slice(2), envs: process.env })
 ```
@@ -161,7 +158,7 @@ const root = new Command({
 })
 
 // Add completion subcommand
-root.subcommand(new CompletionCommand(root))
+root.subcommand('completion', new CompletionCommand(root))
 
 // Generate completion scripts:
 // mycli completion --bash > ~/.local/share/bash-completion/completions/mycli

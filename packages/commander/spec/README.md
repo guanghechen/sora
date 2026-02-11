@@ -30,7 +30,7 @@ import { Command, CompletionCommand } from '@guanghechen/commander'
 const pm = new Command({ name: 'pm', description: 'Process Manager', version: '1.0.0' })
   .option({ long: 'verbose', short: 'v', type: 'boolean', description: 'Verbose output' })
 
-const start = new Command({ name: 'start', aliases: ['s'], description: 'Start a process' })
+const start = new Command({ description: 'Start a process' })
   .argument({ name: 'name', description: 'Process name', kind: 'required' })
   .option({ long: 'detach', short: 'd', type: 'boolean', description: 'Run in background' })
   .action(async ({ ctx, opts, args }) => {
@@ -38,15 +38,15 @@ const start = new Command({ name: 'start', aliases: ['s'], description: 'Start a
     console.log(`Verbose: ${opts.verbose}, Detach: ${opts.detach}`)
   })
 
-const stop = new Command({ name: 'stop', description: 'Stop a process' })
+const stop = new Command({ description: 'Stop a process' })
   .argument({ name: 'name', description: 'Process name', kind: 'required' })
   .action(async ({ ctx, opts, args }) => {
     console.log(`Stopping ${args[0]}...`)
   })
 
-pm.subcommand(start)
-pm.subcommand(stop)
-pm.subcommand(new CompletionCommand(pm))
+pm.subcommand('start', start).subcommand('s', start)
+pm.subcommand('stop', stop)
+pm.subcommand('completion', new CompletionCommand(pm))
 
 await pm.run({ argv: process.argv.slice(2), envs: process.env })
 ```

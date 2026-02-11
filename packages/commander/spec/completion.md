@@ -101,16 +101,16 @@ import { Command, CompletionCommand } from '@guanghechen/commander'
 const pm = new Command({ name: 'pm', description: 'Process Manager', version: '1.0.0' })
   .option({ long: 'verbose', short: 'v', type: 'boolean', description: 'Verbose output' })
 
-const start = new Command({ name: 'start', description: 'Start process' })
+const start = new Command({ description: 'Start process' })
   .action(async () => { /* ... */ })
 
-pm.subcommand(start)
+pm.subcommand('start', start)
 
 // 默认名称 'completion'
-pm.subcommand(new CompletionCommand(pm))
+pm.subcommand('completion', new CompletionCommand(pm))
 
 // 自定义名称
-pm.subcommand(new CompletionCommand(pm, { name: 'completions' }))
+pm.subcommand('completions', new CompletionCommand(pm, { name: 'completions' }))
 
 await pm.run({ argv: process.argv.slice(2), envs: process.env })
 ```
@@ -188,7 +188,7 @@ const script = new FishCompletion(meta, 'pm').generate()
 
 complete -c pm -n __fish_use_subcommand -a 'start' -d 'Start process'
 complete -c pm -s v -l verbose -d 'Verbose output'
-complete -c pm -l no-verbose -d 'Disable verbose output'
+complete -c pm -l no-verbose -d 'Negate --verbose'
 # ...
 ```
 

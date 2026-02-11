@@ -84,10 +84,12 @@ export interface ICommandConfig {
   name?: string
   /** Command description */
   description: string
-  /** Version (only effective for root command) */
+  /** Version (only effective for built-in root --version) */
   version?: string
   /** Enable built-in "help" subcommand (only effective when command has subcommands) */
   help?: boolean
+  /** Default reporter for this command (can be overridden by run params) */
+  reporter?: IReporter
 }
 
 /** Forward declaration for Command class */
@@ -95,6 +97,7 @@ export interface ICommand {
   readonly name: string
   readonly description: string
   readonly version: string | undefined
+  readonly parent?: ICommand
   readonly options: IOption[]
   readonly arguments: IArgument[]
 }
@@ -139,7 +142,7 @@ export interface IRunParams {
   argv: string[]
   /** Environment variables (usually process.env) */
   envs: Record<string, string | undefined>
-  /** Optional reporter for logging (defaults to console reporter) */
+  /** Optional reporter override (defaults to command's reporter or console reporter) */
   reporter?: IReporter
 }
 

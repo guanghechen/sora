@@ -276,6 +276,112 @@ describe('Command', () => {
     })
   })
 
+  describe('positional arguments mixed with options', () => {
+    it('should accept positional argument after option', async () => {
+      let receivedArgs: Record<string, unknown> = {}
+      let receivedOpts: Record<string, unknown> = {}
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.option({ type: 'string', long: 'opt', description: 'Option' })
+      cmd.argument({ name: 'arg', kind: 'required', description: 'Arg' })
+      cmd.action(({ opts, args }) => {
+        receivedOpts = opts
+        receivedArgs = args
+      })
+
+      await cmd.run({ argv: ['--opt', 'val', 'arg1'], envs: {} })
+      expect(receivedOpts['opt']).toBe('val')
+      expect(receivedArgs).toEqual({ arg: 'arg1' })
+    })
+
+    it('should accept positional argument before option', async () => {
+      let receivedArgs: Record<string, unknown> = {}
+      let receivedOpts: Record<string, unknown> = {}
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.option({ type: 'string', long: 'opt', description: 'Option' })
+      cmd.argument({ name: 'arg', kind: 'required', description: 'Arg' })
+      cmd.action(({ opts, args }) => {
+        receivedOpts = opts
+        receivedArgs = args
+      })
+
+      await cmd.run({ argv: ['arg1', '--opt', 'val'], envs: {} })
+      expect(receivedOpts['opt']).toBe('val')
+      expect(receivedArgs).toEqual({ arg: 'arg1' })
+    })
+
+    it('should accept positional arguments on both sides of options', async () => {
+      let receivedArgs: Record<string, unknown> = {}
+      let receivedOpts: Record<string, unknown> = {}
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.option({ type: 'string', long: 'opt', description: 'Option' })
+      cmd.argument({ name: 'files', kind: 'variadic', description: 'Files' })
+      cmd.action(({ opts, args }) => {
+        receivedOpts = opts
+        receivedArgs = args
+      })
+
+      await cmd.run({ argv: ['arg1', '--opt', 'val', 'arg2'], envs: {} })
+      expect(receivedOpts['opt']).toBe('val')
+      expect(receivedArgs).toEqual({ files: ['arg1', 'arg2'] })
+    })
+
+    it('should accept positional argument in subcommand after options', async () => {
+      const root = new Command({ name: 'cli', description: 'CLI' })
+      root.option({ type: 'boolean', long: 'verbose', short: 'v', description: 'Verbose' })
+
+      let receivedArgs: Record<string, unknown> = {}
+      let receivedOpts: Record<string, unknown> = {}
+      const sub = new Command({ description: 'Sub' })
+      sub.option({ type: 'string', long: 'output', short: 'o', description: 'Output' })
+      sub.argument({ name: 'file', kind: 'required', description: 'File' })
+      sub.action(({ opts, args }) => {
+        receivedOpts = opts
+        receivedArgs = args
+      })
+
+      root.subcommand('sub', sub)
+
+      await root.run({ argv: ['sub', '--verbose', '--output', 'out.txt', 'input.txt'], envs: {} })
+      expect(receivedOpts['verbose']).toBe(true)
+      expect(receivedOpts['output']).toBe('out.txt')
+      expect(receivedArgs).toEqual({ file: 'input.txt' })
+    })
+
+    it('should accept positional argument in subcommand before options', async () => {
+      const root = new Command({ name: 'cli', description: 'CLI' })
+      root.option({ type: 'boolean', long: 'verbose', short: 'v', description: 'Verbose' })
+
+      let receivedArgs: Record<string, unknown> = {}
+      let receivedOpts: Record<string, unknown> = {}
+      const sub = new Command({ description: 'Sub' })
+      sub.option({ type: 'string', long: 'output', short: 'o', description: 'Output' })
+      sub.argument({ name: 'file', kind: 'required', description: 'File' })
+      sub.action(({ opts, args }) => {
+        receivedOpts = opts
+        receivedArgs = args
+      })
+
+      root.subcommand('sub', sub)
+
+      await root.run({ argv: ['sub', 'input.txt', '--verbose', '--output', 'out.txt'], envs: {} })
+      expect(receivedOpts['verbose']).toBe(true)
+      expect(receivedOpts['output']).toBe('out.txt')
+      expect(receivedArgs).toEqual({ file: 'input.txt' })
+    })
+
+    it('should still support -- separator for compatibility', async () => {
+      let receivedArgs: Record<string, unknown> = {}
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.argument({ name: 'files', kind: 'variadic', description: 'Files' })
+      cmd.action(({ args }) => {
+        receivedArgs = args
+      })
+
+      await cmd.run({ argv: ['--', '--looks-like-option', 'arg'], envs: {} })
+      expect(receivedArgs).toEqual({ files: ['--looks-like-option', 'arg'] })
+    })
+  })
+
   describe('subcommand', () => {
     it('should route to subcommand via run', async () => {
       const root = new Command({ name: 'cli', description: 'CLI tool' })
@@ -291,7 +397,7 @@ describe('Command', () => {
       })
       root.subcommand('init', sub)
 
-      await root.run({ argv: ['init', '--', 'arg'], envs: {} })
+      await root.run({ argv: ['init', 'arg'], envs: {} })
       expect(receivedArgs).toEqual({ args: ['arg'] })
     })
 
@@ -309,7 +415,7 @@ describe('Command', () => {
       })
       root.subcommand('init', sub)
 
-      await root.run({ argv: ['init', '--', 'myarg'], envs: {} })
+      await root.run({ argv: ['init', 'myarg'], envs: {} })
       expect(receivedArgs).toEqual({ name: 'myarg' })
     })
 
@@ -384,7 +490,7 @@ describe('Command', () => {
         params = p
       })
 
-      await cmd.run({ argv: ['--name', 'foo', '--', 'input.txt'], envs: {} })
+      await cmd.run({ argv: ['--name', 'foo', 'input.txt'], envs: {} })
 
       expect(params).toBeDefined()
       expect(params!.opts['name']).toBe('foo')
@@ -445,6 +551,14 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test', version: '1.0.0' })
       const result = cmd.parse(['--version'])
       expect(result.opts['version']).toBe(true)
+    })
+
+    it('should not inherit built-in --version for subcommands', () => {
+      const root = new Command({ name: 'cli', description: 'CLI', version: '1.0.0' })
+      const sub = new Command({ description: 'Sub' })
+      root.subcommand('sub', sub)
+
+      expect(() => root.parse(['sub', '--version'])).toThrow('unknown option "--version"')
     })
   })
 
@@ -535,7 +649,7 @@ describe('Command', () => {
       expect(help).toContain('[choices: json, yaml]')
     })
 
-    it('should show --no-{option} for boolean options', () => {
+    it('should show --no-{option} for boolean options with negate description', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.option({
         type: 'boolean',
@@ -546,6 +660,7 @@ describe('Command', () => {
       const help = cmd.formatHelp()
       expect(help).toContain('--verbose')
       expect(help).toContain('--no-verbose')
+      expect(help).toContain('Negate --verbose')
     })
   })
 
@@ -647,6 +762,18 @@ describe('Command', () => {
       expect(() =>
         cmd.option({ type: 'boolean', short: 'v', long: 'version', description: 'Version' }),
       ).toThrow('already defined')
+    })
+
+    it('should throw for short option conflicts across command chain', () => {
+      const root = new Command({ name: 'cli', description: 'CLI' })
+      root.option({ type: 'boolean', short: 'v', long: 'verbose', description: 'Verbose' })
+
+      const child = new Command({ description: 'Child' })
+      child.option({ type: 'boolean', short: 'v', long: 'version', description: 'Version' })
+
+      root.subcommand('child', child)
+
+      expect(() => root.parse(['child', '-v'])).toThrow('short option "-v" conflicts')
     })
 
     it('should throw for long option starting with no-', () => {
@@ -845,6 +972,12 @@ describe('Command', () => {
     })
 
     it('should use custom reporter when provided', async () => {
+      const baseReporter = {
+        debug: vi.fn(),
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+      }
       const customReporter = {
         debug: vi.fn(),
         info: vi.fn(),
@@ -853,7 +986,7 @@ describe('Command', () => {
       }
 
       let capturedCtx: IActionParams['ctx'] | undefined
-      const cmd = new Command({ name: 'test', description: 'Test' })
+      const cmd = new Command({ name: 'test', description: 'Test', reporter: baseReporter })
       cmd.action(({ ctx }) => {
         capturedCtx = ctx
       })
@@ -862,6 +995,25 @@ describe('Command', () => {
 
       expect(capturedCtx?.reporter).toBe(customReporter)
       expect(capturedCtx?.envs).toEqual({ FOO: 'bar' })
+    })
+
+    it('should use reporter from constructor when not overridden', async () => {
+      const baseReporter = {
+        debug: vi.fn(),
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+      }
+
+      let capturedCtx: IActionParams['ctx'] | undefined
+      const cmd = new Command({ name: 'test', description: 'Test', reporter: baseReporter })
+      cmd.action(({ ctx }) => {
+        capturedCtx = ctx
+      })
+
+      await cmd.run({ argv: [], envs: {} })
+
+      expect(capturedCtx?.reporter).toBe(baseReporter)
     })
 
     it('should show help when command has subcommands but no action', async () => {
@@ -970,11 +1122,21 @@ describe('Command', () => {
   })
 
   describe('short option edge cases', () => {
-    it('should throw for short option value starting with dash', () => {
+    it('should throw for short option value starting with dash (known limitation)', () => {
+      // Known limitation: short options cannot accept negative numbers
+      // Use long option syntax instead: --number -1
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.option({ type: 'number', short: 'n', long: 'number', description: 'Number' })
 
       expect(() => cmd.parse(['-n', '-1'])).toThrow('requires a value')
+    })
+
+    it('should accept negative number with long option syntax', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.option({ type: 'number', short: 'n', long: 'number', description: 'Number' })
+
+      const result = cmd.parse(['--number', '-1'])
+      expect(result.opts['number']).toBe(-1)
     })
 
     it('should parse short option with value in combined form followed by next arg', () => {
@@ -1278,23 +1440,27 @@ describe('Command', () => {
     })
 
     it('should not process help subcommand when not enabled', async () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
-
       const root = new Command({ name: 'cli', description: 'CLI tool' })
       // NOT setting help: true
 
+      // When help is not enabled and there are subcommands, "help" is not a subcommand
+      // Routing stops at root because "help" is not a registered subcommand name
+      // Since root has subcommands but no action, it will show help
       const sub = new Command({ description: 'Initialize' })
       sub.action(() => {})
       root.subcommand('init', sub)
 
-      // "help" is not a registered subcommand, so it becomes an unexpected argument
+      // "help" is not a registered subcommand, routing stops at root
+      // Root has subcommands but no action, so it shows help (with "too many arguments" error
+      // because "help" and "init" become positional args but root has no arguments defined)
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
       await root.run({ argv: ['help', 'init'], envs: {} })
 
-      // Should throw UnexpectedArgument error since "help" is not a subcommand
+      // Should throw "too many arguments" error because root has no arguments defined
       expect(consoleErrorSpy).toHaveBeenCalled()
       const errorOutput = consoleErrorSpy.mock.calls[0][0]
-      expect(errorOutput).toContain('unexpected argument')
+      expect(errorOutput).toContain('too many arguments')
 
       consoleErrorSpy.mockRestore()
       exitSpy.mockRestore()
@@ -1311,12 +1477,14 @@ describe('Command', () => {
       root.subcommand('init', sub)
 
       // "help unknown" transforms to "unknown --help", but "unknown" is not a subcommand
+      // Routing stops at root, "unknown" becomes positional arg
+      // Root has no arguments defined, so "too many arguments" error
       await root.run({ argv: ['help', 'unknown'], envs: {} })
 
-      // Should throw UnexpectedArgument error for "unknown"
+      // Should throw "too many arguments" error
       expect(consoleErrorSpy).toHaveBeenCalled()
       const errorOutput = consoleErrorSpy.mock.calls[0][0]
-      expect(errorOutput).toContain('unexpected argument')
+      expect(errorOutput).toContain('too many arguments')
 
       consoleErrorSpy.mockRestore()
       exitSpy.mockRestore()
@@ -1365,6 +1533,34 @@ describe('Command', () => {
 
       // Should not throw
       expect(() => root.subcommand('help', helpCmd)).not.toThrow()
+    })
+
+    it('should show help when help:true and no subcommands', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+      const root = new Command({ name: 'cli', description: 'CLI tool', help: true })
+      root.action(() => {})
+
+      await root.run({ argv: ['help'], envs: {} })
+
+      expect(consoleSpy).toHaveBeenCalled()
+      const output = consoleSpy.mock.calls[0][0]
+      expect(output).toContain('CLI tool')
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should treat help as positional arg when help:false and no subcommands', async () => {
+      let receivedArgs: Record<string, unknown> = {}
+      const root = new Command({ name: 'cli', description: 'CLI tool' })
+      root.argument({ name: 'cmd', kind: 'optional', description: 'Command' })
+      root.action(({ args }) => {
+        receivedArgs = args
+      })
+
+      await root.run({ argv: ['help'], envs: {} })
+
+      expect(receivedArgs).toEqual({ cmd: 'help' })
     })
   })
 
@@ -1468,6 +1664,8 @@ describe('Command', () => {
       expect(consoleErrorSpy).toHaveBeenCalled()
       const errorOutput = consoleErrorSpy.mock.calls[0][0]
       expect(errorOutput).toContain('unknown option')
+      // Error message should contain full command path
+      expect(errorOutput).toContain('cli child')
 
       consoleErrorSpy.mockRestore()
       exitSpy.mockRestore()

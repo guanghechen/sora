@@ -150,18 +150,21 @@ interface IOption<T = unknown> {
 
 ## 继承与合并
 
-子命令**强制继承**祖先链上的所有选项，使用 `long` 作为 key 进行覆盖：
+子命令**强制继承**祖先链上的所有选项，使用 `long` 作为 key 进行覆盖。
+
+`long` 是 option 的唯一身份标识，`short` 仅是该 option 的 alias。只有覆盖同名 `long` 时才允许修改
+`short`，不同 `long` 不允许共享同一个 `short`。
 
 ```typescript
 const root = new Command({ name: 'cli', description: 'My CLI' })
   .option({ long: 'verbose', short: 'v', type: 'boolean', description: 'Verbose' })
   .option({ long: 'log-level', type: 'string', description: 'Log level' })
 
-const sub = new Command({ name: 'build', description: 'Build' })
+const sub = new Command({ description: 'Build' })
   .option({ long: 'log-level', type: 'string', description: 'Build log level' })  // 覆盖
   .option({ long: 'watch', short: 'w', type: 'boolean', description: 'Watch' })
 
-root.subcommand(sub)
+root.subcommand('build', sub)
 ```
 
 执行 `cli build` 时合并后的选项：
@@ -174,22 +177,22 @@ root.subcommand(sub)
 
 ### 冲突检测
 
-| 冲突类型                     | 处理       |
-| ---------------------------- | ---------- |
-| 不同 `long` 共享同一 `short` | 构建时报错 |
-| 同 `long` 的覆盖（父/子）    | 允许       |
-| `long` 以 `no-` 开头         | 构建时报错 |
+| 冲突类型                     | 处理                   |
+| ---------------------------- | ---------------------- |
+| 不同 `long` 共享同一 `short` | 构建时报错             |
+| 同 `long` 的覆盖（父/子）    | 允许（`short` 可修改） |
+| `long` 以 `no-` 开头         | 构建时报错             |
 
 ## 校验规则
 
 ### 构建时
 
-| 约束                   | 说明         |
-| ---------------------- | ------------ |
-| `required` + `default` | 不能同时存在 |
-| `boolean` + `required` | 不能同时存在 |
-| `long` 以 `no-` 开头   | 不允许       |
-| 合并后 `short` 冲突    | 不允许       |
+| 约束                        | 说明         |
+| --------------------------- | ------------ |
+| `required` + `default`      | 不能同时存在 |
+| `boolean` + `required`      | 不能同时存在 |
+| `long` 以 `no-` 开头        | 不允许       |
+| 不同 `long` 的 `short` 冲突 | 不允许       |
 
 ### 运行时
 
@@ -202,3 +205,17 @@ root.subcommand(sub)
 | unknown option | 未定义的选项报错                       | 所有选项     |
 
 注意：`required` 和 `choices` 校验对 resolver 输出仍然生效。
+
+## 已知限制
+
+### 短选项不支持负数值
+
+短选项语法 `-n <value>` 无法接受以 `-` 开头的值（如负数 `-1`），因为解析器会将其识别为另一个选项。
+
+```bash
+mycli -n -1        # ❌ 错误：-1 被识别为选项
+mycli --number -1  # ✅ 正确：长选项支持负数值
+mycli -n=-1        # ❌ 错误：不支持 -n=value 语法
+```
+
+如需传递负数，请使用长选项语法 `--option <value>`。
