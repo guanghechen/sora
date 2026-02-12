@@ -17,6 +17,20 @@ export interface IReporter {
   error(message: string, ...args: unknown[]): void
 }
 
+// ==================== Token Types ====================
+
+/**
+ * Command token after preprocessing.
+ * original: preserves raw input for error messages (e.g., --LOG-LEVEL)
+ * resolved: normalized form for matching (e.g., --logLevel)
+ */
+export interface ICommandToken {
+  /** Raw input, used for error display */
+  original: string
+  /** Normalized form, used for parsing/matching */
+  resolved: string
+}
+
 // ==================== Option Types ====================
 
 /** Supported option value types */
@@ -44,7 +58,7 @@ export interface IOption<T = unknown> {
   /** Single value transformation (ignored when resolver is present) */
   coerce?: (rawValue: string) => T extends Array<infer U> ? U : T
   /** Custom resolver that fully replaces builtin parsing (ignores type/coerce) */
-  resolver?: (argv: string[]) => { value: T; remaining: string[] }
+  resolver?: (tokens: ICommandToken[]) => { value: T; remaining: ICommandToken[] }
   /** Callback after parsing, applies value to context */
   apply?: (value: T, ctx: ICommandContext) => void
 }
@@ -161,13 +175,17 @@ export interface IShiftResult {
   /** Options consumed by this command */
   opts: Record<string, unknown>
   /** Tokens not consumed, to be passed to parent */
-  remaining: string[]
+  remaining: ICommandToken[]
 }
 
 // ==================== Error Types ====================
 
 /** Error kinds for command parsing */
 export type ICommanderErrorKind =
+  | 'InvalidOptionFormat'
+  | 'InvalidNegativeOption'
+  | 'NegativeOptionWithValue'
+  | 'NegativeOptionType'
   | 'UnknownOption'
   | 'UnexpectedArgument'
   | 'MissingValue'

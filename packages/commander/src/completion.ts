@@ -7,7 +7,21 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { Command } from './command'
-import type { ICompletionCommandConfig, ICompletionMeta, ICompletionPaths } from './types'
+import type {
+  ICommandToken,
+  ICompletionCommandConfig,
+  ICompletionMeta,
+  ICompletionPaths,
+} from './types'
+
+// ==================== Naming Utilities ====================
+
+/**
+ * Convert camelCase to kebab-case.
+ */
+function camelToKebabCase(str: string): string {
+  return str.replace(/[A-Z]/g, m => '-' + m.toLowerCase())
+}
 
 // ==================== CompletionCommand ====================
 
@@ -140,27 +154,28 @@ function expandHome(filepath: string): string {
  * - Present with value (--write /path): the value
  */
 function resolveOptionalStringOption(
-  argv: string[],
+  tokens: ICommandToken[],
   longName: string,
   shortName?: string,
-): { value: string | undefined; remaining: string[] } {
-  const remaining: string[] = []
+): { value: string | undefined; remaining: ICommandToken[] } {
+  const remaining: ICommandToken[] = []
   let value: string | undefined
 
-  for (let i = 0; i < argv.length; i++) {
-    const arg = argv[i]
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i]
+    const resolved = token.resolved
 
-    // Check --long=value
-    if (arg.startsWith(`--${longName}=`)) {
-      value = arg.slice(`--${longName}=`.length)
+    // Check --long=value (resolved is in camelCase)
+    if (resolved.startsWith(`--${longName}=`)) {
+      value = resolved.slice(`--${longName}=`.length)
       continue
     }
 
     // Check --long or --long value
-    if (arg === `--${longName}`) {
-      const next = argv[i + 1]
-      if (next !== undefined && !next.startsWith('-')) {
-        value = next
+    if (resolved === `--${longName}`) {
+      const next = tokens[i + 1]
+      if (next !== undefined && !next.resolved.startsWith('-')) {
+        value = next.original
         i += 1
       } else {
         value = '' // Flag present but no value
@@ -169,16 +184,16 @@ function resolveOptionalStringOption(
     }
 
     // Check -w=value
-    if (shortName && arg.startsWith(`-${shortName}=`)) {
-      value = arg.slice(`-${shortName}=`.length)
+    if (shortName && resolved.startsWith(`-${shortName}=`)) {
+      value = resolved.slice(`-${shortName}=`.length)
       continue
     }
 
     // Check -w or -w value
-    if (shortName && arg === `-${shortName}`) {
-      const next = argv[i + 1]
-      if (next !== undefined && !next.startsWith('-')) {
-        value = next
+    if (shortName && resolved === `-${shortName}`) {
+      const next = tokens[i + 1]
+      if (next !== undefined && !next.resolved.startsWith('-')) {
+        value = next.original
         i += 1
       } else {
         value = ''
@@ -186,7 +201,7 @@ function resolveOptionalStringOption(
       continue
     }
 
-    remaining.push(arg)
+    remaining.push(token)
   }
 
   return { value, remaining }
@@ -230,14 +245,15 @@ export class BashCompletion {
     const indent = '  '.repeat(depth)
     const lines: string[] = []
 
-    // Build options string (including --no-{long} for boolean options)
+    // Build options string (including --no-{kebab-long} for boolean options)
     const optParts: string[] = []
     for (const opt of cmd.options) {
+      const kebabLong = camelToKebabCase(opt.long)
       if (opt.short) optParts.push(`-${opt.short}`)
-      optParts.push(`--${opt.long}`)
+      optParts.push(`--${kebabLong}`)
       if (!opt.takesValue) {
         // Boolean option - add negative form
-        optParts.push(`--no-${opt.long}`)
+        optParts.push(`--no-${kebabLong}`)
       }
     }
 
@@ -306,21 +322,22 @@ export class FishCompletion {
 
     // Generate option completions
     for (const opt of cmd.options) {
+      const kebabLong = camelToKebabCase(opt.long)
       let line = `complete -c ${this.#programName}`
       if (condition) line += ` -n '${condition}'`
       if (opt.short) line += ` -s ${opt.short}`
-      line += ` -l ${opt.long}`
+      line += ` -l ${kebabLong}`
       line += ` -d '${this.#escape(opt.description)}'`
       if (opt.choices && opt.choices.length > 0) {
         line += ` -xa '${opt.choices.join(' ')}'`
       }
       lines.push(line)
 
-      // Add --no-{long} for boolean options (reuse original description per spec)
+      // Add --no-{kebab-long} for boolean options (reuse original description per spec)
       if (!opt.takesValue) {
         let noLine = `complete -c ${this.#programName}`
         if (condition) noLine += ` -n '${condition}'`
-        noLine += ` -l no-${opt.long}`
+        noLine += ` -l no-${kebabLong}`
         noLine += ` -d '${this.#escape(opt.description)}'`
         lines.push(noLine)
       }
@@ -472,9 +489,10 @@ export class PwshCompletion {
     // Options
     lines.push(`${indent}options = @(`)
     for (const opt of cmd.options) {
+      const kebabLong = camelToKebabCase(opt.long)
       lines.push(`${indent}  @{`)
       if (opt.short) lines.push(`${indent}    short = '${opt.short}'`)
-      lines.push(`${indent}    long = '${opt.long}'`)
+      lines.push(`${indent}    long = '${kebabLong}'`)
       lines.push(`${indent}    description = '${this.#escape(opt.description)}'`)
       lines.push(`${indent}    isBoolean = $${!opt.takesValue}`)
       if (opt.choices) {

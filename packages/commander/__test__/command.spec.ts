@@ -197,20 +197,20 @@ describe('Command', () => {
       cmd.option({
         long: 'header',
         description: 'Headers',
-        resolver: argv => {
+        resolver: tokens => {
           const headers: Record<string, string> = {}
-          const remaining: string[] = []
-          for (let i = 0; i < argv.length; i++) {
-            const arg = argv[i]
-            if (arg === '--header' && i + 1 < argv.length) {
-              const [key, val] = argv[i + 1].split(': ')
+          const remaining: typeof tokens = []
+          for (let i = 0; i < tokens.length; i++) {
+            const token = tokens[i]
+            if (token.resolved === '--header' && i + 1 < tokens.length) {
+              const [key, val] = tokens[i + 1].original.split(': ')
               headers[key] = val
               i++
-            } else if (arg.startsWith('--header=')) {
-              const [key, val] = arg.slice(9).split(': ')
+            } else if (token.resolved.startsWith('--header=')) {
+              const [key, val] = token.resolved.slice(9).split(': ')
               headers[key] = val
             } else {
-              remaining.push(arg)
+              remaining.push(token)
             }
           }
           return { value: headers, remaining }
@@ -1699,17 +1699,17 @@ describe('Command', () => {
       })
 
       const parent = new Command({ description: 'Parent' }).option({
-        long: 'parent-opt',
+        long: 'parentOpt',
         type: 'string',
         description: 'Parent opt',
       })
 
       const child = new Command({ description: 'Child' })
-        .option({ long: 'child-opt', type: 'string', description: 'Child opt' })
+        .option({ long: 'childOpt', type: 'string', description: 'Child opt' })
         .action(({ opts }) => {
           expect(opts['global']).toBe(true)
-          expect(opts['parent-opt']).toBe('p')
-          expect(opts['child-opt']).toBe('c')
+          expect(opts['parentOpt']).toBe('p')
+          expect(opts['childOpt']).toBe('c')
         })
 
       parent.subcommand('child', child)
@@ -1818,25 +1818,25 @@ describe('Command', () => {
         short: 'w',
         type: 'string',
         description: 'Write',
-        resolver: argv => {
-          const remaining: string[] = []
+        resolver: tokens => {
+          const remaining: typeof tokens = []
           let value: string | undefined
-          for (let i = 0; i < argv.length; i++) {
-            const arg = argv[i]
-            if (arg === '-w' || arg === '--write') {
-              const next = argv[i + 1]
-              if (next && !next.startsWith('-')) {
-                value = next
+          for (let i = 0; i < tokens.length; i++) {
+            const token = tokens[i]
+            if (token.resolved === '-w' || token.resolved === '--write') {
+              const next = tokens[i + 1]
+              if (next && !next.resolved.startsWith('-')) {
+                value = next.original
                 i++
               } else {
                 value = ''
               }
-            } else if (arg.startsWith('-w=')) {
-              value = arg.slice(3)
-            } else if (arg.startsWith('--write=')) {
-              value = arg.slice(8)
+            } else if (token.resolved.startsWith('-w=')) {
+              value = token.original.slice(3)
+            } else if (token.resolved.startsWith('--write=')) {
+              value = token.resolved.slice(8)
             } else {
-              remaining.push(arg)
+              remaining.push(token)
             }
           }
           return { value, remaining }
@@ -2137,7 +2137,14 @@ describe('Command', () => {
         .option({ long: 'verbose', short: 'v', type: 'boolean', description: 'Verbose' })
         .option({ long: 'output', short: 'o', type: 'string', description: 'Output' })
 
-      const result = cmd.shift(['--verbose', '--output', 'file.txt', '--unknown'])
+      // shift() now requires ICommandToken[]
+      const tokens = [
+        { original: '--verbose', resolved: '--verbose' },
+        { original: '--output', resolved: '--output' },
+        { original: 'file.txt', resolved: 'file.txt' },
+        { original: '--unknown', resolved: '--unknown' },
+      ]
+      const result = cmd.shift(tokens)
 
       expect(result.opts).toEqual({
         verbose: true,
@@ -2145,7 +2152,118 @@ describe('Command', () => {
         help: false,
         version: false,
       })
-      expect(result.remaining).toEqual(['--unknown'])
+      expect(result.remaining).toEqual([{ original: '--unknown', resolved: '--unknown' }])
+    })
+  })
+
+  describe('kebab-case/camelCase naming convention', () => {
+    it('should accept kebab-case input and map to camelCase option', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.option({ long: 'logLevel', type: 'string', description: 'Log level' })
+
+      const result = cmd.parse(['--log-level', 'debug'])
+      expect(result.opts['logLevel']).toBe('debug')
+    })
+
+    it('should be case-insensitive for kebab-case input', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.option({ long: 'logLevel', type: 'string', description: 'Log level' })
+
+      expect(cmd.parse(['--LOG-LEVEL', 'debug']).opts['logLevel']).toBe('debug')
+      expect(cmd.parse(['--Log-Level', 'info']).opts['logLevel']).toBe('info')
+    })
+
+    it('should preserve value case', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.option({ long: 'name', type: 'string', description: 'Name' })
+
+      const result = cmd.parse(['--name', 'MyApp'])
+      expect(result.opts['name']).toBe('MyApp')
+    })
+
+    it('should preserve value case with inline syntax', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.option({ long: 'name', type: 'string', description: 'Name' })
+
+      const result = cmd.parse(['--name=MyApp'])
+      expect(result.opts['name']).toBe('MyApp')
+    })
+
+    it('should throw for underscore in option name', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.option({ long: 'logLevel', type: 'string', description: 'Log level' })
+
+      expect(() => cmd.parse(['--log_level', 'debug'])).toThrow("use '-' instead of '_'")
+    })
+
+    it('should throw for invalid option format (consecutive dashes)', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.option({ long: 'logLevel', type: 'string', description: 'Log level' })
+
+      expect(() => cmd.parse(['--log--level', 'debug'])).toThrow('invalid option format')
+    })
+
+    it('should throw for option starting with number', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.option({ long: 'verbose', type: 'boolean', description: 'Verbose' })
+
+      expect(() => cmd.parse(['--2fa'])).toThrow('invalid option format')
+    })
+
+    it('should throw for incomplete negative option --no', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.option({ long: 'verbose', type: 'boolean', description: 'Verbose' })
+
+      expect(() => cmd.parse(['--no'])).toThrow('invalid negative option syntax')
+    })
+
+    it('should throw for incomplete negative option --no-', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.option({ long: 'verbose', type: 'boolean', description: 'Verbose' })
+
+      expect(() => cmd.parse(['--no-'])).toThrow('invalid negative option syntax')
+    })
+
+    it('should throw for --no-xxx used on non-boolean option', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.option({ long: 'output', type: 'string', description: 'Output' })
+
+      expect(() => cmd.parse(['--no-output'])).toThrow('can only be used with boolean options')
+    })
+
+    it('should convert --no-xxx to false for boolean options', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.option({ long: 'verbose', type: 'boolean', description: 'Verbose' })
+
+      const result = cmd.parse(['--no-verbose'])
+      expect(result.opts['verbose']).toBe(false)
+    })
+
+    it('should handle kebab-case in --no-xxx', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.option({ long: 'colorOutput', type: 'boolean', description: 'Color output' })
+
+      const result = cmd.parse(['--no-color-output'])
+      expect(result.opts['colorOutput']).toBe(false)
+    })
+
+    it('should display options in kebab-case in help', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.option({ long: 'logLevel', type: 'string', description: 'Log level' })
+      cmd.option({ long: 'colorOutput', type: 'boolean', description: 'Color output' })
+
+      const help = cmd.formatHelp()
+      expect(help).toContain('--log-level')
+      expect(help).toContain('--color-output')
+      expect(help).toContain('--no-color-output')
+    })
+
+    it('should not process options after --', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.argument({ name: 'args', kind: 'variadic', description: 'Args' })
+
+      const result = cmd.parse(['--', '--log_level', '--2fa', '--no-'])
+      expect(result.rawArgs).toEqual(['--log_level', '--2fa', '--no-'])
     })
   })
 })

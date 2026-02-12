@@ -15,6 +15,7 @@ export type {
   ICommandConfig,
   ICommandContext,
   ICommanderErrorKind,
+  ICommandToken,
   ICompletionCommandConfig,
   ICompletionMeta,
   ICompletionOptionMeta,
