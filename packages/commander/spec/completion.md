@@ -1,62 +1,20 @@
 # Shell 补全生成器
 
-Shell 补全脚本生成器。
-
-## 设计目标
-
-1. **简单静态** — 生成静态补全脚本，无运行时动态补全
-2. **多 Shell 支持** — Bash、Fish、PowerShell
-3. **自省** — 从 Command 树结构自动生成补全信息
-
-## 架构
-
-```
-┌────────────────────────────────────────────────────────────────┐
-│                      Completion System                         │
-│                                                                │
-│  ┌────────────────────┐                                        │
-│  │   Command (root)   │                                        │
-│  │                    │                                        │
-│  │ - subcommands      │                                        │
-│  │ - options          │                                        │
-│  │ - aliases          │                                        │
-│  └─────────┬──────────┘                                        │
-│            │ getCompletionMeta()                               │
-│            ▼                                                   │
-│  ┌─────────────────────┐                                       │
-│  │ ICompletionMeta     │                                       │
-│  │                     │                                       │
-│  │ - name, aliases     │                                       │
-│  │ - options[]         │                                       │
-│  │ - subcommands[]     │                                       │
-│  └─────────┬───────────┘                                       │
-│            │                                                   │
-│    ┌───────┼───────┬───────────┐                               │
-│    │       │       │           │                               │
-│    ▼       ▼       ▼           ▼                               │
-│ ┌──────┐ ┌──────┐ ┌──────┐ ┌────────────────┐                  │
-│ │ Bash │ │ Fish │ │ Pwsh │ │ CompletionCmd  │                  │
-│ └──────┘ └──────┘ └──────┘ └────────────────┘                  │
-│                                                                │
-└────────────────────────────────────────────────────────────────┘
-```
+静态补全脚本生成器，支持 Bash、Fish、PowerShell。
 
 ## 类型定义
 
 ```typescript
-/** Shell 类型 */
 type IShellType = 'bash' | 'fish' | 'pwsh'
 
-/** 选项补全元数据 */
 interface ICompletionOptionMeta {
-  long: string
+  long: string          // camelCase，与 IOption.long 一致
   short?: string
   description: string
   takesValue: boolean
   choices?: string[]
 }
 
-/** 命令补全元数据 */
 interface ICompletionMeta {
   name: string
   description: string
@@ -64,53 +22,20 @@ interface ICompletionMeta {
   options: ICompletionOptionMeta[]
   subcommands: ICompletionMeta[]
 }
-
-/** CompletionCommand 配置 */
-interface ICompletionCommandConfig {
-  /** 子命令名称，默认 'completion' */
-  name?: string
-}
 ```
 
 ## CompletionCommand
 
-内置的补全子命令，用于生成 shell 补全脚本。
-
-**注意**：`CompletionCommand` **不会**自动挂载，用户需手动添加：
-
-```typescript
-pm.subcommand(new CompletionCommand(pm))
-```
-
-### 构造函数
-
-```typescript
-new CompletionCommand(root: Command, config?: ICompletionCommandConfig)
-```
-
-| 参数          | 类型      | 说明                          |
-| ------------- | --------- | ----------------------------- |
-| `root`        | `Command` | 根命令（用于生成元数据）      |
-| `config.name` | `string?` | 子命令名称，默认 `completion` |
-
-### 使用示例
+内置补全子命令，**需手动挂载**：
 
 ```typescript
 import { Command, CompletionCommand } from '@guanghechen/commander'
 
 const pm = new Command({ name: 'pm', description: 'Process Manager', version: '1.0.0' })
-  .option({ long: 'verbose', short: 'v', type: 'boolean', description: 'Verbose output' })
+  .option({ long: 'verbose', short: 'v', type: 'boolean', description: 'Verbose' })
 
-const start = new Command({ description: 'Start process' })
-  .action(async () => { /* ... */ })
-
-pm.subcommand('start', start)
-
-// 默认名称 'completion'
+pm.subcommand('start', new Command({ description: 'Start' }))
 pm.subcommand('completion', new CompletionCommand(pm))
-
-// 自定义名称
-pm.subcommand('completions', new CompletionCommand(pm, { name: 'completions' }))
 
 await pm.run({ argv: process.argv.slice(2), envs: process.env })
 ```
@@ -118,136 +43,37 @@ await pm.run({ argv: process.argv.slice(2), envs: process.env })
 ### CLI 使用
 
 ```bash
-# 生成 Bash 补全脚本
 pm completion --bash > ~/.local/share/bash-completion/completions/pm
-
-# 生成 Fish 补全脚本
 pm completion --fish > ~/.config/fish/completions/pm.fish
-
-# 生成 PowerShell 补全脚本
 pm completion --pwsh >> $PROFILE
 ```
 
-### 选项
-
-| 选项     | 说明                     |
-| -------- | ------------------------ |
-| `--bash` | 生成 Bash 补全脚本       |
-| `--fish` | 生成 Fish 补全脚本       |
-| `--pwsh` | 生成 PowerShell 补全脚本 |
-
-必须且只能指定一个 shell 选项。
+必须且只能指定一个 shell 选项：`--bash`、`--fish`、`--pwsh`。
 
 ## Shell 生成器
 
-底层生成器类，可独立使用：
-
-### BashCompletion
+底层生成器可独立使用：
 
 ```typescript
-import { BashCompletion } from '@guanghechen/commander'
+import { BashCompletion, FishCompletion, PwshCompletion } from '@guanghechen/commander'
 
 const meta = pm.getCompletionMeta()
 const script = new BashCompletion(meta, 'pm').generate()
-console.log(script)
-```
-
-生成的脚本结构：
-
-```bash
-# Bash completion for pm
-# Generated by @guanghechen/commander
-
-_pm_completions() {
-  local cur prev words cword
-  _init_completion || return
-
-  local commands opts
-  # ... 按命令路径匹配补全
-
-  COMPREPLY=($(compgen -W "$opts" -- "$cur"))
-}
-
-complete -F _pm_completions pm
-```
-
-### FishCompletion
-
-```typescript
-import { FishCompletion } from '@guanghechen/commander'
-
-const meta = pm.getCompletionMeta()
-const script = new FishCompletion(meta, 'pm').generate()
-```
-
-生成的脚本结构：
-
-```fish
-# Fish completion for pm
-# Generated by @guanghechen/commander
-
-complete -c pm -n __fish_use_subcommand -a 'start' -d 'Start process'
-complete -c pm -s v -l verbose -d 'Verbose output'
-complete -c pm -l no-verbose -d 'Negate --verbose'
-# ...
-```
-
-### PwshCompletion
-
-```typescript
-import { PwshCompletion } from '@guanghechen/commander'
-
-const meta = pm.getCompletionMeta()
-const script = new PwshCompletion(meta, 'pm').generate()
-```
-
-生成的脚本结构：
-
-```powershell
-# PowerShell completion for pm
-# Generated by @guanghechen/commander
-
-Register-ArgumentCompleter -Native -CommandName pm -ScriptBlock {
-  param($wordToComplete, $commandAst, $cursorPosition)
-  # ...
-}
 ```
 
 ## 安装路径
 
-| Shell       | 路径                                                | 说明       |
-| ----------- | --------------------------------------------------- | ---------- |
-| Bash        | `~/.local/share/bash-completion/completions/<name>` | XDG 标准   |
-| Bash (备选) | `~/.bash_completion.d/<name>`                       | 旧路径     |
-| Fish        | `~/.config/fish/completions/<name>.fish`            | XDG 标准   |
-| PowerShell  | `$PROFILE`                                          | 追加到配置 |
-
-## Command.getCompletionMeta()
-
-从 Command 树生成补全元数据：
-
-```typescript
-const meta = pm.getCompletionMeta()
-// {
-//   name: 'pm',
-//   description: 'Process Manager',
-//   aliases: [],
-//   options: [
-//     { long: 'verbose', short: 'v', description: 'Verbose output', takesValue: false },
-//     { long: 'help', short: 'h', description: 'Show help', takesValue: false },
-//     { long: 'version', short: 'V', description: 'Show version', takesValue: false },
-//   ],
-//   subcommands: [
-//     { name: 'start', description: 'Start process', aliases: [], options: [...], subcommands: [] },
-//   ],
-// }
-```
+| Shell      | 路径                                                |
+| ---------- | --------------------------------------------------- |
+| Bash       | `~/.local/share/bash-completion/completions/<name>` |
+| Fish       | `~/.config/fish/completions/<name>.fish`            |
+| PowerShell | `$PROFILE`                                          |
 
 ## Negative 选项补全
 
-对于 boolean 选项，补全脚本会同时包含：
+对于 boolean 选项，补全包含：
 
-- `--{long}` — 原选项
-- `--no-{long}` — negative 形式
+- `--{kebab-long}`（如 `--log-level`）
+- `--no-{kebab-long}`（如 `--no-log-level`）
 
-例如定义 `--verbose`，补全会包含 `--verbose` 和 `--no-verbose`。
+`ICompletionOptionMeta.long`（camelCase）会自动转换为 kebab-case 显示。

@@ -2,15 +2,30 @@
 
 选项的定义、继承与解析。
 
+## 命名规范
+
+- **IOption.long**：camelCase（如 `logLevel`）
+- **命令行输入**：kebab-case（如 `--log-level`），大小写不敏感
+- **help/错误显示**：kebab-case（全小写）
+
+详见 [charter.md](./charter.md) 第 2 节。
+
 ## 类型定义
 
 ```typescript
 type IOptionType = 'boolean' | 'string' | 'number' | 'string[]' | 'number[]'
 
+interface ICommandToken {
+  /** 原始输入（如 --LOG-LEVEL） */
+  original: string
+  /** 规范化后（如 --logLevel） */
+  resolved: string
+}
+
 interface IOption<T = unknown> {
-  /** 长选项（如 'verbose' 对应 --verbose），同时作为合并 key */
+  /** 长选项（camelCase），同时作为合并 key */
   long: string
-  /** 短选项（单字符，如 'v' 对应 -v） */
+  /** 短选项（单字符） */
   short?: string
   /** 值类型，默认 'string' */
   type?: IOptionType
@@ -18,32 +33,30 @@ interface IOption<T = unknown> {
   description: string
   /** 是否必需（不能与 default 同时使用，不能用于 boolean） */
   required?: boolean
-  /** 未提供时的默认值 */
+  /** 默认值 */
   default?: T
-  /** 允许的值列表（用于校验和补全） */
+  /** 允许的值列表 */
   choices?: T extends (infer U)[] ? U[] : T[]
   /** 单值转换（与 resolver 互斥） */
   coerce?: (rawValue: string) => T extends (infer U)[] ? U : T
-  /** 自定义解析器（完全替代内置逻辑，忽略 type/coerce） */
-  resolver?: (argv: string[]) => { value: T; remaining: string[] }
-  /** 解析完成后的回调，用于将值应用到 context */
+  /** 自定义解析器（完全替代内置逻辑） */
+  resolver?: (tokens: ICommandToken[]) => { value: T; remaining: ICommandToken[] }
+  /** 解析完成后的回调 */
   apply?: (value: T, ctx: ICommandContext) => void
 }
 ```
 
 ## 解析优先级
 
-| 场景                  | 解析方式                                |
-| --------------------- | --------------------------------------- |
-| 有 resolver           | resolver（忽略 type、coerce、内置逻辑） |
-| 有 coerce 无 resolver | 内置解析器 + coerce                     |
-| 无 coerce 无 resolver | 内置解析器                              |
+| 场景                  | 解析方式                     |
+| --------------------- | ---------------------------- |
+| 有 resolver           | resolver（忽略 type/coerce） |
+| 有 coerce 无 resolver | 内置解析器 + coerce          |
+| 无 coerce 无 resolver | 内置解析器                   |
 
 ## 内置解析器
 
-根据 `type` 自动处理值的消费和 reduce：
-
-| type       | 多次出现的行为  | 示例                                     |
+| type       | 多次出现行为    | 示例                                     |
 | ---------- | --------------- | ---------------------------------------- |
 | `boolean`  | Last Write Wins | `--foo --no-foo` → `false`               |
 | `string`   | Last Write Wins | `--name=a --name=b` → `'b'`              |
@@ -65,72 +78,63 @@ interface IOption<T = unknown> {
     return n
   },
 })
-
-// 流程：--port=80 --port=443
-// 1. coerce("80")  → 80  → append → [80]
-// 2. coerce("443") → 443 → append → [80, 443]
+// --port=80 --port=443 → coerce 逐项调用 → [80, 443]
 ```
 
-| 规则             | 说明                                   |
-| ---------------- | -------------------------------------- |
-| 执行时机         | 解析到选项值后立即调用                 |
-| 作用域           | 每次出现的单个值（array 类型逐项调用） |
-| 与 choices 顺序  | 先 coerce 转换，再 choices 校验        |
-| 异常处理         | 抛出异常则中止解析并报错               |
-| 与 resolver 互斥 | 有 resolver 时忽略 coerce              |
+| 规则             | 说明                           |
+| ---------------- | ------------------------------ |
+| 执行时机         | 解析到选项值后立即调用         |
+| 作用域           | 每次出现的单个值（array 逐项） |
+| 与 choices 顺序  | 先 coerce，再 choices 校验     |
+| 异常处理         | 抛出异常则中止解析             |
+| 与 resolver 互斥 | 有 resolver 时忽略             |
 
 ## Resolver 回调
 
-完全替代内置解析逻辑，用于特殊场景：
+完全替代内置解析逻辑：
 
 ```typescript
 // --header "X-Foo: bar" --header "X-Bar: baz" → { 'X-Foo': 'bar', 'X-Bar': 'baz' }
 .option({
   long: 'header',
-  resolver: (argv) => {
+  resolver: (tokens) => {
     const headers: Record<string, string> = {}
-    const remaining: string[] = []
-
-    for (let i = 0; i < argv.length; i++) {
-      const arg = argv[i]
-      if (arg === '--header' && i + 1 < argv.length) {
-        const [key, val] = argv[i + 1].split(': ')
+    const remaining: ICommandToken[] = []
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i]
+      if (token.resolved === '--header' && i + 1 < tokens.length) {
+        const [key, val] = tokens[i + 1].original.split(': ')
         headers[key] = val
         i++
-      } else if (arg.startsWith('--header=')) {
-        const [key, val] = arg.slice(9).split(': ')
+      } else if (token.resolved.startsWith('--header=')) {
+        const eqIndex = token.original.indexOf('=')
+        const [key, val] = token.original.slice(eqIndex + 1).split(': ')
         headers[key] = val
       } else {
-        remaining.push(arg)
+        remaining.push(token)
       }
     }
-
     return { value: headers, remaining }
   },
 })
 ```
 
-适用场景：
-
-- 自定义收集逻辑（如 header 解析为对象）
-- 可选值选项（如 `--config` 或 `--config=path`）
-- 多 token 值（如 `--point 1 2 3`）
+适用场景：自定义收集逻辑、可选值选项、多 token 值。
 
 约束：
 
-- 只能消费本命令的 argv，不得跨 `--`
-- 有 resolver 时忽略 coerce 和内置解析逻辑
-- resolver 需自行处理 default 值（内置解析器不参与）
-- 即使有 resolver，仍建议保留 `type` 字段作为 metadata（用于补全和帮助生成）
+- 只能消费本命令的 tokens，不得跨 `--`
+- 有 resolver 时忽略 coerce 和内置逻辑
+- resolver 需自行处理 default 值
+- 建议保留 `type` 字段作为 metadata（用于补全和帮助）
 
 ## Apply 回调
 
-解析完成后将值应用到 context，集中处理副作用：
+解析完成后将值应用到 context：
 
 ```typescript
-// ✅ 在选项定义处统一处理，而非分散到每个 action
 .option({
-  long: 'log-level',
+  long: 'logLevel',
   type: 'string',
   choices: ['debug', 'info', 'warn', 'error'],
   default: 'info',
@@ -146,76 +150,48 @@ interface IOption<T = unknown> {
 | 触发条件 | 仅在解析值非 undefined 时执行      |
 | 调用顺序 | 按合并后 options 集合的顺序        |
 | 覆盖行为 | 子命令覆盖选项时使用子命令的 apply |
-| 幂等性   | apply 应该是幂等的                 |
 
 ## 继承与合并
 
 子命令**强制继承**祖先链上的所有选项，使用 `long` 作为 key 进行覆盖。
 
-`long` 是 option 的唯一身份标识，`short` 仅是该 option 的 alias。只有覆盖同名 `long` 时才允许修改
-`short`，不同 `long` 不允许共享同一个 `short`。
-
 ```typescript
 const root = new Command({ name: 'cli', description: 'My CLI' })
   .option({ long: 'verbose', short: 'v', type: 'boolean', description: 'Verbose' })
-  .option({ long: 'log-level', type: 'string', description: 'Log level' })
+  .option({ long: 'logLevel', type: 'string', description: 'Log level' })
 
 const sub = new Command({ description: 'Build' })
-  .option({ long: 'log-level', type: 'string', description: 'Build log level' })  // 覆盖
+  .option({ long: 'logLevel', type: 'string', description: 'Build log level' })  // 覆盖
   .option({ long: 'watch', short: 'w', type: 'boolean', description: 'Watch' })
 
 root.subcommand('build', sub)
 ```
 
-执行 `cli build` 时合并后的选项：
+执行 `cli build --log-level debug` 时合并后的选项：
 
-| long      | 来源 |
-| --------- | ---- |
-| verbose   | root |
-| log-level | sub  |
-| watch     | sub  |
+| long     | 来源 |
+| -------- | ---- |
+| verbose  | root |
+| logLevel | sub  |
+| watch    | sub  |
 
-### 冲突检测
-
-| 冲突类型                     | 处理                   |
-| ---------------------------- | ---------------------- |
-| 不同 `long` 共享同一 `short` | 构建时报错             |
-| 同 `long` 的覆盖（父/子）    | 允许（`short` 可修改） |
-| `long` 以 `no-` 开头         | 构建时报错             |
+`long` 是唯一身份标识，`short` 仅是 alias。只有覆盖同名 `long` 时才允许修改 `short`。
 
 ## 校验规则
 
-### 构建时
+详见 [charter.md](./charter.md) 第 8 节。
 
-| 约束                        | 说明         |
-| --------------------------- | ------------ |
-| `required` + `default`      | 不能同时存在 |
-| `boolean` + `required`      | 不能同时存在 |
-| `long` 以 `no-` 开头        | 不允许       |
-| 不同 `long` 的 `short` 冲突 | 不允许       |
+**构建时**：`required` + `default` 互斥、`boolean` + `required` 互斥、`long` 必须 camelCase 且不能以
+`no` 开头、`short` 不能冲突。
 
-### 运行时
-
-| 规则           | 说明                                   | 适用范围     |
-| -------------- | -------------------------------------- | ------------ |
-| required 检查  | `required: true` 且值为 undefined 报错 | 所有选项     |
-| choices 校验   | 值必须在 choices 列表中                | 所有选项     |
-| type 校验      | number 必须解析为有效数字              | 仅内置解析器 |
-| boolean 值校验 | `--foo=xxx` 只接受 `true`/`false`      | 仅内置解析器 |
-| unknown option | 未定义的选项报错                       | 所有选项     |
-
-注意：`required` 和 `choices` 校验对 resolver 输出仍然生效。
+**运行时**：required 检查、choices 校验、type 校验（仅内置解析器）、boolean 值校验、negative
+type 检查（`--no-xxx` 仅用于 boolean）、unknown option 报错。
 
 ## 已知限制
 
-### 短选项不支持负数值
-
-短选项语法 `-n <value>` 无法接受以 `-` 开头的值（如负数 `-1`），因为解析器会将其识别为另一个选项。
+短选项语法 `-n <value>` 无法接受负数值：
 
 ```bash
-mycli -n -1        # ❌ 错误：-1 被识别为选项
-mycli --number -1  # ✅ 正确：长选项支持负数值
-mycli -n=-1        # ❌ 错误：不支持 -n=value 语法
+mycli -n -1        # ❌ -1 被识别为选项
+mycli --number -1  # ✅ 长选项支持负数值
 ```
-
-如需传递负数，请使用长选项语法 `--option <value>`。
