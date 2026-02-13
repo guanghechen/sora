@@ -25,8 +25,9 @@ A minimal, level-based logging utility with colored output and breadcrumb prefix
 ```
 src/
 ├── index.ts     # Public exports
-├── level.ts     # Log level utilities (LogLevelEnum, isLogLevel, etc.)
+├── level.ts     # Log level utilities (LogLevelEnum, ILogLevel, etc.)
 ├── chalk.ts     # ANSI color codes and formatting
+├── types.ts     # IReporter interface
 └── reporter.ts  # Reporter class implementation
 ```
 
@@ -35,9 +36,10 @@ src/
 ## Types
 
 ```typescript
-type IReporterLevel = 'debug' | 'info' | 'hint' | 'warn' | 'error'
+// ILogLevel derived from LogLevelEnum keys
+type ILogLevel = keyof typeof LogLevelEnum  // 'debug' | 'info' | 'hint' | 'warn' | 'error'
 
-type IReporterOutput = (level: IReporterLevel, parts: string[], args: unknown[]) => void
+type IReporterOutput = (level: ILogLevel, parts: string[], args: unknown[]) => void
 
 interface IReporterFlight {
   date?: boolean   // Include ISO timestamp (default: true)
@@ -46,13 +48,13 @@ interface IReporterFlight {
 
 interface IReporterProps {
   prefix?: string           // Initial prefix, cannot contain ':'
-  level?: IReporterLevel    // Minimum log level (default: 'info')
+  level?: ILogLevel         // Minimum log level (default: 'info')
   flight?: IReporterFlight  // Output control
   output?: IReporterOutput  // Custom output function (default: console)
 }
 
 interface IReporterEntry {
-  level: IReporterLevel
+  level: ILogLevel
   prefixes: string[]
   args: unknown[]
   date: Date
@@ -95,14 +97,15 @@ Messages are output only if `level >= threshold`.
 
 ### Level Utilities
 
-| Export            | Type                                             | Description                         |
-| ----------------- | ------------------------------------------------ | ----------------------------------- |
-| `LogLevelEnum`    | `enum`                                           | Log level enum (debug=1, info=2, …) |
-| `LOG_LEVELS`      | `readonly IReporterLevel[]`                      | All valid log levels in order       |
-| `LOG_LEVEL_VALUES`| `Record<IReporterLevel, number>`                 | Log level numeric values            |
-| `isLogLevel`      | `(value: string) => value is IReporterLevel`     | Type guard for log level            |
-| `getLogLevelValue`| `(level: IReporterLevel) => number`              | Get numeric value for log level     |
-| `resolveLogLevel` | `(value: string) => IReporterLevel \| undefined` | Case-insensitive log level resolver |
+| Export            | Type                                       | Description                         |
+| ----------------- | ------------------------------------------ | ----------------------------------- |
+| `LogLevelEnum`    | `enum`                                     | Log level enum (debug=1, info=2, …) |
+| `ILogLevel`       | `type`                                     | Log level string type               |
+| `LOG_LEVELS`      | `readonly ILogLevel[]`                     | All valid log levels in order       |
+| `LOG_LEVEL_VALUES`| `Record<ILogLevel, number>`                | Log level numeric values            |
+| `isLogLevel`      | `(value: string) => value is ILogLevel`    | Type guard for log level            |
+| `getLogLevelValue`| `(level: ILogLevel) => number`             | Get numeric value for log level     |
+| `resolveLogLevel` | `(value: string) => ILogLevel \| undefined`| Case-insensitive log level resolver |
 
 ### Chalk Utilities
 
@@ -124,7 +127,7 @@ new Reporter(props?: IReporterProps)
 | Option         | Type              | Default     | Description                        |
 | -------------- | ----------------- | ----------- | ---------------------------------- |
 | `prefix`       | `string`          | `undefined` | Initial prefix, cannot contain `:` |
-| `level`        | `IReporterLevel`  | `'info'`    | Minimum log level to output        |
+| `level`        | `ILogLevel`       | `'info'`    | Minimum log level to output        |
 | `flight.date`  | `boolean`         | `true`      | Include ISO timestamp              |
 | `flight.color` | `boolean`         | `true`      | Use ANSI color codes               |
 | `output`       | `IReporterOutput` | (console)   | Custom output function             |
@@ -352,7 +355,7 @@ import {
 
 // Check if a string is a valid log level
 if (isLogLevel(userInput)) {
-  // userInput is narrowed to IReporterLevel
+  // userInput is narrowed to ILogLevel
 }
 
 // Resolve case-insensitively

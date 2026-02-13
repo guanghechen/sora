@@ -1,7 +1,8 @@
 /**
- * Log level for reporter.
+ * Reporter types
  */
-export type IReporterLevel = 'debug' | 'info' | 'hint' | 'warn' | 'error'
+
+import type { ILogLevel } from './level'
 
 /**
  * A minimal logger interface with level-based logging methods.
@@ -11,14 +12,14 @@ export interface IReporter {
    * Set the minimum log level.
    * @param level - The new minimum log level
    */
-  setLevel(level: IReporterLevel): void
+  setLevel(level: ILogLevel): void
 
   /**
    * Log a message with the specified level.
    * @param level - The log level
    * @param args - Arguments to log
    */
-  log(level: IReporterLevel, ...args: unknown[]): void
+  log(level: ILogLevel, ...args: unknown[]): void
 
   /**
    * Log a debug message.

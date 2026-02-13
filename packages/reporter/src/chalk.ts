@@ -2,7 +2,7 @@
  * Terminal output formatting utilities
  */
 
-import type { IReporterLevel } from '@guanghechen/types'
+import type { ILogLevel } from './level'
 
 /** ANSI escape codes for terminal output */
 export const ANSI = {
@@ -18,7 +18,7 @@ export const ANSI = {
 /**
  * Format a tag with optional ANSI colors
  */
-export function formatTag(level: IReporterLevel, prefixes: string[], color: boolean): string {
+export function formatTag(level: ILogLevel, prefixes: string[], color: boolean): string {
   if (!color) return `[${prefixes.join(':')}]`
   const c = ANSI[level]
   const d = ANSI.dim

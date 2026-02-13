@@ -1,5 +1,5 @@
 import { vi } from 'vitest'
-import type { IReporterLevel, IReporterOutput } from '../src'
+import type { ILogLevel, IReporterOutput } from '../src'
 import {
   LOG_LEVELS,
   LOG_LEVEL_VALUES,
@@ -103,7 +103,7 @@ describe('Reporter', () => {
     })
 
     it('should fallback to info for invalid level', () => {
-      const reporter = new Reporter({ level: 'invalid' as IReporterLevel })
+      const reporter = new Reporter({ level: 'invalid' as ILogLevel })
       reporter.mock()
       reporter.debug('should not appear')
       reporter.info('should appear')
@@ -158,7 +158,7 @@ describe('Reporter', () => {
     it('should fallback to info for invalid level', () => {
       const reporter = new Reporter({ level: 'error' })
       reporter.mock()
-      reporter.setLevel('invalid' as IReporterLevel)
+      reporter.setLevel('invalid' as ILogLevel)
       reporter.debug('hidden')
       reporter.info('visible')
       const entries = reporter.collect()
@@ -262,7 +262,7 @@ describe('Reporter', () => {
       expect(entries).toHaveLength(2)
     })
 
-    it.each<[IReporterLevel, number]>([
+    it.each<[ILogLevel, number]>([
       ['debug', 5],
       ['info', 4],
       ['hint', 3],

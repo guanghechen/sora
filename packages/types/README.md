@@ -50,7 +50,7 @@
 <br/>
 
 Common type definitions for @guanghechen packages. Provides shared interfaces and types for
-disposable resources, error handling, path resolution, logging, and pub-sub patterns.
+disposable resources, error handling, path resolution, and pub-sub patterns.
 
 ## Install
 
@@ -123,22 +123,6 @@ import type { IPathResolver, IWorkspacePathResolver } from '@guanghechen/types'
 // - root, pathResolver
 // - isSafePath, ensureSafePath
 // - relative, resolve
-```
-
-### Reporter Types
-
-```typescript
-import type { IReporter, IReporterLevel } from '@guanghechen/types'
-
-// IReporterLevel: 'debug' | 'info' | 'warn' | 'error'
-
-class Logger implements IReporter {
-  log(level: IReporterLevel, ...args: unknown[]): void { /* ... */ }
-  debug(...args: unknown[]): void { /* ... */ }
-  info(...args: unknown[]): void { /* ... */ }
-  warn(...args: unknown[]): void { /* ... */ }
-  error(...args: unknown[]): void { /* ... */ }
-}
 ```
 
 ### Resource Types

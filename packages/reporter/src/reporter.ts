@@ -2,11 +2,12 @@
  * Reporter class implementation
  */
 
-import type { IReporter, IReporterLevel } from '@guanghechen/types'
 import { ANSI, formatTag } from './chalk'
+import type { ILogLevel } from './level'
 import { LOG_LEVEL_VALUES, isLogLevel } from './level'
+import type { IReporter } from './types'
 
-export type IReporterOutput = (level: IReporterLevel, parts: string[], args: unknown[]) => void
+export type IReporterOutput = (level: ILogLevel, parts: string[], args: unknown[]) => void
 
 export interface IReporterFlight {
   /** Include ISO timestamp in output (default: true) */
@@ -19,7 +20,7 @@ export interface IReporterProps {
   /** Initial prefix, cannot contain ':' (e.g., 'app') */
   prefix?: string
   /** Minimum log level (default: 'info') */
-  level?: IReporterLevel
+  level?: ILogLevel
   /** Output control options */
   flight?: IReporterFlight
   /** Custom output function (default: console) */
@@ -27,7 +28,7 @@ export interface IReporterProps {
 }
 
 export interface IReporterEntry {
-  level: IReporterLevel
+  level: ILogLevel
   prefixes: string[]
   args: unknown[]
   date: Date
@@ -57,7 +58,7 @@ const defaultOutput: IReporterOutput = (level, parts, args) => {
 export class Reporter implements IReporter {
   #prefixes: string[] = []
   #threshold: number
-  #level: IReporterLevel
+  #level: ILogLevel
   #date: boolean
   #color: boolean
   #output: IReporterOutput
@@ -85,7 +86,7 @@ export class Reporter implements IReporter {
     }
   }
 
-  public setLevel(level: IReporterLevel): void {
+  public setLevel(level: ILogLevel): void {
     this.#level = isLogLevel(level) ? level : 'info'
     this.#threshold = LOG_LEVEL_VALUES[this.#level]
   }
@@ -101,7 +102,7 @@ export class Reporter implements IReporter {
     return entries
   }
 
-  public log(level: IReporterLevel, ...args: unknown[]): void {
+  public log(level: ILogLevel, ...args: unknown[]): void {
     const lv = isLogLevel(level) ? level : this.#level
     if (LOG_LEVEL_VALUES[lv] < this.#threshold) return
 
