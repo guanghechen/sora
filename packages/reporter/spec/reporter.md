@@ -133,6 +133,7 @@ new Reporter(props?: IReporterProps)
 
 | Method                 | Returns            | Description                                               |
 | ---------------------- | ------------------ | --------------------------------------------------------- |
+| `.setLevel(level)`     | `void`             | Change the minimum log level dynamically                  |
 | `.attach(prefix)`      | `() => void`       | Push prefix, return detach callback (cannot contain `:`)  |
 | `.mock()`              | `this`             | Enable mock mode (capture instead of print)               |
 | `.collect()`           | `IReporterEntry[]` | Disable mock mode, return captured logs                   |
@@ -185,6 +186,24 @@ reporter.info('starting')
 reporter.hint('useful tip')
 reporter.warn('missing config')
 reporter.error('failed:', err)
+```
+
+### Dynamic Level Change
+
+Use `.setLevel()` to change the minimum log level at runtime:
+
+```javascript
+const reporter = new Reporter({ level: 'info' })
+
+reporter.debug('hidden')   // Not output (debug < info)
+reporter.info('visible')   // Output
+
+reporter.setLevel('debug')
+reporter.debug('now visible')  // Output (debug >= debug)
+
+reporter.setLevel('error')
+reporter.warn('hidden')    // Not output (warn < error)
+reporter.error('visible')  // Output
 ```
 
 ### Breadcrumb Prefix

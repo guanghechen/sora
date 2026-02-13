@@ -85,6 +85,11 @@ export class Reporter implements IReporter {
     }
   }
 
+  public setLevel(level: IReporterLevel): void {
+    this.#level = isLogLevel(level) ? level : 'info'
+    this.#threshold = LOG_LEVEL_VALUES[this.#level]
+  }
+
   public mock(): this {
     this.#entries = []
     return this

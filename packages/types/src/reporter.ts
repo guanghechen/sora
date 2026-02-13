@@ -8,6 +8,12 @@ export type IReporterLevel = 'debug' | 'info' | 'hint' | 'warn' | 'error'
  */
 export interface IReporter {
   /**
+   * Set the minimum log level.
+   * @param level - The new minimum log level
+   */
+  setLevel(level: IReporterLevel): void
+
+  /**
    * Log a message with the specified level.
    * @param level - The log level
    * @param args - Arguments to log

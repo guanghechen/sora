@@ -130,6 +130,43 @@ describe('Reporter', () => {
     })
   })
 
+  describe('setLevel', () => {
+    it('should change the minimum log level', () => {
+      const reporter = new Reporter({ level: 'info' })
+      reporter.mock()
+      reporter.debug('hidden')
+      reporter.setLevel('debug')
+      reporter.debug('visible')
+      const entries = reporter.collect()
+      expect(entries).toHaveLength(1)
+      expect(entries[0].args).toEqual(['visible'])
+    })
+
+    it('should filter new messages after level change', () => {
+      const reporter = new Reporter({ level: 'debug' })
+      reporter.mock()
+      reporter.debug('visible')
+      reporter.setLevel('error')
+      reporter.warn('hidden')
+      reporter.error('visible')
+      const entries = reporter.collect()
+      expect(entries).toHaveLength(2)
+      expect(entries[0].level).toBe('debug')
+      expect(entries[1].level).toBe('error')
+    })
+
+    it('should fallback to info for invalid level', () => {
+      const reporter = new Reporter({ level: 'error' })
+      reporter.mock()
+      reporter.setLevel('invalid' as IReporterLevel)
+      reporter.debug('hidden')
+      reporter.info('visible')
+      const entries = reporter.collect()
+      expect(entries).toHaveLength(1)
+      expect(entries[0].level).toBe('info')
+    })
+  })
+
   describe('attach', () => {
     it('should push prefix and return detach function', () => {
       const reporter = new Reporter({ prefix: 'app' })
