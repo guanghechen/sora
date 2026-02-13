@@ -25,7 +25,7 @@ function camelToKebabCase(str: string): string {
  *
  * @example
  * ```typescript
- * const root = new Command({ name: 'mycli', description: 'My CLI' })
+ * const root = new Command({ name: 'mycli', desc: 'My CLI' })
  * root.subcommand('completion', new CompletionCommand(root, {
  *   paths: {
  *     bash: `~/.local/share/bash-completion/completions/mycli`,
@@ -45,34 +45,32 @@ export class CompletionCommand extends Command {
     const paths = config.paths
     const programName = config.programName ?? root.name ?? 'program'
 
-    super({
-      description: 'Generate shell completion script',
-    })
+    super({ desc: 'Generate shell completion script' })
 
     this.option({
       long: 'bash',
       type: 'boolean',
       args: 'none',
-      description: 'Generate Bash completion script',
+      desc: 'Generate Bash completion script',
     })
       .option({
         long: 'fish',
         type: 'boolean',
         args: 'none',
-        description: 'Generate Fish completion script',
+        desc: 'Generate Fish completion script',
       })
       .option({
         long: 'pwsh',
         type: 'boolean',
         args: 'none',
-        description: 'Generate PowerShell completion script',
+        desc: 'Generate PowerShell completion script',
       })
       .option({
         long: 'write',
         short: 'w',
         type: 'string',
         args: 'required',
-        description: 'Write to file (use shell default path if empty)',
+        desc: 'Write to file (use shell default path if empty)',
         default: undefined,
       })
       .action(({ opts }) => {
@@ -266,7 +264,7 @@ export class FishCompletion {
       if (condition) line += ` -n '${condition}'`
       if (opt.short) line += ` -s ${opt.short}`
       line += ` -l ${kebabLong}`
-      line += ` -d '${this.#escape(opt.description)}'`
+      line += ` -d '${this.#escape(opt.desc)}'`
       if (opt.choices && opt.choices.length > 0) {
         line += ` -xa '${opt.choices.join(' ')}'`
       }
@@ -277,7 +275,7 @@ export class FishCompletion {
         let noLine = `complete -c ${this.#programName}`
         if (condition) noLine += ` -n '${condition}'`
         noLine += ` -l no-${kebabLong}`
-        noLine += ` -d '${this.#escape(opt.description)}'`
+        noLine += ` -d '${this.#escape(opt.desc)}'`
         lines.push(noLine)
       }
     }
@@ -292,7 +290,7 @@ export class FishCompletion {
         line += ` -n '${condition}; and not __fish_seen_subcommand_from ${this.#getSubcommandNames(cmd).join(' ')}'`
       }
       line += ` -a ${sub.name}`
-      line += ` -d '${this.#escape(sub.description)}'`
+      line += ` -d '${this.#escape(sub.desc)}'`
       lines.push(line)
 
       // Aliases
@@ -376,7 +374,7 @@ export class PwshCompletion {
       '          "--$($opt.long)",',
       '          $opt.long,',
       '          "ParameterName",',
-      '          $opt.description',
+      '          $opt.desc',
       '        )',
       '      }',
       '      if ($opt.isBoolean -and "--no-$($opt.long)" -like "$current*") {',
@@ -384,7 +382,7 @@ export class PwshCompletion {
       '          "--no-$($opt.long)",',
       '          "no-$($opt.long)",',
       '          "ParameterName",',
-      '          $opt.description',
+      '          $opt.desc',
       '        )',
       '      }',
       '      if ($opt.short -and "-$($opt.short)" -like "$current*") {',
@@ -392,7 +390,7 @@ export class PwshCompletion {
       '          "-$($opt.short)",',
       '          $opt.short,',
       '          "ParameterName",',
-      '          $opt.description',
+      '          $opt.desc',
       '        )',
       '      }',
       '    }',
@@ -406,7 +404,7 @@ export class PwshCompletion {
       '          $sub,',
       '          $sub,',
       '          "Command",',
-      '          $cmd.subcommands[$sub].description',
+      '          $cmd.subcommands[$sub].desc',
       '        )',
       '      }',
       '    }',
@@ -423,7 +421,7 @@ export class PwshCompletion {
   #generateCommandHash(cmd: ICompletionMeta, indent: string): string {
     const lines: string[] = []
 
-    lines.push(`${indent}description = '${this.#escape(cmd.description)}'`)
+    lines.push(`${indent}description = '${this.#escape(cmd.desc)}'`)
 
     // Options
     lines.push(`${indent}options = @(`)
@@ -432,7 +430,7 @@ export class PwshCompletion {
       lines.push(`${indent}  @{`)
       if (opt.short) lines.push(`${indent}    short = '${opt.short}'`)
       lines.push(`${indent}    long = '${kebabLong}'`)
-      lines.push(`${indent}    description = '${this.#escape(opt.description)}'`)
+      lines.push(`${indent}    description = '${this.#escape(opt.desc)}'`)
       lines.push(`${indent}    isBoolean = $${!opt.takesValue}`)
       if (opt.choices) {
         lines.push(`${indent}    choices = @('${opt.choices.join("', '")}')`)

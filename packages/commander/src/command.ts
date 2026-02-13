@@ -11,6 +11,7 @@ import type {
   ICommandAction,
   ICommandActionParams,
   ICommandArgumentConfig,
+  ICommandConfig,
   ICommandContext,
   ICommandOptionConfig,
   ICommandParseResult,
@@ -206,7 +207,7 @@ const BUILTIN_HELP_OPTION: ICommandOptionConfig = {
   short: 'h',
   type: 'boolean',
   args: 'none',
-  description: 'Show help information',
+  desc: 'Show help information',
 }
 
 const BUILTIN_VERSION_OPTION: ICommandOptionConfig = {
@@ -214,18 +215,10 @@ const BUILTIN_VERSION_OPTION: ICommandOptionConfig = {
   short: 'V',
   type: 'boolean',
   args: 'none',
-  description: 'Show version number',
+  desc: 'Show version number',
 }
 
-// ==================== Command Configuration ====================
-
-interface ICommandConfigInternal {
-  name?: string
-  description: string
-  version?: string
-  help?: boolean
-  reporter?: IReporter
-}
+// ==================== Internal Types ====================
 
 /** Subcommand registration entry (internal) */
 interface ISubcommandEntry {
@@ -244,7 +237,7 @@ interface IInternalRouteResult {
 
 export class Command implements ICommand {
   #name: string
-  readonly #description: string
+  readonly #desc: string
   readonly #version: string | undefined
   readonly #helpSubcommandEnabled: boolean
   readonly #reporter: IReporter | undefined
@@ -256,9 +249,9 @@ export class Command implements ICommand {
   readonly #subcommandsMap = new Map<string, Command>()
   #action: ICommandAction | undefined = undefined
 
-  constructor(config: ICommandConfigInternal) {
+  constructor(config: ICommandConfig) {
     this.#name = config.name ?? ''
-    this.#description = config.description
+    this.#desc = config.desc
     this.#version = config.version
     this.#helpSubcommandEnabled = config.help ?? false
     this.#reporter = config.reporter
@@ -271,7 +264,7 @@ export class Command implements ICommand {
   }
 
   public get description(): string {
-    return this.#description
+    return this.#desc
   }
 
   public get version(): string | undefined {
@@ -465,7 +458,7 @@ export class Command implements ICommand {
     const allOptions = this.#getMergedOptions()
 
     // Description
-    lines.push(this.#description)
+    lines.push(this.#desc)
     lines.push('')
 
     // Usage line
@@ -498,7 +491,7 @@ export class Command implements ICommand {
           sig += ' <value>'
         }
 
-        let desc = opt.description
+        let desc = opt.desc
         if (opt.default !== undefined && opt.type !== 'boolean') {
           desc += ` (default: ${JSON.stringify(opt.default)})`
         }
@@ -541,7 +534,7 @@ export class Command implements ICommand {
         if (entry.aliases.length > 0) {
           name += `, ${entry.aliases.join(', ')}`
         }
-        cmdLines.push({ name, desc: entry.command.#description })
+        cmdLines.push({ name, desc: entry.command.#desc })
       }
       const maxNameLen = Math.max(...cmdLines.map(l => l.name.length))
       for (const { name, desc } of cmdLines) {
@@ -562,7 +555,7 @@ export class Command implements ICommand {
       options.push({
         long: opt.long,
         short: opt.short,
-        description: opt.description,
+        desc: opt.desc,
         takesValue: opt.args !== 'none',
         choices: opt.choices as string[] | undefined,
       })
@@ -570,7 +563,7 @@ export class Command implements ICommand {
 
     return {
       name: this.#name,
-      description: this.#description,
+      desc: this.#desc,
       aliases: [],
       options,
       subcommands: this.#subcommandsList.map(entry => {

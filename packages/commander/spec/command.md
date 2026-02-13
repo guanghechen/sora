@@ -28,7 +28,7 @@ interface ICommand {
 /** Command 构造配置 */
 interface ICommandConfig {
   name?: string           // 命令名称（仅 root 需要）
-  description: string     // 命令描述
+  desc: string            // 命令描述
   version?: string        // 版本号（用于 --version）
   help?: boolean          // 是否启用 help 子命令
   reporter?: IReporter    // Reporter 实例（来自 @guanghechen/reporter）
@@ -65,33 +65,33 @@ interface ICommandRunParams {
 
 ## 方法
 
-| 方法                                      | 说明         |
-| ----------------------------------------- | ------------ |
-| `.option(opt: ICommandOptionConfig)`      | 添加选项     |
-| `.argument(arg: ICommandArgumentConfig)`  | 添加位置参数 |
-| `.action(fn: ICommandAction)`             | 设置 action  |
-| `.subcommand(name: string, cmd: Command)` | 添加子命令   |
-| `.run(params: ICommandRunParams)`         | 解析 + 执行  |
-| `.parse(params: ICommandRunParams)`       | 仅解析       |
-| `.formatHelp()`                           | 生成帮助文本 |
+| 方法                                      | 说明             |
+| ----------------------------------------- | ---------------- |
+| `.option(opt: ICommandOptionConfig)`      | 添加选项         |
+| `.argument(arg: ICommandArgumentConfig)`  | 添加位置参数     |
+| `.action(fn: ICommandAction)`             | 设置 action      |
+| `.subcommand(name: string, cmd: Command)` | 添加子命令       |
+| `.run(params: ICommandRunParams)`         | 解析 + 执行      |
+| `.parse(params: ICommandRunParams)`       | 仅解析           |
+| `.formatHelp()`                           | 生成帮助文本     |
 
 ---
 
 ## 树形结构
 
 ```typescript
-const root = new Command({ name: 'pm', description: 'Process Manager', version: '1.0.0' })
-  .option({ long: 'verbose', short: 'v', type: 'boolean', args: 'none', description: 'Verbose' })
+const root = new Command({ name: 'pm', desc: 'Process Manager', version: '1.0.0' })
+  .option({ long: 'verbose', short: 'v', type: 'boolean', args: 'none', desc: 'Verbose' })
 
-const start = new Command({ description: 'Start a process' })
-  .argument({ name: 'name', description: 'Process name', kind: 'required' })
-  .option({ long: 'detach', short: 'd', type: 'boolean', args: 'none', description: 'Background' })
+const start = new Command({ desc: 'Start a process' })
+  .argument({ name: 'name', desc: 'Process name', kind: 'required' })
+  .option({ long: 'detach', short: 'd', type: 'boolean', args: 'none', desc: 'Background' })
   .action(async ({ opts, args }) => {
     console.log(`Starting ${args.name}, verbose: ${opts.verbose}, detach: ${opts.detach}`)
   })
 
 root.subcommand('start', start).subcommand('s', start)  // s 是 start 的别名
-root.subcommand('stop', new Command({ description: 'Stop' }))
+root.subcommand('stop', new Command({ desc: 'Stop' }))
 
 await root.run({ argv: process.argv.slice(2), envs: process.env })
 ```
@@ -109,11 +109,11 @@ pm (root)
 子命令强制继承祖先链上所有选项，可通过 `long` 名覆盖：
 
 ```typescript
-const root = new Command({ name: 'cli', description: 'CLI' })
-  .option({ long: 'logLevel', type: 'string', args: 'required', description: 'Log level' })
+const root = new Command({ name: 'cli', desc: 'CLI' })
+  .option({ long: 'logLevel', type: 'string', args: 'required', desc: 'Log level' })
 
-const sub = new Command({ description: 'Build' })
-  .option({ long: 'logLevel', type: 'string', args: 'required', description: 'Build log level' })
+const sub = new Command({ desc: 'Build' })
+  .option({ long: 'logLevel', type: 'string', args: 'required', desc: 'Build log level' })
 
 root.subcommand('build', sub)
 // cli build --log-level debug
@@ -130,7 +130,7 @@ root.subcommand('build', sub)
 ```typescript
 interface ICommandArgumentConfig<T = unknown> {
   name: string                        // 参数名称
-  description: string                 // 描述
+  desc: string                 // 描述
   kind: 'required' | 'optional' | 'variadic'
   type?: 'string' | 'number'          // 值类型（默认 string）
   default?: T                         // 默认值（仅 optional）
@@ -145,10 +145,10 @@ interface ICommandArgumentConfig<T = unknown> {
 - `required` 不能有 `default`
 
 ```typescript
-const cmd = new Command({ name: 'copy', description: 'Copy files' })
-  .argument({ name: 'source', description: 'Source', kind: 'required' })
-  .argument({ name: 'dest', description: 'Destination', kind: 'required' })
-  .argument({ name: 'extras', description: 'Extra files', kind: 'variadic' })
+const cmd = new Command({ name: 'copy', desc: 'Copy files' })
+  .argument({ name: 'source', desc: 'Source', kind: 'required' })
+  .argument({ name: 'dest', desc: 'Destination', kind: 'required' })
+  .argument({ name: 'extras', desc: 'Extra files', kind: 'variadic' })
 ```
 
 ---
@@ -301,7 +301,7 @@ cli sub -- --like-option        # --like-option 作为位置参数
 通过 `help: true` 启用：
 
 ```typescript
-const root = new Command({ name: 'cli', description: 'CLI', help: true })
+const root = new Command({ name: 'cli', desc: 'CLI', help: true })
 ```
 
 ```bash
@@ -338,13 +338,13 @@ Commands:
 ```typescript
 import { Command, CompletionCommand } from '@guanghechen/commander'
 
-const pm = new Command({ name: 'pm', description: 'Process Manager', version: '1.0.0' })
-  .option({ long: 'verbose', short: 'v', type: 'boolean', args: 'none', description: 'Verbose' })
-  .option({ long: 'config', short: 'c', type: 'string', args: 'required', description: 'Config' })
+const pm = new Command({ name: 'pm', desc: 'Process Manager', version: '1.0.0' })
+  .option({ long: 'verbose', short: 'v', type: 'boolean', args: 'none', desc: 'Verbose' })
+  .option({ long: 'config', short: 'c', type: 'string', args: 'required', desc: 'Config' })
 
-const start = new Command({ description: 'Start a process' })
-  .argument({ name: 'name', description: 'Process name', kind: 'required' })
-  .option({ long: 'detach', short: 'd', type: 'boolean', args: 'none', description: 'Background' })
+const start = new Command({ desc: 'Start a process' })
+  .argument({ name: 'name', desc: 'Process name', kind: 'required' })
+  .option({ long: 'detach', short: 'd', type: 'boolean', args: 'none', desc: 'Background' })
   .action(async ({ opts, args }) => {
     console.log(`Starting ${args.name}...`)
   })

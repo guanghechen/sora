@@ -31,7 +31,7 @@ interface ICommandOptionConfig<T = unknown> {
   short?: string                  // 短选项（单字符）
   type: ICommandOptionType        // 值类型（必填）
   args: ICommandOptionArgs        // 参数模式（必填）
-  description: string             // 描述文本
+  desc: string             // 描述文本
   required?: boolean              // 是否必需
   default?: T                     // 默认值
   choices?: T[]                   // 允许的值列表
@@ -116,7 +116,7 @@ c.txt → 位置参数
   long: 'port',
   type: 'number',
   args: 'variadic',
-  description: 'Ports',
+  desc: 'Ports',
   coerce: (v) => {
     const n = parseInt(v, 10)
     if (n < 0 || n > 65535) throw new Error('Invalid port')
@@ -144,7 +144,7 @@ parse 阶段将解析后的值应用到 context：
   long: 'logLevel',
   type: 'string',
   args: 'required',
-  description: 'Log level',
+  desc: 'Log level',
   choices: ['debug', 'info', 'warn', 'error'],
   default: 'info',
   apply: (value, ctx) => {
@@ -167,13 +167,13 @@ parse 阶段将解析后的值应用到 context：
 子命令**强制继承**祖先链上所有选项，使用 `long` 作为 key 覆盖：
 
 ```typescript
-const root = new Command({ name: 'cli', description: 'CLI' })
-  .option({ long: 'verbose', short: 'v', type: 'boolean', args: 'none', description: 'Verbose' })
-  .option({ long: 'logLevel', type: 'string', args: 'required', description: 'Log level' })
+const root = new Command({ name: 'cli', desc: 'CLI' })
+  .option({ long: 'verbose', short: 'v', type: 'boolean', args: 'none', desc: 'Verbose' })
+  .option({ long: 'logLevel', type: 'string', args: 'required', desc: 'Log level' })
 
-const sub = new Command({ description: 'Build' })
-  .option({ long: 'logLevel', type: 'string', args: 'required', description: 'Build log' })  // 覆盖
-  .option({ long: 'watch', short: 'w', type: 'boolean', args: 'none', description: 'Watch' })
+const sub = new Command({ desc: 'Build' })
+  .option({ long: 'logLevel', type: 'string', args: 'required', desc: 'Build log' })  // 覆盖
+  .option({ long: 'watch', short: 'w', type: 'boolean', args: 'none', desc: 'Watch' })
 
 root.subcommand('build', sub)
 ```

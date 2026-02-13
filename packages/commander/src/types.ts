@@ -71,7 +71,7 @@ export interface ICommandOptionConfig<T = unknown> {
   /** Argument mode (required) */
   args: ICommandOptionArgs
   /** Description for help text */
-  description: string
+  desc: string
   /** Whether this option is required (mutually exclusive with default) */
   required?: boolean
   /** Default value when not provided */
@@ -106,7 +106,7 @@ export interface ICommandArgumentConfig<T = unknown> {
   /** Argument name */
   name: string
   /** Argument description */
-  description: string
+  desc: string
   /** Argument kind: required / optional / variadic */
   kind: ICommandArgumentKind
   /** Value type, defaults to 'string' */
@@ -124,7 +124,7 @@ export interface ICommandConfig {
   /** Command name (only for root command) */
   name?: string
   /** Command description */
-  description: string
+  desc: string
   /** Version (for root --version) */
   version?: string
   /** Enable built-in "help" subcommand */
@@ -284,7 +284,7 @@ export interface ICompletionOptionMeta {
   /** Short option */
   short?: string
   /** Description */
-  description: string
+  desc: string
   /** Whether option takes value (args !== 'none') */
   takesValue: boolean
   /** Allowed values */
@@ -296,7 +296,7 @@ export interface ICompletionMeta {
   /** Command name */
   name: string
   /** Description */
-  description: string
+  desc: string
   /** Command aliases */
   aliases: string[]
   /** Options */

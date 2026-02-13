@@ -39,15 +39,15 @@ argv → route → tokenize → resolve → parse → run
 
 ```typescript
 interface ICommandOptionConfig<T = unknown> {
-  long: string                              // 长选项名（camelCase，必填）
-  short?: string                            // 短选项（单字符）
-  type: 'boolean' | 'number' | 'string'     // 值类型（必填）
-  args: 'none' | 'required' | 'variadic'    // 参数模式（必填）
-  description: string                       // 描述文本
-  required?: boolean                        // 是否必需
-  default?: T                               // 默认值
-  choices?: T[]                             // 允许的值列表
-  coerce?: (rawValue: string) => T          // 单值转换
+  long: string                                      // 长选项名（camelCase，必填）
+  short?: string                                    // 短选项（单字符）
+  type: 'boolean' | 'number' | 'string'             // 值类型（必填）
+  args: 'none' | 'required' | 'variadic'            // 参数模式（必填）
+  desc: string                                      // 描述文本
+  required?: boolean                                // 是否必需
+  default?: T                                       // 默认值
+  choices?: T[]                                     // 允许的值列表
+  coerce?: (rawValue: string) => T                  // 单值转换
   apply?: (value: T, ctx: ICommandContext) => void  // 应用到 context
 }
 ```

@@ -16,13 +16,13 @@ describe('BashCompletion', () => {
   it('should generate valid bash script', () => {
     const meta: ICompletionMeta = {
       name: 'testcli',
-      description: 'Test CLI',
+      desc: 'Test CLI',
       aliases: [],
-      options: [{ short: 'h', long: 'help', description: 'Show help', takesValue: false }],
+      options: [{ short: 'h', long: 'help', desc: 'Show help', takesValue: false }],
       subcommands: [
         {
           name: 'sub',
-          description: 'Subcommand',
+          desc: 'Subcommand',
           aliases: [],
           options: [],
           subcommands: [],
@@ -44,7 +44,7 @@ describe('BashCompletion', () => {
   it('should handle program name with dashes', () => {
     const meta: ICompletionMeta = {
       name: 'my-cli-tool',
-      description: 'My CLI Tool',
+      desc: 'My CLI Tool',
       aliases: [],
       options: [],
       subcommands: [],
@@ -60,9 +60,9 @@ describe('BashCompletion', () => {
   it('should include --no-{option} for boolean options', () => {
     const meta: ICompletionMeta = {
       name: 'testcli',
-      description: 'Test CLI',
+      desc: 'Test CLI',
       aliases: [],
-      options: [{ long: 'verbose', description: 'Verbose mode', takesValue: false }],
+      options: [{ long: 'verbose', desc: 'Verbose mode', takesValue: false }],
       subcommands: [],
     }
 
@@ -78,13 +78,13 @@ describe('FishCompletion', () => {
   it('should generate valid fish script', () => {
     const meta: ICompletionMeta = {
       name: 'testcli',
-      description: 'Test CLI',
+      desc: 'Test CLI',
       aliases: [],
       options: [
-        { short: 'v', long: 'verbose', description: 'Verbose mode', takesValue: false },
+        { short: 'v', long: 'verbose', desc: 'Verbose mode', takesValue: false },
         {
           long: 'format',
-          description: 'Output format',
+          desc: 'Output format',
           takesValue: true,
           choices: ['json', 'yaml'],
         },
@@ -105,9 +105,9 @@ describe('FishCompletion', () => {
   it('should escape single quotes in descriptions', () => {
     const meta: ICompletionMeta = {
       name: 'testcli',
-      description: "It's a test",
+      desc: "It's a test",
       aliases: [],
-      options: [{ long: 'opt', description: "Option's description", takesValue: false }],
+      options: [{ long: 'opt', desc: "Option's description", takesValue: false }],
       subcommands: [],
     }
 
@@ -120,9 +120,9 @@ describe('FishCompletion', () => {
   it('should include --no-{option} for boolean options', () => {
     const meta: ICompletionMeta = {
       name: 'testcli',
-      description: 'Test CLI',
+      desc: 'Test CLI',
       aliases: [],
-      options: [{ long: 'verbose', description: 'Verbose mode', takesValue: false }],
+      options: [{ long: 'verbose', desc: 'Verbose mode', takesValue: false }],
       subcommands: [],
     }
 
@@ -138,13 +138,13 @@ describe('PwshCompletion', () => {
   it('should generate valid powershell script', () => {
     const meta: ICompletionMeta = {
       name: 'testcli',
-      description: 'Test CLI',
+      desc: 'Test CLI',
       aliases: [],
-      options: [{ short: 'h', long: 'help', description: 'Show help', takesValue: false }],
+      options: [{ short: 'h', long: 'help', desc: 'Show help', takesValue: false }],
       subcommands: [
         {
           name: 'init',
-          description: 'Initialize',
+          desc: 'Initialize',
           aliases: [],
           options: [],
           subcommands: [],
@@ -165,7 +165,7 @@ describe('PwshCompletion', () => {
   it('should escape single quotes in powershell', () => {
     const meta: ICompletionMeta = {
       name: 'testcli',
-      description: "It's a test",
+      desc: "It's a test",
       aliases: [],
       options: [],
       subcommands: [],
@@ -180,9 +180,9 @@ describe('PwshCompletion', () => {
   it('should include isBoolean flag for boolean options', () => {
     const meta: ICompletionMeta = {
       name: 'testcli',
-      description: 'Test CLI',
+      desc: 'Test CLI',
       aliases: [],
-      options: [{ long: 'verbose', description: 'Verbose mode', takesValue: false }],
+      options: [{ long: 'verbose', desc: 'Verbose mode', takesValue: false }],
       subcommands: [],
     }
 
@@ -195,17 +195,17 @@ describe('PwshCompletion', () => {
 
 describe('Integration with Command', () => {
   it('should generate completion from Command', () => {
-    const root = new Command({ name: 'mycli', description: 'My CLI', version: '1.0.0' })
+    const root = new Command({ name: 'mycli', desc: 'My CLI', version: '1.0.0' })
     root.option({
       type: 'string',
       args: 'required',
       short: 'c',
       long: 'config',
-      description: 'Config file',
+      desc: 'Config file',
     })
 
-    const init = new Command({ description: 'Initialize project' })
-    init.option({ type: 'string', args: 'required', long: 'template', description: 'Template' })
+    const init = new Command({ desc: 'Initialize project' })
+    init.option({ type: 'string', args: 'required', long: 'template', desc: 'Template' })
     root.subcommand('init', init)
 
     const meta = root.getCompletionMeta()
@@ -224,7 +224,7 @@ describe('Integration with Command', () => {
 
 describe('CompletionCommand', () => {
   it('should create a completion subcommand', () => {
-    const root = new Command({ name: 'mycli', description: 'My CLI' })
+    const root = new Command({ name: 'mycli', desc: 'My CLI' })
     const completionCmd = new CompletionCommand(root, { paths: testPaths })
     root.subcommand('completion', completionCmd)
 
@@ -233,7 +233,7 @@ describe('CompletionCommand', () => {
   })
 
   it('should allow custom name via registration', () => {
-    const root = new Command({ name: 'mycli', description: 'My CLI' })
+    const root = new Command({ name: 'mycli', desc: 'My CLI' })
     const completionCmd = new CompletionCommand(root, { paths: testPaths })
     root.subcommand('completions', completionCmd)
 
@@ -241,7 +241,7 @@ describe('CompletionCommand', () => {
   })
 
   it('should have bash, fish, pwsh, and write options', () => {
-    const root = new Command({ name: 'mycli', description: 'My CLI' })
+    const root = new Command({ name: 'mycli', desc: 'My CLI' })
     const completionCmd = new CompletionCommand(root, { paths: testPaths })
     root.subcommand('completion', completionCmd)
 
@@ -254,7 +254,7 @@ describe('CompletionCommand', () => {
   })
 
   it('should be an instance of Command', () => {
-    const root = new Command({ name: 'mycli', description: 'My CLI' })
+    const root = new Command({ name: 'mycli', desc: 'My CLI' })
     const completionCmd = new CompletionCommand(root, { paths: testPaths })
 
     expect(completionCmd).toBeInstanceOf(Command)
@@ -263,8 +263,8 @@ describe('CompletionCommand', () => {
   it('should generate bash completion when --bash is passed', async () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-    const root = new Command({ name: 'mycli', description: 'My CLI' })
-    root.option({ type: 'boolean', args: 'none', long: 'verbose', description: 'Verbose' })
+    const root = new Command({ name: 'mycli', desc: 'My CLI' })
+    root.option({ type: 'boolean', args: 'none', long: 'verbose', desc: 'Verbose' })
     const completionCmd = new CompletionCommand(root, { paths: testPaths })
     root.subcommand('completion', completionCmd)
 
@@ -281,7 +281,7 @@ describe('CompletionCommand', () => {
   it('should generate fish completion when --fish is passed', async () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-    const root = new Command({ name: 'mycli', description: 'My CLI' })
+    const root = new Command({ name: 'mycli', desc: 'My CLI' })
     const completionCmd = new CompletionCommand(root, { paths: testPaths })
     root.subcommand('completion', completionCmd)
 
@@ -297,7 +297,7 @@ describe('CompletionCommand', () => {
   it('should generate pwsh completion when --pwsh is passed', async () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-    const root = new Command({ name: 'mycli', description: 'My CLI' })
+    const root = new Command({ name: 'mycli', desc: 'My CLI' })
     const completionCmd = new CompletionCommand(root, { paths: testPaths })
     root.subcommand('completion', completionCmd)
 
@@ -314,7 +314,7 @@ describe('CompletionCommand', () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
 
-    const root = new Command({ name: 'mycli', description: 'My CLI' })
+    const root = new Command({ name: 'mycli', desc: 'My CLI' })
     const completionCmd = new CompletionCommand(root, { paths: testPaths })
     root.subcommand('completion', completionCmd)
 
@@ -333,7 +333,7 @@ describe('CompletionCommand', () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
 
-    const root = new Command({ name: 'mycli', description: 'My CLI' })
+    const root = new Command({ name: 'mycli', desc: 'My CLI' })
     const completionCmd = new CompletionCommand(root, { paths: testPaths })
     root.subcommand('completion', completionCmd)
 
@@ -361,7 +361,7 @@ describe('CompletionCommand', () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const fishPath = path.join(tempDir, 'fish-completion.fish')
 
-      const root = new Command({ name: 'mycli', description: 'My CLI' })
+      const root = new Command({ name: 'mycli', desc: 'My CLI' })
       const completionCmd = new CompletionCommand(root, {
         paths: { ...testPaths, fish: fishPath },
       })
@@ -381,7 +381,7 @@ describe('CompletionCommand', () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const customPath = path.join(tempDir, 'custom', 'mycli.fish')
 
-      const root = new Command({ name: 'mycli', description: 'My CLI' })
+      const root = new Command({ name: 'mycli', desc: 'My CLI' })
       const completionCmd = new CompletionCommand(root, { paths: testPaths })
       root.subcommand('completion', completionCmd)
 
@@ -399,7 +399,7 @@ describe('CompletionCommand', () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const customPath = path.join(tempDir, 'mycli.bash')
 
-      const root = new Command({ name: 'mycli', description: 'My CLI' })
+      const root = new Command({ name: 'mycli', desc: 'My CLI' })
       const completionCmd = new CompletionCommand(root, { paths: testPaths })
       root.subcommand('completion', completionCmd)
 
@@ -415,7 +415,7 @@ describe('CompletionCommand', () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const nestedPath = path.join(tempDir, 'a', 'b', 'c', 'mycli.fish')
 
-      const root = new Command({ name: 'mycli', description: 'My CLI' })
+      const root = new Command({ name: 'mycli', desc: 'My CLI' })
       const completionCmd = new CompletionCommand(root, { paths: testPaths })
       root.subcommand('completion', completionCmd)
 
@@ -430,7 +430,7 @@ describe('CompletionCommand', () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const bashPath = path.join(tempDir, 'bash-completion')
 
-      const root = new Command({ name: 'mycli', description: 'My CLI' })
+      const root = new Command({ name: 'mycli', desc: 'My CLI' })
       const completionCmd = new CompletionCommand(root, {
         paths: { ...testPaths, bash: bashPath },
       })
@@ -449,7 +449,7 @@ describe('CompletionCommand', () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const pwshPath = path.join(tempDir, 'profile.ps1')
 
-      const root = new Command({ name: 'mycli', description: 'My CLI' })
+      const root = new Command({ name: 'mycli', desc: 'My CLI' })
       const completionCmd = new CompletionCommand(root, {
         paths: { ...testPaths, pwsh: pwshPath },
       })
@@ -468,7 +468,7 @@ describe('CompletionCommand', () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const customPath = path.join(tempDir, 'custom-eq.fish')
 
-      const root = new Command({ name: 'mycli', description: 'My CLI' })
+      const root = new Command({ name: 'mycli', desc: 'My CLI' })
       const completionCmd = new CompletionCommand(root, { paths: testPaths })
       root.subcommand('completion', completionCmd)
 
@@ -484,7 +484,7 @@ describe('CompletionCommand', () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const customPath = path.join(tempDir, 'custom-short-space.fish')
 
-      const root = new Command({ name: 'mycli', description: 'My CLI' })
+      const root = new Command({ name: 'mycli', desc: 'My CLI' })
       const completionCmd = new CompletionCommand(root, { paths: testPaths })
       root.subcommand('completion', completionCmd)
 
@@ -501,7 +501,7 @@ describe('CompletionCommand', () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
 
-      const root = new Command({ name: 'mycli', description: 'My CLI' })
+      const root = new Command({ name: 'mycli', desc: 'My CLI' })
       const completionCmd = new CompletionCommand(root, { paths: testPaths })
       root.subcommand('completion', completionCmd)
 
@@ -525,7 +525,7 @@ describe('CompletionCommand', () => {
       const relativePath = path.join(tempDir.replace(homeDir, '~'), 'tilde-test.fish')
       const expandedPath = path.join(tempDir, 'tilde-test.fish')
 
-      const root = new Command({ name: 'mycli', description: 'My CLI' })
+      const root = new Command({ name: 'mycli', desc: 'My CLI' })
       const completionCmd = new CompletionCommand(root, {
         paths: { ...testPaths, fish: relativePath },
       })
@@ -543,7 +543,7 @@ describe('CompletionCommand', () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const fishPath = path.join(tempDir, 'fish-shorthand.fish')
 
-      const root = new Command({ name: 'mycli', description: 'My CLI' })
+      const root = new Command({ name: 'mycli', desc: 'My CLI' })
       const completionCmd = new CompletionCommand(root, {
         paths: { ...testPaths, fish: fishPath },
       })
@@ -567,7 +567,7 @@ describe('CompletionCommand', () => {
       delete process.env['HOME']
       process.env['USERPROFILE'] = tempDir
 
-      const root = new Command({ name: 'mycli', description: 'My CLI' })
+      const root = new Command({ name: 'mycli', desc: 'My CLI' })
       const completionCmd = new CompletionCommand(root, {
         paths: { ...testPaths, fish: '~/userprofile-test.fish' },
       })
@@ -599,13 +599,13 @@ describe('Completion with aliases and nested subcommands', () => {
   it('should include aliases in bash completion', () => {
     const meta: ICompletionMeta = {
       name: 'testcli',
-      description: 'Test CLI',
+      desc: 'Test CLI',
       aliases: [],
       options: [],
       subcommands: [
         {
           name: 'build',
-          description: 'Build project',
+          desc: 'Build project',
           aliases: ['b', 'compile'],
           options: [],
           subcommands: [],
@@ -622,13 +622,13 @@ describe('Completion with aliases and nested subcommands', () => {
   it('should include aliases in fish completion', () => {
     const meta: ICompletionMeta = {
       name: 'testcli',
-      description: 'Test CLI',
+      desc: 'Test CLI',
       aliases: [],
       options: [],
       subcommands: [
         {
           name: 'build',
-          description: 'Build project',
+          desc: 'Build project',
           aliases: ['b'],
           options: [],
           subcommands: [],
@@ -647,13 +647,13 @@ describe('Completion with aliases and nested subcommands', () => {
   it('should include aliases in pwsh completion', () => {
     const meta: ICompletionMeta = {
       name: 'testcli',
-      description: 'Test CLI',
+      desc: 'Test CLI',
       aliases: [],
       options: [],
       subcommands: [
         {
           name: 'build',
-          description: 'Build project',
+          desc: 'Build project',
           aliases: ['b'],
           options: [],
           subcommands: [],
@@ -671,21 +671,21 @@ describe('Completion with aliases and nested subcommands', () => {
   it('should handle nested subcommands in fish completion', () => {
     const meta: ICompletionMeta = {
       name: 'testcli',
-      description: 'Test CLI',
+      desc: 'Test CLI',
       aliases: [],
       options: [],
       subcommands: [
         {
           name: 'config',
-          description: 'Config commands',
+          desc: 'Config commands',
           aliases: [],
           options: [],
           subcommands: [
             {
               name: 'set',
-              description: 'Set config value',
+              desc: 'Set config value',
               aliases: [],
-              options: [{ long: 'key', description: 'Key name', takesValue: true }],
+              options: [{ long: 'key', desc: 'Key name', takesValue: true }],
               subcommands: [],
             },
           ],
@@ -704,19 +704,19 @@ describe('Completion with aliases and nested subcommands', () => {
   it('should handle nested subcommand aliases in fish completion', () => {
     const meta: ICompletionMeta = {
       name: 'testcli',
-      description: 'Test CLI',
+      desc: 'Test CLI',
       aliases: [],
       options: [],
       subcommands: [
         {
           name: 'config',
-          description: 'Config commands',
+          desc: 'Config commands',
           aliases: [],
           options: [],
           subcommands: [
             {
               name: 'set',
-              description: 'Set config value',
+              desc: 'Set config value',
               aliases: ['s'],
               options: [],
               subcommands: [],
@@ -739,12 +739,12 @@ describe('Completion with aliases and nested subcommands', () => {
   it('should include choices in pwsh completion', () => {
     const meta: ICompletionMeta = {
       name: 'testcli',
-      description: 'Test CLI',
+      desc: 'Test CLI',
       aliases: [],
       options: [
         {
           long: 'format',
-          description: 'Output format',
+          desc: 'Output format',
           takesValue: true,
           choices: ['json', 'yaml', 'xml'],
         },
@@ -761,13 +761,13 @@ describe('Completion with aliases and nested subcommands', () => {
   it('should handle options with short in pwsh', () => {
     const meta: ICompletionMeta = {
       name: 'testcli',
-      description: 'Test CLI',
+      desc: 'Test CLI',
       aliases: [],
       options: [
         {
           short: 'v',
           long: 'verbose',
-          description: 'Verbose mode',
+          desc: 'Verbose mode',
           takesValue: false,
         },
       ],

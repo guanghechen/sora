@@ -12,14 +12,14 @@ type ICompletionShellType = 'bash' | 'fish' | 'pwsh'
 interface ICompletionOptionMeta {
   long: string          // camelCase
   short?: string
-  description: string
+  desc: string
   takesValue: boolean   // args !== 'none'
   choices?: string[]
 }
 
 interface ICompletionMeta {
   name: string
-  description: string
+  desc: string
   aliases: string[]
   options: ICompletionOptionMeta[]
   subcommands: ICompletionMeta[]
@@ -35,10 +35,10 @@ interface ICompletionMeta {
 ```typescript
 import { Command, CompletionCommand } from '@guanghechen/commander'
 
-const pm = new Command({ name: 'pm', description: 'Process Manager', version: '1.0.0' })
-  .option({ long: 'verbose', short: 'v', type: 'boolean', args: 'none', description: 'Verbose' })
+const pm = new Command({ name: 'pm', desc: 'Process Manager', version: '1.0.0' })
+  .option({ long: 'verbose', short: 'v', type: 'boolean', args: 'none', desc: 'Verbose' })
 
-pm.subcommand('start', new Command({ description: 'Start' }))
+pm.subcommand('start', new Command({ desc: 'Start' }))
 pm.subcommand('completion', new CompletionCommand(pm))
 
 await pm.run({ argv: process.argv.slice(2), envs: process.env })

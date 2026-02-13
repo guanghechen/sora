@@ -21,12 +21,12 @@
 ```typescript
 import { Command, CompletionCommand } from '@guanghechen/commander'
 
-const pm = new Command({ name: 'pm', description: 'Process Manager', version: '1.0.0' })
-  .option({ long: 'verbose', short: 'v', type: 'boolean', args: 'none', description: 'Verbose' })
+const pm = new Command({ name: 'pm', desc: 'Process Manager', version: '1.0.0' })
+  .option({ long: 'verbose', short: 'v', type: 'boolean', args: 'none', desc: 'Verbose' })
 
-const start = new Command({ description: 'Start a process' })
-  .argument({ name: 'name', description: 'Process name', kind: 'required' })
-  .option({ long: 'detach', short: 'd', type: 'boolean', args: 'none', description: 'Background' })
+const start = new Command({ desc: 'Start a process' })
+  .argument({ name: 'name', desc: 'Process name', kind: 'required' })
+  .option({ long: 'detach', short: 'd', type: 'boolean', args: 'none', desc: 'Background' })
   .action(async ({ opts, args }) => {
     console.log(`Starting ${args.name}, verbose: ${opts.verbose}, detach: ${opts.detach}`)
   })
