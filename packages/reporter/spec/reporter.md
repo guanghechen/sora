@@ -4,7 +4,7 @@ A minimal, level-based logging utility with colored output and breadcrumb prefix
 
 ## Design Goals
 
-1. **Simplicity** - Four log levels only (debug, info, warn, error)
+1. **Simplicity** - Five log levels only (debug, info, hint, warn, error)
 2. **Zero Dependencies** - Pure JavaScript, browser/node compatible
 3. **Decoupled** - No implicit `process.argv` access, explicit props required
 4. **Breadcrumb Prefix** - Hierarchical context via `.attach()` returning detach callback
@@ -21,7 +21,7 @@ A minimal, level-based logging utility with colored output and breadcrumb prefix
 ## Types
 
 ```typescript
-type IReporterLevel = 'debug' | 'info' | 'warn' | 'error'
+type IReporterLevel = 'debug' | 'info' | 'hint' | 'warn' | 'error'
 
 type IReporterOutput = (level: IReporterLevel, parts: string[], args: unknown[]) => void
 
@@ -71,6 +71,7 @@ new Reporter(props?: IReporterProps)
 | `.log(level, ...args)` | `void`             | Core logging method (invalid level falls back to default) |
 | `.debug(...args)`      | `this`             | Log at debug level (`console.debug`)                      |
 | `.info(...args)`       | `this`             | Log at info level (`console.log`)                         |
+| `.hint(...args)`       | `this`             | Log at hint level (`console.log`)                         |
 | `.warn(...args)`       | `this`             | Log at warn level (`console.warn`)                        |
 | `.error(...args)`      | `this`             | Log at error level (`console.error`)                      |
 
@@ -82,12 +83,13 @@ new Reporter(props?: IReporterProps)
 
 ## Log Levels
 
-| Level   | Numeric | Color  | ANSI Code  |
-| ------- | ------- | ------ | ---------- |
-| `debug` | 0       | Gray   | `\x1b[90m` |
-| `info`  | 1       | Cyan   | `\x1b[36m` |
-| `warn`  | 2       | Yellow | `\x1b[33m` |
-| `error` | 3       | Red    | `\x1b[31m` |
+| Level   | Numeric | Color   | ANSI Code  |
+| ------- | ------- | ------- | ---------- |
+| `debug` | 1       | Gray    | `\x1b[90m` |
+| `info`  | 2       | Cyan    | `\x1b[36m` |
+| `hint`  | 3       | Magenta | `\x1b[35m` |
+| `warn`  | 4       | Yellow  | `\x1b[33m` |
+| `error` | 5       | Red     | `\x1b[31m` |
 
 Messages are output only if level >= threshold.
 
@@ -126,6 +128,7 @@ const reporter = new Reporter({ prefix: 'app' })
 
 reporter.debug('verbose info')
 reporter.info('starting')
+reporter.hint('useful tip')
 reporter.warn('missing config')
 reporter.error('failed:', err)
 ```
@@ -221,7 +224,13 @@ Inject custom output for browser or testing:
 ```javascript
 // Browser with styled console
 const browserOutput = (level, parts, args) => {
-  const styles = { debug: 'color:gray', info: 'color:blue', warn: 'color:orange', error: 'color:red' }
+  const styles = {
+    debug: 'color:gray',
+    info: 'color:blue',
+    hint: 'color:magenta',
+    warn: 'color:orange',
+    error: 'color:red',
+  }
   console.log(`%c[${level}]`, styles[level], ...args)
 }
 

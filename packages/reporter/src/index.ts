@@ -34,11 +34,12 @@ export interface IReporterEntry {
   date: Date
 }
 
-const LEVELS: Record<IReporterLevel, number> = { debug: 0, info: 1, warn: 2, error: 3 }
+const LEVELS: Record<IReporterLevel, number> = { debug: 1, info: 2, hint: 3, warn: 4, error: 5 }
 
 const ANSI = {
   debug: '\x1b[90m',
   info: '\x1b[36m',
+  hint: '\x1b[35m',
   warn: '\x1b[33m',
   error: '\x1b[31m',
   dim: '\x1b[90m',
@@ -52,6 +53,9 @@ const defaultOutput: IReporterOutput = (level, parts, args) => {
       c.debug(...parts, ...args)
       break
     case 'info':
+      c.log(...parts, ...args)
+      break
+    case 'hint':
       c.log(...parts, ...args)
       break
     case 'warn':
@@ -72,7 +76,7 @@ function formatTag(level: IReporterLevel, prefixes: string[], color: boolean): s
 }
 
 function isLevel(s: string): s is IReporterLevel {
-  return s === 'debug' || s === 'info' || s === 'warn' || s === 'error'
+  return s === 'debug' || s === 'info' || s === 'hint' || s === 'warn' || s === 'error'
 }
 
 export class Reporter implements IReporter {
@@ -153,6 +157,11 @@ export class Reporter implements IReporter {
 
   public info(...args: unknown[]): this {
     this.log('info', ...args)
+    return this
+  }
+
+  public hint(...args: unknown[]): this {
+    this.log('hint', ...args)
     return this
   }
 

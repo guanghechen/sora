@@ -101,14 +101,16 @@ describe('Reporter', () => {
       reporter.mock()
       reporter.debug('debug msg')
       reporter.info('info msg')
+      reporter.hint('hint msg')
       reporter.warn('warn msg')
       reporter.error('error msg')
       const entries = reporter.collect()
-      expect(entries).toHaveLength(4)
-      expect(entries.map(e => e.level)).toEqual(['debug', 'info', 'warn', 'error'])
+      expect(entries).toHaveLength(5)
+      expect(entries.map(e => e.level)).toEqual(['debug', 'info', 'hint', 'warn', 'error'])
       expect(entries.map(e => e.args)).toEqual([
         ['debug msg'],
         ['info msg'],
+        ['hint msg'],
         ['warn msg'],
         ['error msg'],
       ])
@@ -146,6 +148,7 @@ describe('Reporter', () => {
       reporter.mock()
       reporter.debug('no')
       reporter.info('no')
+      reporter.hint('no')
       reporter.warn('yes')
       reporter.error('yes')
       const entries = reporter.collect()
@@ -153,8 +156,9 @@ describe('Reporter', () => {
     })
 
     it.each<[IReporterLevel, number]>([
-      ['debug', 4],
-      ['info', 3],
+      ['debug', 5],
+      ['info', 4],
+      ['hint', 3],
       ['warn', 2],
       ['error', 1],
     ])('level %s should allow %d levels', (level, expectedCount) => {
@@ -162,6 +166,7 @@ describe('Reporter', () => {
       reporter.mock()
       reporter.debug('d')
       reporter.info('i')
+      reporter.hint('h')
       reporter.warn('w')
       reporter.error('e')
       const entries = reporter.collect()
@@ -191,12 +196,12 @@ describe('Reporter', () => {
   })
 
   describe('chaining', () => {
-    it('debug/info/warn/error should return this', () => {
+    it('debug/info/hint/warn/error should return this', () => {
       const reporter = new Reporter({ level: 'debug' })
       reporter.mock()
-      expect(reporter.debug('a').info('b').warn('c').error('d')).toBe(reporter)
+      expect(reporter.debug('a').info('b').hint('c').warn('d').error('e')).toBe(reporter)
       const entries = reporter.collect()
-      expect(entries).toHaveLength(4)
+      expect(entries).toHaveLength(5)
     })
   })
 
@@ -262,6 +267,16 @@ describe('Reporter', () => {
       const entries = reporter.collect()
       expect(entries[0].date.getTime()).toBeGreaterThanOrEqual(before.getTime())
       expect(entries[0].date.getTime()).toBeLessThanOrEqual(after.getTime())
+    })
+  })
+
+  describe('defaultOutput', () => {
+    it('should output hint to console.log', () => {
+      const logSpy = vi.spyOn(globalThis.console, 'log').mockImplementation(() => {})
+      const reporter = new Reporter({ level: 'hint' })
+      reporter.hint('hint message')
+      expect(logSpy).toHaveBeenCalled()
+      logSpy.mockRestore()
     })
   })
 })

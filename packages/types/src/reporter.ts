@@ -1,7 +1,7 @@
 /**
  * Log level for reporter.
  */
-export type IReporterLevel = 'debug' | 'info' | 'warn' | 'error'
+export type IReporterLevel = 'debug' | 'info' | 'hint' | 'warn' | 'error'
 
 /**
  * A minimal logger interface with level-based logging methods.
@@ -25,6 +25,12 @@ export interface IReporter {
    * @param args - Arguments to log
    */
   info(...args: unknown[]): void
+
+  /**
+   * Log a hint message.
+   * @param args - Arguments to log
+   */
+  hint(...args: unknown[]): void
 
   /**
    * Log a warning message.
