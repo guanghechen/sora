@@ -1,5 +1,14 @@
 # Change Log
 
+## 4.0.0
+
+### Major Changes
+
+- Breaking changes:
+  - Rename `description` field to `desc` in ICommandConfig
+  - Implement 5-stage execution flow with breaking API changes
+  - Implement ICommandToken for naming convention support with format validation
+
 ## 3.3.0
 
 ### Minor Changes
