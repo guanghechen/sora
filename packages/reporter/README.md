@@ -49,8 +49,8 @@
 </header>
 <br/>
 
-A minimal, level-based logging utility with colored output and breadcrumb prefix support. Provides
-debug, info, warn, and error levels with optional ISO timestamps and ANSI colors.
+A minimal, level-based logger with breadcrumb prefixes, lazy evaluation, and runtime configuration
+for both log threshold and output flight options.
 
 ## Install
 
@@ -66,114 +66,136 @@ debug, info, warn, and error levels with optional ISO timestamps and ANSI colors
   yarn add @guanghechen/reporter
   ```
 
-## Usage
+## Highlights
 
-### Basic Logging
+- Five levels: `debug`, `info`, `hint`, `warn`, `error`
+- Runtime updates: `setLevel()` and `setFlight()`
+- Breadcrumb context: `attach()` with detach callback
+- Lazy arguments: pass functions for deferred evaluation
+- Mock mode: `mock()` + `collect()` for tests
+- Custom output: inject your own sink
+
+## Quick Start
 
 ```typescript
 import { Reporter } from '@guanghechen/reporter'
 
-const reporter = new Reporter({ prefix: 'app' })
+const reporter = new Reporter({ prefix: 'app', level: 'info' })
 
-reporter.debug('Debug message')  // Only shown when level is 'debug'
-reporter.info('Server started')  // 2024-01-15T10:30:00.000Z [app] Server started
-reporter.warn('Deprecated API')  // Yellow warning
-reporter.error('Failed to connect') // Red error
+reporter.debug('hidden by default threshold')
+reporter.info('server started')
+reporter.hint('cache warmed')
+reporter.warn('deprecated config key')
+reporter.error('request failed')
 ```
 
-### Log Levels
+## Runtime Configuration
+
+### Change Log Level Dynamically
 
 ```typescript
-import { Reporter } from '@guanghechen/reporter'
+const reporter = new Reporter({ level: 'info' })
 
-// Only show warnings and errors
+reporter.debug('hidden')
+reporter.info('visible')
+
+reporter.setLevel('debug')
+reporter.debug('visible now')
+
+reporter.setLevel('error')
+reporter.warn('hidden again')
+reporter.error('still visible')
+```
+
+### Change Output Flight Dynamically
+
+```typescript
+const reporter = new Reporter({ flight: { date: true, color: true } })
+
+reporter.info('default output')
+
+reporter.setFlight({ date: false })
+reporter.info('without timestamp')
+
+reporter.setFlight({ color: false })
+reporter.info('without ANSI color')
+
+reporter.setFlight({ date: true, color: true })
+reporter.info('restore full output')
+```
+
+`setFlight()` is designed for partial updates. Omitted keys keep previous values.
+
+## Breadcrumb Prefixes
+
+```typescript
+const reporter = new Reporter({ prefix: 'cli' })
+
+const detachBuild = reporter.attach('build')
+const detachAssets = reporter.attach('assets')
+
+reporter.info('processing') // [cli:build:assets] processing
+
+detachAssets()
+detachBuild()
+
+reporter.info('done') // [cli] done
+```
+
+## Lazy Evaluation
+
+```typescript
 const reporter = new Reporter({ level: 'warn' })
 
-reporter.debug('Not shown')
-reporter.info('Not shown')
-reporter.warn('Shown')
-reporter.error('Shown')
+reporter.debug(() => JSON.stringify(expensiveData)) // never executed
+reporter.warn(() => JSON.stringify(importantData))  // executed
 ```
 
-### Breadcrumb Prefixes
-
-Use `attach()` to add nested context prefixes:
+## Testing with Mock Mode
 
 ```typescript
-import { Reporter } from '@guanghechen/reporter'
+const reporter = new Reporter({ prefix: 'test', level: 'debug' })
 
-const reporter = new Reporter({ prefix: 'app' })
+reporter.mock()
+reporter.info('start')
+reporter.warn('warn')
 
-function processUser(userId: string) {
-  const detach = reporter.attach('user')
-  const detachId = reporter.attach(userId)
+const entries = reporter.collect()
+expect(entries.map(x => x.level)).toEqual(['info', 'warn'])
+```
 
-  reporter.info('Processing') // [app:user:123] Processing
+## Output Customization
 
-  detachId()
-  detach()
+```typescript
+import type { IReporterOutput } from '@guanghechen/reporter'
+
+const output: IReporterOutput = (level, parts, args) => {
+  console.log(`[${level}]`, ...parts, ...args)
 }
 
-processUser('123')
-reporter.info('Done') // [app] Done
-```
-
-### Configuration Options
-
-```typescript
-import { Reporter } from '@guanghechen/reporter'
-
 const reporter = new Reporter({
-  prefix: 'myapp',       // Initial prefix
-  level: 'info',         // Minimum log level: 'debug' | 'info' | 'warn' | 'error'
-  flight: {
-    date: true,          // Include ISO timestamp (default: true)
-    color: true,         // Use ANSI colors (default: true)
-  },
-  output: (level, parts, args) => {
-    // Custom output handler
-    console.log(`[${level}]`, ...parts, ...args)
-  }
+  prefix: 'web',
+  flight: { color: false },
+  output,
 })
 ```
 
-### Testing with Mock
-
-Capture log entries for testing:
+## API Summary
 
 ```typescript
-import { Reporter } from '@guanghechen/reporter'
-
-const reporter = new Reporter({ prefix: 'test' })
-
-// Start capturing
-reporter.mock()
-
-reporter.info('Message 1')
-reporter.warn('Message 2')
-
-// Collect and stop capturing
-const entries = reporter.collect()
-
-console.log(entries)
-// [
-//   { level: 'info', prefixes: ['test'], args: ['Message 1'], date: Date },
-//   { level: 'warn', prefixes: ['test'], args: ['Message 2'], date: Date }
-// ]
+interface IReporter {
+  setLevel(level: ILogLevel): void
+  setFlight(flight: IReporterFlight): void
+  log(level: ILogLevel, ...args: unknown[]): void
+  debug(...args: unknown[]): void
+  info(...args: unknown[]): void
+  hint(...args: unknown[]): void
+  warn(...args: unknown[]): void
+  error(...args: unknown[]): void
+}
 ```
 
-### Lazy Evaluation
-
-Pass functions to defer expensive operations:
-
-```typescript
-import { Reporter } from '@guanghechen/reporter'
-
-const reporter = new Reporter({ level: 'warn' })
-
-// Function only called if level passes threshold
-reporter.debug(() => JSON.stringify(expensiveObject))
-```
+See full specification: [`spec/reporter.md`](./spec/reporter.md)
 
 ## Reference
 

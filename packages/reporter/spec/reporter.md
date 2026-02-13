@@ -1,67 +1,25 @@
-# @guanghechen/reporter
+# @guanghechen/reporter Spec
 
-A minimal, level-based logging utility with colored output and breadcrumb prefix support.
+A minimal, level-based logger with breadcrumb prefix support, runtime reconfiguration, and zero
+external dependencies.
+
+## Status
+
+This spec is the contract for package behavior and public API.
 
 ## Design Goals
 
-1. **Simplicity** - Five log levels only (debug, info, hint, warn, error)
-2. **Zero Dependencies** - Pure JavaScript, browser/node compatible
-3. **Decoupled** - No implicit `process.argv` access, explicit props required
-4. **Breadcrumb Prefix** - Hierarchical context via `.attach()` returning detach callback
-5. **Lazy Evaluation** - Function arguments for deferred computation
-6. **Testable** - Built-in mock mode for capturing logs
-7. **Portable** - Injectable output for browser/custom environments
+1. Simplicity: keep the API small and explicit.
+2. Runtime control: allow dynamic updates for log threshold and output flight options.
+3. Portability: run in Node.js and browser environments.
+4. Testability: support deterministic capture via mock mode.
+5. Safety: prefix stack should be easy to restore even when nested scopes fail.
 
 ## Non-Goals
 
-- **File logging** - Use shell redirection or custom output
-- **Log rotation** - Out of scope
-- **Custom formatters** - Fixed format only
-
----
-
-## Module Structure
-
-```
-src/
-├── index.ts     # Public exports
-├── level.ts     # Log level utilities (LogLevelEnum, ILogLevel, etc.)
-├── chalk.ts     # ANSI color codes and formatting
-├── types.ts     # IReporter interface
-└── reporter.ts  # Reporter class implementation
-```
-
----
-
-## Types
-
-```typescript
-// ILogLevel derived from LogLevelEnum keys
-type ILogLevel = keyof typeof LogLevelEnum  // 'debug' | 'info' | 'hint' | 'warn' | 'error'
-
-type IReporterOutput = (level: ILogLevel, parts: string[], args: unknown[]) => void
-
-interface IReporterFlight {
-  date?: boolean   // Include ISO timestamp (default: true)
-  color?: boolean  // Use ANSI colors (default: true)
-}
-
-interface IReporterProps {
-  prefix?: string           // Initial prefix, cannot contain ':'
-  level?: ILogLevel         // Minimum log level (default: 'info')
-  flight?: IReporterFlight  // Output control
-  output?: IReporterOutput  // Custom output function (default: console)
-}
-
-interface IReporterEntry {
-  level: ILogLevel
-  prefixes: string[]
-  args: unknown[]
-  date: Date
-}
-```
-
----
+- File sink, rotation, retention, or remote transport.
+- Structured JSON logging protocol.
+- User-defined formatter pipeline.
 
 ## Log Levels
 
@@ -73,303 +31,207 @@ enum LogLevelEnum {
   warn = 4,
   error = 5,
 }
+
+type ILogLevel = 'debug' | 'info' | 'hint' | 'warn' | 'error'
 ```
 
-| Level   | Numeric | Color   | ANSI Code  | Console Method    |
-| ------- | ------- | ------- | ---------- | ----------------- |
-| `debug` | 1       | Gray    | `\x1b[90m` | `console.debug()` |
-| `info`  | 2       | Cyan    | `\x1b[36m` | `console.log()`   |
-| `hint`  | 3       | Magenta | `\x1b[35m` | `console.log()`   |
-| `warn`  | 4       | Yellow  | `\x1b[33m` | `console.warn()`  |
-| `error` | 5       | Red     | `\x1b[31m` | `console.error()` |
+| Level   | Numeric | Default Console Method |
+| ------- | ------- | ---------------------- |
+| `debug` | 1       | `console.debug`        |
+| `info`  | 2       | `console.log`          |
+| `hint`  | 3       | `console.log`          |
+| `warn`  | 4       | `console.warn`         |
+| `error` | 5       | `console.error`        |
 
-Messages are output only if `level >= threshold`.
+A record is emitted only when `value(record.level) >= value(threshold)`.
 
----
+## Public Types
 
-## Exports
+```typescript
+type IReporterOutput = (level: ILogLevel, parts: string[], args: unknown[]) => void
 
-### Reporter Class
+interface IReporterFlight {
+  date?: boolean
+  color?: boolean
+}
 
-| Export     | Type    | Description       |
-| ---------- | ------- | ----------------- |
-| `Reporter` | `class` | Main logger class |
+interface IReporterProps {
+  prefix?: string
+  level?: ILogLevel
+  flight?: IReporterFlight
+  output?: IReporterOutput
+}
 
-### Level Utilities
+interface IReporterEntry {
+  level: ILogLevel
+  prefixes: string[]
+  args: unknown[]
+  date: Date
+}
 
-| Export            | Type                                       | Description                         |
-| ----------------- | ------------------------------------------ | ----------------------------------- |
-| `LogLevelEnum`    | `enum`                                     | Log level enum (debug=1, info=2, …) |
-| `ILogLevel`       | `type`                                     | Log level string type               |
-| `LOG_LEVELS`      | `readonly ILogLevel[]`                     | All valid log levels in order       |
-| `LOG_LEVEL_VALUES`| `Record<ILogLevel, number>`                | Log level numeric values            |
-| `isLogLevel`      | `(value: string) => value is ILogLevel`    | Type guard for log level            |
-| `getLogLevelValue`| `(level: ILogLevel) => number`             | Get numeric value for log level     |
-| `resolveLogLevel` | `(value: string) => ILogLevel \| undefined`| Case-insensitive log level resolver |
-
-### Chalk Utilities
-
-| Export      | Type                                    | Description                            |
-| ----------- | --------------------------------------- | -------------------------------------- |
-| `ANSI`      | `Record<string, string>`                | ANSI escape codes for terminal colors  |
-| `formatTag` | `(level, prefixes, color) => string`    | Format a tag with optional ANSI colors |
-
----
+interface IReporter {
+  setLevel(level: ILogLevel): void
+  setFlight(flight: IReporterFlight): void
+  log(level: ILogLevel, ...args: unknown[]): void
+  debug(...args: unknown[]): void
+  info(...args: unknown[]): void
+  hint(...args: unknown[]): void
+  warn(...args: unknown[]): void
+  error(...args: unknown[]): void
+}
+```
 
 ## API
 
 ### Constructor
 
-```javascript
+```typescript
 new Reporter(props?: IReporterProps)
 ```
 
 | Option         | Type              | Default     | Description                        |
 | -------------- | ----------------- | ----------- | ---------------------------------- |
-| `prefix`       | `string`          | `undefined` | Initial prefix, cannot contain `:` |
-| `level`        | `ILogLevel`       | `'info'`    | Minimum log level to output        |
+| `prefix`       | `string`          | `undefined` | Initial prefix; cannot contain `:` |
+| `level`        | `ILogLevel`       | `'info'`    | Minimum output level               |
 | `flight.date`  | `boolean`         | `true`      | Include ISO timestamp              |
-| `flight.color` | `boolean`         | `true`      | Use ANSI color codes               |
-| `output`       | `IReporterOutput` | (console)   | Custom output function             |
+| `flight.color` | `boolean`         | `true`      | Enable ANSI coloring               |
+| `output`       | `IReporterOutput` | console     | Custom sink                        |
 
 ### Methods
 
-| Method                 | Returns            | Description                                               |
-| ---------------------- | ------------------ | --------------------------------------------------------- |
-| `.setLevel(level)`     | `void`             | Change the minimum log level dynamically                  |
-| `.attach(prefix)`      | `() => void`       | Push prefix, return detach callback (cannot contain `:`)  |
-| `.mock()`              | `this`             | Enable mock mode (capture instead of print)               |
-| `.collect()`           | `IReporterEntry[]` | Disable mock mode, return captured logs                   |
-| `.log(level, ...args)` | `void`             | Core logging method (invalid level falls back to default) |
-| `.debug(...args)`      | `this`             | Log at debug level                                        |
-| `.info(...args)`       | `this`             | Log at info level                                         |
-| `.hint(...args)`       | `this`             | Log at hint level                                         |
-| `.warn(...args)`       | `this`             | Log at warn level                                         |
-| `.error(...args)`      | `this`             | Log at error level                                        |
+| Method                   | Returns            | Description                                       |
+| ------------------------ | ------------------ | ------------------------------------------------- |
+| `.setLevel(level)`       | `void`             | Replace threshold level                           |
+| `.setFlight(flight)`     | `void`             | Update `date/color` flight options                |
+| `.attach(prefix)`        | `() => void`       | Push prefix and return detach callback            |
+| `.mock()`                | `this`             | Enable capture mode                               |
+| `.collect()`             | `IReporterEntry[]` | Leave capture mode and return captured entries    |
+| `.log(level, ...args)`   | `void`             | Generic log entry                                 |
+| `.debug(...args)`        | `this`             | Sugar for `.log('debug', ...)`                    |
+| `.info(...args)`         | `this`             | Sugar for `.log('info', ...)`                     |
+| `.hint(...args)`         | `this`             | Sugar for `.log('hint', ...)`                     |
+| `.warn(...args)`         | `this`             | Sugar for `.log('warn', ...)`                     |
+| `.error(...args)`        | `this`             | Sugar for `.log('error', ...)`                    |
 
----
+## Runtime Configuration Semantics
 
-## Output Format
+### `setLevel(level)`
 
-```
-[timestamp?] [prefixes|level] message...
-```
+- Replaces the current threshold immediately.
+- Affects only subsequent logs.
+- Invalid value handling follows implementation policy.
 
-| Segment   | Color       | Description                    |
-| --------- | ----------- | ------------------------------ |
-| timestamp | Gray (dim)  | ISO 8601 format                |
-| `[` `]`   | Gray (dim)  | Brackets                       |
-| prefix    | Level color | Each prefix segment            |
-| `:`       | Gray (dim)  | Separator between prefixes     |
-| message   | Default     | Log content (no color applied) |
+### `setFlight(flight)`
 
-Example with `flight.color: true`:
+- Updates runtime output flight options.
+- Supports partial update: omitted keys keep previous values.
+- Typical usage:
 
-```
-2024-01-15T10:30:00.000Z [app:theme] Starting
-└──────── dim ─────────┘ ││   ││  │ └─ default
-                         ││   │└──┴─ dim
-                         │└───┴─ cyan (info level)
-                         └─ dim
+```typescript
+reporter.setFlight({ date: false })
+reporter.setFlight({ color: false })
+reporter.setFlight({ date: true, color: true })
 ```
 
----
+- Affects only subsequent logs.
+- In mock mode, entries are still captured with `entry.date`; flight controls formatted output only.
 
-## Usage
+## Prefix Model
 
-### Basic
+- Prefix separator is `:`.
+- Prefix token cannot contain `:`.
+- `attach(prefix)` returns a detach callback that restores the stack length captured at attach time.
 
-```javascript
-import { Reporter } from '@guanghechen/reporter'
+Example:
 
+```typescript
 const reporter = new Reporter({ prefix: 'app' })
 
-reporter.debug('verbose info')
-reporter.info('starting')
-reporter.hint('useful tip')
-reporter.warn('missing config')
-reporter.error('failed:', err)
+const detachFeature = reporter.attach('feature')
+const detachStep = reporter.attach('step')
+
+reporter.info('running')
+
+detachStep()
+detachFeature()
 ```
 
-### Dynamic Level Change
+This callback-based restore avoids stack corruption when nested scopes fail unexpectedly.
 
-Use `.setLevel()` to change the minimum log level at runtime:
+## Output Model
 
-```javascript
+When not in mock mode:
+
+1. Resolve lazy arguments (`() => value`) after level filtering.
+2. Build `parts`:
+   - prepend ISO timestamp when `flight.date === true`
+   - append formatted tag from prefix stack; fallback to level tag when no prefix exists
+3. Call `output(level, parts, resolvedArgs)`.
+
+Text layout:
+
+```text
+[timestamp?] [prefixes|level] ...args
+```
+
+When in mock mode:
+
+- Output sink is bypassed.
+- Captured entry shape:
+
+```typescript
+{
+  level: ILogLevel,
+  prefixes: string[],
+  args: unknown[],
+  date: Date,
+}
+```
+
+## Usage Examples
+
+### Dynamic Level + Flight
+
+```typescript
 const reporter = new Reporter({ level: 'info' })
 
-reporter.debug('hidden')   // Not output (debug < info)
-reporter.info('visible')   // Output
+reporter.debug('hidden')
+reporter.info('visible')
 
 reporter.setLevel('debug')
-reporter.debug('now visible')  // Output (debug >= debug)
+reporter.debug('visible now')
 
-reporter.setLevel('error')
-reporter.warn('hidden')    // Not output (warn < error)
-reporter.error('visible')  // Output
+reporter.setFlight({ date: false })
+reporter.setFlight({ color: false })
+reporter.info('plain output')
 ```
 
-### Breadcrumb Prefix
+### CLI Integration
 
-The `.attach()` method returns a detach callback that restores prefix state:
+```typescript
+import { logLevelOption } from '@guanghechen/commander'
 
-```javascript
-const reporter = new Reporter({ prefix: 'app' })
-
-reporter.info('Starting')                 // [app] Starting
-
-const detach1 = reporter.attach('theme')
-reporter.info('Loading')                  // [app:theme] Loading
-
-const detach2 = reporter.attach('apply')
-reporter.info('Applying')                 // [app:theme:apply] Applying
-
-detach2()
-reporter.info('Applied')                  // [app:theme] Applied
-
-detach1()
-reporter.info('Done')                     // [app] Done
-```
-
-Without prefix, falls back to level name: `[info]`, `[warn]`, `[error]`.
-
-### Why Detach Callback Instead of `.detach()` Method?
-
-The detach callback design ensures robustness when inner code fails:
-
-```javascript
-// Problem with .detach() method:
-reporter.attach('a')
-reporter.attach('b')
-reporter.attach('c')  // Inner code throws, detach never called
-// Outer .detach() only pops one prefix - state is corrupted
-
-// Solution with detach callback:
-const detach = reporter.attach('a')
-reporter.attach('b')
-reporter.attach('c')  // Even if inner code fails to detach
-detach()              // Restores directly to before 'a', skipping all inner prefixes
-```
-
-The callback captures prefix length at attach time. If any outer detach is called, all inner
-prefixes are automatically discarded.
-
-### Error-Safe Context Pattern
-
-```javascript
-async function processItem(ctx, item) {
-  const detach = ctx.reporter.attach('item')
-  try {
-    ctx.reporter.info('Processing:', item.id)
-    await riskyOperation(item)  // May throw
-    ctx.reporter.info('Done')
-  } finally {
-    detach()  // Always restores correctly, regardless of inner attach calls
-  }
-}
-```
-
-### Lazy Evaluation
-
-Function arguments are only called if the log level passes:
-
-```javascript
-const reporter = new Reporter({ level: 'info' })
-
-// Never called (debug < info)
-reporter.debug(() => expensiveComputation())
-
-// Called only when needed
-reporter.info('User:', () => fetchUser(id))
-```
-
-### Flight Options
-
-```javascript
-// No timestamp
-new Reporter({ prefix: 'cli', flight: { date: false } })
-
-// No colors (for file output)
-new Reporter({ prefix: 'app', flight: { color: false } })
-```
-
-### Custom Output
-
-Inject custom output for browser or testing:
-
-```javascript
-// Browser with styled console
-const browserOutput = (level, parts, args) => {
-  const styles = {
-    debug: 'color:gray',
-    info: 'color:blue',
-    hint: 'color:magenta',
-    warn: 'color:orange',
-    error: 'color:red',
-  }
-  console.log(`%c[${level}]`, styles[level], ...args)
-}
-
-const reporter = new Reporter({
-  prefix: 'app',
-  flight: { color: false },
-  output: browserOutput,
+.option(logLevelOption)
+.option({
+  long: 'no-color',
+  type: 'boolean',
+  args: 'none',
+  desc: 'Disable ANSI colors',
+  apply: (value, ctx) => {
+    if (value) ctx.reporter.setFlight({ color: false })
+  },
 })
 ```
 
-### Mock Mode
+### Mock in Tests
 
-Capture logs for testing:
-
-```javascript
+```typescript
 const reporter = new Reporter({ prefix: 'test', level: 'debug' })
 
 reporter.mock()
+reporter.info('start')
+reporter.warn('warn')
 
-reporter.info('Starting')
-const detach = reporter.attach('sub')
-reporter.warn('Warning!')
-detach()
-
-const logs = reporter.collect()
-
-assert.equal(logs.length, 2)
-assert.deepEqual(logs[0], {
-  level: 'info',
-  prefixes: ['test'],
-  args: ['Starting'],
-  date: /* Date instance */
-})
-assert.deepEqual(logs[1].prefixes, ['test', 'sub'])
-```
-
-### Using Level Utilities
-
-```javascript
-import {
-  LogLevelEnum,
-  LOG_LEVELS,
-  isLogLevel,
-  resolveLogLevel,
-} from '@guanghechen/reporter'
-
-// Check if a string is a valid log level
-if (isLogLevel(userInput)) {
-  // userInput is narrowed to ILogLevel
-}
-
-// Resolve case-insensitively
-resolveLogLevel('DEBUG')  // 'debug'
-resolveLogLevel('Info')   // 'info'
-resolveLogLevel('invalid') // undefined
-
-// Use enum for comparisons
-if (LogLevelEnum[level] >= LogLevelEnum.warn) {
-  // This is a warning or error
-}
-
-// Iterate all levels
-for (const level of LOG_LEVELS) {
-  console.log(level)  // 'debug', 'info', 'hint', 'warn', 'error'
-}
+const entries = reporter.collect()
+expect(entries.map(x => x.level)).toEqual(['info', 'warn'])
 ```

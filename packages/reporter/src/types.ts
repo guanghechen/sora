@@ -4,6 +4,14 @@
 
 import type { ILogLevel } from './level'
 
+/** Runtime output flight options. */
+export interface IReporterFlight {
+  /** Include ISO timestamp in output (default: true). */
+  date?: boolean
+  /** Use ANSI color codes (default: true). */
+  color?: boolean
+}
+
 /**
  * A minimal logger interface with level-based logging methods.
  */
@@ -13,6 +21,13 @@ export interface IReporter {
    * @param level - The new minimum log level
    */
   setLevel(level: ILogLevel): void
+
+  /**
+   * Update output flight options.
+   * Supports partial update.
+   * @param flight - Output flight options
+   */
+  setFlight(flight: IReporterFlight): void
 
   /**
    * Log a message with the specified level.

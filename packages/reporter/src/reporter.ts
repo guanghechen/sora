@@ -5,16 +5,9 @@
 import { ANSI, formatTag } from './chalk'
 import type { ILogLevel } from './level'
 import { LOG_LEVEL_VALUES, isLogLevel } from './level'
-import type { IReporter } from './types'
+import type { IReporter, IReporterFlight } from './types'
 
 export type IReporterOutput = (level: ILogLevel, parts: string[], args: unknown[]) => void
-
-export interface IReporterFlight {
-  /** Include ISO timestamp in output (default: true) */
-  date?: boolean
-  /** Use ANSI color codes (default: true) */
-  color?: boolean
-}
 
 export interface IReporterProps {
   /** Initial prefix, cannot contain ':' (e.g., 'app') */
@@ -89,6 +82,15 @@ export class Reporter implements IReporter {
   public setLevel(level: ILogLevel): void {
     this.#level = isLogLevel(level) ? level : 'info'
     this.#threshold = LOG_LEVEL_VALUES[this.#level]
+  }
+
+  public setFlight(flight: IReporterFlight): void {
+    if (flight.date !== undefined) {
+      this.#date = flight.date
+    }
+    if (flight.color !== undefined) {
+      this.#color = flight.color
+    }
   }
 
   public mock(): this {

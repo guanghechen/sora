@@ -167,6 +167,48 @@ describe('Reporter', () => {
     })
   })
 
+  describe('setFlight', () => {
+    it('should update date option at runtime', () => {
+      const output = vi.fn<IReporterOutput>()
+      const reporter = new Reporter({ flight: { date: true, color: false }, output })
+
+      reporter.info('with date')
+      reporter.setFlight({ date: false })
+      reporter.info('without date')
+
+      const partsBefore = output.mock.calls[0][1]
+      const partsAfter = output.mock.calls[1][1]
+      expect(partsBefore).toHaveLength(2)
+      expect(partsAfter).toHaveLength(1)
+    })
+
+    it('should update color option at runtime', () => {
+      const output = vi.fn<IReporterOutput>()
+      const reporter = new Reporter({ flight: { date: false, color: true }, output })
+
+      reporter.info('with color')
+      reporter.setFlight({ color: false })
+      reporter.info('without color')
+
+      const partsBefore = output.mock.calls[0][1]
+      const partsAfter = output.mock.calls[1][1]
+      expect(partsBefore[0]).toContain('\x1b[')
+      expect(partsAfter[0]).toBe('[info]')
+    })
+
+    it('should keep unspecified flight options unchanged', () => {
+      const output = vi.fn<IReporterOutput>()
+      const reporter = new Reporter({ flight: { date: false, color: true }, output })
+
+      reporter.setFlight({ date: true })
+      reporter.info('merged flight')
+
+      const parts = output.mock.calls[0][1]
+      expect(parts).toHaveLength(2)
+      expect(parts[1]).toContain('\x1b[')
+    })
+  })
+
   describe('attach', () => {
     it('should push prefix and return detach function', () => {
       const reporter = new Reporter({ prefix: 'app' })

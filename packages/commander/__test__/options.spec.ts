@@ -30,6 +30,7 @@ describe('options', () => {
     it('should call reporter.setLevel in apply', () => {
       const mockReporter = {
         setLevel: vi.fn(),
+        setFlight: vi.fn(),
       }
       const ctx = { reporter: mockReporter } as any
       logLevelOption.apply!('debug', ctx)
