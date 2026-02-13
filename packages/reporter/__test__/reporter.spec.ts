@@ -1,6 +1,76 @@
 import { vi } from 'vitest'
 import type { IReporterLevel, IReporterOutput } from '../src'
-import { Reporter } from '../src'
+import {
+  LOG_LEVELS,
+  LOG_LEVEL_VALUES,
+  Reporter,
+  getLogLevelValue,
+  isLogLevel,
+  resolveLogLevel,
+} from '../src'
+
+describe('Log Level Utilities', () => {
+  describe('LOG_LEVELS', () => {
+    it('should contain all levels in order', () => {
+      expect(LOG_LEVELS).toEqual(['debug', 'info', 'hint', 'warn', 'error'])
+    })
+  })
+
+  describe('LOG_LEVEL_VALUES', () => {
+    it('should have correct numeric values', () => {
+      expect(LOG_LEVEL_VALUES).toEqual({
+        debug: 1,
+        info: 2,
+        hint: 3,
+        warn: 4,
+        error: 5,
+      })
+    })
+  })
+
+  describe('isLogLevel', () => {
+    it('should return true for valid levels', () => {
+      expect(isLogLevel('debug')).toBe(true)
+      expect(isLogLevel('info')).toBe(true)
+      expect(isLogLevel('hint')).toBe(true)
+      expect(isLogLevel('warn')).toBe(true)
+      expect(isLogLevel('error')).toBe(true)
+    })
+
+    it('should return false for invalid levels', () => {
+      expect(isLogLevel('invalid')).toBe(false)
+      expect(isLogLevel('DEBUG')).toBe(false)
+      expect(isLogLevel('')).toBe(false)
+    })
+  })
+
+  describe('getLogLevelValue', () => {
+    it('should return correct numeric value', () => {
+      expect(getLogLevelValue('debug')).toBe(1)
+      expect(getLogLevelValue('info')).toBe(2)
+      expect(getLogLevelValue('hint')).toBe(3)
+      expect(getLogLevelValue('warn')).toBe(4)
+      expect(getLogLevelValue('error')).toBe(5)
+    })
+  })
+
+  describe('resolveLogLevel', () => {
+    it('should resolve valid levels case-insensitively', () => {
+      expect(resolveLogLevel('debug')).toBe('debug')
+      expect(resolveLogLevel('DEBUG')).toBe('debug')
+      expect(resolveLogLevel('Info')).toBe('info')
+      expect(resolveLogLevel('HINT')).toBe('hint')
+      expect(resolveLogLevel('Warn')).toBe('warn')
+      expect(resolveLogLevel('ERROR')).toBe('error')
+    })
+
+    it('should return undefined for invalid levels', () => {
+      expect(resolveLogLevel('invalid')).toBeUndefined()
+      expect(resolveLogLevel('')).toBeUndefined()
+      expect(resolveLogLevel('verbose')).toBeUndefined()
+    })
+  })
+})
 
 describe('Reporter', () => {
   describe('constructor', () => {

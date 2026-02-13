@@ -1,4 +1,4 @@
-# @guanghechen/reporter - Colored Console Logger
+# @guanghechen/reporter
 
 A minimal, level-based logging utility with colored output and breadcrumb prefix support.
 
@@ -17,6 +17,20 @@ A minimal, level-based logging utility with colored output and breadcrumb prefix
 - **File logging** - Use shell redirection or custom output
 - **Log rotation** - Out of scope
 - **Custom formatters** - Fixed format only
+
+---
+
+## Module Structure
+
+```
+src/
+├── index.ts     # Public exports
+├── level.ts     # Log level utilities (LogLevelEnum, isLogLevel, etc.)
+├── chalk.ts     # ANSI color codes and formatting
+└── reporter.ts  # Reporter class implementation
+```
+
+---
 
 ## Types
 
@@ -45,6 +59,60 @@ interface IReporterEntry {
 }
 ```
 
+---
+
+## Log Levels
+
+```typescript
+enum LogLevelEnum {
+  debug = 1,
+  info = 2,
+  hint = 3,
+  warn = 4,
+  error = 5,
+}
+```
+
+| Level   | Numeric | Color   | ANSI Code  | Console Method    |
+| ------- | ------- | ------- | ---------- | ----------------- |
+| `debug` | 1       | Gray    | `\x1b[90m` | `console.debug()` |
+| `info`  | 2       | Cyan    | `\x1b[36m` | `console.log()`   |
+| `hint`  | 3       | Magenta | `\x1b[35m` | `console.log()`   |
+| `warn`  | 4       | Yellow  | `\x1b[33m` | `console.warn()`  |
+| `error` | 5       | Red     | `\x1b[31m` | `console.error()` |
+
+Messages are output only if `level >= threshold`.
+
+---
+
+## Exports
+
+### Reporter Class
+
+| Export     | Type    | Description       |
+| ---------- | ------- | ----------------- |
+| `Reporter` | `class` | Main logger class |
+
+### Level Utilities
+
+| Export            | Type                                             | Description                         |
+| ----------------- | ------------------------------------------------ | ----------------------------------- |
+| `LogLevelEnum`    | `enum`                                           | Log level enum (debug=1, info=2, …) |
+| `LOG_LEVELS`      | `readonly IReporterLevel[]`                      | All valid log levels in order       |
+| `LOG_LEVEL_VALUES`| `Record<IReporterLevel, number>`                 | Log level numeric values            |
+| `isLogLevel`      | `(value: string) => value is IReporterLevel`     | Type guard for log level            |
+| `getLogLevelValue`| `(level: IReporterLevel) => number`              | Get numeric value for log level     |
+| `resolveLogLevel` | `(value: string) => IReporterLevel \| undefined` | Case-insensitive log level resolver |
+
+### Chalk Utilities
+
+| Export      | Type                                    | Description                            |
+| ----------- | --------------------------------------- | -------------------------------------- |
+| `ANSI`      | `Record<string, string>`                | ANSI escape codes for terminal colors  |
+| `formatTag` | `(level, prefixes, color) => string`    | Format a tag with optional ANSI colors |
+
+---
+
 ## API
 
 ### Constructor
@@ -69,29 +137,13 @@ new Reporter(props?: IReporterProps)
 | `.mock()`              | `this`             | Enable mock mode (capture instead of print)               |
 | `.collect()`           | `IReporterEntry[]` | Disable mock mode, return captured logs                   |
 | `.log(level, ...args)` | `void`             | Core logging method (invalid level falls back to default) |
-| `.debug(...args)`      | `this`             | Log at debug level (`console.debug`)                      |
-| `.info(...args)`       | `this`             | Log at info level (`console.log`)                         |
-| `.hint(...args)`       | `this`             | Log at hint level (`console.log`)                         |
-| `.warn(...args)`       | `this`             | Log at warn level (`console.warn`)                        |
-| `.error(...args)`      | `this`             | Log at error level (`console.error`)                      |
+| `.debug(...args)`      | `this`             | Log at debug level                                        |
+| `.info(...args)`       | `this`             | Log at info level                                         |
+| `.hint(...args)`       | `this`             | Log at hint level                                         |
+| `.warn(...args)`       | `this`             | Log at warn level                                         |
+| `.error(...args)`      | `this`             | Log at error level                                        |
 
-### Exports
-
-| Export     | Type    | Description       |
-| ---------- | ------- | ----------------- |
-| `Reporter` | `class` | Main logger class |
-
-## Log Levels
-
-| Level   | Numeric | Color   | ANSI Code  |
-| ------- | ------- | ------- | ---------- |
-| `debug` | 1       | Gray    | `\x1b[90m` |
-| `info`  | 2       | Cyan    | `\x1b[36m` |
-| `hint`  | 3       | Magenta | `\x1b[35m` |
-| `warn`  | 4       | Yellow  | `\x1b[33m` |
-| `error` | 5       | Red     | `\x1b[31m` |
-
-Messages are output only if level >= threshold.
+---
 
 ## Output Format
 
@@ -116,6 +168,8 @@ Example with `flight.color: true`:
                          │└───┴─ cyan (info level)
                          └─ dim
 ```
+
+---
 
 ## Usage
 
@@ -265,4 +319,35 @@ assert.deepEqual(logs[0], {
   date: /* Date instance */
 })
 assert.deepEqual(logs[1].prefixes, ['test', 'sub'])
+```
+
+### Using Level Utilities
+
+```javascript
+import {
+  LogLevelEnum,
+  LOG_LEVELS,
+  isLogLevel,
+  resolveLogLevel,
+} from '@guanghechen/reporter'
+
+// Check if a string is a valid log level
+if (isLogLevel(userInput)) {
+  // userInput is narrowed to IReporterLevel
+}
+
+// Resolve case-insensitively
+resolveLogLevel('DEBUG')  // 'debug'
+resolveLogLevel('Info')   // 'info'
+resolveLogLevel('invalid') // undefined
+
+// Use enum for comparisons
+if (LogLevelEnum[level] >= LogLevelEnum.warn) {
+  // This is a warning or error
+}
+
+// Iterate all levels
+for (const level of LOG_LEVELS) {
+  console.log(level)  // 'debug', 'info', 'hint', 'warn', 'error'
+}
 ```
