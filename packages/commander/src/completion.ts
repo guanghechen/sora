@@ -7,12 +7,7 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { Command } from './command'
-import type {
-  ICommandToken,
-  ICompletionCommandConfig,
-  ICompletionMeta,
-  ICompletionPaths,
-} from './types'
+import type { ICompletionCommandConfig, ICompletionMeta, ICompletionPaths } from './types'
 
 // ==================== Naming Utilities ====================
 
@@ -48,7 +43,7 @@ function camelToKebabCase(str: string): string {
 export class CompletionCommand extends Command {
   constructor(root: Command, config: ICompletionCommandConfig) {
     const paths = config.paths
-    const programName = config.programName ?? root.name
+    const programName = config.programName ?? root.name ?? 'program'
 
     super({
       description: 'Generate shell completion script',
@@ -57,24 +52,28 @@ export class CompletionCommand extends Command {
     this.option({
       long: 'bash',
       type: 'boolean',
+      args: 'none',
       description: 'Generate Bash completion script',
     })
       .option({
         long: 'fish',
         type: 'boolean',
+        args: 'none',
         description: 'Generate Fish completion script',
       })
       .option({
         long: 'pwsh',
         type: 'boolean',
+        args: 'none',
         description: 'Generate PowerShell completion script',
       })
       .option({
         long: 'write',
         short: 'w',
         type: 'string',
-        description: 'Write to file (default path if no value given)',
-        resolver: argv => resolveOptionalStringOption(argv, 'write', 'w'),
+        args: 'required',
+        description: 'Write to file (use shell default path if empty)',
+        default: undefined,
       })
       .action(({ opts }) => {
         const meta = root.getCompletionMeta()
@@ -145,66 +144,6 @@ function expandHome(filepath: string): string {
     return filepath.replace(/^~/, home)
   }
   return filepath
-}
-
-/**
- * Resolve an optional string option that can be:
- * - Not present: undefined
- * - Present without value (--write): empty string '' to indicate "use default"
- * - Present with value (--write /path): the value
- */
-function resolveOptionalStringOption(
-  tokens: ICommandToken[],
-  longName: string,
-  shortName?: string,
-): { value: string | undefined; remaining: ICommandToken[] } {
-  const remaining: ICommandToken[] = []
-  let value: string | undefined
-
-  for (let i = 0; i < tokens.length; i++) {
-    const token = tokens[i]
-    const resolved = token.resolved
-
-    // Check --long=value (resolved is in camelCase)
-    if (resolved.startsWith(`--${longName}=`)) {
-      value = resolved.slice(`--${longName}=`.length)
-      continue
-    }
-
-    // Check --long or --long value
-    if (resolved === `--${longName}`) {
-      const next = tokens[i + 1]
-      if (next !== undefined && !next.resolved.startsWith('-')) {
-        value = next.original
-        i += 1
-      } else {
-        value = '' // Flag present but no value
-      }
-      continue
-    }
-
-    // Check -w=value
-    if (shortName && resolved.startsWith(`-${shortName}=`)) {
-      value = resolved.slice(`-${shortName}=`.length)
-      continue
-    }
-
-    // Check -w or -w value
-    if (shortName && resolved === `-${shortName}`) {
-      const next = tokens[i + 1]
-      if (next !== undefined && !next.resolved.startsWith('-')) {
-        value = next.original
-        i += 1
-      } else {
-        value = ''
-      }
-      continue
-    }
-
-    remaining.push(token)
-  }
-
-  return { value, remaining }
 }
 
 // ==================== BashCompletion ====================

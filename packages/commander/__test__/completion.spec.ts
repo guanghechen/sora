@@ -196,10 +196,16 @@ describe('PwshCompletion', () => {
 describe('Integration with Command', () => {
   it('should generate completion from Command', () => {
     const root = new Command({ name: 'mycli', description: 'My CLI', version: '1.0.0' })
-    root.option({ type: 'string', short: 'c', long: 'config', description: 'Config file' })
+    root.option({
+      type: 'string',
+      args: 'required',
+      short: 'c',
+      long: 'config',
+      description: 'Config file',
+    })
 
     const init = new Command({ description: 'Initialize project' })
-    init.option({ type: 'string', long: 'template', description: 'Template' })
+    init.option({ type: 'string', args: 'required', long: 'template', description: 'Template' })
     root.subcommand('init', init)
 
     const meta = root.getCompletionMeta()
@@ -258,7 +264,7 @@ describe('CompletionCommand', () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
     const root = new Command({ name: 'mycli', description: 'My CLI' })
-    root.option({ type: 'boolean', long: 'verbose', description: 'Verbose' })
+    root.option({ type: 'boolean', args: 'none', long: 'verbose', description: 'Verbose' })
     const completionCmd = new CompletionCommand(root, { paths: testPaths })
     root.subcommand('completion', completionCmd)
 
@@ -351,7 +357,7 @@ describe('CompletionCommand', () => {
       fs.rmSync(tempDir, { recursive: true, force: true })
     })
 
-    it('should write to default path when --write is used without value', async () => {
+    it('should write to default path when --write is used with empty value', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const fishPath = path.join(tempDir, 'fish-completion.fish')
 
@@ -361,7 +367,7 @@ describe('CompletionCommand', () => {
       })
       root.subcommand('completion', completionCmd)
 
-      await root.run({ argv: ['completion', '--fish', '--write'], envs: {} })
+      await root.run({ argv: ['completion', '--fish', '--write', ''], envs: {} })
 
       expect(consoleSpy).toHaveBeenCalledWith(`Completion script written to: ${fishPath}`)
       expect(fs.existsSync(fishPath)).toBe(true)
@@ -420,7 +426,7 @@ describe('CompletionCommand', () => {
       consoleSpy.mockRestore()
     })
 
-    it('should write bash completion to default bash path', async () => {
+    it('should write bash completion to default bash path with empty value', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const bashPath = path.join(tempDir, 'bash-completion')
 
@@ -430,7 +436,7 @@ describe('CompletionCommand', () => {
       })
       root.subcommand('completion', completionCmd)
 
-      await root.run({ argv: ['completion', '--bash', '--write'], envs: {} })
+      await root.run({ argv: ['completion', '--bash', '--write', ''], envs: {} })
 
       expect(fs.existsSync(bashPath)).toBe(true)
       const content = fs.readFileSync(bashPath, 'utf-8')
@@ -439,7 +445,7 @@ describe('CompletionCommand', () => {
       consoleSpy.mockRestore()
     })
 
-    it('should write pwsh completion to default pwsh path', async () => {
+    it('should write pwsh completion to default pwsh path with empty value', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const pwshPath = path.join(tempDir, 'profile.ps1')
 
@@ -449,7 +455,7 @@ describe('CompletionCommand', () => {
       })
       root.subcommand('completion', completionCmd)
 
-      await root.run({ argv: ['completion', '--pwsh', '--write'], envs: {} })
+      await root.run({ argv: ['completion', '--pwsh', '--write', ''], envs: {} })
 
       expect(fs.existsSync(pwshPath)).toBe(true)
       const content = fs.readFileSync(pwshPath, 'utf-8')
@@ -474,15 +480,15 @@ describe('CompletionCommand', () => {
       consoleSpy.mockRestore()
     })
 
-    it('should support -w=path syntax', async () => {
+    it('should support -w with path using space syntax', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-      const customPath = path.join(tempDir, 'custom-short-eq.fish')
+      const customPath = path.join(tempDir, 'custom-short-space.fish')
 
       const root = new Command({ name: 'mycli', description: 'My CLI' })
       const completionCmd = new CompletionCommand(root, { paths: testPaths })
       root.subcommand('completion', completionCmd)
 
-      await root.run({ argv: ['completion', '--fish', `-w=${customPath}`], envs: {} })
+      await root.run({ argv: ['completion', '--fish', '-w', customPath], envs: {} })
 
       expect(consoleSpy).toHaveBeenCalledWith(`Completion script written to: ${customPath}`)
       expect(fs.existsSync(customPath)).toBe(true)
@@ -499,7 +505,7 @@ describe('CompletionCommand', () => {
       const completionCmd = new CompletionCommand(root, { paths: testPaths })
       root.subcommand('completion', completionCmd)
 
-      await root.run({ argv: ['completion', '--write'], envs: {} })
+      await root.run({ argv: ['completion', '--write', ''], envs: {} })
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Please specify a shell: --bash, --fish, or --pwsh',
@@ -513,7 +519,7 @@ describe('CompletionCommand', () => {
       exitSpy.mockRestore()
     })
 
-    it('should expand ~ in default paths', async () => {
+    it('should expand ~ in default paths with empty write value', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const homeDir = os.homedir()
       const relativePath = path.join(tempDir.replace(homeDir, '~'), 'tilde-test.fish')
@@ -525,7 +531,7 @@ describe('CompletionCommand', () => {
       })
       root.subcommand('completion', completionCmd)
 
-      await root.run({ argv: ['completion', '--fish', '--write'], envs: {} })
+      await root.run({ argv: ['completion', '--fish', '--write', ''], envs: {} })
 
       expect(consoleSpy).toHaveBeenCalledWith(`Completion script written to: ${expandedPath}`)
       expect(fs.existsSync(expandedPath)).toBe(true)
@@ -533,7 +539,7 @@ describe('CompletionCommand', () => {
       consoleSpy.mockRestore()
     })
 
-    it('should use default path with -w shorthand without value', async () => {
+    it('should use default path with -w shorthand and empty value', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const fishPath = path.join(tempDir, 'fish-shorthand.fish')
 
@@ -543,7 +549,7 @@ describe('CompletionCommand', () => {
       })
       root.subcommand('completion', completionCmd)
 
-      await root.run({ argv: ['completion', '--fish', '-w'], envs: {} })
+      await root.run({ argv: ['completion', '--fish', '-w', ''], envs: {} })
 
       expect(consoleSpy).toHaveBeenCalledWith(`Completion script written to: ${fishPath}`)
       expect(fs.existsSync(fishPath)).toBe(true)
@@ -567,7 +573,7 @@ describe('CompletionCommand', () => {
       })
       root.subcommand('completion', completionCmd)
 
-      await root.run({ argv: ['completion', '--fish', '--write'], envs: {} })
+      await root.run({ argv: ['completion', '--fish', '--write', ''], envs: {} })
 
       expect(consoleSpy).toHaveBeenCalledWith(`Completion script written to: ${fishPath}`)
       expect(fs.existsSync(fishPath)).toBe(true)

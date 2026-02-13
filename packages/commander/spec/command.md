@@ -57,6 +57,7 @@ type ICommandAction = (params: ICommandActionParams) => void | Promise<void>
 interface ICommandRunParams {
   argv: string[]
   envs: Record<string, string | undefined>
+  reporter?: IReporter   // 覆盖默认 reporter
 }
 ```
 

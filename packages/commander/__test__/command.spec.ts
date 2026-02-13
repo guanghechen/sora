@@ -1,5 +1,5 @@
 import { vi } from 'vitest'
-import type { IActionParams } from '../src'
+import type { ICommandActionParams } from '../src'
 import { Command, CommanderError } from '../src'
 
 describe('Command', () => {
@@ -17,7 +17,7 @@ describe('Command', () => {
 
     it('should expose options property', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'boolean', long: 'verbose', description: 'Verbose' })
+      cmd.option({ type: 'boolean', args: 'none', long: 'verbose', description: 'Verbose' })
 
       const options = cmd.options
       expect(options.length).toBeGreaterThan(0)
@@ -37,56 +37,86 @@ describe('Command', () => {
   describe('option', () => {
     it('should add boolean option', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'boolean', short: 'v', long: 'verbose', description: 'Verbose output' })
+      cmd.option({
+        type: 'boolean',
+        args: 'none',
+        short: 'v',
+        long: 'verbose',
+        description: 'Verbose output',
+      })
 
-      const result = cmd.parse(['--verbose'])
+      const result = cmd.parse({ argv: ['--verbose'], envs: {} })
       expect(result.opts['verbose']).toBe(true)
     })
 
     it('should parse short option', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'boolean', short: 'v', long: 'verbose', description: 'Verbose' })
+      cmd.option({
+        type: 'boolean',
+        args: 'none',
+        short: 'v',
+        long: 'verbose',
+        description: 'Verbose',
+      })
 
-      const result = cmd.parse(['-v'])
+      const result = cmd.parse({ argv: ['-v'], envs: {} })
       expect(result.opts['verbose']).toBe(true)
     })
 
     it('should add string option', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'string', short: 'o', long: 'output', description: 'Output file' })
+      cmd.option({
+        type: 'string',
+        args: 'required',
+        short: 'o',
+        long: 'output',
+        description: 'Output file',
+      })
 
-      const result = cmd.parse(['--output', 'file.txt'])
+      const result = cmd.parse({ argv: ['--output', 'file.txt'], envs: {} })
       expect(result.opts['output']).toBe('file.txt')
     })
 
     it('should parse string option with equals sign', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'string', long: 'output', description: 'Output file' })
+      cmd.option({ type: 'string', args: 'required', long: 'output', description: 'Output file' })
 
-      const result = cmd.parse(['--output=file.txt'])
+      const result = cmd.parse({ argv: ['--output=file.txt'], envs: {} })
       expect(result.opts['output']).toBe('file.txt')
     })
 
     it('should add number option', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'number', short: 'p', long: 'port', description: 'Port number' })
+      cmd.option({
+        type: 'number',
+        args: 'required',
+        short: 'p',
+        long: 'port',
+        description: 'Port number',
+      })
 
-      const result = cmd.parse(['--port', '8080'])
+      const result = cmd.parse({ argv: ['--port', '8080'], envs: {} })
       expect(result.opts['port']).toBe(8080)
     })
 
     it('should throw for invalid number', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'number', long: 'port', description: 'Port number' })
+      cmd.option({ type: 'number', args: 'required', long: 'port', description: 'Port number' })
 
-      expect(() => cmd.parse(['--port', 'abc'])).toThrow('invalid number')
+      expect(() => cmd.parse({ argv: ['--port', 'abc'], envs: {} })).toThrow('invalid number')
     })
 
     it('should use default value when option not provided', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'string', long: 'env', description: 'Environment', default: 'dev' })
+      cmd.option({
+        type: 'string',
+        args: 'required',
+        long: 'env',
+        description: 'Environment',
+        default: 'dev',
+      })
 
-      const result = cmd.parse([])
+      const result = cmd.parse({ argv: [], envs: {} })
       expect(result.opts['env']).toBe('dev')
     })
 
@@ -94,91 +124,138 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.option({
         type: 'string',
+        args: 'required',
         long: 'env',
         description: 'Environment',
         choices: ['dev', 'prod'],
       })
 
-      expect(() => cmd.parse(['--env', 'staging'])).toThrow('invalid value')
+      expect(() => cmd.parse({ argv: ['--env', 'staging'], envs: {} })).toThrow('invalid value')
     })
 
     it('should throw for unknown option', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      expect(() => cmd.parse(['--unknown'])).toThrow('unknown option')
+      expect(() => cmd.parse({ argv: ['--unknown'], envs: {} })).toThrow('unknown option')
     })
 
     it('should throw for missing option value', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'string', long: 'output', description: 'Output' })
+      cmd.option({ type: 'string', args: 'required', long: 'output', description: 'Output' })
 
-      expect(() => cmd.parse(['--output'])).toThrow('requires a value')
+      expect(() => cmd.parse({ argv: ['--output'], envs: {} })).toThrow('requires a value')
     })
 
     it('should throw for missing required option', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'string', long: 'config', description: 'Config file', required: true })
+      cmd.option({
+        type: 'string',
+        args: 'required',
+        long: 'config',
+        description: 'Config file',
+        required: true,
+      })
 
-      expect(() => cmd.parse([])).toThrow('missing required option')
+      expect(() => cmd.parse({ argv: [], envs: {} })).toThrow('missing required option')
     })
 
     it('should support --no-{option} for boolean options', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'boolean', long: 'verbose', description: 'Verbose' })
+      cmd.option({ type: 'boolean', args: 'none', long: 'verbose', description: 'Verbose' })
 
-      const result = cmd.parse(['--no-verbose'])
+      const result = cmd.parse({ argv: ['--no-verbose'], envs: {} })
       expect(result.opts['verbose']).toBe(false)
     })
 
     it('should support --option=true/false for boolean options', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'boolean', long: 'verbose', description: 'Verbose' })
+      cmd.option({ type: 'boolean', args: 'none', long: 'verbose', description: 'Verbose' })
 
-      expect(cmd.parse(['--verbose=true']).opts['verbose']).toBe(true)
-      expect(cmd.parse(['--verbose=false']).opts['verbose']).toBe(false)
+      expect(cmd.parse({ argv: ['--verbose=true'], envs: {} }).opts['verbose']).toBe(true)
+      expect(cmd.parse({ argv: ['--verbose=false'], envs: {} }).opts['verbose']).toBe(false)
     })
 
     it('should throw for invalid boolean value', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'boolean', long: 'verbose', description: 'Verbose' })
+      cmd.option({ type: 'boolean', args: 'none', long: 'verbose', description: 'Verbose' })
 
-      expect(() => cmd.parse(['--verbose=yes'])).toThrow('Use "true" or "false"')
+      expect(() => cmd.parse({ argv: ['--verbose=yes'], envs: {} })).toThrow(
+        'Use "true" or "false"',
+      )
     })
 
     it('should throw for --no-option with value', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'boolean', long: 'verbose', description: 'Verbose' })
+      cmd.option({ type: 'boolean', args: 'none', long: 'verbose', description: 'Verbose' })
 
-      expect(() => cmd.parse(['--no-verbose=true'])).toThrow('does not accept a value')
+      expect(() => cmd.parse({ argv: ['--no-verbose=true'], envs: {} })).toThrow(
+        'does not accept a value',
+      )
     })
 
     it('should support Last Write Wins for boolean options', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'boolean', long: 'verbose', description: 'Verbose' })
+      cmd.option({ type: 'boolean', args: 'none', long: 'verbose', description: 'Verbose' })
 
-      expect(cmd.parse(['--verbose', '--no-verbose']).opts['verbose']).toBe(false)
-      expect(cmd.parse(['--no-verbose', '--verbose']).opts['verbose']).toBe(true)
+      expect(cmd.parse({ argv: ['--verbose', '--no-verbose'], envs: {} }).opts['verbose']).toBe(
+        false,
+      )
+      expect(cmd.parse({ argv: ['--no-verbose', '--verbose'], envs: {} }).opts['verbose']).toBe(
+        true,
+      )
     })
 
     it('should support string[] option with append', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'string[]', long: 'include', description: 'Include paths' })
+      cmd.option({
+        type: 'string',
+        args: 'variadic',
+        long: 'include',
+        description: 'Include paths',
+      })
 
-      const result = cmd.parse(['--include', 'a', '--include', 'b'])
+      const result = cmd.parse({ argv: ['--include', 'a', '--include', 'b'], envs: {} })
       expect(result.opts['include']).toEqual(['a', 'b'])
     })
 
     it('should support number[] option with append', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'number[]', long: 'port', description: 'Ports' })
+      cmd.option({ type: 'number', args: 'variadic', long: 'port', description: 'Ports' })
 
-      const result = cmd.parse(['--port', '80', '--port', '443'])
+      const result = cmd.parse({ argv: ['--port', '80', '--port', '443'], envs: {} })
       expect(result.opts['port']).toEqual([80, 443])
+    })
+
+    it('should support variadic option with = syntax (inline value only)', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.option({ type: 'string', args: 'variadic', long: 'files', description: 'Files' })
+      cmd.argument({ name: 'args', kind: 'variadic', description: 'Args' })
+
+      // --files=first.txt only takes first.txt, rest become positional args
+      const result = cmd.parse({ argv: ['--files=first.txt', 'a.txt', 'b.txt'], envs: {} })
+      expect(result.opts['files']).toEqual(['first.txt'])
+      expect(result.args).toEqual({ args: ['a.txt', 'b.txt'] })
+    })
+
+    it('should support variadic short option greedy consume', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+      cmd.option({
+        type: 'string',
+        args: 'variadic',
+        short: 'f',
+        long: 'files',
+        description: 'Files',
+      })
+
+      // -f greedily consumes following values until next option
+      const result = cmd.parse({ argv: ['-f', 'a.txt', 'b.txt', 'c.txt'], envs: {} })
+      expect(result.opts['files']).toEqual(['a.txt', 'b.txt', 'c.txt'])
     })
 
     it('should support coerce callback', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.option({
         type: 'number',
+        args: 'required',
         long: 'port',
         description: 'Port',
         coerce: v => {
@@ -188,37 +265,8 @@ describe('Command', () => {
         },
       })
 
-      expect(cmd.parse(['--port', '8080']).opts['port']).toBe(8080)
-      expect(() => cmd.parse(['--port', '99999'])).toThrow('Invalid port')
-    })
-
-    it('should support resolver callback', () => {
-      const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({
-        long: 'header',
-        description: 'Headers',
-        resolver: tokens => {
-          const headers: Record<string, string> = {}
-          const remaining: typeof tokens = []
-          for (let i = 0; i < tokens.length; i++) {
-            const token = tokens[i]
-            if (token.resolved === '--header' && i + 1 < tokens.length) {
-              const [key, val] = tokens[i + 1].original.split(': ')
-              headers[key] = val
-              i++
-            } else if (token.resolved.startsWith('--header=')) {
-              const [key, val] = token.resolved.slice(9).split(': ')
-              headers[key] = val
-            } else {
-              remaining.push(token)
-            }
-          }
-          return { value: headers, remaining }
-        },
-      })
-
-      const result = cmd.parse(['--header', 'X-Foo: bar', '--header', 'X-Bar: baz'])
-      expect(result.opts['header']).toEqual({ 'X-Foo': 'bar', 'X-Bar': 'baz' })
+      expect(cmd.parse({ argv: ['--port', '8080'], envs: {} }).opts['port']).toBe(8080)
+      expect(() => cmd.parse({ argv: ['--port', '99999'], envs: {} })).toThrow('Invalid port')
     })
   })
 
@@ -227,7 +275,7 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.argument({ name: 'input', description: 'Input file', kind: 'required' })
 
-      const result = cmd.parse(['file.txt'])
+      const result = cmd.parse({ argv: ['file.txt'], envs: {} })
       expect(result.args).toEqual({ input: 'file.txt' })
       expect(result.rawArgs).toEqual(['file.txt'])
     })
@@ -236,7 +284,7 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.argument({ name: 'output', description: 'Output file', kind: 'optional' })
 
-      const result = cmd.parse([])
+      const result = cmd.parse({ argv: [], envs: {} })
       expect(result.args).toEqual({ output: undefined })
       expect(result.rawArgs).toEqual([])
     })
@@ -245,7 +293,7 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.argument({ name: 'files', description: 'Input files', kind: 'variadic' })
 
-      const result = cmd.parse(['a.txt', 'b.txt', 'c.txt'])
+      const result = cmd.parse({ argv: ['a.txt', 'b.txt', 'c.txt'], envs: {} })
       expect(result.args).toEqual({ files: ['a.txt', 'b.txt', 'c.txt'] })
       expect(result.rawArgs).toEqual(['a.txt', 'b.txt', 'c.txt'])
     })
@@ -254,7 +302,7 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.argument({ name: 'input', description: 'Input file', kind: 'required' })
 
-      expect(() => cmd.parse([])).toThrow('missing required argument')
+      expect(() => cmd.parse({ argv: [], envs: {} })).toThrow('missing required argument')
     })
 
     it('should throw for multiple variadic arguments', () => {
@@ -281,7 +329,7 @@ describe('Command', () => {
       let receivedArgs: Record<string, unknown> = {}
       let receivedOpts: Record<string, unknown> = {}
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'string', long: 'opt', description: 'Option' })
+      cmd.option({ type: 'string', args: 'required', long: 'opt', description: 'Option' })
       cmd.argument({ name: 'arg', kind: 'required', description: 'Arg' })
       cmd.action(({ opts, args }) => {
         receivedOpts = opts
@@ -297,7 +345,7 @@ describe('Command', () => {
       let receivedArgs: Record<string, unknown> = {}
       let receivedOpts: Record<string, unknown> = {}
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'string', long: 'opt', description: 'Option' })
+      cmd.option({ type: 'string', args: 'required', long: 'opt', description: 'Option' })
       cmd.argument({ name: 'arg', kind: 'required', description: 'Arg' })
       cmd.action(({ opts, args }) => {
         receivedOpts = opts
@@ -313,7 +361,7 @@ describe('Command', () => {
       let receivedArgs: Record<string, unknown> = {}
       let receivedOpts: Record<string, unknown> = {}
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'string', long: 'opt', description: 'Option' })
+      cmd.option({ type: 'string', args: 'required', long: 'opt', description: 'Option' })
       cmd.argument({ name: 'files', kind: 'variadic', description: 'Files' })
       cmd.action(({ opts, args }) => {
         receivedOpts = opts
@@ -327,12 +375,24 @@ describe('Command', () => {
 
     it('should accept positional argument in subcommand after options', async () => {
       const root = new Command({ name: 'cli', description: 'CLI' })
-      root.option({ type: 'boolean', long: 'verbose', short: 'v', description: 'Verbose' })
+      root.option({
+        type: 'boolean',
+        args: 'none',
+        long: 'verbose',
+        short: 'v',
+        description: 'Verbose',
+      })
 
       let receivedArgs: Record<string, unknown> = {}
       let receivedOpts: Record<string, unknown> = {}
       const sub = new Command({ description: 'Sub' })
-      sub.option({ type: 'string', long: 'output', short: 'o', description: 'Output' })
+      sub.option({
+        type: 'string',
+        args: 'required',
+        long: 'output',
+        short: 'o',
+        description: 'Output',
+      })
       sub.argument({ name: 'file', kind: 'required', description: 'File' })
       sub.action(({ opts, args }) => {
         receivedOpts = opts
@@ -349,12 +409,24 @@ describe('Command', () => {
 
     it('should accept positional argument in subcommand before options', async () => {
       const root = new Command({ name: 'cli', description: 'CLI' })
-      root.option({ type: 'boolean', long: 'verbose', short: 'v', description: 'Verbose' })
+      root.option({
+        type: 'boolean',
+        args: 'none',
+        long: 'verbose',
+        short: 'v',
+        description: 'Verbose',
+      })
 
       let receivedArgs: Record<string, unknown> = {}
       let receivedOpts: Record<string, unknown> = {}
       const sub = new Command({ description: 'Sub' })
-      sub.option({ type: 'string', long: 'output', short: 'o', description: 'Output' })
+      sub.option({
+        type: 'string',
+        args: 'required',
+        long: 'output',
+        short: 'o',
+        description: 'Output',
+      })
       sub.argument({ name: 'file', kind: 'required', description: 'File' })
       sub.action(({ opts, args }) => {
         receivedOpts = opts
@@ -435,7 +507,7 @@ describe('Command', () => {
 
     it('should stop routing at option-like token', () => {
       const root = new Command({ name: 'cli', description: 'CLI' })
-      root.option({ type: 'boolean', long: 'verbose', description: 'Verbose' })
+      root.option({ type: 'boolean', args: 'none', long: 'verbose', description: 'Verbose' })
       root.argument({ name: 'args', kind: 'variadic', description: 'Args' })
       const sub = new Command({ description: 'Start' })
       sub.action(() => {})
@@ -443,7 +515,7 @@ describe('Command', () => {
 
       // pm --verbose start should NOT route to start
       // start becomes a positional argument for root
-      const result = root.parse(['--verbose', 'start'])
+      const result = root.parse({ argv: ['--verbose', 'start'], envs: {} })
       expect(result.opts['verbose']).toBe(true)
       expect(result.rawArgs).toEqual(['start'])
       expect(result.args).toEqual({ args: ['start'] })
@@ -469,6 +541,15 @@ describe('Command', () => {
       const subMeta = meta.subcommands.find(s => s.name === 'build')
       expect(subMeta?.aliases).toEqual(['b', 'compile'])
     })
+
+    it('should throw when command already has a different parent', () => {
+      const root1 = new Command({ name: 'cli1', description: 'CLI 1' })
+      const root2 = new Command({ name: 'cli2', description: 'CLI 2' })
+      const sub = new Command({ description: 'Sub' })
+
+      root1.subcommand('sub', sub)
+      expect(() => root2.subcommand('sub', sub)).toThrow('already has a parent')
+    })
   })
 
   describe('action', () => {
@@ -482,9 +563,9 @@ describe('Command', () => {
     })
 
     it('should pass context to action', async () => {
-      let params: IActionParams | undefined
+      let params: ICommandActionParams | undefined
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'string', long: 'name', description: 'Name' })
+      cmd.option({ type: 'string', args: 'required', long: 'name', description: 'Name' })
       cmd.argument({ name: 'file', description: 'File', kind: 'required' })
       cmd.action(p => {
         params = p
@@ -534,7 +615,7 @@ describe('Command', () => {
         description: 'Extras',
       })
 
-      const result = cmd.parse(['--', 'extra1', '--extra2'])
+      const result = cmd.parse({ argv: ['--', 'extra1', '--extra2'], envs: {} })
       expect(result.rawArgs).toEqual(['extra1', '--extra2'])
       expect(result.args).toEqual({ extras: ['extra1', '--extra2'] })
     })
@@ -543,22 +624,33 @@ describe('Command', () => {
   describe('built-in options', () => {
     it('should have --help option', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      const result = cmd.parse(['--help'])
+      const result = cmd.parse({ argv: ['--help'], envs: {} })
       expect(result.opts['help']).toBe(true)
     })
 
     it('should have --version option', () => {
       const cmd = new Command({ name: 'test', description: 'Test', version: '1.0.0' })
-      const result = cmd.parse(['--version'])
+      const result = cmd.parse({ argv: ['--version'], envs: {} })
       expect(result.opts['version']).toBe(true)
     })
 
-    it('should not inherit built-in --version for subcommands', () => {
+    it('should not show version output for subcommands when --version is used', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const root = new Command({ name: 'cli', description: 'CLI', version: '1.0.0' })
       const sub = new Command({ description: 'Sub' })
+      let actionCalled = false
+      sub.action(() => {
+        actionCalled = true
+      })
       root.subcommand('sub', sub)
 
-      expect(() => root.parse(['sub', '--version'])).toThrow('unknown option "--version"')
+      await root.run({ argv: ['sub', '--version'], envs: {} })
+
+      // --version is consumed by root (option bubbling) but does not output version
+      // because leaf command is not root, and subcommand action still runs
+      expect(actionCalled).toBe(true)
+      expect(consoleSpy).not.toHaveBeenCalledWith('1.0.0')
+      consoleSpy.mockRestore()
     })
   })
 
@@ -567,6 +659,7 @@ describe('Command', () => {
       const cmd = new Command({ name: 'mycli', description: 'My CLI tool', version: '1.0.0' })
       cmd.option({
         type: 'string',
+        args: 'required',
         short: 'o',
         long: 'output',
         description: 'Output file',
@@ -627,6 +720,7 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.option({
         type: 'string',
+        args: 'required',
         long: 'env',
         description: 'Environment',
         default: 'development',
@@ -640,6 +734,7 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.option({
         type: 'string',
+        args: 'required',
         long: 'format',
         description: 'Output format',
         choices: ['json', 'yaml'],
@@ -653,6 +748,7 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.option({
         type: 'boolean',
+        args: 'none',
         long: 'verbose',
         description: 'Verbose output',
       })
@@ -667,7 +763,13 @@ describe('Command', () => {
   describe('getCompletionMeta', () => {
     it('should return completion metadata', () => {
       const root = new Command({ name: 'cli', description: 'CLI tool' })
-      root.option({ type: 'string', short: 'c', long: 'config', description: 'Config file' })
+      root.option({
+        type: 'string',
+        args: 'required',
+        short: 'c',
+        long: 'config',
+        description: 'Config file',
+      })
 
       const sub = new Command({ description: 'Initialize' })
       root.subcommand('init', sub)
@@ -696,11 +798,11 @@ describe('Command', () => {
   describe('combined short options', () => {
     it('should parse combined short boolean options', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'boolean', short: 'a', long: 'alpha', description: 'Alpha' })
-      cmd.option({ type: 'boolean', short: 'b', long: 'beta', description: 'Beta' })
-      cmd.option({ type: 'boolean', short: 'c', long: 'gamma', description: 'Gamma' })
+      cmd.option({ type: 'boolean', args: 'none', short: 'a', long: 'alpha', description: 'Alpha' })
+      cmd.option({ type: 'boolean', args: 'none', short: 'b', long: 'beta', description: 'Beta' })
+      cmd.option({ type: 'boolean', args: 'none', short: 'c', long: 'gamma', description: 'Gamma' })
 
-      const result = cmd.parse(['-abc'])
+      const result = cmd.parse({ argv: ['-abc'], envs: {} })
 
       expect(result.opts['alpha']).toBe(true)
       expect(result.opts['beta']).toBe(true)
@@ -709,10 +811,22 @@ describe('Command', () => {
 
     it('should parse combined short options with value at end', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'boolean', short: 'v', long: 'verbose', description: 'Verbose' })
-      cmd.option({ type: 'string', short: 'o', long: 'output', description: 'Output' })
+      cmd.option({
+        type: 'boolean',
+        args: 'none',
+        short: 'v',
+        long: 'verbose',
+        description: 'Verbose',
+      })
+      cmd.option({
+        type: 'string',
+        args: 'required',
+        short: 'o',
+        long: 'output',
+        description: 'Output',
+      })
 
-      const result = cmd.parse(['-vo', 'file.txt'])
+      const result = cmd.parse({ argv: ['-vo', 'file.txt'], envs: {} })
 
       expect(result.opts['verbose']).toBe(true)
       expect(result.opts['output']).toBe('file.txt')
@@ -720,68 +834,116 @@ describe('Command', () => {
 
     it('should throw for unsupported -o=value syntax', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'string', short: 'o', long: 'output', description: 'Output' })
+      cmd.option({
+        type: 'string',
+        args: 'required',
+        short: 'o',
+        long: 'output',
+        description: 'Output',
+      })
 
-      expect(() => cmd.parse(['-o=file.txt'])).toThrow('not supported')
+      expect(() => cmd.parse({ argv: ['-o=file.txt'], envs: {} })).toThrow('not supported')
     })
 
-    it('should throw for unsupported -ovalue syntax', () => {
+    it('should throw for -ovalue syntax as unknown options', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'string', short: 'o', long: 'output', description: 'Output' })
-      cmd.option({ type: 'boolean', short: 'v', long: 'verbose', description: 'Verbose' })
+      cmd.option({
+        type: 'string',
+        args: 'required',
+        short: 'o',
+        long: 'output',
+        description: 'Output',
+      })
+      cmd.option({
+        type: 'boolean',
+        args: 'none',
+        short: 'v',
+        long: 'verbose',
+        description: 'Verbose',
+      })
 
-      // -ofile would look like -o -f -i -l -e but -o takes value
-      // So this should error
-      expect(() => cmd.parse(['-ofile'])).toThrow('not supported')
+      // -ofile is expanded to -o -f -i -l -e, where -f is unknown
+      expect(() => cmd.parse({ argv: ['-ofile'], envs: {} })).toThrow('unknown option')
     })
 
     it('should throw for unknown short option in combined form', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'boolean', short: 'a', long: 'alpha', description: 'Alpha' })
-      cmd.option({ type: 'boolean', short: 'b', long: 'beta', description: 'Beta' })
+      cmd.option({ type: 'boolean', args: 'none', short: 'a', long: 'alpha', description: 'Alpha' })
+      cmd.option({ type: 'boolean', args: 'none', short: 'b', long: 'beta', description: 'Beta' })
 
       // -axb includes unknown 'x'
-      expect(() => cmd.parse(['-axb'])).toThrow('unknown option "-x"')
+      expect(() => cmd.parse({ argv: ['-axb'], envs: {} })).toThrow('unknown option "-x"')
     })
   })
 
   describe('option conflicts', () => {
     it('should throw for duplicate long option in same command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'boolean', long: 'verbose', description: 'Verbose' })
+      cmd.option({ type: 'boolean', args: 'none', long: 'verbose', description: 'Verbose' })
 
       expect(() =>
-        cmd.option({ type: 'boolean', long: 'verbose', description: 'Duplicate' }),
+        cmd.option({ type: 'boolean', args: 'none', long: 'verbose', description: 'Duplicate' }),
       ).toThrow('already defined')
     })
 
     it('should throw for duplicate short option in same command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'boolean', short: 'v', long: 'verbose', description: 'Verbose' })
+      cmd.option({
+        type: 'boolean',
+        args: 'none',
+        short: 'v',
+        long: 'verbose',
+        description: 'Verbose',
+      })
 
       expect(() =>
-        cmd.option({ type: 'boolean', short: 'v', long: 'version', description: 'Version' }),
+        cmd.option({
+          type: 'boolean',
+          args: 'none',
+          short: 'v',
+          long: 'version',
+          description: 'Version',
+        }),
       ).toThrow('already defined')
     })
 
     it('should throw for short option conflicts across command chain', () => {
       const root = new Command({ name: 'cli', description: 'CLI' })
-      root.option({ type: 'boolean', short: 'v', long: 'verbose', description: 'Verbose' })
+      root.option({
+        type: 'boolean',
+        args: 'none',
+        short: 'v',
+        long: 'verbose',
+        description: 'Verbose',
+      })
 
       const child = new Command({ description: 'Child' })
-      child.option({ type: 'boolean', short: 'v', long: 'version', description: 'Version' })
+      child.option({
+        type: 'boolean',
+        args: 'none',
+        short: 'v',
+        long: 'version',
+        description: 'Version',
+      })
 
       root.subcommand('child', child)
 
-      expect(() => root.parse(['child', '-v'])).toThrow('short option "-v" conflicts')
+      expect(() => root.parse({ argv: ['child', '-v'], envs: {} })).toThrow(
+        'short option "-v" conflicts',
+      )
     })
 
     it('should throw for long option starting with no-', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
 
       expect(() =>
-        cmd.option({ type: 'boolean', long: 'no-verbose', description: 'No verbose' }),
-      ).toThrow('cannot start with "no-"')
+        cmd.option({
+          type: 'boolean',
+          args: 'none',
+          long: 'no-verbose',
+          description: 'No verbose',
+        }),
+      ).toThrow('cannot start with "no"')
     })
 
     it('should throw for required + default conflict', () => {
@@ -790,6 +952,7 @@ describe('Command', () => {
       expect(() =>
         cmd.option({
           type: 'string',
+          args: 'required',
           long: 'config',
           description: 'Config',
           required: true,
@@ -804,48 +967,136 @@ describe('Command', () => {
       expect(() =>
         cmd.option({
           type: 'boolean',
+          args: 'none',
           long: 'verbose',
           description: 'Verbose',
           required: true,
         }),
       ).toThrow('cannot be required')
     })
+
+    it('should throw for boolean + required args combination', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+
+      expect(() =>
+        cmd.option({
+          type: 'boolean',
+          args: 'required',
+          long: 'verbose',
+          description: 'Verbose',
+        }),
+      ).toThrow("must have args: 'none'")
+    })
+
+    it('should throw for boolean + variadic args combination', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+
+      expect(() =>
+        cmd.option({
+          type: 'boolean',
+          args: 'variadic',
+          long: 'verbose',
+          description: 'Verbose',
+        }),
+      ).toThrow("must have args: 'none'")
+    })
+
+    it('should throw for string + none args combination', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+
+      expect(() =>
+        cmd.option({
+          type: 'string',
+          args: 'none',
+          long: 'output',
+          description: 'Output',
+        }),
+      ).toThrow("must have args: 'required' or 'variadic'")
+    })
+
+    it('should throw for number + none args combination', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+
+      expect(() =>
+        cmd.option({
+          type: 'number',
+          args: 'none',
+          long: 'port',
+          description: 'Port',
+        }),
+      ).toThrow("must have args: 'required' or 'variadic'")
+    })
+
+    it('should throw for non-camelCase long option name', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+
+      expect(() =>
+        cmd.option({
+          type: 'boolean',
+          args: 'none',
+          long: 'Verbose',
+          description: 'Verbose',
+        }),
+      ).toThrow('must be camelCase')
+    })
+
+    it('should throw for long option name starting with uppercase', () => {
+      const cmd = new Command({ name: 'test', description: 'Test' })
+
+      expect(() =>
+        cmd.option({
+          type: 'boolean',
+          args: 'none',
+          long: 'VerboseMode',
+          description: 'Verbose',
+        }),
+      ).toThrow('must be camelCase')
+    })
   })
 
   describe('run method', () => {
-    it('should show version when --version is used', async () => {
+    it('should show version when --version or -V is used', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const cmd = new Command({ name: 'test', description: 'Test', version: '1.0.0' })
       cmd.action(() => {})
 
       await cmd.run({ argv: ['--version'], envs: {} })
+      expect(consoleSpy).toHaveBeenCalledWith('1.0.0')
+      consoleSpy.mockClear()
 
+      await cmd.run({ argv: ['-V'], envs: {} })
       expect(consoleSpy).toHaveBeenCalledWith('1.0.0')
       consoleSpy.mockRestore()
     })
 
-    it('should show unknown when version is not set', async () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    it('should treat --version as normal boolean option when version is not set', async () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.action(() => {})
+      let versionOptValue: unknown
+      cmd.action(({ opts }) => {
+        versionOptValue = opts['version']
+      })
 
       await cmd.run({ argv: ['--version'], envs: {} })
 
-      expect(consoleSpy).toHaveBeenCalledWith('unknown')
-      consoleSpy.mockRestore()
+      // When version is not set, --version is still a valid option but doesn't
+      // trigger special version output, it's just parsed as a boolean option
+      expect(versionOptValue).toBe(true)
     })
 
-    it('should show help when --help is used', async () => {
+    it('should show help when --help or -h is used', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const cmd = new Command({ name: 'test', description: 'Test command' })
       cmd.action(() => {})
 
       await cmd.run({ argv: ['--help'], envs: {} })
-
       expect(consoleSpy).toHaveBeenCalled()
-      const output = consoleSpy.mock.calls[0][0]
-      expect(output).toContain('Test command')
-      expect(output).toContain('Usage: test')
+      expect(consoleSpy.mock.calls[0][0]).toContain('Test command')
+      expect(consoleSpy.mock.calls[0][0]).toContain('Usage: test')
+      consoleSpy.mockClear()
+
+      await cmd.run({ argv: ['-h'], envs: {} })
+      expect(consoleSpy).toHaveBeenCalled()
+      expect(consoleSpy.mock.calls[0][0]).toContain('Test command')
       consoleSpy.mockRestore()
     })
 
@@ -868,31 +1119,28 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test command' })
       cmd.action(() => {})
 
+      // Both long and short unknown options should allow --help detection
       await cmd.run({ argv: ['--unknown', '--help'], envs: {} })
-
       expect(consoleSpy).toHaveBeenCalled()
-      const output = consoleSpy.mock.calls[0][0]
-      expect(output).toContain('Test command')
-      consoleSpy.mockRestore()
-    })
-
-    it('should show help even with unknown short option before --help', async () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-      const cmd = new Command({ name: 'test', description: 'Test command' })
-      cmd.action(() => {})
+      expect(consoleSpy.mock.calls[0][0]).toContain('Test command')
+      consoleSpy.mockClear()
 
       await cmd.run({ argv: ['-x', '--help'], envs: {} })
-
       expect(consoleSpy).toHaveBeenCalled()
-      const output = consoleSpy.mock.calls[0][0]
-      expect(output).toContain('Test command')
+      expect(consoleSpy.mock.calls[0][0]).toContain('Test command')
       consoleSpy.mockRestore()
     })
 
     it('should show help with string option followed by -- and then --help', async () => {
       const actionSpy = vi.fn()
       const cmd = new Command({ name: 'test', description: 'Test command' })
-      cmd.option({ type: 'string', long: 'config', short: 'c', description: 'Config file' })
+      cmd.option({
+        type: 'string',
+        args: 'required',
+        long: 'config',
+        short: 'c',
+        description: 'Config file',
+      })
       cmd.argument({ name: 'args', kind: 'variadic', description: 'Args' })
       cmd.action(actionSpy)
 
@@ -903,35 +1151,27 @@ describe('Command', () => {
       expect(actionSpy).toHaveBeenCalled()
     })
 
-    it('should show help with option without explicit type (defaults to string) before --help', async () => {
+    it('should show help after option that consumes a value', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const cmd = new Command({ name: 'test', description: 'Test command' })
-      // Option without explicit type defaults to string
-      cmd.option({ long: 'config', short: 'c', description: 'Config file' })
+      cmd.option({
+        type: 'string',
+        args: 'required',
+        long: 'config',
+        short: 'c',
+        description: 'Config file',
+      })
       cmd.action(() => {})
 
-      // --config consumes next value "foo", then --help should be detected
+      // Both long and short options should allow --help detection after consuming value
       await cmd.run({ argv: ['--config', 'foo', '--help'], envs: {} })
-
       expect(consoleSpy).toHaveBeenCalled()
-      const output = consoleSpy.mock.calls[0][0]
-      expect(output).toContain('Test command')
-      consoleSpy.mockRestore()
-    })
+      expect(consoleSpy.mock.calls[0][0]).toContain('Test command')
+      consoleSpy.mockClear()
 
-    it('should show help with short option without explicit type before --help', async () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-      const cmd = new Command({ name: 'test', description: 'Test command' })
-      // Option without explicit type defaults to string
-      cmd.option({ long: 'config', short: 'c', description: 'Config file' })
-      cmd.action(() => {})
-
-      // -c consumes next value "foo", then --help should be detected
       await cmd.run({ argv: ['-c', 'foo', '--help'], envs: {} })
-
       expect(consoleSpy).toHaveBeenCalled()
-      const output = consoleSpy.mock.calls[0][0]
-      expect(output).toContain('Test command')
+      expect(consoleSpy.mock.calls[0][0]).toContain('Test command')
       consoleSpy.mockRestore()
     })
 
@@ -985,7 +1225,7 @@ describe('Command', () => {
         error: vi.fn(),
       }
 
-      let capturedCtx: IActionParams['ctx'] | undefined
+      let capturedCtx: ICommandActionParams['ctx'] | undefined
       const cmd = new Command({ name: 'test', description: 'Test', reporter: baseReporter })
       cmd.action(({ ctx }) => {
         capturedCtx = ctx
@@ -1005,7 +1245,7 @@ describe('Command', () => {
         error: vi.fn(),
       }
 
-      let capturedCtx: IActionParams['ctx'] | undefined
+      let capturedCtx: ICommandActionParams['ctx'] | undefined
       const cmd = new Command({ name: 'test', description: 'Test', reporter: baseReporter })
       cmd.action(({ ctx }) => {
         capturedCtx = ctx
@@ -1060,6 +1300,7 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.option({
         type: 'string',
+        args: 'required',
         long: 'env',
         description: 'Environment',
         apply: applySpy,
@@ -1076,6 +1317,7 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.option({
         type: 'string',
+        args: 'required',
         long: 'env',
         description: 'Environment',
         apply: applySpy,
@@ -1109,6 +1351,7 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.option({
         type: 'string',
+        args: 'required',
         long: 'config',
         description: 'Config',
         coerce: () => {
@@ -1124,29 +1367,33 @@ describe('Command', () => {
   describe('short option edge cases', () => {
     it('should throw for short option value starting with dash (known limitation)', () => {
       // Known limitation: short options cannot accept negative numbers
-      // Use long option syntax instead: --number -1
+      // Use long option syntax instead: --number=-1 or --number -1
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'number', short: 'n', long: 'number', description: 'Number' })
+      cmd.option({
+        type: 'number',
+        args: 'required',
+        short: 'n',
+        long: 'number',
+        description: 'Number',
+      })
 
-      expect(() => cmd.parse(['-n', '-1'])).toThrow('requires a value')
+      // -1 is interpreted as a short option, not a value for -n
+      expect(() => cmd.parse({ argv: ['-n', '-1'], envs: {} })).toThrow('unknown option')
     })
 
-    it('should accept negative number with long option syntax', () => {
+    it('should accept negative number with long option equals syntax', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'number', short: 'n', long: 'number', description: 'Number' })
+      cmd.option({
+        type: 'number',
+        args: 'required',
+        short: 'n',
+        long: 'number',
+        description: 'Number',
+      })
 
-      const result = cmd.parse(['--number', '-1'])
+      // Use --option=-value syntax for negative numbers
+      const result = cmd.parse({ argv: ['--number=-1'], envs: {} })
       expect(result.opts['number']).toBe(-1)
-    })
-
-    it('should parse short option with value in combined form followed by next arg', () => {
-      const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ type: 'boolean', short: 'v', long: 'verbose', description: 'Verbose' })
-      cmd.option({ type: 'string', short: 'o', long: 'output', description: 'Output' })
-
-      const result = cmd.parse(['-vo', 'file.txt'])
-      expect(result.opts['verbose']).toBe(true)
-      expect(result.opts['output']).toBe('file.txt')
     })
   })
 
@@ -1158,24 +1405,6 @@ describe('Command', () => {
       expect(() =>
         cmd.argument({ name: 'required', description: 'Required', kind: 'required' }),
       ).toThrow('cannot come after optional/variadic')
-    })
-
-    it('should throw for multiple variadic arguments', () => {
-      const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.argument({ name: 'files', description: 'Files', kind: 'variadic' })
-
-      expect(() => cmd.argument({ name: 'more', description: 'More', kind: 'variadic' })).toThrow(
-        'only one variadic argument',
-      )
-    })
-
-    it('should throw for argument after variadic', () => {
-      const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.argument({ name: 'files', description: 'Files', kind: 'variadic' })
-
-      expect(() => cmd.argument({ name: 'extra', description: 'Extra', kind: 'optional' })).toThrow(
-        'variadic argument must be the last',
-      )
     })
 
     it('should throw for required argument with default', () => {
@@ -1197,7 +1426,7 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.argument({ name: 'port', description: 'Port', kind: 'required', type: 'number' })
 
-      const result = cmd.parse(['8080'])
+      const result = cmd.parse({ argv: ['8080'], envs: {} })
       expect(result.args).toEqual({ port: 8080 })
       expect(result.rawArgs).toEqual(['8080'])
     })
@@ -1206,7 +1435,9 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.argument({ name: 'port', description: 'Port', kind: 'required', type: 'number' })
 
-      expect(() => cmd.parse(['abc'])).toThrow('invalid number "abc" for argument "port"')
+      expect(() => cmd.parse({ argv: ['abc'], envs: {} })).toThrow(
+        'invalid number "abc" for argument "port"',
+      )
     })
 
     it('should use coerce callback for argument conversion', () => {
@@ -1222,8 +1453,10 @@ describe('Command', () => {
         },
       })
 
-      expect(cmd.parse(['8080']).args).toEqual({ port: 8080 })
-      expect(() => cmd.parse(['99999'])).toThrow('invalid value "99999" for argument "port"')
+      expect(cmd.parse({ argv: ['8080'], envs: {} }).args).toEqual({ port: 8080 })
+      expect(() => cmd.parse({ argv: ['99999'], envs: {} })).toThrow(
+        'invalid value "99999" for argument "port"',
+      )
     })
 
     it('should prefer coerce over type conversion', () => {
@@ -1236,7 +1469,7 @@ describe('Command', () => {
         coerce: v => `prefix_${v}`,
       })
 
-      const result = cmd.parse(['123'])
+      const result = cmd.parse({ argv: ['123'], envs: {} })
       expect(result.args).toEqual({ value: 'prefix_123' })
     })
 
@@ -1249,7 +1482,7 @@ describe('Command', () => {
         default: 'development',
       })
 
-      const result = cmd.parse([])
+      const result = cmd.parse({ argv: [], envs: {} })
       expect(result.args).toEqual({ env: 'development' })
     })
 
@@ -1262,7 +1495,7 @@ describe('Command', () => {
         default: 'development',
       })
 
-      const result = cmd.parse(['production'])
+      const result = cmd.parse({ argv: ['production'], envs: {} })
       expect(result.args).toEqual({ env: 'production' })
     })
 
@@ -1270,7 +1503,7 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.argument({ name: 'output', description: 'Output', kind: 'optional' })
 
-      const result = cmd.parse([])
+      const result = cmd.parse({ argv: [], envs: {} })
       expect(result.args).toEqual({ output: undefined })
     })
 
@@ -1278,7 +1511,7 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.argument({ name: 'ports', description: 'Ports', kind: 'variadic', type: 'number' })
 
-      const result = cmd.parse(['80', '443', '8080'])
+      const result = cmd.parse({ argv: ['80', '443', '8080'], envs: {} })
       expect(result.args).toEqual({ ports: [80, 443, 8080] })
     })
 
@@ -1286,7 +1519,7 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.argument({ name: 'ports', description: 'Ports', kind: 'variadic', type: 'number' })
 
-      expect(() => cmd.parse(['80', 'abc', '8080'])).toThrow(
+      expect(() => cmd.parse({ argv: ['80', 'abc', '8080'], envs: {} })).toThrow(
         'invalid number "abc" for argument "ports"',
       )
     })
@@ -1295,7 +1528,7 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.argument({ name: 'files', description: 'Files', kind: 'variadic' })
 
-      const result = cmd.parse([])
+      const result = cmd.parse({ argv: [], envs: {} })
       expect(result.args).toEqual({ files: [] })
     })
   })
@@ -1305,7 +1538,7 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.argument({ name: 'input', description: 'Input', kind: 'required' })
 
-      expect(() => cmd.parse(['a.txt', 'b.txt', 'c.txt'])).toThrow(
+      expect(() => cmd.parse({ argv: ['a.txt', 'b.txt', 'c.txt'], envs: {} })).toThrow(
         'too many arguments: expected 1, got 3',
       )
     })
@@ -1315,7 +1548,7 @@ describe('Command', () => {
       cmd.argument({ name: 'source', description: 'Source', kind: 'required' })
       cmd.argument({ name: 'dest', description: 'Dest', kind: 'optional' })
 
-      expect(() => cmd.parse(['a.txt', 'b.txt', 'c.txt'])).toThrow(
+      expect(() => cmd.parse({ argv: ['a.txt', 'b.txt', 'c.txt'], envs: {} })).toThrow(
         'too many arguments: expected 2, got 3',
       )
     })
@@ -1325,36 +1558,38 @@ describe('Command', () => {
       cmd.argument({ name: 'source', description: 'Source', kind: 'required' })
       cmd.argument({ name: 'extras', description: 'Extras', kind: 'variadic' })
 
-      const result = cmd.parse(['a.txt', 'b.txt', 'c.txt'])
+      const result = cmd.parse({ argv: ['a.txt', 'b.txt', 'c.txt'], envs: {} })
       expect(result.args).toEqual({ source: 'a.txt', extras: ['b.txt', 'c.txt'] })
     })
 
     it('should not throw when no arguments defined and no arguments provided', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
 
-      const result = cmd.parse([])
+      const result = cmd.parse({ argv: [], envs: {} })
       expect(result.args).toEqual({})
     })
 
     it('should throw when no arguments defined but arguments provided', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
 
-      expect(() => cmd.parse(['unexpected'])).toThrow('too many arguments: expected 0, got 1')
+      expect(() => cmd.parse({ argv: ['unexpected'], envs: {} })).toThrow(
+        'too many arguments: expected 0, got 1',
+      )
     })
   })
 
   describe('default type handling', () => {
     it('should treat undefined type as string', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ long: 'config', description: 'Config file' }) // no type specified
+      cmd.option({ type: 'string', args: 'required', long: 'config', description: 'Config file' }) // no type specified
 
-      const result = cmd.parse(['--config', 'app.json'])
+      const result = cmd.parse({ argv: ['--config', 'app.json'], envs: {} })
       expect(result.opts['config']).toBe('app.json')
     })
 
     it('should show <value> in help for options without explicit type', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ long: 'config', description: 'Config file' })
+      cmd.option({ type: 'string', args: 'required', long: 'config', description: 'Config file' })
 
       const help = cmd.formatHelp()
       expect(help).toContain('--config <value>')
@@ -1387,7 +1622,12 @@ describe('Command', () => {
       const root = new Command({ name: 'cli', description: 'CLI tool', help: true })
 
       const sub = new Command({ description: 'Initialize project' })
-      sub.option({ type: 'string', long: 'template', description: 'Template name' })
+      sub.option({
+        type: 'string',
+        args: 'required',
+        long: 'template',
+        description: 'Template name',
+      })
       sub.action(() => {})
       root.subcommand('init', sub)
 
@@ -1570,11 +1810,18 @@ describe('Command', () => {
         long: 'verbose',
         short: 'v',
         type: 'boolean',
+        args: 'none',
         description: 'Verbose',
       })
 
       const child = new Command({ description: 'Child' })
-        .option({ long: 'output', short: 'o', type: 'string', description: 'Output' })
+        .option({
+          long: 'output',
+          short: 'o',
+          type: 'string',
+          args: 'required',
+          description: 'Output',
+        })
         .action(({ opts }) => {
           expect(opts['verbose']).toBe(true)
           expect(opts['output']).toBe('file.txt')
@@ -1589,11 +1836,12 @@ describe('Command', () => {
       const root = new Command({ name: 'cli', description: 'CLI' }).option({
         long: 'verbose',
         type: 'boolean',
+        args: 'none',
         description: 'Root verbose',
       })
 
       const child = new Command({ description: 'Child' })
-        .option({ long: 'verbose', type: 'boolean', description: 'Child verbose' })
+        .option({ long: 'verbose', type: 'boolean', args: 'none', description: 'Child verbose' })
         .action(({ opts }) => {
           // Child consumes --verbose, merge order is root → leaf, so child overwrites
           expect(opts['verbose']).toBe(true)
@@ -1608,6 +1856,7 @@ describe('Command', () => {
       const root = new Command({ name: 'cli', description: 'CLI' }).option({
         long: 'verbose',
         type: 'boolean',
+        args: 'none',
         description: 'Verbose',
       })
 
@@ -1630,6 +1879,7 @@ describe('Command', () => {
       const root = new Command({ name: 'cli', description: 'CLI' }).option({
         long: 'config',
         type: 'string',
+        args: 'required',
         description: 'Config',
         apply: () => order.push('root-config'),
       })
@@ -1638,6 +1888,7 @@ describe('Command', () => {
         .option({
           long: 'env',
           type: 'string',
+          args: 'required',
           description: 'Env',
           apply: () => order.push('child-env'),
         })
@@ -1675,12 +1926,19 @@ describe('Command', () => {
       const root = new Command({ name: 'cli', description: 'CLI' }).option({
         long: 'level',
         type: 'number',
+        args: 'required',
         default: 1,
         description: 'Level',
       })
 
       const child = new Command({ description: 'Child' })
-        .option({ long: 'level', type: 'number', default: 2, description: 'Child level' })
+        .option({
+          long: 'level',
+          type: 'number',
+          args: 'required',
+          default: 2,
+          description: 'Child level',
+        })
         .action(({ opts }) => {
           // No --level provided, but defaults merge with child overwriting root
           expect(opts['level']).toBe(2)
@@ -1695,17 +1953,19 @@ describe('Command', () => {
       const root = new Command({ name: 'cli', description: 'CLI' }).option({
         long: 'global',
         type: 'boolean',
+        args: 'none',
         description: 'Global',
       })
 
       const parent = new Command({ description: 'Parent' }).option({
         long: 'parentOpt',
         type: 'string',
+        args: 'required',
         description: 'Parent opt',
       })
 
       const child = new Command({ description: 'Child' })
-        .option({ long: 'childOpt', type: 'string', description: 'Child opt' })
+        .option({ long: 'childOpt', type: 'string', args: 'required', description: 'Child opt' })
         .action(({ opts }) => {
           expect(opts['global']).toBe(true)
           expect(opts['parentOpt']).toBe('p')
@@ -1726,11 +1986,18 @@ describe('Command', () => {
         long: 'verbose',
         short: 'v',
         type: 'boolean',
+        args: 'none',
         description: 'Verbose',
       })
 
       const child = new Command({ description: 'Child' })
-        .option({ long: 'output', short: 'o', type: 'string', description: 'Output' })
+        .option({
+          long: 'output',
+          short: 'o',
+          type: 'string',
+          args: 'required',
+          description: 'Output',
+        })
         .action(({ opts }) => {
           expect(opts['verbose']).toBe(true)
           expect(opts['output']).toBe('file.txt')
@@ -1747,11 +2014,12 @@ describe('Command', () => {
         long: 'verbose',
         short: 'v',
         type: 'boolean',
+        args: 'none',
         description: 'Verbose',
       })
 
       const child = new Command({ description: 'Child' })
-        .option({ long: 'debug', short: 'd', type: 'boolean', description: 'Debug' })
+        .option({ long: 'debug', short: 'd', type: 'boolean', args: 'none', description: 'Debug' })
         .action(({ opts }) => {
           expect(opts['verbose']).toBe(true)
           expect(opts['debug']).toBe(true)
@@ -1767,6 +2035,7 @@ describe('Command', () => {
       const root = new Command({ name: 'cli', description: 'CLI' }).option({
         long: 'config',
         type: 'string',
+        args: 'required',
         description: 'Config',
       })
 
@@ -1783,22 +2052,30 @@ describe('Command', () => {
       const root = new Command({ name: 'cli', description: 'CLI' }).option({
         long: 'verbose',
         type: 'boolean',
+        args: 'none',
+        default: true,
         description: 'Verbose',
       })
 
+      let capturedOpts: Record<string, unknown> = {}
       const child = new Command({ description: 'Child' }).action(({ opts }) => {
-        expect(opts['verbose']).toBe(true)
+        capturedOpts = opts
       })
 
       root.subcommand('child', child)
 
       await root.run({ argv: ['child', '--verbose=true'], envs: {} })
+      expect(capturedOpts['verbose']).toBe(true)
+
+      await root.run({ argv: ['child', '--verbose=false'], envs: {} })
+      expect(capturedOpts['verbose']).toBe(false)
     })
 
     it('should handle --no-option syntax with bubbling', async () => {
       const root = new Command({ name: 'cli', description: 'CLI' }).option({
         long: 'verbose',
         type: 'boolean',
+        args: 'none',
         default: true,
         description: 'Verbose',
       })
@@ -1812,47 +2089,6 @@ describe('Command', () => {
       await root.run({ argv: ['child', '--no-verbose'], envs: {} })
     })
 
-    it('should pass unknown -x=value syntax to parent', async () => {
-      const root = new Command({ name: 'cli', description: 'CLI' }).option({
-        long: 'write',
-        short: 'w',
-        type: 'string',
-        description: 'Write',
-        resolver: tokens => {
-          const remaining: typeof tokens = []
-          let value: string | undefined
-          for (let i = 0; i < tokens.length; i++) {
-            const token = tokens[i]
-            if (token.resolved === '-w' || token.resolved === '--write') {
-              const next = tokens[i + 1]
-              if (next && !next.resolved.startsWith('-')) {
-                value = next.original
-                i++
-              } else {
-                value = ''
-              }
-            } else if (token.resolved.startsWith('-w=')) {
-              value = token.original.slice(3)
-            } else if (token.resolved.startsWith('--write=')) {
-              value = token.resolved.slice(8)
-            } else {
-              remaining.push(token)
-            }
-          }
-          return { value, remaining }
-        },
-      })
-
-      const child = new Command({ description: 'Child' }).action(({ opts }) => {
-        expect(opts['write']).toBe('file.txt')
-      })
-
-      root.subcommand('child', child)
-
-      // -w=file.txt uses resolver, bubbles to root
-      await root.run({ argv: ['child', '-w=file.txt'], envs: {} })
-    })
-
     it('should throw error for -o=value on known short option', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
@@ -1861,6 +2097,7 @@ describe('Command', () => {
         long: 'output',
         short: 'o',
         type: 'string',
+        args: 'required',
         description: 'Output',
       })
 
@@ -1886,6 +2123,7 @@ describe('Command', () => {
         long: 'output',
         short: 'o',
         type: 'string',
+        args: 'required',
         description: 'Output',
       })
 
@@ -1909,19 +2147,31 @@ describe('Command', () => {
       const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
 
       const root = new Command({ name: 'cli', description: 'CLI' })
-        .option({ long: 'output', short: 'o', type: 'string', description: 'Output' })
-        .option({ long: 'verbose', short: 'v', type: 'boolean', description: 'Verbose' })
+        .option({
+          long: 'output',
+          short: 'o',
+          type: 'string',
+          args: 'required',
+          description: 'Output',
+        })
+        .option({
+          long: 'verbose',
+          short: 'v',
+          type: 'boolean',
+          args: 'none',
+          description: 'Verbose',
+        })
 
       const child = new Command({ description: 'Child' }).action(() => {})
 
       root.subcommand('child', child)
 
-      // -ov where -o takes value but is not last
+      // -ov where -o takes value but is not last, -o requires value but -v is an option not a value
       await root.run({ argv: ['child', '-ov'], envs: {} })
 
       expect(consoleErrorSpy).toHaveBeenCalled()
       const errorOutput = consoleErrorSpy.mock.calls[0][0]
-      expect(errorOutput).toContain('not supported')
+      expect(errorOutput).toContain('requires a value')
 
       consoleErrorSpy.mockRestore()
       exitSpy.mockRestore()
@@ -1934,6 +2184,7 @@ describe('Command', () => {
       const root = new Command({ name: 'cli', description: 'CLI' }).option({
         long: 'verbose',
         type: 'boolean',
+        args: 'none',
         description: 'Verbose',
       })
 
@@ -1958,6 +2209,7 @@ describe('Command', () => {
       const root = new Command({ name: 'cli', description: 'CLI' }).option({
         long: 'output',
         type: 'string',
+        args: 'required',
         description: 'Output',
       })
 
@@ -1976,44 +2228,11 @@ describe('Command', () => {
       exitSpy.mockRestore()
     })
 
-    it('should handle --help after -- in subcommand', async () => {
-      const actionSpy = vi.fn()
-      const root = new Command({ name: 'cli', description: 'CLI' })
-
-      const child = new Command({ description: 'Child' })
-        .argument({ name: 'args', kind: 'variadic', description: 'Args' })
-        .action(actionSpy)
-
-      root.subcommand('child', child)
-
-      await root.run({ argv: ['child', '--', '--help'], envs: {} })
-
-      expect(actionSpy).toHaveBeenCalled()
-      expect(actionSpy.mock.calls[0][0].args).toEqual({ args: ['--help'] })
-      expect(actionSpy.mock.calls[0][0].rawArgs).toEqual(['--help'])
-    })
-
-    it('should handle --verbose=false in bubbled option', async () => {
-      const root = new Command({ name: 'cli', description: 'CLI' }).option({
-        long: 'verbose',
-        type: 'boolean',
-        default: true,
-        description: 'Verbose',
-      })
-
-      const child = new Command({ description: 'Child' }).action(({ opts }) => {
-        expect(opts['verbose']).toBe(false)
-      })
-
-      root.subcommand('child', child)
-
-      await root.run({ argv: ['child', '--verbose=false'], envs: {} })
-    })
-
     it('should handle bubbling with number options', async () => {
       const root = new Command({ name: 'cli', description: 'CLI' }).option({
         long: 'port',
         type: 'number',
+        args: 'required',
         description: 'Port',
       })
 
@@ -2029,7 +2248,8 @@ describe('Command', () => {
     it('should handle bubbling with array options', async () => {
       const root = new Command({ name: 'cli', description: 'CLI' }).option({
         long: 'include',
-        type: 'string[]',
+        type: 'string',
+        args: 'variadic',
         description: 'Include',
       })
 
@@ -2071,6 +2291,7 @@ describe('Command', () => {
       const root = new Command({ name: 'cli', description: 'CLI' }).option({
         long: 'env',
         type: 'string',
+        args: 'required',
         description: 'Env',
         choices: ['dev', 'prod'],
       })
@@ -2095,6 +2316,7 @@ describe('Command', () => {
       const root = new Command({ name: 'cli', description: 'CLI' }).option({
         long: 'config',
         type: 'string',
+        args: 'required',
         description: 'Config',
       })
 
@@ -2112,7 +2334,7 @@ describe('Command', () => {
       consoleSpy.mockRestore()
     })
 
-    it('should not detect --help when scanning options that include -- before --help', async () => {
+    it('should not detect --help after -- terminator in subcommand', async () => {
       const actionSpy = vi.fn()
 
       const root = new Command({ name: 'cli', description: 'CLI' })
@@ -2124,133 +2346,130 @@ describe('Command', () => {
       root.subcommand('child', child)
 
       // -- --help: the --help is after --, so it should not trigger help display
-      // This tests that #hasBuiltinFlag properly stops at --
       await root.run({ argv: ['child', '--', '--help'], envs: {} })
 
       expect(actionSpy).toHaveBeenCalled()
       expect(actionSpy.mock.calls[0][0].args).toEqual({ args: ['--help'] })
       expect(actionSpy.mock.calls[0][0].rawArgs).toEqual(['--help'])
     })
-
-    it('should support shift() method directly', () => {
-      const cmd = new Command({ name: 'test', description: 'Test' })
-        .option({ long: 'verbose', short: 'v', type: 'boolean', description: 'Verbose' })
-        .option({ long: 'output', short: 'o', type: 'string', description: 'Output' })
-
-      // shift() now requires ICommandToken[]
-      const tokens = [
-        { original: '--verbose', resolved: '--verbose' },
-        { original: '--output', resolved: '--output' },
-        { original: 'file.txt', resolved: 'file.txt' },
-        { original: '--unknown', resolved: '--unknown' },
-      ]
-      const result = cmd.shift(tokens)
-
-      expect(result.opts).toEqual({
-        verbose: true,
-        output: 'file.txt',
-        help: false,
-        version: false,
-      })
-      expect(result.remaining).toEqual([{ original: '--unknown', resolved: '--unknown' }])
-    })
   })
 
   describe('kebab-case/camelCase naming convention', () => {
     it('should accept kebab-case input and map to camelCase option', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ long: 'logLevel', type: 'string', description: 'Log level' })
+      cmd.option({ long: 'logLevel', type: 'string', args: 'required', description: 'Log level' })
 
-      const result = cmd.parse(['--log-level', 'debug'])
+      const result = cmd.parse({ argv: ['--log-level', 'debug'], envs: {} })
       expect(result.opts['logLevel']).toBe('debug')
     })
 
     it('should be case-insensitive for kebab-case input', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ long: 'logLevel', type: 'string', description: 'Log level' })
+      cmd.option({ long: 'logLevel', type: 'string', args: 'required', description: 'Log level' })
 
-      expect(cmd.parse(['--LOG-LEVEL', 'debug']).opts['logLevel']).toBe('debug')
-      expect(cmd.parse(['--Log-Level', 'info']).opts['logLevel']).toBe('info')
+      expect(cmd.parse({ argv: ['--LOG-LEVEL', 'debug'], envs: {} }).opts['logLevel']).toBe('debug')
+      expect(cmd.parse({ argv: ['--Log-Level', 'info'], envs: {} }).opts['logLevel']).toBe('info')
     })
 
     it('should preserve value case', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ long: 'name', type: 'string', description: 'Name' })
+      cmd.option({ long: 'name', type: 'string', args: 'required', description: 'Name' })
 
-      const result = cmd.parse(['--name', 'MyApp'])
+      const result = cmd.parse({ argv: ['--name', 'MyApp'], envs: {} })
       expect(result.opts['name']).toBe('MyApp')
     })
 
     it('should preserve value case with inline syntax', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ long: 'name', type: 'string', description: 'Name' })
+      cmd.option({ long: 'name', type: 'string', args: 'required', description: 'Name' })
 
-      const result = cmd.parse(['--name=MyApp'])
+      const result = cmd.parse({ argv: ['--name=MyApp'], envs: {} })
       expect(result.opts['name']).toBe('MyApp')
     })
 
     it('should throw for underscore in option name', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ long: 'logLevel', type: 'string', description: 'Log level' })
+      cmd.option({ long: 'logLevel', type: 'string', args: 'required', description: 'Log level' })
 
-      expect(() => cmd.parse(['--log_level', 'debug'])).toThrow("use '-' instead of '_'")
+      expect(() => cmd.parse({ argv: ['--log_level', 'debug'], envs: {} })).toThrow(
+        "use '-' instead of '_'",
+      )
     })
 
     it('should throw for invalid option format (consecutive dashes)', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ long: 'logLevel', type: 'string', description: 'Log level' })
+      cmd.option({ long: 'logLevel', type: 'string', args: 'required', description: 'Log level' })
 
-      expect(() => cmd.parse(['--log--level', 'debug'])).toThrow('invalid option format')
+      expect(() => cmd.parse({ argv: ['--log--level', 'debug'], envs: {} })).toThrow(
+        'invalid option format',
+      )
     })
 
     it('should throw for option starting with number', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ long: 'verbose', type: 'boolean', description: 'Verbose' })
+      cmd.option({ long: 'verbose', type: 'boolean', args: 'none', description: 'Verbose' })
 
-      expect(() => cmd.parse(['--2fa'])).toThrow('invalid option format')
+      expect(() => cmd.parse({ argv: ['--2fa'], envs: {} })).toThrow('invalid option format')
     })
 
     it('should throw for incomplete negative option --no', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ long: 'verbose', type: 'boolean', description: 'Verbose' })
+      cmd.option({ long: 'verbose', type: 'boolean', args: 'none', description: 'Verbose' })
 
-      expect(() => cmd.parse(['--no'])).toThrow('invalid negative option syntax')
+      expect(() => cmd.parse({ argv: ['--no'], envs: {} })).toThrow(
+        'invalid negative option syntax',
+      )
     })
 
     it('should throw for incomplete negative option --no-', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ long: 'verbose', type: 'boolean', description: 'Verbose' })
+      cmd.option({ long: 'verbose', type: 'boolean', args: 'none', description: 'Verbose' })
 
-      expect(() => cmd.parse(['--no-'])).toThrow('invalid negative option syntax')
+      expect(() => cmd.parse({ argv: ['--no-'], envs: {} })).toThrow(
+        'invalid negative option syntax',
+      )
     })
 
-    it('should throw for --no-xxx used on non-boolean option', () => {
+    it('should throw NegativeOptionType when --no-xxx is used on non-boolean option', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ long: 'output', type: 'string', description: 'Output' })
+      cmd.option({ long: 'output', type: 'string', args: 'required', description: 'Output' })
 
-      expect(() => cmd.parse(['--no-output'])).toThrow('can only be used with boolean options')
+      // --no-xxx can only be used with boolean options
+      expect(() => cmd.parse({ argv: ['--no-output'], envs: {} })).toThrow(
+        'can only be used with boolean options',
+      )
     })
 
     it('should convert --no-xxx to false for boolean options', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ long: 'verbose', type: 'boolean', description: 'Verbose' })
+      cmd.option({ long: 'verbose', type: 'boolean', args: 'none', description: 'Verbose' })
 
-      const result = cmd.parse(['--no-verbose'])
+      const result = cmd.parse({ argv: ['--no-verbose'], envs: {} })
       expect(result.opts['verbose']).toBe(false)
     })
 
     it('should handle kebab-case in --no-xxx', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ long: 'colorOutput', type: 'boolean', description: 'Color output' })
+      cmd.option({
+        long: 'colorOutput',
+        type: 'boolean',
+        args: 'none',
+        description: 'Color output',
+      })
 
-      const result = cmd.parse(['--no-color-output'])
+      const result = cmd.parse({ argv: ['--no-color-output'], envs: {} })
       expect(result.opts['colorOutput']).toBe(false)
     })
 
     it('should display options in kebab-case in help', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
-      cmd.option({ long: 'logLevel', type: 'string', description: 'Log level' })
-      cmd.option({ long: 'colorOutput', type: 'boolean', description: 'Color output' })
+      cmd.option({ long: 'logLevel', type: 'string', args: 'required', description: 'Log level' })
+      cmd.option({
+        long: 'colorOutput',
+        type: 'boolean',
+        args: 'none',
+        description: 'Color output',
+      })
 
       const help = cmd.formatHelp()
       expect(help).toContain('--log-level')
@@ -2262,7 +2481,7 @@ describe('Command', () => {
       const cmd = new Command({ name: 'test', description: 'Test' })
       cmd.argument({ name: 'args', kind: 'variadic', description: 'Args' })
 
-      const result = cmd.parse(['--', '--log_level', '--2fa', '--no-'])
+      const result = cmd.parse({ argv: ['--', '--log_level', '--2fa', '--no-'], envs: {} })
       expect(result.rawArgs).toEqual(['--log_level', '--2fa', '--no-'])
     })
   })
