@@ -1,5 +1,33 @@
 # Change Log
 
+## 4.1.0
+
+### Minor Changes
+
+- ### @guanghechen/reporter
+  - feat: add `setLevel` method for dynamic log level change
+  - refactor: split source into modular files (`level.ts`, `chalk.ts`, `types.ts`, `reporter.ts`)
+  - refactor: move `IReporter` types from `@guanghechen/types` to `@guanghechen/reporter`
+  - export: add level utilities (`LogLevelEnum`, `ILogLevel`, `LOG_LEVELS`, `LOG_LEVEL_VALUES`,
+    `isLogLevel`, `getLogLevelValue`, `resolveLogLevel`)
+  - export: add chalk utilities (`ANSI`, `formatTag`)
+
+  ### @guanghechen/types
+  - refactor: remove `IReporter` and `IReporterLevel` exports (moved to `@guanghechen/reporter`)
+
+  ### @guanghechen/commander
+  - feat: add predefined options `logLevelOption` and `silentOption` with `apply` callback support
+  - refactor: use `ILogLevel` from `@guanghechen/reporter` instead of `IReporterLevel`
+
+  ### Dependent packages
+  - chore: bump version for packages depending on `@guanghechen/types`, `@guanghechen/reporter`, or
+    `@guanghechen/commander`
+
+### Patch Changes
+
+- Updated dependencies:
+  - @guanghechen/reporter@3.2.0
+
 ## 4.0.0
 
 ### Major Changes
