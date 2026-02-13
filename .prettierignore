@@ -15,5 +15,6 @@ pnpm-lock.yaml
 **/lib/
 **/node_modules/
 **/resource/
+**/spec/
 **/__test__/cases/
 **/__test__/fixtures/

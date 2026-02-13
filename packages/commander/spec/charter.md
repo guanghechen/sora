@@ -1,6 +1,8 @@
 # Design Charter
 
-本文档定义 @guanghechen/commander 的核心设计原则与规则。
+本文档定义 `@guanghechen/commander` 的核心设计原则与规范。
+
+---
 
 ## 1. 设计目标
 
@@ -13,61 +15,142 @@
 | Fluent API     | 链式调用构建命令                          |
 | Strict Mode    | 严格解析，unknown option 报错             |
 
-## 2. 选项命名规范
+### 1.1 执行流程
 
-### 2.1 命名约定
+```
+argv → route → tokenize → resolve → parse → run
+```
 
-| 项目              | 格式                             | 示例                         |
-| ----------------- | -------------------------------- | ---------------------------- |
-| 命令行输入        | kebab-case（强制，大小写不敏感） | `--log-level`, `--LOG-LEVEL` |
-| IOption.long 定义 | camelCase（强制）                | `logLevel`, `verbose`        |
-| help/错误显示     | kebab-case（全小写）             | `--log-level`, `--verbose`   |
-| 内部处理/配置文件 | camelCase                        | `{ logLevel: 'debug' }`      |
+| 阶段     | 方向     | 说明                                |
+| -------- | -------- | ----------------------------------- |
+| route    | 自顶向下 | 匹配 subcommand，得到 command chain |
+| tokenize | -        | argv → ICommandToken[]（格式校验）  |
+| resolve  | 自底向上 | 每个 Command 消费自己的 tokens      |
+| parse    | 自顶向下 | tokens → opts，调用 apply 更新 ctx  |
+| run      | -        | 执行 leaf command 的 action         |
 
-### 2.2 ICommandToken
+详见 [command.md](./command.md)。
+
+---
+
+## 2. 选项配置
+
+### 2.1 ICommandOptionConfig
 
 ```typescript
+interface ICommandOptionConfig<T = unknown> {
+  long: string                              // 长选项名（camelCase，必填）
+  short?: string                            // 短选项（单字符）
+  type: 'boolean' | 'number' | 'string'     // 值类型（必填）
+  args: 'none' | 'required' | 'variadic'    // 参数模式（必填）
+  description: string                       // 描述文本
+  required?: boolean                        // 是否必需
+  default?: T                               // 默认值
+  choices?: T[]                             // 允许的值列表
+  coerce?: (rawValue: string) => T          // 单值转换
+  apply?: (value: T, ctx: ICommandContext) => void  // 应用到 context
+}
+```
+
+### 2.2 type × args 组合
+
+`type` 和 `args` **必须同时指定**，组合决定选项的最终类型：
+
+| type      | args       | 最终类型   | 示例                  |
+| --------- | ---------- | ---------- | --------------------- |
+| `boolean` | `none`     | `boolean`  | `--verbose`           |
+| `string`  | `required` | `string`   | `--output file`       |
+| `number`  | `required` | `number`   | `--port 8080`         |
+| `string`  | `variadic` | `string[]` | `--files a.txt b.txt` |
+| `number`  | `variadic` | `number[]` | `--ports 80 443`      |
+
+**非法组合**（构建时报错 `ConfigurationError`）：
+
+| type      | args       | 原因                     |
+| --------- | ---------- | ------------------------ |
+| `boolean` | `required` | boolean 不接受参数       |
+| `boolean` | `variadic` | boolean 不接受参数       |
+| `string`  | `none`     | string/number 必须有参数 |
+| `number`  | `none`     | string/number 必须有参数 |
+
+### 2.3 参数消费规则
+
+resolve 阶段按 `args` 贪婪消费后续 tokens：
+
+| args       | 消费行为                            |
+| ---------- | ----------------------------------- |
+| `none`     | 不消费参数                          |
+| `required` | 消费一个参数                        |
+| `variadic` | 持续消费，直到遇到 `-` 开头的 token |
+
+**`=` 语法**：值内嵌时立刻停止消费，不再贪婪：
+
+```
+--files=first.txt a.txt b.txt
+  → files: ['first.txt']
+  → a.txt, b.txt 作为位置参数
+```
+
+---
+
+## 3. 命名规范
+
+### 3.1 命名约定
+
+| 场景                        | 格式                     | 示例                         |
+| --------------------------- | ------------------------ | ---------------------------- |
+| 命令行输入                  | kebab-case（大小写不敏感）| `--log-level`, `--LOG-LEVEL` |
+| `ICommandOptionConfig.long` | camelCase                | `logLevel`                   |
+| help / 错误提示             | kebab-case（全小写）     | `--log-level`                |
+| opts 对象 / 配置文件        | camelCase                | `{ logLevel: 'debug' }`      |
+
+### 3.2 ICommandToken
+
+```typescript
+type ICommandTokenType = 'long' | 'short' | 'none'
+
 interface ICommandToken {
-  /** 原始输入，用于错误提示（如 --LOG-LEVEL） */
-  original: string
-  /** 规范化后，用于解析匹配（如 --logLevel） */
-  resolved: string
+  original: string        // 原始输入：--LOG-LEVEL=info, -v, foo.txt
+  resolved: string        // 规范化后：--logLevel=info, -v, foo.txt
+  name: string            // 选项名：logLevel, v, ''
+  type: ICommandTokenType // token 类型
 }
 ```
 
-- `original` 和 `resolved` 都包含 `--` 前缀
-- 不需要转换的 token（短选项、位置参数、`--` 之后）：`original === resolved`
+| type    | 说明     | name      | 匹配                        |
+| ------- | -------- | --------- | --------------------------- |
+| `long`  | 长选项   | camelCase | `ICommandOptionConfig.long` |
+| `short` | 短选项   | 单字符    | `ICommandOptionConfig.short`|
+| `none`  | 非选项   | `''`      | 位置参数 / `--` 之后        |
 
-### 2.3 转换规则
+### 3.3 转换规则
 
 ```typescript
-// kebab-case → camelCase（用于匹配）
-function kebabToCamelCase(str: string): string {
-  return str.toLowerCase().replace(/-([a-z])/g, (_, c) => c.toUpperCase())
+// kebab-case → camelCase
+function kebabToCamelCase(s: string): string {
+  return s.toLowerCase().replace(/-([a-z])/g, (_, c) => c.toUpperCase())
 }
 
-// camelCase → kebab-case（用于显示）
-function camelToKebabCase(str: string): string {
-  return str.replace(/[A-Z]/g, m => '-' + m.toLowerCase())
+// camelCase → kebab-case
+function camelToKebabCase(s: string): string {
+  return s.replace(/[A-Z]/g, m => '-' + m.toLowerCase())
 }
 ```
 
-**转换示例**：
+**示例**：
 
-```
---log-level         →   --logLevel            →   logLevel ✅
---LOG-LEVEL         →   --logLevel            →   logLevel ✅
---log-level=Debug   →   --logLevel=Debug      →   logLevel = "Debug" ✅
---no-log-level      →   --logLevel=false      →   logLevel = false ✅
-```
+| 输入              | resolved            | name       |
+| ----------------- | ------------------- | ---------- |
+| `--log-level`     | `--logLevel`        | `logLevel` |
+| `--LOG-LEVEL`     | `--logLevel`        | `logLevel` |
+| `--log-level=Debug` | `--logLevel=Debug`| `logLevel` |
+| `--no-verbose`    | `--verbose=false`   | `verbose`  |
 
-**注意**：`=` 后的值保持原样；不含 `-` 的输入（如 `--logLevel`）转为 `--loglevel`，无法匹配。
+> `=` 后的值保持原样；纯 camelCase 输入（如 `--logLevel`）会转为 `--loglevel`，无法匹配。
 
-### 2.4 格式校验
+### 3.4 格式校验
 
-长选项名必须符合 kebab-case 格式，校验在预处理阶段进行：
-
-**合法格式正则**：
+tokenize 阶段校验长选项格式：
 
 ```
 普通选项：^--[a-z][a-z0-9]*(?:-[a-z0-9]+)*$
@@ -76,89 +159,94 @@ function camelToKebabCase(str: string): string {
 
 **校验流程**：
 
-1. 按第一个 `=` 分割为 namePart 和 valuePart
-2. namePart 包含 `_` → `InvalidOptionFormat`
-3. namePart 是 `--no` 或 `--no-` → `InvalidNegativeOption`
-4. namePart 以 `--no-` 开头且包含 `=` → `NegativeOptionWithValue`
+1. 按首个 `=` 分割为 namePart / valuePart
+2. namePart 含 `_` → `InvalidOptionFormat`
+3. namePart 为 `--no` 或 `--no-` → `InvalidNegativeOption`
+4. `--no-*` 且有 `=` → `NegativeOptionWithValue`
 5. 不符合正则 → `InvalidOptionFormat`
-
-**示例**：
 
 ```bash
 # ✅ 合法
---log-level, --LOG-LEVEL, --log-2-level, --verbose, --no-verbose, --foo=, --foo=a=b
+--log-level  --LOG-LEVEL  --log-2-level  --no-verbose  --foo=  --foo=a=b
 
 # ❌ 非法
---log_level       # use '-' instead of '_'
---log--level      # invalid option format
+--log_level       # 使用 '_' 而非 '-'
+--log--level      # 连续 '-'
 --2fa             # 数字开头
---no, --no-       # invalid negative option syntax
---no-foo=true     # negative option cannot have value
+--no  --no-       # 不完整的负向选项
+--no-foo=true     # 负向选项不能带值
 ```
 
-**设计指导**：数字开头的标识符应作为**选项值**使用：
+### 3.5 tokenize 边界
 
-```bash
-mycli --auth-method 2fa    # ✅ 推荐
-mycli --2fa                # ❌ 不支持
-```
+| 场景              | 处理                         |
+| ----------------- | ---------------------------- |
+| `--` 之前长选项   | 转小写 → camelCase           |
+| `--` 之后         | 不转换、不校验               |
+| 选项值            | 不转换                       |
+| 短选项            | 不转换、不做 kebab-case 校验 |
+| `--no-*`          | 转 camelCase，映射为 `=false`|
 
-### 2.5 预处理边界
+---
 
-| 场景              | 处理方式                       |
-| ----------------- | ------------------------------ |
-| `--` 之前的长选项 | 转小写后转 camelCase           |
-| `--` 之后的内容   | 不转换，不校验                 |
-| 选项值            | 不转换                         |
-| 短选项            | 不转换，不做 kebab-case 校验   |
-| `--no-*` 前缀     | 转 camelCase 后映射为 `=false` |
+## 4. 选项语法
 
-## 3. 选项语法
-
-### 3.1 支持的语法
+### 4.1 支持的语法
 
 | 语法           | 示例            | 说明                      |
 | -------------- | --------------- | ------------------------- |
-| 长选项         | `--verbose`     | boolean 选项              |
-| 长选项赋值     | `--foo=true`    | boolean 仅接受 true/false |
-| 长选项赋值     | `--output=file` | 带值选项                  |
-| 长选项空格     | `--output file` | 带值选项                  |
-| 短选项         | `-v`            | 单字符选项                |
-| 短选项空格     | `-o file`       | 带值选项                  |
-| 短选项组合     | `-abc`          | 等价于 `-a -b -c`         |
-| 短选项组合带值 | `-vo file`      | 等价于 `-v -o file`       |
-| Negative       | `--no-foo`      | 等价于 `--foo=false`      |
-| End-of-options | `--`            | 后续全部作为 positional   |
+| 长选项         | `--verbose`     | boolean                   |
+| 长选项赋值     | `--output=file` | 带值                      |
+| 长选项空格     | `--output file` | 带值                      |
+| 短选项         | `-v`            | 单字符                    |
+| 短选项空格     | `-o file`       | 带值                      |
+| 短选项组合     | `-abc`          | 等价 `-a -b -c`           |
+| 短选项组合带值 | `-vo file`      | 等价 `-v -o file`         |
+| Negative       | `--no-foo`      | 等价 `--foo=false`        |
+| End-of-options | `--`            | 后续全部作为位置参数      |
 
-### 3.2 不支持的语法
+### 4.2 不支持的语法
 
-| 语法       | 示例      | 说明                 |
-| ---------- | --------- | -------------------- |
-| 短选项粘连 | `-ofile`  | 提示使用 `-o file`   |
-| 短选项赋值 | `-o=file` | 提示使用 `-o file`   |
-| 短选项负数 | `-o -1`   | 提示使用 `--long=-1` |
+| 语法       | 示例      | 建议               |
+| ---------- | --------- | ------------------ |
+| 短选项粘连 | `-ofile`  | 使用 `-o file`     |
+| 短选项赋值 | `-o=file` | 使用 `-o file`     |
+| 短选项负数 | `-o -1`   | 使用 `--long=-1`   |
 
-### 3.3 Negative 选项
+### 4.3 Negative 选项
 
-为 boolean 选项自动生成 `--no-{long}` 形式：
+为 `type: 'boolean', args: 'none'` 自动生成 `--no-{long}`：
 
-- 仅 boolean 类型、仅长选项
-- 用户不能定义 `--no-*` 或 `long: 'noXxx'`
+- 仅 boolean、仅长选项
+- `long` 不能以 `no` 开头
 - `--no-xxx` 不允许带值，永远解析为 `false`
 
-### 3.4 值覆盖规则
+### 4.4 值覆盖规则
 
-**Last Write Wins**（array 类型 append）：
+**Last Write Wins**（variadic 除外）：
 
-| 类型     | 行为     | 示例                                     |
-| -------- | -------- | ---------------------------------------- |
-| boolean  | 后者覆盖 | `--foo --no-foo` → `false`               |
-| string   | 后者覆盖 | `--name=a --name=b` → `b`                |
-| number   | 后者覆盖 | `--count=1 --count=2` → `2`              |
-| string[] | append   | `--include=a --include=b` → `['a', 'b']` |
-| number[] | append   | `--port=80 --port=443` → `[80, 443]`     |
+| args       | 行为     | 示例                                             |
+| ---------- | -------- | ------------------------------------------------ |
+| `none`     | 后者覆盖 | `--foo --no-foo` → `false`                       |
+| `required` | 后者覆盖 | `--name=a --name=b` → `'b'`                      |
+| `variadic` | 追加     | `--file a.txt --file b.txt` → `['a.txt','b.txt']`|
 
-## 4. 选项继承
+**variadic 详细规则**：
+
+```bash
+# 单次出现，贪婪消费
+--files a.txt b.txt c.txt    → ['a.txt', 'b.txt', 'c.txt']
+
+# 多次出现，追加
+--files a.txt --files b.txt  → ['a.txt', 'b.txt']
+
+# = 语法，只取内嵌值
+--files=a.txt b.txt          → ['a.txt']  # b.txt 为位置参数
+```
+
+---
+
+## 5. 选项继承
 
 - 子命令**强制继承**祖先链上的所有选项
 - 使用 `long` 作为合并 key，子节点可覆盖
@@ -166,72 +254,85 @@ mycli --2fa                # ❌ 不支持
 
 详见 [option.md](./option.md)。
 
-## 5. 命令路由
+---
 
-**命令路径必须在任何选项之前完全确定。**
+## 6. 命令路由
 
-从左到右扫描 argv，遇到 `-` 或 `--` 开头的 token 即停止路由：
+**命令路径必须在选项之前完全确定。**
+
+路由按原始字符串匹配 subcommand name/alias：
 
 ```bash
-pm start --verbose myapp    # ✅ 先确定 pm -> start
-pm --verbose start myapp    # ❌ start 被视为位置参数
+pm start --verbose myapp    # ✅ 路由到 start
+pm --verbose start myapp    # ❌ 路由停止于 pm
+pm unknown --verbose        # ✅ 路由停止于 pm
 ```
 
-**路由算法**：
-
-1. 遇到 `-` 或 `--` 开头 → 停止
-2. 遇到子命令名/别名 → 切换，继续扫描
-3. 遇到非子命令 token → 停止
-4. 扫描结束 → 当前命令为目标
+```
+for token in argv:
+    if current.hasSubcommand(token):
+        current = subcommand
+    else:
+        break
+```
 
 详见 [command.md](./command.md)。
 
-## 6. Positional Arguments
+---
 
-- **不继承**，只在定义它的命令上生效
-- 子命令存在时，父命令的 arguments 不参与解析
+## 7. 位置参数
 
-## 7. 配置约束
+- **不继承**，仅在 leaf command 生效
+- resolve 阶段第二轮处理：非 `-` 开头的 remaining → argTokens
+- `--` 之后内容直接追加到 argTokens（允许 `-` 开头）
+- `-` 开头的 remaining 触发 `UnknownOption` 错误
 
-### 7.1 构建时
+---
 
-| 约束                   | 说明         |
-| ---------------------- | ------------ |
-| `required` + `default` | 不能同时存在 |
-| `boolean` + `required` | 不能同时存在 |
-| `long` 不是 camelCase  | 不允许       |
-| `long` 以 `no` 开头    | 不允许       |
-| 合并后 `short` 冲突    | 不允许       |
+## 8. 配置约束
 
-### 7.2 运行时
+### 8.1 构建时
 
-| 校验项         | 说明                             |
-| -------------- | -------------------------------- |
-| required       | 缺失必需选项报错                 |
-| type           | 值类型不匹配报错（仅内置解析器） |
-| choices        | 值不在列表中报错                 |
-| unknown option | 未定义的选项报错                 |
-| negative type  | `--no-xxx` 用于非 boolean 报错   |
-| boolean value  | boolean 赋值非 true/false 报错   |
+| 约束                     | 说明         |
+| ------------------------ | ------------ |
+| `type` + `args` 非法组合 | 见 §2.2      |
+| `required` + `default`   | 互斥         |
+| `boolean` + `required`   | 互斥         |
+| `long` 非 camelCase      | 不允许       |
+| `long` 以 `no` 开头      | 不允许       |
+| `short` 冲突             | 不允许       |
 
-## 8. 错误处理
+### 8.2 运行时
 
-### 8.1 Exit Code
+| 校验项        | 阶段    | 说明                       |
+| ------------- | ------- | -------------------------- |
+| unknown option| resolve | 未定义的选项               |
+| required      | parse   | 缺失必需选项               |
+| type          | parse   | 值类型不匹配               |
+| choices       | parse   | 值不在列表中               |
+| negative type | parse   | `--no-xxx` 用于非 boolean  |
+| boolean value | parse   | boolean 赋值非 true/false  |
 
-| 类型        | Code | 说明                 |
-| ----------- | ---- | -------------------- |
-| 成功        | 0    | 正常完成             |
-| Action 错误 | 1    | action 执行失败      |
-| 解析错误    | 2    | 解析、路由、校验失败 |
+---
 
-### 8.2 错误格式
+## 9. 错误处理
+
+### 9.1 Exit Code
+
+| Code | 说明               |
+| ---- | ------------------ |
+| 0    | 成功               |
+| 1    | action 执行失败    |
+| 2    | 解析 / 校验失败    |
+
+### 9.2 错误格式
 
 ```
 Error: unknown option "--foo" for command "app sub"
 Run "app sub --help" for usage.
 ```
 
-### 8.3 错误类型
+### 9.3 错误类型
 
 | Kind                      | 说明                      |
 | ------------------------- | ------------------------- |
@@ -248,13 +349,16 @@ Run "app sub --help" for usage.
 | `InvalidChoice`           | 值不在 choices 中         |
 | `InvalidBooleanValue`     | boolean 赋值非 true/false |
 | `MissingRequiredArgument` | 缺少必需位置参数          |
+| `TooManyArguments`        | 位置参数过多              |
 | `ConfigurationError`      | 配置错误                  |
 
-## 9. Shell Completion
+---
 
-- 静态脚本生成，非动态补全
+## 10. Shell Completion
+
+- 静态脚本生成（非动态补全）
 - 支持 Bash / Fish / PowerShell
-- CompletionCommand 需手动挂载
-- `--no-{kebab-long}` 包含在补全列表中
+- `CompletionCommand` 需手动挂载
+- 补全列表包含 `--no-{kebab-long}`
 
 详见 [completion.md](./completion.md)。

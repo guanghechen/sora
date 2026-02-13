@@ -2,140 +2,149 @@
 
 选项的定义、继承与解析。
 
+---
+
 ## 命名规范
 
-- **IOption.long**：camelCase（如 `logLevel`）
-- **命令行输入**：kebab-case（如 `--log-level`），大小写不敏感
-- **help/错误显示**：kebab-case（全小写）
+| 场景                        | 格式                     | 示例           |
+| --------------------------- | ------------------------ | -------------- |
+| `ICommandOptionConfig.long` | camelCase                | `logLevel`     |
+| 命令行输入                  | kebab-case（大小写不敏感）| `--log-level`  |
+| help / 错误提示             | kebab-case（全小写）     | `--log-level`  |
 
-详见 [charter.md](./charter.md) 第 2 节。
+详见 [charter.md](./charter.md) §3。
+
+---
 
 ## 类型定义
 
 ```typescript
-type IOptionType = 'boolean' | 'string' | 'number' | 'string[]' | 'number[]'
+/** 值类型 */
+type ICommandOptionType = 'boolean' | 'number' | 'string'
 
-interface ICommandToken {
-  /** 原始输入（如 --LOG-LEVEL） */
-  original: string
-  /** 规范化后（如 --logLevel） */
-  resolved: string
+/** 参数模式 */
+type ICommandOptionArgs = 'none' | 'required' | 'variadic'
+
+/** 选项配置 */
+interface ICommandOptionConfig<T = unknown> {
+  long: string                    // 长选项名（camelCase，必填）
+  short?: string                  // 短选项（单字符）
+  type: ICommandOptionType        // 值类型（必填）
+  args: ICommandOptionArgs        // 参数模式（必填）
+  description: string             // 描述文本
+  required?: boolean              // 是否必需
+  default?: T                     // 默认值
+  choices?: T[]                   // 允许的值列表
+  coerce?: (raw: string) => T     // 单值转换
+  apply?: (value: T, ctx: ICommandContext) => void
 }
 
-interface IOption<T = unknown> {
-  /** 长选项（camelCase），同时作为合并 key */
-  long: string
-  /** 短选项（单字符） */
-  short?: string
-  /** 值类型，默认 'string' */
-  type?: IOptionType
-  /** 描述文本 */
-  description: string
-  /** 是否必需（不能与 default 同时使用，不能用于 boolean） */
-  required?: boolean
-  /** 默认值 */
-  default?: T
-  /** 允许的值列表 */
-  choices?: T extends (infer U)[] ? U[] : T[]
-  /** 单值转换（与 resolver 互斥） */
-  coerce?: (rawValue: string) => T extends (infer U)[] ? U : T
-  /** 自定义解析器（完全替代内置逻辑） */
-  resolver?: (tokens: ICommandToken[]) => { value: T; remaining: ICommandToken[] }
-  /** 解析完成后的回调 */
-  apply?: (value: T, ctx: ICommandContext) => void
+/** token 类型 */
+type ICommandTokenType = 'long' | 'short' | 'none'
+
+/** 命令 token */
+interface ICommandToken {
+  original: string        // 原始输入：--LOG-LEVEL=info, -v
+  resolved: string        // 规范化后：--logLevel=info, -v
+  name: string            // 选项名：logLevel, v, ''
+  type: ICommandTokenType
 }
 ```
 
-## 解析优先级
+---
 
-| 场景                  | 解析方式                     |
-| --------------------- | ---------------------------- |
-| 有 resolver           | resolver（忽略 type/coerce） |
-| 有 coerce 无 resolver | 内置解析器 + coerce          |
-| 无 coerce 无 resolver | 内置解析器                   |
+## type × args 组合
 
-## 内置解析器
+`type` 和 `args` **必须同时指定**，组合决定最终类型：
 
-| type       | 多次出现行为    | 示例                                     |
-| ---------- | --------------- | ---------------------------------------- |
-| `boolean`  | Last Write Wins | `--foo --no-foo` → `false`               |
-| `string`   | Last Write Wins | `--name=a --name=b` → `'b'`              |
-| `number`   | Last Write Wins | `--count=1 --count=2` → `2`              |
-| `string[]` | append          | `--include=a --include=b` → `['a', 'b']` |
-| `number[]` | append          | `--port=80 --port=443` → `[80, 443]`     |
+| type      | args       | 最终类型   | 示例                  |
+| --------- | ---------- | ---------- | --------------------- |
+| `boolean` | `none`     | `boolean`  | `--verbose`           |
+| `string`  | `required` | `string`   | `--output file`       |
+| `number`  | `required` | `number`   | `--port 8080`         |
+| `string`  | `variadic` | `string[]` | `--files a.txt b.txt` |
+| `number`  | `variadic` | `number[]` | `--ports 80 443`      |
 
-## Coerce 回调
+**非法组合**（构建时报错）：
 
-单值转换，在 reduce 之前执行：
+| type      | args       | 原因                     |
+| --------- | ---------- | ------------------------ |
+| `boolean` | `required` | boolean 不接受参数       |
+| `boolean` | `variadic` | boolean 不接受参数       |
+| `string`  | `none`     | string/number 必须有参数 |
+| `number`  | `none`     | string/number 必须有参数 |
+
+---
+
+## 参数消费规则
+
+resolve 阶段按 `args` 贪婪消费后续 tokens：
+
+| args       | 消费行为                            |
+| ---------- | ----------------------------------- |
+| `none`     | 不消费参数                          |
+| `required` | 消费一个参数                        |
+| `variadic` | 持续消费，直到遇到 `-` 开头的 token |
+
+**`=` 语法**：值内嵌时立刻停止，不再贪婪：
+
+```
+--files=first.txt a.txt b.txt
+  → files: ['first.txt']
+  → a.txt, b.txt 作为位置参数
+```
+
+**消费示例**：
+
+```
+tokens: [--output, foo.txt, --files, a.txt, b.txt, --verbose, c.txt]
+
+--output (required): 消费 foo.txt → 停止
+--files (variadic): 消费 a.txt, b.txt → 遇到 --verbose 停止
+--verbose (none): 不消费
+c.txt → 位置参数
+```
+
+---
+
+## Coerce
+
+单值转换，替代内置类型转换：
 
 ```typescript
 .option({
   long: 'port',
-  type: 'number[]',
+  type: 'number',
+  args: 'variadic',
+  description: 'Ports',
   coerce: (v) => {
     const n = parseInt(v, 10)
     if (n < 0 || n > 65535) throw new Error('Invalid port')
     return n
   },
 })
-// --port=80 --port=443 → coerce 逐项调用 → [80, 443]
+// --port 80 443 → [80, 443]
 ```
 
-| 规则             | 说明                           |
-| ---------------- | ------------------------------ |
-| 执行时机         | 解析到选项值后立即调用         |
-| 作用域           | 每次出现的单个值（array 逐项） |
-| 与 choices 顺序  | 先 coerce，再 choices 校验     |
-| 异常处理         | 抛出异常则中止解析             |
-| 与 resolver 互斥 | 有 resolver 时忽略             |
+| 规则       | 说明                              |
+| ---------- | --------------------------------- |
+| 执行时机   | 解析到选项值后立即调用            |
+| 作用域     | 每个值单独调用（variadic 逐项）   |
+| 顺序       | 先 coerce，再 choices 校验        |
+| 异常       | 抛出异常则中止解析                |
 
-## Resolver 回调
+---
 
-完全替代内置解析逻辑：
+## Apply
 
-```typescript
-// --header "X-Foo: bar" --header "X-Bar: baz" → { 'X-Foo': 'bar', 'X-Bar': 'baz' }
-.option({
-  long: 'header',
-  resolver: (tokens) => {
-    const headers: Record<string, string> = {}
-    const remaining: ICommandToken[] = []
-    for (let i = 0; i < tokens.length; i++) {
-      const token = tokens[i]
-      if (token.resolved === '--header' && i + 1 < tokens.length) {
-        const [key, val] = tokens[i + 1].original.split(': ')
-        headers[key] = val
-        i++
-      } else if (token.resolved.startsWith('--header=')) {
-        const eqIndex = token.original.indexOf('=')
-        const [key, val] = token.original.slice(eqIndex + 1).split(': ')
-        headers[key] = val
-      } else {
-        remaining.push(token)
-      }
-    }
-    return { value: headers, remaining }
-  },
-})
-```
-
-适用场景：自定义收集逻辑、可选值选项、多 token 值。
-
-约束：
-
-- 只能消费本命令的 tokens，不得跨 `--`
-- 有 resolver 时忽略 coerce 和内置逻辑
-- resolver 需自行处理 default 值
-- 建议保留 `type` 字段作为 metadata（用于补全和帮助）
-
-## Apply 回调
-
-解析完成后将值应用到 context：
+parse 阶段将解析后的值应用到 context：
 
 ```typescript
 .option({
   long: 'logLevel',
   type: 'string',
+  args: 'required',
+  description: 'Log level',
   choices: ['debug', 'info', 'warn', 'error'],
   default: 'info',
   apply: (value, ctx) => {
@@ -144,30 +153,32 @@ interface IOption<T = unknown> {
 })
 ```
 
-| 规则     | 说明                               |
-| -------- | ---------------------------------- |
-| 执行时机 | 选项解析完成后、action 执行前      |
-| 触发条件 | 仅在解析值非 undefined 时执行      |
-| 调用顺序 | 按合并后 options 集合的顺序        |
-| 覆盖行为 | 子命令覆盖选项时使用子命令的 apply |
+| 规则     | 说明                                    |
+| -------- | --------------------------------------- |
+| 执行时机 | parse 阶段，tokens → opts 之后          |
+| 执行顺序 | 自顶向下（root → leaf）                 |
+| 触发条件 | 仅在值非 undefined 时执行               |
+| 覆盖行为 | 子命令覆盖选项时使用子命令的 apply      |
+
+---
 
 ## 继承与合并
 
-子命令**强制继承**祖先链上的所有选项，使用 `long` 作为 key 进行覆盖。
+子命令**强制继承**祖先链上所有选项，使用 `long` 作为 key 覆盖：
 
 ```typescript
-const root = new Command({ name: 'cli', description: 'My CLI' })
-  .option({ long: 'verbose', short: 'v', type: 'boolean', description: 'Verbose' })
-  .option({ long: 'logLevel', type: 'string', description: 'Log level' })
+const root = new Command({ name: 'cli', description: 'CLI' })
+  .option({ long: 'verbose', short: 'v', type: 'boolean', args: 'none', description: 'Verbose' })
+  .option({ long: 'logLevel', type: 'string', args: 'required', description: 'Log level' })
 
 const sub = new Command({ description: 'Build' })
-  .option({ long: 'logLevel', type: 'string', description: 'Build log level' })  // 覆盖
-  .option({ long: 'watch', short: 'w', type: 'boolean', description: 'Watch' })
+  .option({ long: 'logLevel', type: 'string', args: 'required', description: 'Build log' })  // 覆盖
+  .option({ long: 'watch', short: 'w', type: 'boolean', args: 'none', description: 'Watch' })
 
 root.subcommand('build', sub)
 ```
 
-执行 `cli build --log-level debug` 时合并后的选项：
+`cli build --log-level debug` 合并后：
 
 | long     | 来源 |
 | -------- | ---- |
@@ -175,23 +186,39 @@ root.subcommand('build', sub)
 | logLevel | sub  |
 | watch    | sub  |
 
-`long` 是唯一身份标识，`short` 仅是 alias。只有覆盖同名 `long` 时才允许修改 `short`。
+`long` 是唯一标识，`short` 仅是 alias。
+
+---
 
 ## 校验规则
 
-详见 [charter.md](./charter.md) 第 8 节。
+详见 [charter.md](./charter.md) §8。
 
-**构建时**：`required` + `default` 互斥、`boolean` + `required` 互斥、`long` 必须 camelCase 且不能以
-`no` 开头、`short` 不能冲突。
+**构建时**：
 
-**运行时**：required 检查、choices 校验、type 校验（仅内置解析器）、boolean 值校验、negative
-type 检查（`--no-xxx` 仅用于 boolean）、unknown option 报错。
+- `type` + `args` 非法组合
+- `required` + `default` 互斥
+- `boolean` + `required` 互斥
+- `long` 必须 camelCase 且不能以 `no` 开头
+- `short` 不能冲突
+
+**运行时**：
+
+- required 检查
+- choices 校验
+- type 校验
+- boolean 值校验（仅 true/false）
+- `--no-xxx` 仅用于 boolean
+- unknown option 报错
+
+---
 
 ## 已知限制
 
-短选项语法 `-n <value>` 无法接受负数值：
+短选项无法接受负数值：
 
 ```bash
 mycli -n -1        # ❌ -1 被识别为选项
-mycli --number -1  # ✅ 长选项支持负数值
+mycli --number=-1  # ✅ 长选项 = 语法
+mycli --number -1  # ✅ 长选项空格语法
 ```
