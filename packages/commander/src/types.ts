@@ -4,18 +4,7 @@
  * @module @guanghechen/commander
  */
 
-// ==================== Reporter Interface ====================
-
-/**
- * Reporter interface for logging.
- * Provided by @guanghechen/reporter or user implementation.
- */
-export interface IReporter {
-  debug(message: string, ...args: unknown[]): void
-  info(message: string, ...args: unknown[]): void
-  warn(message: string, ...args: unknown[]): void
-  error(message: string, ...args: unknown[]): void
-}
+import type { IReporter } from '@guanghechen/reporter'
 
 // ==================== Token Types ====================
 

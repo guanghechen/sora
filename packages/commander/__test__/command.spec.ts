@@ -580,14 +580,12 @@ describe('Command', () => {
     })
 
     it('should use default reporter when none provided', async () => {
-      const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {})
-      const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
+      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       const cmd = new Command({ name: 'test', desc: 'Test' })
       cmd.action(({ ctx }) => {
-        ctx.reporter.debug('debug message')
         ctx.reporter.info('info message')
         ctx.reporter.warn('warn message')
         ctx.reporter.error('error message')
@@ -595,13 +593,12 @@ describe('Command', () => {
 
       await cmd.run({ argv: [], envs: {} })
 
-      expect(debugSpy).toHaveBeenCalledWith('debug message')
-      expect(infoSpy).toHaveBeenCalledWith('info message')
-      expect(warnSpy).toHaveBeenCalledWith('warn message')
-      expect(errorSpy).toHaveBeenCalledWith('error message')
+      // Reporter uses formatted output with timestamp and prefix
+      expect(logSpy).toHaveBeenCalled()
+      expect(warnSpy).toHaveBeenCalled()
+      expect(errorSpy).toHaveBeenCalled()
 
-      debugSpy.mockRestore()
-      infoSpy.mockRestore()
+      logSpy.mockRestore()
       warnSpy.mockRestore()
       errorSpy.mockRestore()
     })

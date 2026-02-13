@@ -222,3 +222,47 @@ mycli -n -1        # ❌ -1 被识别为选项
 mycli --number=-1  # ✅ 长选项 = 语法
 mycli --number -1  # ✅ 长选项空格语法
 ```
+
+---
+
+## 预定义选项
+
+Commander 提供了常用选项的预定义对象，减少模板代码：
+
+```typescript
+import { logLevelOption, silentOption } from '@guanghechen/commander'
+
+const cmd = new Command('app')
+  .option(logLevelOption)   // --log-level
+  .option(silentOption)     // --silent
+
+// 使用展开语法覆盖属性
+.option({ ...logLevelOption, default: 'warn' })
+```
+
+### logLevelOption
+
+日志级别选项，支持 `debug | info | hint | warn | error`：
+
+| 属性      | 值                           |
+| --------- | ---------------------------- |
+| `long`    | `'logLevel'`                 |
+| `type`    | `'string'`                   |
+| `args`    | `'required'`                 |
+| `default` | `'info'`                     |
+| `choices` | 所有日志级别                 |
+| `coerce`  | 大小写不敏感                 |
+| `apply`   | `ctx.reporter.setLevel(val)` |
+
+### silentOption
+
+静默输出选项：
+
+| 属性      | 值         |
+| --------- | ---------- |
+| `long`    | `'silent'` |
+| `type`    | `'boolean'`|
+| `args`    | `'none'`   |
+| `default` | `false`    |
+
+

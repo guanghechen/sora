@@ -6,6 +6,8 @@
  * @module @guanghechen/commander
  */
 
+import type { IReporter } from '@guanghechen/reporter'
+import { Reporter } from '@guanghechen/reporter'
 import type {
   ICommand,
   ICommandAction,
@@ -24,26 +26,8 @@ import type {
   ICommandTokenizeResult,
   ICompletionMeta,
   ICompletionOptionMeta,
-  IReporter,
 } from './types'
 import { CommanderError } from './types'
-
-// ==================== Default Reporter ====================
-
-class DefaultReporter implements IReporter {
-  public debug(message: string, ...args: unknown[]): void {
-    console.debug(message, ...args)
-  }
-  public info(message: string, ...args: unknown[]): void {
-    console.info(message, ...args)
-  }
-  public warn(message: string, ...args: unknown[]): void {
-    console.warn(message, ...args)
-  }
-  public error(message: string, ...args: unknown[]): void {
-    console.error(message, ...args)
-  }
-}
 
 // ==================== Naming Convention Utilities ====================
 
@@ -387,7 +371,7 @@ export class Command implements ICommand {
       const ctx: ICommandContext = {
         cmd: leafCommand,
         envs,
-        reporter: reporter ?? this.#reporter ?? new DefaultReporter(),
+        reporter: reporter ?? this.#reporter ?? new Reporter(),
         argv,
       }
 
@@ -445,7 +429,7 @@ export class Command implements ICommand {
     const ctx: ICommandContext = {
       cmd: leafCommand,
       envs,
-      reporter: reporter ?? this.#reporter ?? new DefaultReporter(),
+      reporter: reporter ?? this.#reporter ?? new Reporter(),
       argv,
     }
 

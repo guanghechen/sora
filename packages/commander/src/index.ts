@@ -6,6 +6,7 @@
 
 export { Command } from './command'
 export { BashCompletion, CompletionCommand, FishCompletion, PwshCompletion } from './completion'
+export { logLevelOption, silentOption } from './options'
 export type {
   ICommand,
   ICommandAction,
@@ -34,6 +35,5 @@ export type {
   ICompletionOptionMeta,
   ICompletionPaths,
   ICompletionShellType,
-  IReporter,
 } from './types'
 export { CommanderError } from './types'

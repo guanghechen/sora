@@ -46,5 +46,8 @@
     "CHANGELOG.md",
     "LICENSE",
     "README.md"
-  ]
+  ],
+  "dependencies": {
+    "@guanghechen/reporter": "workspace:^"
+  }
 }
