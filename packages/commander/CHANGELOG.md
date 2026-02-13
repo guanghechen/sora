@@ -1,5 +1,17 @@
 # Change Log
 
+## 4.2.0
+
+### Minor Changes
+
+- feat(reporter): add setFlight API for flight tracking feat(commander): unify builtin config for
+  options and commands
+
+### Patch Changes
+
+- Updated dependencies:
+  - @guanghechen/reporter@3.3.0
+
 ## 4.1.0
 
 ### Minor Changes
