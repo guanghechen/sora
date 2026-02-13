@@ -1,0 +1,16 @@
+{
+  "global": {
+    "branches": 95,
+    "statements": 98
+  },
+  "files": {
+    "src/PathResolver.ts": {
+      "branches": 90,
+      "statements": 98
+    },
+    "src/UrlPathResolver.ts": {
+      "branches": 96,
+      "statements": 98
+    }
+  }
+}

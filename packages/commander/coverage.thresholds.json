@@ -1,0 +1,16 @@
+{
+  "global": {
+    "branches": 94,
+    "functions": 91,
+    "lines": 98,
+    "statements": 98
+  },
+  "files": {
+    "src/index.ts": {
+      "branches": 0,
+      "functions": 0,
+      "lines": 0,
+      "statements": 0
+    }
+  }
+}

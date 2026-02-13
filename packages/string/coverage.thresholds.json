@@ -1,0 +1,21 @@
+{
+  "global": {
+    "branches": 88,
+    "functions": 94,
+    "lines": 94,
+    "statements": 94
+  },
+  "files": {
+    "src/vender/change-case.ts": {
+      "branches": 53,
+      "functions": 80,
+      "lines": 84,
+      "statements": 81
+    },
+    "src/vender/title-case.ts": {
+      "branches": 50,
+      "lines": 83,
+      "statements": 83
+    }
+  }
+}

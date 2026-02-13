@@ -5,77 +5,80 @@ import { defineConfig } from 'vitest/config'
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
 
-const coverageMap: Record<
-  string,
-  Record<string, { branches?: number; functions?: number; lines?: number; statements?: number }>
-> = {
-  '@guanghechen/commander': {
-    global: { branches: 94, functions: 91, lines: 98, statements: 98 },
-    'src/index.ts': { branches: 0, functions: 0, lines: 0, statements: 0 },
-  },
-  '@guanghechen/config': {
-    global: { functions: 94, statements: 98 },
-  },
-  '@guanghechen/disposable': {
-    global: { branches: 95 },
-  },
-  '@guanghechen/equal': {
-    global: { branches: 95, statements: 97 },
-  },
-  '@guanghechen/eventbus': {
-    global: { functions: 92, statements: 97 },
-  },
-  '@guanghechen/invariant': {
-    global: { branches: 87 },
-  },
-  '@guanghechen/observable': {
-    global: { branches: 96, functions: 94, lines: 98, statements: 98 },
-  },
-  '@guanghechen/path': {
-    global: { branches: 95, statements: 98 },
-    'src/PathResolver.ts': { branches: 90, statements: 98 },
-    'src/UrlPathResolver.ts': { branches: 96, statements: 98 },
-  },
-  '@guanghechen/reporter': {
-    global: { branches: 80, functions: 80, lines: 80, statements: 80 },
-  },
-  '@guanghechen/scheduler': {
-    global: { branches: 81, functions: 100, lines: 97, statements: 94 },
-  },
-  '@guanghechen/std': {
-    global: { branches: 88, functions: 94, lines: 94, statements: 94 },
-    'src/root.ts': { branches: 0 },
-  },
-  '@guanghechen/string': {
-    global: { branches: 88, functions: 94, lines: 94, statements: 94 },
-    'src/vender/change-case.ts': { branches: 53, functions: 80, lines: 84, statements: 81 },
-    'src/vender/title-case.ts': { branches: 50, lines: 83, statements: 83 },
-  },
-  '@guanghechen/subscriber': {
-    global: { branches: 94, functions: 93, statements: 98 },
-  },
-  '@guanghechen/task': {
-    global: { branches: 91, statements: 99 },
-  },
-  '@guanghechen/version': {
-    global: { branches: 93, functions: 94, statements: 96 },
-  },
-  '@guanghechen/viewmodel': {
-    global: { branches: 93, functions: 98, lines: 98, statements: 97 },
-  },
+interface ICoverageThresholdValue {
+  branches?: number
+  functions?: number
+  lines?: number
+  statements?: number
 }
 
-function loadPackageName(): string {
-  const manifestPath = path.resolve('package.json')
-  if (!fs.existsSync(manifestPath)) return ''
-  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'))
-  return manifest.name ?? ''
+interface ICoverageThresholdFile {
+  global?: ICoverageThresholdValue
+  files?: Record<string, ICoverageThresholdValue>
 }
 
 function getPackageDirName(): string {
   const cwd = process.cwd()
   const match = cwd.match(/packages[/\\]([^/\\]+)$/)
   return match ? match[1] : ''
+}
+
+function getPackageAliases(): Record<string, string> {
+  const aliases: Record<string, string> = {}
+  const packagesDir = path.resolve(__dirname, 'packages')
+
+  if (!fs.existsSync(packagesDir)) return aliases
+
+  const packageDirs = fs
+    .readdirSync(packagesDir, { withFileTypes: true })
+    .filter(dirent => dirent.isDirectory())
+    .map(dirent => dirent.name)
+
+  for (const dir of packageDirs) {
+    const packageRoot = path.resolve(packagesDir, dir)
+    const manifestPath = path.resolve(packageRoot, 'package.json')
+    const srcPath = path.resolve(packageRoot, 'src')
+    if (!fs.existsSync(manifestPath) || !fs.existsSync(srcPath)) continue
+
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'))
+    const packageName = manifest.name
+    if (typeof packageName === 'string' && packageName.length > 0) {
+      aliases[packageName] = srcPath
+    }
+  }
+
+  return aliases
+}
+
+function loadCoverageThresholds(): Record<string, ICoverageThresholdValue | number> {
+  const packageDir = getPackageDirName()
+  const defaults: Record<string, ICoverageThresholdValue | number> = {
+    branches: 100,
+    functions: 100,
+    lines: 100,
+    statements: 100,
+  }
+
+  if (!packageDir) {
+    return defaults
+  }
+
+  const thresholdPath = path.resolve(__dirname, 'packages', packageDir, 'coverage.thresholds.json')
+  if (!fs.existsSync(thresholdPath)) {
+    return defaults
+  }
+
+  const thresholdFile: ICoverageThresholdFile = JSON.parse(fs.readFileSync(thresholdPath, 'utf-8'))
+  const globalThresholds = thresholdFile.global ?? {}
+  const fileThresholds = thresholdFile.files ?? {}
+
+  return {
+    ...defaults,
+    ...globalThresholds,
+    ...Object.fromEntries(
+      Object.entries(fileThresholds).map(([filePath, thresholds]) => [filePath, thresholds]),
+    ),
+  }
 }
 
 // Get all package directory names to exclude from coverage (except current package)
@@ -101,50 +104,13 @@ export default defineConfig({
       provider: 'v8',
       include: ['src/**/*.ts'],
       exclude: ['**/node_modules/**', '**/__test__/**', ...getOtherPackageExcludes()],
-      thresholds: (() => {
-        const packageName = loadPackageName()
-        const packageCoverage = coverageMap[packageName]
-        return {
-          branches: 100,
-          functions: 100,
-          lines: 100,
-          statements: 100,
-          ...packageCoverage?.global,
-          ...Object.fromEntries(
-            Object.entries(packageCoverage ?? {})
-              .filter(([key]) => key !== 'global')
-              .map(([filePath, thresholds]) => [filePath, thresholds]),
-          ),
-        }
-      })(),
+      thresholds: loadCoverageThresholds(),
     },
   },
   resolve: {
     alias: {
       'vitest.helper': path.resolve(__dirname, 'vitest.helper.mts'),
-      '@guanghechen/byte': path.resolve(__dirname, 'packages/byte/src'),
-      '@guanghechen/config': path.resolve(__dirname, 'packages/config/src'),
-      '@guanghechen/disposable': path.resolve(__dirname, 'packages/disposable/src'),
-      '@guanghechen/env': path.resolve(__dirname, 'packages/env/src'),
-      '@guanghechen/equal': path.resolve(__dirname, 'packages/equal/src'),
-      '@guanghechen/eventbus': path.resolve(__dirname, 'packages/eventbus/src'),
-      '@guanghechen/filesplit': path.resolve(__dirname, 'packages/filesplit/src'),
-      '@guanghechen/filepart': path.resolve(__dirname, 'packages/filepart/src'),
-      '@guanghechen/invariant': path.resolve(__dirname, 'packages/invariant/src'),
-      '@guanghechen/middleware': path.resolve(__dirname, 'packages/middleware/src'),
-      '@guanghechen/observable': path.resolve(__dirname, 'packages/observable/src'),
-      '@guanghechen/path': path.resolve(__dirname, 'packages/path/src'),
-      '@guanghechen/reporter': path.resolve(__dirname, 'packages/reporter/src'),
-      '@guanghechen/resource': path.resolve(__dirname, 'packages/resource/src'),
-      '@guanghechen/scheduler': path.resolve(__dirname, 'packages/scheduler/src'),
-      '@guanghechen/std': path.resolve(__dirname, 'packages/std/src'),
-      '@guanghechen/stream': path.resolve(__dirname, 'packages/stream/src'),
-      '@guanghechen/string': path.resolve(__dirname, 'packages/string/src'),
-      '@guanghechen/subscriber': path.resolve(__dirname, 'packages/subscriber/src'),
-      '@guanghechen/task': path.resolve(__dirname, 'packages/task/src'),
-      '@guanghechen/types': path.resolve(__dirname, 'packages/types/src'),
-      '@guanghechen/version': path.resolve(__dirname, 'packages/version/src'),
-      '@guanghechen/viewmodel': path.resolve(__dirname, 'packages/viewmodel/src'),
+      ...getPackageAliases(),
     },
   },
 })
