@@ -6,7 +6,7 @@
 
 export { Command } from './command'
 export { BashCompletion, CompletionCommand, FishCompletion, PwshCompletion } from './completion'
-export { logLevelOption, silentOption } from './options'
+export { logColorfulOption, logDateOption, logLevelOption, silentOption } from './options'
 export type {
   ICommand,
   ICommandAction,
@@ -14,6 +14,9 @@ export type {
   ICommandArgumentConfig,
   ICommandArgumentKind,
   ICommandArgumentType,
+  ICommandBuiltinCommandConfig,
+  ICommandBuiltinConfig,
+  ICommandBuiltinOptionConfig,
   ICommandConfig,
   ICommandContext,
   ICommandOptionArgs,

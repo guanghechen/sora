@@ -631,6 +631,85 @@ describe('Command', () => {
       expect(result.opts['version']).toBe(true)
     })
 
+    it('should auto integrate --log-level option', () => {
+      const cmd = new Command({ name: 'test', desc: 'Test' })
+      const result = cmd.parse({ argv: ['--log-level', 'warn'], envs: {} })
+      expect(result.opts['logLevel']).toBe('warn')
+    })
+
+    it('should auto integrate --silent option', () => {
+      const cmd = new Command({ name: 'test', desc: 'Test' })
+      const result = cmd.parse({ argv: ['--silent'], envs: {} })
+      expect(result.opts['silent']).toBe(true)
+    })
+
+    it('should auto integrate --log-date/--no-log-date option', () => {
+      const cmd = new Command({ name: 'test', desc: 'Test' })
+      expect(cmd.parse({ argv: [], envs: {} }).opts['logDate']).toBe(true)
+      expect(cmd.parse({ argv: ['--no-log-date'], envs: {} }).opts['logDate']).toBe(false)
+    })
+
+    it('should auto integrate --log-colorful/--no-log-colorful option', () => {
+      const cmd = new Command({ name: 'test', desc: 'Test' })
+      expect(cmd.parse({ argv: [], envs: {} }).opts['logColorful']).toBe(true)
+      expect(cmd.parse({ argv: ['--no-log-colorful'], envs: {} }).opts['logColorful']).toBe(false)
+    })
+
+    it('should disable built-in log options when builtin.option is false', () => {
+      const cmd = new Command({ name: 'test', desc: 'Test', builtin: { option: false } })
+      expect(() => cmd.parse({ argv: ['--log-level', 'warn'], envs: {} })).toThrow('unknown option')
+    })
+
+    it('should support partial built-in option config', () => {
+      const cmd = new Command({
+        name: 'test',
+        desc: 'Test',
+        builtin: { option: { logDate: false, logColorful: false } },
+      })
+      expect(() => cmd.parse({ argv: ['--log-date'], envs: {} })).toThrow('unknown option')
+      expect(() => cmd.parse({ argv: ['--log-colorful'], envs: {} })).toThrow('unknown option')
+      expect(cmd.parse({ argv: ['--log-level', 'error'], envs: {} }).opts['logLevel']).toBe('error')
+    })
+
+    it('should disable all built-in features when builtin is false', () => {
+      const root = new Command({ name: 'cli', desc: 'CLI', builtin: false })
+
+      expect(() => root.parse({ argv: ['--log-level', 'warn'], envs: {} })).toThrow(
+        'unknown option',
+      )
+      expect(() => root.parse({ argv: ['--silent'], envs: {} })).toThrow('unknown option')
+      expect(() => root.parse({ argv: ['--log-date'], envs: {} })).toThrow('unknown option')
+      expect(() => root.parse({ argv: ['--log-colorful'], envs: {} })).toThrow('unknown option')
+    })
+
+    it('should enable all built-in options when builtin.option is true', () => {
+      const cmd = new Command({
+        name: 'test',
+        desc: 'Test',
+        builtin: { option: true },
+      })
+
+      expect(cmd.parse({ argv: ['--log-level', 'warn'], envs: {} }).opts['logLevel']).toBe('warn')
+      expect(cmd.parse({ argv: ['--silent'], envs: {} }).opts['silent']).toBe(true)
+      expect(cmd.parse({ argv: ['--no-log-date'], envs: {} }).opts['logDate']).toBe(false)
+      expect(cmd.parse({ argv: ['--no-log-colorful'], envs: {} }).opts['logColorful']).toBe(false)
+    })
+
+    it('should support explicit logLevel and silent overrides in builtin.option object', () => {
+      const cmd = new Command({
+        name: 'test',
+        desc: 'Test',
+        builtin: { option: { logLevel: false, silent: false } },
+      })
+
+      expect(() => cmd.parse({ argv: ['--log-level', 'warn'], envs: {} })).toThrow('unknown option')
+      expect(() => cmd.parse({ argv: ['--silent'], envs: {} })).toThrow('unknown option')
+
+      // Unspecified options keep default enabled state
+      expect(cmd.parse({ argv: ['--no-log-date'], envs: {} }).opts['logDate']).toBe(false)
+      expect(cmd.parse({ argv: ['--no-log-colorful'], envs: {} }).opts['logColorful']).toBe(false)
+    })
+
     it('should not show version output for subcommands when --version is used', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const root = new Command({ name: 'cli', desc: 'CLI', version: '1.0.0' })
@@ -1210,14 +1289,22 @@ describe('Command', () => {
 
     it('should use custom reporter when provided', async () => {
       const baseReporter = {
+        setLevel: vi.fn(),
+        setFlight: vi.fn(),
+        log: vi.fn(),
         debug: vi.fn(),
         info: vi.fn(),
+        hint: vi.fn(),
         warn: vi.fn(),
         error: vi.fn(),
       }
       const customReporter = {
+        setLevel: vi.fn(),
+        setFlight: vi.fn(),
+        log: vi.fn(),
         debug: vi.fn(),
         info: vi.fn(),
+        hint: vi.fn(),
         warn: vi.fn(),
         error: vi.fn(),
       }
@@ -1236,8 +1323,12 @@ describe('Command', () => {
 
     it('should use reporter from constructor when not overridden', async () => {
       const baseReporter = {
+        setLevel: vi.fn(),
+        setFlight: vi.fn(),
+        log: vi.fn(),
         debug: vi.fn(),
         info: vi.fn(),
+        hint: vi.fn(),
         warn: vi.fn(),
         error: vi.fn(),
       }
@@ -1613,10 +1704,66 @@ describe('Command', () => {
   })
 
   describe('help subcommand', () => {
+    it('should enable help subcommand when builtin.command is true', () => {
+      const root = new Command({
+        name: 'cli',
+        desc: 'CLI tool',
+        builtin: { command: true },
+      })
+      const sub = new Command({ desc: 'Initialize' })
+      root.subcommand('init', sub)
+
+      const help = root.formatHelp()
+      expect(help).toContain('Commands:')
+      expect(help).toContain('help')
+      expect(help).toContain('Show help for a command')
+    })
+
+    it('should allow custom help subcommand when builtin.command is false', () => {
+      const root = new Command({
+        name: 'cli',
+        desc: 'CLI tool',
+        builtin: { command: false },
+      })
+
+      const helpCmd = new Command({ desc: 'Custom help' })
+      helpCmd.action(() => {})
+
+      expect(() => root.subcommand('help', helpCmd)).not.toThrow()
+    })
+
+    it('should keep help subcommand disabled when builtin.command config is empty', () => {
+      const root = new Command({
+        name: 'cli',
+        desc: 'CLI tool',
+        builtin: { command: {} },
+      })
+
+      const helpCmd = new Command({ desc: 'Custom help' })
+      helpCmd.action(() => {})
+
+      expect(() => root.subcommand('help', helpCmd)).not.toThrow()
+    })
+
+    it('should enable help subcommand when builtin is true', () => {
+      const root = new Command({ name: 'cli', desc: 'CLI tool', builtin: true })
+      const sub = new Command({ desc: 'Initialize' })
+      root.subcommand('init', sub)
+
+      const help = root.formatHelp()
+      expect(help).toContain('Commands:')
+      expect(help).toContain('help')
+      expect(help).toContain('Show help for a command')
+    })
+
     it('should show subcommand help with "help <subcommand>"', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-      const root = new Command({ name: 'cli', desc: 'CLI tool', help: true })
+      const root = new Command({
+        name: 'cli',
+        desc: 'CLI tool',
+        builtin: { command: { help: true } },
+      })
 
       const sub = new Command({ desc: 'Initialize project' })
       sub.option({
@@ -1641,7 +1788,11 @@ describe('Command', () => {
     it('should show root help with "help" alone when has subcommands', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-      const root = new Command({ name: 'cli', desc: 'CLI tool', help: true })
+      const root = new Command({
+        name: 'cli',
+        desc: 'CLI tool',
+        builtin: { command: { help: true } },
+      })
       const sub = new Command({ desc: 'Initialize' })
       sub.action(() => {})
       root.subcommand('init', sub)
@@ -1656,7 +1807,11 @@ describe('Command', () => {
     })
 
     it('should show help subcommand in help output when has subcommands', () => {
-      const root = new Command({ name: 'cli', desc: 'CLI tool', help: true })
+      const root = new Command({
+        name: 'cli',
+        desc: 'CLI tool',
+        builtin: { command: { help: true } },
+      })
       const sub = new Command({ desc: 'Initialize' })
       root.subcommand('init', sub)
 
@@ -1668,7 +1823,11 @@ describe('Command', () => {
     })
 
     it('should not show help subcommand when no subcommands', () => {
-      const root = new Command({ name: 'cli', desc: 'CLI tool', help: true })
+      const root = new Command({
+        name: 'cli',
+        desc: 'CLI tool',
+        builtin: { command: { help: true } },
+      })
 
       const help = root.formatHelp()
 
@@ -1707,7 +1866,11 @@ describe('Command', () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
 
-      const root = new Command({ name: 'cli', desc: 'CLI tool', help: true })
+      const root = new Command({
+        name: 'cli',
+        desc: 'CLI tool',
+        builtin: { command: { help: true } },
+      })
 
       const sub = new Command({ desc: 'Initialize' })
       sub.action(() => {})
@@ -1730,7 +1893,11 @@ describe('Command', () => {
     it('should work with subcommand aliases', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-      const root = new Command({ name: 'cli', desc: 'CLI tool', help: true })
+      const root = new Command({
+        name: 'cli',
+        desc: 'CLI tool',
+        builtin: { command: { help: true } },
+      })
 
       const sub = new Command({ desc: 'Initialize project' })
       sub.action(() => {})
@@ -1746,7 +1913,11 @@ describe('Command', () => {
     })
 
     it('should throw when subcommand name conflicts with reserved "help"', () => {
-      const root = new Command({ name: 'cli', desc: 'CLI tool', help: true })
+      const root = new Command({
+        name: 'cli',
+        desc: 'CLI tool',
+        builtin: { command: { help: true } },
+      })
 
       const helpCmd = new Command({ desc: 'Custom help' })
 
@@ -1754,7 +1925,11 @@ describe('Command', () => {
     })
 
     it('should throw when subcommand alias conflicts with reserved "help"', () => {
-      const root = new Command({ name: 'cli', desc: 'CLI tool', help: true })
+      const root = new Command({
+        name: 'cli',
+        desc: 'CLI tool',
+        builtin: { command: { help: true } },
+      })
 
       const cmd = new Command({ desc: 'Info' })
       root.subcommand('info', cmd)
@@ -1775,7 +1950,11 @@ describe('Command', () => {
     it('should show help when help:true and no subcommands', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-      const root = new Command({ name: 'cli', desc: 'CLI tool', help: true })
+      const root = new Command({
+        name: 'cli',
+        desc: 'CLI tool',
+        builtin: { command: { help: true } },
+      })
       root.action(() => {})
 
       await root.run({ argv: ['help'], envs: {} })

@@ -57,6 +57,48 @@ export const logLevelOption: ICommandOptionConfig<string> = {
 }
 
 /**
+ * Pre-defined --log-date option for controlling timestamp output.
+ *
+ * | Property  | Value     |
+ * | --------- | --------- |
+ * | long      | 'logDate' |
+ * | type      | 'boolean' |
+ * | args      | 'none'    |
+ * | default   | true      |
+ */
+export const logDateOption: ICommandOptionConfig<boolean> = {
+  long: 'logDate',
+  type: 'boolean',
+  args: 'none',
+  desc: 'Enable log timestamp',
+  default: true,
+  apply: (value, ctx): void => {
+    ctx.reporter.setFlight({ date: Boolean(value) })
+  },
+}
+
+/**
+ * Pre-defined --log-colorful option for controlling colorful output.
+ *
+ * | Property  | Value         |
+ * | --------- | ------------- |
+ * | long      | 'logColorful' |
+ * | type      | 'boolean'     |
+ * | args      | 'none'        |
+ * | default   | true          |
+ */
+export const logColorfulOption: ICommandOptionConfig<boolean> = {
+  long: 'logColorful',
+  type: 'boolean',
+  args: 'none',
+  desc: 'Enable colorful log output',
+  default: true,
+  apply: (value, ctx): void => {
+    ctx.reporter.setFlight({ color: Boolean(value) })
+  },
+}
+
+/**
  * Pre-defined --silent option for suppressing non-error output.
  *
  * | Property  | Value     |
@@ -85,4 +127,9 @@ export const silentOption: ICommandOptionConfig<boolean> = {
   args: 'none',
   desc: 'Suppress non-error output',
   default: false,
+  apply: (value, ctx): void => {
+    if (value) {
+      ctx.reporter.setLevel('error')
+    }
+  },
 }

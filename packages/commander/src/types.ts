@@ -108,6 +108,29 @@ export interface ICommandArgumentConfig<T = unknown> {
 
 // ==================== Command Types ====================
 
+export interface ICommandBuiltinOptionConfig {
+  /** Enable built-in --log-level option */
+  logLevel?: boolean
+  /** Enable built-in --silent option */
+  silent?: boolean
+  /** Enable built-in --log-date/--no-log-date option */
+  logDate?: boolean
+  /** Enable built-in --log-colorful/--no-log-colorful option */
+  logColorful?: boolean
+}
+
+export interface ICommandBuiltinCommandConfig {
+  /** Enable built-in help subcommand */
+  help?: boolean
+}
+
+export interface ICommandBuiltinConfig {
+  /** Built-in options configuration */
+  option?: boolean | ICommandBuiltinOptionConfig
+  /** Built-in command configuration */
+  command?: boolean | ICommandBuiltinCommandConfig
+}
+
 /** Command configuration */
 export interface ICommandConfig {
   /** Command name (only for root command) */
@@ -116,8 +139,8 @@ export interface ICommandConfig {
   desc: string
   /** Version (for root --version) */
   version?: string
-  /** Enable built-in "help" subcommand */
-  help?: boolean
+  /** Built-in features configuration */
+  builtin?: boolean | ICommandBuiltinConfig
   /** Default reporter for this command */
   reporter?: IReporter
 }

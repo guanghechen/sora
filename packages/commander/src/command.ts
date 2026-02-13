@@ -8,11 +8,13 @@
 
 import type { IReporter } from '@guanghechen/reporter'
 import { Reporter } from '@guanghechen/reporter'
+import { logColorfulOption, logDateOption, logLevelOption, silentOption } from './options'
 import type {
   ICommand,
   ICommandAction,
   ICommandActionParams,
   ICommandArgumentConfig,
+  ICommandBuiltinConfig,
   ICommandConfig,
   ICommandContext,
   ICommandOptionConfig,
@@ -202,6 +204,79 @@ const BUILTIN_VERSION_OPTION: ICommandOptionConfig = {
   desc: 'Show version number',
 }
 
+interface ICommandBuiltinResolved {
+  option: {
+    logLevel: boolean
+    silent: boolean
+    logDate: boolean
+    logColorful: boolean
+  }
+  command: {
+    help: boolean
+  }
+}
+
+function normalizeBuiltinConfig(
+  builtin: boolean | ICommandBuiltinConfig | undefined,
+): ICommandBuiltinResolved {
+  const resolved: ICommandBuiltinResolved = {
+    option: {
+      logLevel: true,
+      silent: true,
+      logDate: true,
+      logColorful: true,
+    },
+    command: {
+      help: false,
+    },
+  }
+
+  if (builtin === undefined) {
+    return resolved
+  }
+
+  if (builtin === true) {
+    return {
+      option: { logLevel: true, silent: true, logDate: true, logColorful: true },
+      command: { help: true },
+    }
+  }
+
+  if (builtin === false) {
+    return {
+      option: { logLevel: false, silent: false, logDate: false, logColorful: false },
+      command: { help: false },
+    }
+  }
+
+  if (builtin.option !== undefined) {
+    if (builtin.option === false) {
+      resolved.option = { logLevel: false, silent: false, logDate: false, logColorful: false }
+    } else if (builtin.option === true) {
+      resolved.option = { logLevel: true, silent: true, logDate: true, logColorful: true }
+    } else {
+      if (builtin.option.logLevel !== undefined) resolved.option.logLevel = builtin.option.logLevel
+      if (builtin.option.silent !== undefined) resolved.option.silent = builtin.option.silent
+      if (builtin.option.logDate !== undefined) resolved.option.logDate = builtin.option.logDate
+      if (builtin.option.logColorful !== undefined) {
+        resolved.option.logColorful = builtin.option.logColorful
+      }
+    }
+  }
+
+  if (builtin.command !== undefined) {
+    if (builtin.command === false) {
+      resolved.command = { help: false }
+    } else if (builtin.command === true) {
+      resolved.command = { help: true }
+    } else if (builtin.command.help !== undefined) {
+      resolved.command.help = builtin.command.help
+    }
+  }
+
+  return resolved
+}
+
 // ==================== Internal Types ====================
 
 /** Subcommand registration entry (internal) */
@@ -223,7 +298,7 @@ export class Command implements ICommand {
   #name: string
   readonly #desc: string
   readonly #version: string | undefined
-  readonly #helpSubcommandEnabled: boolean
+  readonly #builtin: ICommandBuiltinResolved
   readonly #reporter: IReporter | undefined
   #parent: Command | undefined
 
@@ -237,7 +312,7 @@ export class Command implements ICommand {
     this.#name = config.name ?? ''
     this.#desc = config.desc
     this.#version = config.version
-    this.#helpSubcommandEnabled = config.help ?? false
+    this.#builtin = normalizeBuiltinConfig(config.builtin)
     this.#reporter = config.reporter
   }
 
@@ -295,7 +370,7 @@ export class Command implements ICommand {
 
   public subcommand(name: string, cmd: Command): this {
     // Check for reserved name conflict
-    if (this.#helpSubcommandEnabled && name === 'help') {
+    if (this.#builtin.command.help && name === 'help') {
       throw new CommanderError(
         'ConfigurationError',
         '"help" is a reserved subcommand name when help subcommand is enabled',
@@ -503,7 +578,7 @@ export class Command implements ICommand {
     }
 
     // Commands
-    const showHelpSubcommand = this.#helpSubcommandEnabled && this.#subcommandsList.length > 0
+    const showHelpSubcommand = this.#builtin.command.help && this.#subcommandsList.length > 0
     if (this.#subcommandsList.length > 0) {
       lines.push('Commands:')
       const cmdLines: Array<{ name: string; desc: string }> = []
@@ -564,7 +639,7 @@ export class Command implements ICommand {
   // ==================== Stage 1: ROUTE ====================
 
   #processHelpSubcommand(argv: string[]): string[] {
-    if (!this.#helpSubcommandEnabled) return argv
+    if (!this.#builtin.command.help) return argv
     if (argv.length < 1 || argv[0] !== 'help') return argv
 
     if (argv.length === 1 || this.#subcommandsList.length === 0) {
@@ -1070,12 +1145,29 @@ export class Command implements ICommand {
     // Add built-in options first (can be overridden)
     const hasUserHelp = this.#options.some(o => o.long === 'help')
     const hasUserVersion = this.#options.some(o => o.long === 'version')
+    const hasUserLogLevel = this.#options.some(o => o.long === 'logLevel')
+    const hasUserSilent = this.#options.some(o => o.long === 'silent')
+    const hasUserLogDate = this.#options.some(o => o.long === 'logDate')
+    const hasUserLogColorful = this.#options.some(o => o.long === 'logColorful')
 
     if (!hasUserHelp) {
       optionMap.set('help', BUILTIN_HELP_OPTION)
     }
     if (!hasUserVersion && includeVersion) {
       optionMap.set('version', BUILTIN_VERSION_OPTION)
+    }
+    if (this.#builtin.option.logLevel && !hasUserLogLevel) {
+      optionMap.set('logLevel', logLevelOption as ICommandOptionConfig)
+    }
+    // Keep silent after logLevel so it can override level when both are set.
+    if (this.#builtin.option.silent && !hasUserSilent) {
+      optionMap.set('silent', silentOption as ICommandOptionConfig)
+    }
+    if (this.#builtin.option.logDate && !hasUserLogDate) {
+      optionMap.set('logDate', logDateOption as ICommandOptionConfig)
+    }
+    if (this.#builtin.option.logColorful && !hasUserLogColorful) {
+      optionMap.set('logColorful', logColorfulOption as ICommandOptionConfig)
     }
 
     // Add this command's options

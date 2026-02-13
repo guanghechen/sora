@@ -30,7 +30,17 @@ interface ICommandConfig {
   name?: string           // 命令名称（仅 root 需要）
   desc: string            // 命令描述
   version?: string        // 版本号（用于 --version）
-  help?: boolean          // 是否启用 help 子命令
+  builtin?: boolean | {
+    option?: boolean | {
+      logLevel?: boolean
+      silent?: boolean
+      logDate?: boolean
+      logColorful?: boolean
+    }
+    command?: boolean | {
+      help?: boolean
+    }
+  }
   reporter?: IReporter    // Reporter 实例（来自 @guanghechen/reporter）
 }
 
@@ -61,19 +71,58 @@ interface ICommandRunParams {
 }
 ```
 
+## 内置功能配置
+
+`builtin` 同时支持总开关和细粒度配置。
+
+| 配置值                       | 语义                                                                             |
+| ---------------------------- | -------------------------------------------------------------------------------- |
+| `builtin: undefined`         | 默认行为：开启内置 option（`logLevel/silent/logDate/logColorful`），关闭 help 子命令 |
+| `builtin: true`              | 开启全部内置 option 与内置 command（help 子命令）                                  |
+| `builtin: false`             | 关闭全部内置 option 与内置 command                                               |
+| `builtin: { option: ... }`   | 仅覆盖内置 option 配置                                                           |
+| `builtin: { command: ... }`  | 仅覆盖内置 command 配置                                                          |
+
+`option` 与 `command` 字段都支持 `boolean` 或细粒度对象。
+
+| 字段               | `true` 语义         | `false` 语义        |
+| ------------------ | ------------------- | ------------------- |
+| `builtin.option`   | 开启全部内置 option  | 关闭全部内置 option  |
+| `builtin.command`  | 开启全部内置 command | 关闭全部内置 command |
+
+细粒度对象示例：
+
+```typescript
+const cmd = new Command({
+  name: 'cli',
+  desc: 'CLI',
+  builtin: {
+    option: {
+      logLevel: true,
+      silent: true,
+      logDate: false,
+      logColorful: false,
+    },
+    command: {
+      help: true,
+    },
+  },
+})
+```
+
 ---
 
 ## 方法
 
-| 方法                                      | 说明             |
-| ----------------------------------------- | ---------------- |
-| `.option(opt: ICommandOptionConfig)`      | 添加选项         |
-| `.argument(arg: ICommandArgumentConfig)`  | 添加位置参数     |
-| `.action(fn: ICommandAction)`             | 设置 action      |
-| `.subcommand(name: string, cmd: Command)` | 添加子命令       |
-| `.run(params: ICommandRunParams)`         | 解析 + 执行      |
-| `.parse(params: ICommandRunParams)`       | 仅解析           |
-| `.formatHelp()`                           | 生成帮助文本     |
+| 方法                                       | 说明         |
+| ------------------------------------------ | ------------ |
+| `.option(opt: ICommandOptionConfig)`       | 添加选项     |
+| `.argument(arg: ICommandArgumentConfig)`   | 添加位置参数 |
+| `.action(fn: ICommandAction)`              | 设置 action  |
+| `.subcommand(name: string, cmd: Command)`  | 添加子命令   |
+| `.run(params: ICommandRunParams)`          | 解析 + 执行  |
+| `.parse(params: ICommandRunParams)`        | 仅解析       |
+| `.formatHelp()`                            | 生成帮助文本 |
 
 ---
 
@@ -287,10 +336,14 @@ cli sub -- --like-option        # --like-option 作为位置参数
 
 ## 内置选项
 
-| 选项        | 短选项 | 说明                |
-| ----------- | ------ | ------------------- |
-| `--help`    | `-h`   | 显示帮助并退出      |
-| `--version` | `-V`   | 显示版本（仅 root） |
+| 选项                                    | 短选项 | 说明                 |
+| --------------------------------------- | ------ | -------------------- |
+| `--help`                                | `-h`   | 显示帮助并退出       |
+| `--version`                             | `-V`   | 显示版本（仅 root）  |
+| `--log-level`                           | -      | 设置日志级别         |
+| `--silent`                              | -      | 静默模式（仅 error） |
+| `--log-date` / `--no-log-date`          | -      | 控制日志时间戳       |
+| `--log-colorful` / `--no-log-colorful`  | -      | 控制彩色输出         |
 
 用户可定义同名选项覆盖默认行为。
 
@@ -298,10 +351,14 @@ cli sub -- --like-option        # --like-option 作为位置参数
 
 ## help 子命令
 
-通过 `help: true` 启用：
+通过 `builtin.command.help: true` 启用：
 
 ```typescript
-const root = new Command({ name: 'cli', desc: 'CLI', help: true })
+const root = new Command({
+  name: 'cli',
+  desc: 'CLI',
+  builtin: { command: { help: true } },
+})
 ```
 
 ```bash

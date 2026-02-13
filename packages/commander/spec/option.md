@@ -6,11 +6,11 @@
 
 ## 命名规范
 
-| 场景                        | 格式                     | 示例           |
-| --------------------------- | ------------------------ | -------------- |
-| `ICommandOptionConfig.long` | camelCase                | `logLevel`     |
-| 命令行输入                  | kebab-case（大小写不敏感）| `--log-level`  |
-| help / 错误提示             | kebab-case（全小写）     | `--log-level`  |
+| 场景                         | 格式                       | 示例          |
+| ---------------------------- | -------------------------- | ------------- |
+| `ICommandOptionConfig.long`  | camelCase                  | `logLevel`    |
+| 命令行输入                   | kebab-case（大小写不敏感） | `--log-level` |
+| help / 错误提示              | kebab-case（全小写）       | `--log-level` |
 
 详见 [charter.md](./charter.md) §3。
 
@@ -57,22 +57,22 @@ interface ICommandToken {
 
 `type` 和 `args` **必须同时指定**，组合决定最终类型：
 
-| type      | args       | 最终类型   | 示例                  |
-| --------- | ---------- | ---------- | --------------------- |
-| `boolean` | `none`     | `boolean`  | `--verbose`           |
-| `string`  | `required` | `string`   | `--output file`       |
-| `number`  | `required` | `number`   | `--port 8080`         |
-| `string`  | `variadic` | `string[]` | `--files a.txt b.txt` |
-| `number`  | `variadic` | `number[]` | `--ports 80 443`      |
+| type       | args       | 最终类型   | 示例                  |
+| ---------- | ---------- | ---------- | --------------------- |
+| `boolean`  | `none`     | `boolean`  | `--verbose`           |
+| `string`   | `required` | `string`   | `--output file`       |
+| `number`   | `required` | `number`   | `--port 8080`         |
+| `string`   | `variadic` | `string[]` | `--files a.txt b.txt` |
+| `number`   | `variadic` | `number[]` | `--ports 80 443`      |
 
 **非法组合**（构建时报错）：
 
-| type      | args       | 原因                     |
-| --------- | ---------- | ------------------------ |
-| `boolean` | `required` | boolean 不接受参数       |
-| `boolean` | `variadic` | boolean 不接受参数       |
-| `string`  | `none`     | string/number 必须有参数 |
-| `number`  | `none`     | string/number 必须有参数 |
+| type       | args       | 原因                     |
+| ---------- | ---------- | ------------------------ |
+| `boolean`  | `required` | boolean 不接受参数       |
+| `boolean`  | `variadic` | boolean 不接受参数       |
+| `string`   | `none`     | string/number 必须有参数 |
+| `number`   | `none`     | string/number 必须有参数 |
 
 ---
 
@@ -80,11 +80,11 @@ interface ICommandToken {
 
 resolve 阶段按 `args` 贪婪消费后续 tokens：
 
-| args       | 消费行为                            |
-| ---------- | ----------------------------------- |
-| `none`     | 不消费参数                          |
-| `required` | 消费一个参数                        |
-| `variadic` | 持续消费，直到遇到 `-` 开头的 token |
+| args        | 消费行为                            |
+| ----------- | ----------------------------------- |
+| `none`      | 不消费参数                          |
+| `required`  | 消费一个参数                        |
+| `variadic`  | 持续消费，直到遇到 `-` 开头的 token |
 
 **`=` 语法**：值内嵌时立刻停止，不再贪婪：
 
@@ -126,12 +126,12 @@ c.txt → 位置参数
 // --port 80 443 → [80, 443]
 ```
 
-| 规则       | 说明                              |
-| ---------- | --------------------------------- |
-| 执行时机   | 解析到选项值后立即调用            |
-| 作用域     | 每个值单独调用（variadic 逐项）   |
-| 顺序       | 先 coerce，再 choices 校验        |
-| 异常       | 抛出异常则中止解析                |
+| 规则       | 说明                            |
+| ---------- | ------------------------------- |
+| 执行时机   | 解析到选项值后立即调用          |
+| 作用域     | 每个值单独调用（variadic 逐项） |
+| 顺序       | 先 coerce，再 choices 校验      |
+| 异常       | 抛出异常则中止解析              |
 
 ---
 
@@ -153,12 +153,12 @@ parse 阶段将解析后的值应用到 context：
 })
 ```
 
-| 规则     | 说明                                    |
-| -------- | --------------------------------------- |
-| 执行时机 | parse 阶段，tokens → opts 之后          |
-| 执行顺序 | 自顶向下（root → leaf）                 |
-| 触发条件 | 仅在值非 undefined 时执行               |
-| 覆盖行为 | 子命令覆盖选项时使用子命令的 apply      |
+| 规则       | 说明                               |
+| ---------- | ---------------------------------- |
+| 执行时机   | parse 阶段，tokens → opts 之后     |
+| 执行顺序   | 自顶向下（root → leaf）            |
+| 触发条件   | 仅在值非 undefined 时执行          |
+| 覆盖行为   | 子命令覆盖选项时使用子命令的 apply |
 
 ---
 
@@ -180,11 +180,11 @@ root.subcommand('build', sub)
 
 `cli build --log-level debug` 合并后：
 
-| long     | 来源 |
-| -------- | ---- |
-| verbose  | root |
-| logLevel | sub  |
-| watch    | sub  |
+| long      | 来源 |
+| --------- | ---- |
+| verbose   | root |
+| logLevel  | sub  |
+| watch     | sub  |
 
 `long` 是唯一标识，`short` 仅是 alias。
 
@@ -230,11 +230,18 @@ mycli --number -1  # ✅ 长选项空格语法
 Commander 提供了常用选项的预定义对象，减少模板代码：
 
 ```typescript
-import { logLevelOption, silentOption } from '@guanghechen/commander'
+import {
+  logColorfulOption,
+  logDateOption,
+  logLevelOption,
+  silentOption,
+} from '@guanghechen/commander'
 
 const cmd = new Command('app')
   .option(logLevelOption)   // --log-level
   .option(silentOption)     // --silent
+  .option(logDateOption)    // --log-date
+  .option(logColorfulOption) // --log-colorful
 
 // 使用展开语法覆盖属性
 .option({ ...logLevelOption, default: 'warn' })
@@ -244,25 +251,47 @@ const cmd = new Command('app')
 
 日志级别选项，支持 `debug | info | hint | warn | error`：
 
-| 属性      | 值                           |
-| --------- | ---------------------------- |
-| `long`    | `'logLevel'`                 |
-| `type`    | `'string'`                   |
-| `args`    | `'required'`                 |
-| `default` | `'info'`                     |
-| `choices` | 所有日志级别                 |
-| `coerce`  | 大小写不敏感                 |
-| `apply`   | `ctx.reporter.setLevel(val)` |
+| 属性       | 值                           |
+| ---------- | ---------------------------- |
+| `long`     | `'logLevel'`                 |
+| `type`     | `'string'`                   |
+| `args`     | `'required'`                 |
+| `default`  | `'info'`                     |
+| `choices`  | 所有日志级别                 |
+| `coerce`   | 大小写不敏感                 |
+| `apply`    | `ctx.reporter.setLevel(val)` |
 
 ### silentOption
 
 静默输出选项：
 
-| 属性      | 值         |
-| --------- | ---------- |
-| `long`    | `'silent'` |
-| `type`    | `'boolean'`|
-| `args`    | `'none'`   |
-| `default` | `false`    |
+| 属性       | 值          |
+| ---------- | ----------- |
+| `long`     | `'silent'`  |
+| `type`     | `'boolean'` |
+| `args`     | `'none'`    |
+| `default`  | `false`     |
 
+### logDateOption
 
+日志时间戳控制选项：
+
+| 属性       | 值                                       |
+| ---------- | ---------------------------------------- |
+| `long`     | `'logDate'`                              |
+| `type`     | `'boolean'`                              |
+| `args`     | `'none'`                                 |
+| `default`  | `true`                                   |
+| `apply`    | `ctx.reporter.setFlight({ date: val })`  |
+
+### logColorfulOption
+
+日志彩色输出控制选项：
+
+| 属性       | 值                                        |
+| ---------- | ----------------------------------------- |
+| `long`     | `'logColorful'`                           |
+| `type`     | `'boolean'`                               |
+| `args`     | `'none'`                                  |
+| `default`  | `true`                                    |
+| `apply`    | `ctx.reporter.setFlight({ color: val })`  |
