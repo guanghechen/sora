@@ -325,6 +325,7 @@ export type ICommanderErrorKind =
   | 'NegativeOptionWithValue'
   | 'NegativeOptionType'
   | 'UnknownOption'
+  | 'UnknownSubcommand'
   | 'UnexpectedArgument'
   | 'MissingValue'
   | 'InvalidType'

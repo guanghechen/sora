@@ -2074,6 +2074,97 @@ describe('Command', () => {
       consoleSpy.mockRestore()
     })
 
+    it('should show nested parent help with "<parent> help"', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+      const root = new Command({
+        name: 'cli',
+        desc: 'CLI tool',
+        builtin: { command: { help: true } },
+      })
+
+      const repo = new Command({
+        desc: 'Repository operations',
+        builtin: { command: { help: true } },
+      })
+      const sync = new Command({ desc: 'Sync repositories' })
+      sync.action(() => {})
+      repo.subcommand('sync', sync)
+      root.subcommand('repo', repo)
+
+      await root.run({ argv: ['repo', 'help'], envs: {} })
+
+      expect(consoleSpy).toHaveBeenCalled()
+      const output = String(consoleSpy.mock.calls[0][0])
+      expect(output).toContain('Repository operations')
+      expect(output).toContain('sync')
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should show nested child help with "<parent> help <child>"', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+      const root = new Command({
+        name: 'cli',
+        desc: 'CLI tool',
+        builtin: { command: { help: true } },
+      })
+
+      const repo = new Command({
+        desc: 'Repository operations',
+        builtin: { command: { help: true } },
+      })
+      const sync = new Command({ desc: 'Sync repositories' })
+      sync.option({
+        type: 'string',
+        args: 'required',
+        long: 'edition',
+        desc: 'Edition name',
+      })
+      sync.action(() => {})
+      repo.subcommand('sync', sync)
+      root.subcommand('repo', repo)
+
+      await root.run({ argv: ['repo', 'help', 'sync'], envs: {} })
+
+      expect(consoleSpy).toHaveBeenCalled()
+      const output = String(consoleSpy.mock.calls[0][0])
+      expect(output).toContain('Sync repositories')
+      expect(output).toContain('--edition')
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should not process help subcommand on leaf command', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+
+      const root = new Command({
+        name: 'cli',
+        desc: 'CLI tool',
+        builtin: { command: { help: true } },
+      })
+
+      const repo = new Command({
+        desc: 'Repository operations',
+        builtin: { command: { help: true } },
+      })
+      const sync = new Command({ desc: 'Sync repositories' })
+      sync.action(() => {})
+      repo.subcommand('sync', sync)
+      root.subcommand('repo', repo)
+
+      await root.run({ argv: ['repo', 'sync', 'help'], envs: {} })
+
+      expect(consoleErrorSpy).toHaveBeenCalled()
+      const errorOutput = String(consoleErrorSpy.mock.calls[0][0])
+      expect(errorOutput).toContain('too many arguments')
+
+      consoleErrorSpy.mockRestore()
+      exitSpy.mockRestore()
+    })
+
     it('should show leaf command examples with "help <subcommand>"', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
@@ -2152,26 +2243,17 @@ describe('Command', () => {
 
     it('should not process help subcommand when not enabled', async () => {
       const root = new Command({ name: 'cli', desc: 'CLI tool' })
-      // NOT setting help: true
-
-      // When help is not enabled and there are subcommands, "help" is not a subcommand
-      // Routing stops at root because "help" is not a registered subcommand name
-      // Since root has subcommands but no action, it will show help
       const sub = new Command({ desc: 'Initialize' })
       sub.action(() => {})
       root.subcommand('init', sub)
 
-      // "help" is not a registered subcommand, routing stops at root
-      // Root has subcommands but no action, so it shows help (with "too many arguments" error
-      // because "help" and "init" become positional args but root has no arguments defined)
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
       await root.run({ argv: ['help', 'init'], envs: {} })
 
-      // Should throw "too many arguments" error because root has no arguments defined
       expect(consoleErrorSpy).toHaveBeenCalled()
       const errorOutput = consoleErrorSpy.mock.calls[0][0]
-      expect(errorOutput).toContain('too many arguments')
+      expect(errorOutput).toContain('unknown subcommand "help"')
 
       consoleErrorSpy.mockRestore()
       exitSpy.mockRestore()
@@ -2191,18 +2273,95 @@ describe('Command', () => {
       sub.action(() => {})
       root.subcommand('init', sub)
 
-      // "help unknown" transforms to "unknown --help", but "unknown" is not a subcommand
-      // Routing stops at root, "unknown" becomes positional arg
-      // Root has no arguments defined, so "too many arguments" error
       await root.run({ argv: ['help', 'unknown'], envs: {} })
 
-      // Should throw "too many arguments" error
       expect(consoleErrorSpy).toHaveBeenCalled()
       const errorOutput = consoleErrorSpy.mock.calls[0][0]
-      expect(errorOutput).toContain('too many arguments')
+      expect(errorOutput).toContain('unknown subcommand "unknown"')
 
       consoleErrorSpy.mockRestore()
       exitSpy.mockRestore()
+    })
+
+    it('should reject extra args for help subcommand', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+
+      const root = new Command({
+        name: 'cli',
+        desc: 'CLI tool',
+        builtin: { command: { help: true } },
+      })
+
+      const repo = new Command({
+        desc: 'Repository operations',
+        builtin: { command: { help: true } },
+      })
+      const sub1 = new Command({ desc: 'Subcommand 1' })
+      sub1.action(() => {})
+      repo.subcommand('sub1', sub1)
+      root.subcommand('repo', repo)
+
+      await root.run({ argv: ['repo', 'help', 'sub1', 'sub2'], envs: {} })
+
+      expect(consoleErrorSpy).toHaveBeenCalled()
+      const errorOutput = String(consoleErrorSpy.mock.calls[0][0])
+      expect(errorOutput).toContain('help subcommand accepts at most one subcommand argument')
+
+      consoleErrorSpy.mockRestore()
+      exitSpy.mockRestore()
+    })
+
+    it('should enforce help syntax per node', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+
+      const root = new Command({
+        name: 'cli',
+        desc: 'CLI tool',
+        builtin: { command: { help: true } },
+      })
+
+      const repo = new Command({
+        desc: 'Repository operations',
+        builtin: { command: { help: false } },
+      })
+      const sync = new Command({ desc: 'Sync repositories' })
+      sync.action(() => {})
+      repo.subcommand('sync', sync)
+      root.subcommand('repo', repo)
+
+      await root.run({ argv: ['repo', 'help'], envs: {} })
+
+      expect(consoleErrorSpy).toHaveBeenCalled()
+      const errorOutput = String(consoleErrorSpy.mock.calls[0][0])
+      expect(errorOutput).toContain('unknown subcommand "help"')
+
+      consoleErrorSpy.mockRestore()
+      exitSpy.mockRestore()
+    })
+
+    it('should allow child help syntax even when root help is disabled', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+      const root = new Command({ name: 'cli', desc: 'CLI tool' })
+
+      const repo = new Command({
+        desc: 'Repository operations',
+        builtin: { command: { help: true } },
+      })
+      const sync = new Command({ desc: 'Sync repositories' })
+      sync.action(() => {})
+      repo.subcommand('sync', sync)
+      root.subcommand('repo', repo)
+
+      await root.run({ argv: ['repo', 'help'], envs: {} })
+
+      expect(consoleSpy).toHaveBeenCalled()
+      const output = String(consoleSpy.mock.calls[0][0])
+      expect(output).toContain('Repository operations')
+
+      consoleSpy.mockRestore()
     })
 
     it('should work with subcommand aliases', async () => {
@@ -2262,23 +2421,22 @@ describe('Command', () => {
       expect(() => root.subcommand('help', helpCmd)).not.toThrow()
     })
 
-    it('should show help when help:true and no subcommands', async () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    it('should treat help as positional arg when help:true and no subcommands', async () => {
+      let receivedArgs: Record<string, unknown> = {}
 
       const root = new Command({
         name: 'cli',
         desc: 'CLI tool',
         builtin: { command: { help: true } },
       })
-      root.action(() => {})
+      root.argument({ name: 'cmd', kind: 'optional', desc: 'Command' })
+      root.action(({ args }) => {
+        receivedArgs = args
+      })
 
       await root.run({ argv: ['help'], envs: {} })
 
-      expect(consoleSpy).toHaveBeenCalled()
-      const output = consoleSpy.mock.calls[0][0]
-      expect(output).toContain('CLI tool')
-
-      consoleSpy.mockRestore()
+      expect(receivedArgs).toEqual({ cmd: 'help' })
     })
 
     it('should treat help as positional arg when help:false and no subcommands', async () => {

@@ -225,6 +225,13 @@ const cmd = new Command({ name: 'copy', desc: 'Copy files' })
 │                          run({ argv, envs })                                 │
 │                                                                              │
 │  ┌────────────────────────────────────────────────────────────────────────┐  │
+│  │ 0. HELP NORMALIZE（命令树级）                                          │  │
+│  │    按当前节点的 builtin.command.help 判断是否支持 help 语法糖          │  │
+│  │    - <node> help            => <node> --help                           │  │
+│  │    - <node> help <child>    => <node> <child> --help                   │  │
+│  └────────────────────────────────────────────────────────────────────────┘  │
+│                                   ↓                                          │
+│  ┌────────────────────────────────────────────────────────────────────────┐  │
 │  │ 1. ROUTE（自顶向下）                                                   │  │
 │  │    扫描 argv，按原始字符串匹配 subcommand name/alias                   │  │
 │  │    → chain: Command[]（root → leaf）                                   │  │
@@ -387,7 +394,18 @@ const root = new Command({
 ```bash
 cli help           # 显示 cli 帮助
 cli help init      # 显示 init 子命令帮助
+cli repo help      # 显示 repo 子命令帮助
+cli repo help sync # 显示 repo sync 子命令帮助
 ```
+
+语义规则：
+
+1. `help` 是语法糖，不是实际注册的子命令。
+2. `help` 是否生效按当前节点判断：仅当当前节点 `builtin.command.help=true` 时可用。
+3. 对任意非叶子节点 `<node>`，`<node> help` 等价于 `<node> --help`。
+4. 对任意非叶子节点 `<node>`，`<node> help <child>` 等价于 `<node> <child> --help`。
+5. `help` 最多只接受一个参数，且该参数必须是当前节点的合法子命令。
+6. 叶子节点不提供 `help` 子命令语义；应使用 `<leaf> --help`。
 
 启用时不能注册名为 `help` 的子命令。
 

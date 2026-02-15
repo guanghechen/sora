@@ -730,18 +730,69 @@ export class Command implements ICommand {
 
   // ==================== Stage 1: ROUTE ====================
 
+  #findSubcommandEntry(token: string): ISubcommandEntry<Command> | undefined {
+    return this.#subcommandsList.find(e => e.name === token || e.aliases.includes(token))
+  }
+
+  #createUnknownSubcommandError(subcommand: string): CommanderError {
+    const commandPath = this.#getCommandPath()
+    return new CommanderError(
+      'UnknownSubcommand',
+      `unknown subcommand "${subcommand}" for command "${commandPath}"`,
+      commandPath,
+    )
+  }
+
   #processHelpSubcommand(argv: string[]): string[] {
-    if (!this.#builtin.command.help) return argv
-    if (argv.length < 1 || argv[0] !== 'help') return argv
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let current: Command = this
 
-    if (argv.length === 1 || this.#subcommandsList.length === 0) {
-      return ['--help']
-    }
+    for (let i = 0; i < argv.length; ++i) {
+      const token = argv[i]
 
-    const subName = argv[1]
-    const entry = this.#subcommandsList.find(e => e.name === subName || e.aliases.includes(subName))
-    if (entry) {
-      return [subName, '--help', ...argv.slice(2)]
+      if (token.startsWith('-')) {
+        return argv
+      }
+
+      if (token === 'help') {
+        if (!current.#builtin.command.help) {
+          if (current.#subcommandsList.length > 0) {
+            throw current.#createUnknownSubcommandError('help')
+          }
+          return argv
+        }
+
+        if (current.#subcommandsList.length === 0) {
+          return argv
+        }
+
+        const target = argv[i + 1]
+        if (target === undefined) {
+          return [...argv.slice(0, i), '--help']
+        }
+
+        const targetEntry = current.#findSubcommandEntry(target)
+        if (targetEntry === undefined) {
+          throw current.#createUnknownSubcommandError(target)
+        }
+
+        if (argv[i + 2] !== undefined) {
+          throw new CommanderError(
+            'UnexpectedArgument',
+            'help subcommand accepts at most one subcommand argument',
+            current.#getCommandPath(),
+          )
+        }
+
+        return [...argv.slice(0, i), target, '--help']
+      }
+
+      const entry = current.#findSubcommandEntry(token)
+      if (entry === undefined) {
+        return argv
+      }
+
+      current = entry.command
     }
 
     return argv
@@ -763,9 +814,7 @@ export class Command implements ICommand {
       if (token.startsWith('-')) break
 
       // Try to match subcommand
-      const entry = current.#subcommandsList.find(
-        e => e.name === token || e.aliases.includes(token),
-      )
+      const entry = current.#findSubcommandEntry(token)
       if (!entry) break
 
       current = entry.command
