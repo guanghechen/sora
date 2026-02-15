@@ -1,5 +1,13 @@
 # Change Log
 
+## 4.4.1
+
+### Patch Changes
+
+- fix(commander): centralize option policy and enforce version flag semantics — subcommands with
+  their own `version` now correctly expose `--version`; commands without `version` reject
+  `--version` instead of treating it as a boolean option.
+
 ## 4.4.0
 
 ### Minor Changes
