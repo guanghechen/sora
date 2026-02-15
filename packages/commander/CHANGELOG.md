@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.4.0
+
+### Minor Changes
+
+- enforce per-node help subcommand semantics
+
 ## 4.3.0
 
 ### Minor Changes
