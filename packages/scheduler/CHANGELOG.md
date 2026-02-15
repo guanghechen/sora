@@ -1,5 +1,16 @@
 # Change Log
 
+## 7.1.1
+
+### Patch Changes
+
+- chore: vitest config auto-load aliases and coverage thresholds; style/doc formatting updates
+- Updated dependencies:
+  - @guanghechen/middleware@2.0.2
+  - @guanghechen/observable@7.1.1
+  - @guanghechen/subscriber@2.1.1
+  - @guanghechen/task@2.1.1
+
 ## 7.1.0
 
 ### Minor Changes

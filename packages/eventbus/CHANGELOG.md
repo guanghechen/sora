@@ -1,5 +1,11 @@
 # Change Log
 
+## 7.1.1
+
+### Patch Changes
+
+- chore: vitest config auto-load aliases and coverage thresholds; style/doc formatting updates
+
 ## 7.1.0
 
 ### Minor Changes

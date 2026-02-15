@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.3.0
+
+### Minor Changes
+
+- feat: add fluent help examples and styled help renderer
+
 ## 4.2.0
 
 ### Minor Changes

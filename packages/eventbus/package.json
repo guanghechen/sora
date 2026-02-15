@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/eventbus",
-  "version": "7.1.0",
+  "version": "7.1.1",
   "description": "A simple event bus with disposable support.",
   "author": {
     "name": "guanghechen",

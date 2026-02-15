@@ -1,5 +1,15 @@
 # Change Log
 
+## 2.1.1
+
+### Patch Changes
+
+- chore: vitest config auto-load aliases and coverage thresholds; style/doc formatting updates
+- Updated dependencies:
+  - @guanghechen/byte@2.0.2
+  - @guanghechen/invariant@7.0.2
+  - @guanghechen/version@1.0.2
+
 ## 2.1.0
 
 ### Minor Changes

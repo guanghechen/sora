@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/version",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Lightweight semver version comparison utilities.",
   "author": {
     "name": "guanghechen",

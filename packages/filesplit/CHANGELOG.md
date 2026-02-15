@@ -1,5 +1,15 @@
 # Change Log
 
+## 2.0.2
+
+### Patch Changes
+
+- chore: vitest config auto-load aliases and coverage thresholds; style/doc formatting updates
+- Updated dependencies:
+  - @guanghechen/filepart@2.0.2
+  - @guanghechen/invariant@7.0.2
+  - @guanghechen/stream@2.0.2
+
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 

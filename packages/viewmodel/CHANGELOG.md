@@ -1,5 +1,15 @@
 # Change Log
 
+## 2.1.1
+
+### Patch Changes
+
+- chore: vitest config auto-load aliases and coverage thresholds; style/doc formatting updates
+- Updated dependencies:
+  - @guanghechen/disposable@2.1.1
+  - @guanghechen/observable@7.1.1
+  - @guanghechen/subscriber@2.1.1
+
 ## 2.1.0
 
 ### Minor Changes

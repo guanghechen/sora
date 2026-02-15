@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/string",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "String utilities including case transformers and parsers.",
   "author": {
     "name": "guanghechen",
