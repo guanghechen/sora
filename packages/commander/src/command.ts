@@ -222,6 +222,12 @@ const BUILTIN_COLOR_OPTION: ICommandOptionConfig = {
   default: true,
 }
 
+interface ICommandOptionPolicy {
+  readonly mergedOptions: ICommandOptionConfig[]
+  readonly enableBuiltinHelp: boolean
+  readonly enableBuiltinVersion: boolean
+}
+
 function createBuiltinOptionState(enabled: boolean): ICommandBuiltinOptionResolved {
   return {
     color: enabled,
@@ -430,23 +436,21 @@ export class Command implements ICommand {
       const routeResult = this.#route(processedArgv)
       const { chain, remaining } = routeResult
       const leafCommand = chain[chain.length - 1]
-      const rootCommand = chain[0]
 
       // 2. TOKENIZE: remaining → ICommandToken[]
       const tokenizeResult = tokenize(remaining, leafCommand.#getCommandPath())
       const { optionTokens, restArgs } = tokenizeResult
+      const optionPolicyMap = this.#buildOptionPolicyMap(chain)
+      const leafPolicy = this.#mustGetOptionPolicy(optionPolicyMap, leafCommand)
 
       // 3. Check for built-in --help / --version BEFORE parsing
-      const hasUserHelp = leafCommand.#options.some(o => o.long === 'help')
-      const hasUserVersion = leafCommand.#options.some(o => o.long === 'version')
-
-      if (!hasUserHelp && this.#hasFlag(optionTokens, 'help', 'h')) {
-        const helpColor = leafCommand.#resolveHelpColorOption(optionTokens, envs)
+      if (leafPolicy.enableBuiltinHelp && this.#hasFlag(optionTokens, 'help', 'h')) {
+        const helpColor = leafCommand.#resolveHelpColorOption(optionTokens, envs, leafPolicy)
         console.log(leafCommand.#formatHelpForDisplay({ color: helpColor }))
         return
       }
 
-      if (!hasUserVersion && leafCommand === rootCommand && leafCommand.#version) {
+      if (leafPolicy.enableBuiltinVersion) {
         if (this.#hasFlag(optionTokens, 'version', 'V')) {
           console.log(leafCommand.#version)
           return
@@ -454,7 +458,7 @@ export class Command implements ICommand {
       }
 
       // 4. RESOLVE: bottom-up option consumption
-      const resolveResult = this.#resolve(chain, optionTokens)
+      const resolveResult = this.#resolve(chain, optionTokens, optionPolicyMap)
 
       // 5. Build context
       const ctx: ICommandContext = {
@@ -465,7 +469,7 @@ export class Command implements ICommand {
       }
 
       // 6. PARSE: top-down tokens → opts, call apply
-      const parseResult = this.#parse(chain, resolveResult, ctx, restArgs)
+      const parseResult = this.#parse(chain, resolveResult, optionPolicyMap, ctx, restArgs)
 
       // 7. RUN: execute leaf command action
       const actionParams: ICommandActionParams = {
@@ -478,7 +482,7 @@ export class Command implements ICommand {
       if (leafCommand.#action) {
         await leafCommand.#runAction(actionParams)
       } else if (leafCommand.#subcommandsList.length > 0) {
-        const helpColor = leafCommand.#resolveHelpColorOption(optionTokens, envs)
+        const helpColor = leafCommand.#resolveHelpColorOption(optionTokens, envs, leafPolicy)
         console.log(leafCommand.#formatHelpForDisplay({ color: helpColor }))
       } else {
         throw new CommanderError(
@@ -511,9 +515,10 @@ export class Command implements ICommand {
     // 2. TOKENIZE
     const tokenizeResult = tokenize(remaining, leafCommand.#getCommandPath())
     const { optionTokens, restArgs } = tokenizeResult
+    const optionPolicyMap = this.#buildOptionPolicyMap(chain)
 
     // 3. RESOLVE
-    const resolveResult = this.#resolve(chain, optionTokens)
+    const resolveResult = this.#resolve(chain, optionTokens, optionPolicyMap)
 
     // 4. Build context
     const ctx: ICommandContext = {
@@ -524,7 +529,7 @@ export class Command implements ICommand {
     }
 
     // 5. PARSE
-    return this.#parse(chain, resolveResult, ctx, restArgs)
+    return this.#parse(chain, resolveResult, optionPolicyMap, ctx, restArgs)
   }
 
   public formatHelp(): string {
@@ -545,7 +550,7 @@ export class Command implements ICommand {
   }
 
   #buildHelpData(): IHelpData {
-    const allOptions = this.#getMergedOptions()
+    const allOptions = this.#resolveOptionPolicy().mergedOptions
     const commandPath = this.#getCommandPath()
 
     let usage = `Usage: ${commandPath}`
@@ -699,7 +704,7 @@ export class Command implements ICommand {
   }
 
   public getCompletionMeta(): ICompletionMeta {
-    const allOptions = this.#getMergedOptions()
+    const allOptions = this.#resolveOptionPolicy().mergedOptions
     const options: ICompletionOptionMeta[] = []
 
     for (const opt of allOptions) {
@@ -830,7 +835,11 @@ export class Command implements ICommand {
   /**
    * Resolve: bottom-up option consumption through command chain.
    */
-  #resolve(chain: Command[], tokens: ICommandToken[]): ICommandResolveResult {
+  #resolve(
+    chain: Command[],
+    tokens: ICommandToken[],
+    optionPolicyMap: Map<Command, ICommandOptionPolicy>,
+  ): ICommandResolveResult {
     const consumedTokens = new Map<Command, ICommandToken[]>()
     let remaining = [...tokens]
 
@@ -840,9 +849,9 @@ export class Command implements ICommand {
     // Process from leaf to root
     for (let i = chain.length - 1; i >= 0; i--) {
       const cmd = chain[i]
-      const includeVersion = i === 0 // Only root includes --version
+      const policy = this.#mustGetOptionPolicy(optionPolicyMap, cmd)
 
-      const result = cmd.#shift(remaining, shadowed, includeVersion)
+      const result = cmd.#shift(remaining, shadowed, policy.mergedOptions)
       consumedTokens.set(cmd, result.consumed)
       remaining = result.remaining
 
@@ -875,9 +884,8 @@ export class Command implements ICommand {
   #shift(
     tokens: ICommandToken[],
     shadowed: Set<string>,
-    includeVersion: boolean,
+    allOptions: ICommandOptionConfig[],
   ): ICommandShiftResult {
-    const allOptions = this.#getMergedOptions(includeVersion)
     // Filter out shadowed options
     const effectiveOptions = allOptions.filter(o => !shadowed.has(o.long))
 
@@ -971,6 +979,7 @@ export class Command implements ICommand {
   #parse(
     chain: Command[],
     resolveResult: ICommandResolveResult,
+    optionPolicyMap: Map<Command, ICommandOptionPolicy>,
     ctx: ICommandContext,
     restArgs: string[],
   ): ICommandParseResult {
@@ -978,20 +987,19 @@ export class Command implements ICommand {
     const leafCommand = chain[chain.length - 1]
 
     // Validate merged short options
-    this.#validateMergedShortOptions(chain)
+    this.#validateMergedShortOptions(chain, optionPolicyMap)
 
     // Parse options for each command in chain (top-down)
     const optsMap = new Map<Command, ICommandParsedOpts>()
 
-    for (let i = 0; i < chain.length; i++) {
-      const cmd = chain[i]
-      const includeVersion = i === 0
+    for (const cmd of chain) {
+      const policy = this.#mustGetOptionPolicy(optionPolicyMap, cmd)
       const tokens = consumedTokens.get(cmd) ?? []
-      const opts = cmd.#parseOptions(tokens, includeVersion, ctx.envs)
+      const opts = cmd.#parseOptions(tokens, policy.mergedOptions, ctx.envs)
       optsMap.set(cmd, opts)
 
       // Call apply callbacks
-      for (const opt of cmd.#getMergedOptions(includeVersion)) {
+      for (const opt of policy.mergedOptions) {
         if (opt.apply && opts[opt.long] !== undefined) {
           opt.apply(opts[opt.long], ctx)
         }
@@ -1016,10 +1024,9 @@ export class Command implements ICommand {
    */
   #parseOptions(
     tokens: ICommandToken[],
-    includeVersion: boolean,
+    allOptions: ICommandOptionConfig[],
     envs: Record<string, string | undefined>,
   ): ICommandParsedOpts {
-    const allOptions = this.#getMergedOptions(includeVersion)
     const opts: ICommandParsedOpts = {}
     let sawColorToken = false
 
@@ -1293,25 +1300,35 @@ export class Command implements ICommand {
 
   // ==================== Private: Option Merging ====================
 
-  #getMergedOptions(includeVersion = !this.#parent): ICommandOptionConfig[] {
+  #hasUserOption(long: string): boolean {
+    return this.#options.some(option => option.long === long)
+  }
+
+  #canUseBuiltinVersion(): boolean {
+    return this.#version !== undefined
+  }
+
+  #resolveOptionPolicy(): ICommandOptionPolicy {
     const optionMap = new Map<string, ICommandOptionConfig>()
 
-    // Add built-in options first (can be overridden)
-    const hasUserColor = this.#options.some(o => o.long === 'color')
-    const hasUserHelp = this.#options.some(o => o.long === 'help')
-    const hasUserVersion = this.#options.some(o => o.long === 'version')
-    const hasUserLogLevel = this.#options.some(o => o.long === 'logLevel')
-    const hasUserSilent = this.#options.some(o => o.long === 'silent')
-    const hasUserLogDate = this.#options.some(o => o.long === 'logDate')
-    const hasUserLogColorful = this.#options.some(o => o.long === 'logColorful')
+    const hasUserColor = this.#hasUserOption('color')
+    const hasUserHelp = this.#hasUserOption('help')
+    const hasUserVersion = this.#hasUserOption('version')
+    const hasUserLogLevel = this.#hasUserOption('logLevel')
+    const hasUserSilent = this.#hasUserOption('silent')
+    const hasUserLogDate = this.#hasUserOption('logDate')
+    const hasUserLogColorful = this.#hasUserOption('logColorful')
+
+    const enableBuiltinHelp = !hasUserHelp
+    const enableBuiltinVersion = !hasUserVersion && this.#canUseBuiltinVersion()
 
     if (this.#builtin.option.color && !hasUserColor) {
       optionMap.set('color', BUILTIN_COLOR_OPTION)
     }
-    if (!hasUserHelp) {
+    if (enableBuiltinHelp) {
       optionMap.set('help', BUILTIN_HELP_OPTION)
     }
-    if (!hasUserVersion && includeVersion) {
+    if (enableBuiltinVersion) {
       optionMap.set('version', BUILTIN_VERSION_OPTION)
     }
     if (this.#builtin.option.logLevel && !hasUserLogLevel) {
@@ -1333,16 +1350,48 @@ export class Command implements ICommand {
       optionMap.set(opt.long, opt)
     }
 
-    return Array.from(optionMap.values())
+    return {
+      mergedOptions: Array.from(optionMap.values()),
+      enableBuiltinHelp,
+      enableBuiltinVersion,
+    }
   }
 
-  #validateMergedShortOptions(chain: Command[]): void {
+  #buildOptionPolicyMap(chain: Command[]): Map<Command, ICommandOptionPolicy> {
+    const optionPolicyMap = new Map<Command, ICommandOptionPolicy>()
+
+    for (const cmd of chain) {
+      optionPolicyMap.set(cmd, cmd.#resolveOptionPolicy())
+    }
+
+    return optionPolicyMap
+  }
+
+  #mustGetOptionPolicy(
+    optionPolicyMap: Map<Command, ICommandOptionPolicy>,
+    cmd: Command,
+  ): ICommandOptionPolicy {
+    const policy = optionPolicyMap.get(cmd)
+    if (policy !== undefined) {
+      return policy
+    }
+
+    throw new CommanderError(
+      'ConfigurationError',
+      `missing option policy for command "${cmd.#getCommandPath()}"`,
+      this.#getCommandPath(),
+    )
+  }
+
+  #validateMergedShortOptions(
+    chain: Command[],
+    optionPolicyMap: Map<Command, ICommandOptionPolicy>,
+  ): void {
     const mergedByLong = new Map<string, ICommandOptionConfig>()
 
-    for (let i = 0; i < chain.length; i++) {
-      const cmd = chain[i]
-      const includeVersion = i === 0
-      for (const opt of cmd.#getMergedOptions(includeVersion)) {
+    for (const cmd of chain) {
+      const policy = this.#mustGetOptionPolicy(optionPolicyMap, cmd)
+      for (const opt of policy.mergedOptions) {
         mergedByLong.set(opt.long, opt)
       }
     }
@@ -1527,9 +1576,10 @@ export class Command implements ICommand {
   #resolveHelpColorOption(
     tokens: ICommandToken[],
     envs: Record<string, string | undefined>,
+    policy: ICommandOptionPolicy = this.#resolveOptionPolicy(),
   ): boolean {
     // Help is handled before parse(), so we resolve --color/--no-color directly from tokens.
-    const colorOption = this.#getMergedOptions().find(opt => opt.long === 'color')
+    const colorOption = policy.mergedOptions.find(opt => opt.long === 'color')
     let color = !isNoColorEnabled(envs)
 
     if (!colorOption || colorOption.type !== 'boolean' || colorOption.args !== 'none') {

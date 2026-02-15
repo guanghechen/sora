@@ -631,6 +631,15 @@ describe('Command', () => {
       expect(result.opts['version']).toBe(true)
     })
 
+    it('should expose --version on subcommand when subcommand has version', () => {
+      const root = new Command({ name: 'cli', desc: 'CLI', version: '1.0.0' })
+      const sub = new Command({ desc: 'Sub', version: '2.0.0' })
+      root.subcommand('sub', sub)
+
+      const result = root.parse({ argv: ['sub', '--version'], envs: {} })
+      expect(result.opts['version']).toBe(true)
+    })
+
     it('should auto integrate --log-level option', () => {
       const cmd = new Command({ name: 'test', desc: 'Test' })
       const result = cmd.parse({ argv: ['--log-level', 'warn'], envs: {} })
@@ -747,6 +756,42 @@ describe('Command', () => {
       // --version is consumed by root (option bubbling) but does not output version
       // because leaf command is not root, and subcommand action still runs
       expect(actionCalled).toBe(true)
+      expect(consoleSpy).not.toHaveBeenCalledWith('1.0.0')
+      consoleSpy.mockRestore()
+    })
+
+    it('should show subcommand version output when subcommand has version', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const root = new Command({ name: 'cli', desc: 'CLI', version: '1.0.0' })
+      const sub = new Command({ desc: 'Sub', version: '2.0.0' })
+      let actionCalled = false
+      sub.action(() => {
+        actionCalled = true
+      })
+      root.subcommand('sub', sub)
+
+      await root.run({ argv: ['sub', '--version'], envs: {} })
+
+      expect(actionCalled).toBe(false)
+      expect(consoleSpy).toHaveBeenCalledWith('2.0.0')
+      expect(consoleSpy).not.toHaveBeenCalledWith('1.0.0')
+      consoleSpy.mockRestore()
+    })
+
+    it('should show subcommand version output when -V is used and subcommand has version', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const root = new Command({ name: 'cli', desc: 'CLI', version: '1.0.0' })
+      const sub = new Command({ desc: 'Sub', version: '2.0.0' })
+      let actionCalled = false
+      sub.action(() => {
+        actionCalled = true
+      })
+      root.subcommand('sub', sub)
+
+      await root.run({ argv: ['sub', '-V'], envs: {} })
+
+      expect(actionCalled).toBe(false)
+      expect(consoleSpy).toHaveBeenCalledWith('2.0.0')
       expect(consoleSpy).not.toHaveBeenCalledWith('1.0.0')
       consoleSpy.mockRestore()
     })
@@ -872,8 +917,6 @@ describe('Command', () => {
         Options:
           -h, --help        Show help information
               --no-help     Negate --help
-          -V, --version     Show version number
-              --no-version  Negate --version
           -v, --verbose     Verbose
               --no-verbose  Negate --verbose
 
@@ -1275,18 +1318,23 @@ describe('Command', () => {
       consoleSpy.mockRestore()
     })
 
-    it('should treat --version as normal boolean option when version is not set', async () => {
+    it('should reject --version when version is not set', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
       const cmd = new Command({ name: 'test', desc: 'Test' })
-      let versionOptValue: unknown
-      cmd.action(({ opts }) => {
-        versionOptValue = opts['version']
+      let actionCalled = false
+      cmd.action(() => {
+        actionCalled = true
       })
 
       await cmd.run({ argv: ['--version'], envs: {} })
 
-      // When version is not set, --version is still a valid option but doesn't
-      // trigger special version output, it's just parsed as a boolean option
-      expect(versionOptValue).toBe(true)
+      expect(actionCalled).toBe(false)
+      expect(exitSpy).toHaveBeenCalledWith(2)
+      expect(errorSpy).toHaveBeenCalled()
+
+      exitSpy.mockRestore()
+      errorSpy.mockRestore()
     })
 
     it('should show help when --help or -h is used', async () => {
@@ -1356,8 +1404,6 @@ describe('Command', () => {
           [36m    --no-color[0m           Negate --color
           [36m-h, --help[0m               Show help information
           [36m    --no-help[0m            Negate --help
-          [36m-V, --version[0m            Show version number
-          [36m    --no-version[0m         Negate --version
           [36m    --log-level <value>[0m  Set log level (default: "info") [choices: debug, info, hint, warn, error]
           [36m    --silent[0m             Suppress non-error output
           [36m    --no-silent[0m          Negate --silent

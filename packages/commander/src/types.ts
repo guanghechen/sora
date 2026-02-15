@@ -149,7 +149,7 @@ export interface ICommandConfig {
   name?: string
   /** Command description */
   desc: string
-  /** Version (for root --version) */
+  /** Version (for built-in --version on this command) */
   version?: string
   /** Built-in features configuration */
   builtin?: boolean | ICommandBuiltinConfig
