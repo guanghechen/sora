@@ -8,6 +8,7 @@
 
 import type { IReporter } from '@guanghechen/reporter'
 import { Reporter } from '@guanghechen/reporter'
+import { TERMINAL_STYLE, styleText } from './chalk'
 import { logColorfulOption, logDateOption, logLevelOption, silentOption } from './options'
 import type {
   ICommand,
@@ -15,8 +16,11 @@ import type {
   ICommandActionParams,
   ICommandArgumentConfig,
   ICommandBuiltinConfig,
+  ICommandBuiltinOptionResolved,
+  ICommandBuiltinResolved,
   ICommandConfig,
   ICommandContext,
+  ICommandExample,
   ICommandOptionConfig,
   ICommandParseResult,
   ICommandParsedArgs,
@@ -28,6 +32,12 @@ import type {
   ICommandTokenizeResult,
   ICompletionMeta,
   ICompletionOptionMeta,
+  IHelpCommandLine,
+  IHelpData,
+  IHelpExampleLine,
+  IHelpOptionLine,
+  IInternalRouteResult,
+  ISubcommandEntry,
 } from './types'
 import { CommanderError } from './types'
 
@@ -204,28 +214,33 @@ const BUILTIN_VERSION_OPTION: ICommandOptionConfig = {
   desc: 'Show version number',
 }
 
-interface ICommandBuiltinResolved {
-  option: {
-    logLevel: boolean
-    silent: boolean
-    logDate: boolean
-    logColorful: boolean
+const BUILTIN_COLOR_OPTION: ICommandOptionConfig = {
+  long: 'color',
+  type: 'boolean',
+  args: 'none',
+  desc: 'Enable colored help output',
+  default: true,
+}
+
+function createBuiltinOptionState(enabled: boolean): ICommandBuiltinOptionResolved {
+  return {
+    color: enabled,
+    logLevel: enabled,
+    silent: enabled,
+    logDate: enabled,
+    logColorful: enabled,
   }
-  command: {
-    help: boolean
-  }
+}
+
+function isNoColorEnabled(envs: Record<string, string | undefined>): boolean {
+  return envs['NO_COLOR'] !== undefined
 }
 
 function normalizeBuiltinConfig(
   builtin: boolean | ICommandBuiltinConfig | undefined,
 ): ICommandBuiltinResolved {
   const resolved: ICommandBuiltinResolved = {
-    option: {
-      logLevel: true,
-      silent: true,
-      logDate: true,
-      logColorful: true,
-    },
+    option: createBuiltinOptionState(true),
     command: {
       help: false,
     },
@@ -237,25 +252,28 @@ function normalizeBuiltinConfig(
 
   if (builtin === true) {
     return {
-      option: { logLevel: true, silent: true, logDate: true, logColorful: true },
+      option: createBuiltinOptionState(true),
       command: { help: true },
     }
   }
 
   if (builtin === false) {
     return {
-      option: { logLevel: false, silent: false, logDate: false, logColorful: false },
+      option: createBuiltinOptionState(false),
       command: { help: false },
     }
   }
 
   if (builtin.option !== undefined) {
     if (builtin.option === false) {
-      resolved.option = { logLevel: false, silent: false, logDate: false, logColorful: false }
+      resolved.option = createBuiltinOptionState(false)
     } else if (builtin.option === true) {
-      resolved.option = { logLevel: true, silent: true, logDate: true, logColorful: true }
+      resolved.option = createBuiltinOptionState(true)
     } else {
-      if (builtin.option.logLevel !== undefined) resolved.option.logLevel = builtin.option.logLevel
+      if (builtin.option.color !== undefined) resolved.option.color = builtin.option.color
+      if (builtin.option.logLevel !== undefined) {
+        resolved.option.logLevel = builtin.option.logLevel
+      }
       if (builtin.option.silent !== undefined) resolved.option.silent = builtin.option.silent
       if (builtin.option.logDate !== undefined) resolved.option.logDate = builtin.option.logDate
       if (builtin.option.logColorful !== undefined) {
@@ -277,21 +295,6 @@ function normalizeBuiltinConfig(
   return resolved
 }
 
-// ==================== Internal Types ====================
-
-/** Subcommand registration entry (internal) */
-interface ISubcommandEntry {
-  name: string
-  aliases: string[]
-  command: Command
-}
-
-/** Internal route result with Command[] */
-interface IInternalRouteResult {
-  chain: Command[]
-  remaining: string[]
-}
-
 // ==================== Command Class ====================
 
 export class Command implements ICommand {
@@ -304,7 +307,8 @@ export class Command implements ICommand {
 
   readonly #options: ICommandOptionConfig[] = []
   readonly #arguments: ICommandArgumentConfig[] = []
-  readonly #subcommandsList: ISubcommandEntry[] = []
+  readonly #examples: ICommandExample[] = []
+  readonly #subcommandsList: Array<ISubcommandEntry<Command>> = []
   readonly #subcommandsMap = new Map<string, Command>()
   #action: ICommandAction | undefined = undefined
 
@@ -342,6 +346,10 @@ export class Command implements ICommand {
     return [...this.#arguments]
   }
 
+  public get examples(): ICommandExample[] {
+    return this.#examples.map(example => ({ ...example }))
+  }
+
   public get subcommands(): Map<string, ICommand> {
     return new Map(this.#subcommandsMap)
   }
@@ -363,6 +371,11 @@ export class Command implements ICommand {
 
   public action(fn: ICommandAction): this {
     this.#action = fn
+    return this
+  }
+
+  public example(title: string, usage: string, desc: string): this {
+    this.#examples.push(this.#normalizeExample({ title, usage, desc }))
     return this
   }
 
@@ -428,7 +441,8 @@ export class Command implements ICommand {
       const hasUserVersion = leafCommand.#options.some(o => o.long === 'version')
 
       if (!hasUserHelp && this.#hasFlag(optionTokens, 'help', 'h')) {
-        console.log(leafCommand.formatHelp())
+        const helpColor = leafCommand.#resolveHelpColorOption(optionTokens, envs)
+        console.log(leafCommand.#formatHelpForDisplay({ color: helpColor }))
         return
       }
 
@@ -464,7 +478,8 @@ export class Command implements ICommand {
       if (leafCommand.#action) {
         await leafCommand.#runAction(actionParams)
       } else if (leafCommand.#subcommandsList.length > 0) {
-        console.log(leafCommand.formatHelp())
+        const helpColor = leafCommand.#resolveHelpColorOption(optionTokens, envs)
+        console.log(leafCommand.#formatHelpForDisplay({ color: helpColor }))
       } else {
         throw new CommanderError(
           'ConfigurationError',
@@ -513,15 +528,26 @@ export class Command implements ICommand {
   }
 
   public formatHelp(): string {
-    const lines: string[] = []
+    return this.#renderHelpPlain(this.#buildHelpData())
+  }
+
+  #formatHelpForDisplay(params: { color?: boolean } = {}): string {
+    const { color = true } = params
+    const helpData = this.#buildHelpData()
+    if (!this.#shouldRenderStyledHelp(color)) {
+      return this.#renderHelpPlain(helpData)
+    }
+    return this.#renderHelpTerminal(helpData)
+  }
+
+  #shouldRenderStyledHelp(color: boolean): boolean {
+    return color && process.stdout.isTTY === true
+  }
+
+  #buildHelpData(): IHelpData {
     const allOptions = this.#getMergedOptions()
-
-    // Description
-    lines.push(this.#desc)
-    lines.push('')
-
-    // Usage line
     const commandPath = this.#getCommandPath()
+
     let usage = `Usage: ${commandPath}`
     if (allOptions.length > 0) usage += ' [options]'
     if (this.#subcommandsList.length > 0) usage += ' [command]'
@@ -534,73 +560,139 @@ export class Command implements ICommand {
         usage += ` [${arg.name}...]`
       }
     }
-    lines.push(usage)
-    lines.push('')
 
-    // Options
-    if (allOptions.length > 0) {
-      lines.push('Options:')
-      const optLines: Array<{ sig: string; desc: string }> = []
-
-      for (const opt of allOptions) {
-        const kebabLong = camelToKebabCase(opt.long)
-        let sig = opt.short ? `-${opt.short}, ` : '    '
-        sig += `--${kebabLong}`
-        if (opt.args !== 'none') {
-          sig += ' <value>'
-        }
-
-        let desc = opt.desc
-        if (opt.default !== undefined && opt.type !== 'boolean') {
-          desc += ` (default: ${JSON.stringify(opt.default)})`
-        }
-        if (opt.choices) {
-          desc += ` [choices: ${opt.choices.join(', ')}]`
-        }
-
-        optLines.push({ sig, desc })
-
-        // Add --no-{kebab-long} for boolean options
-        if (opt.type === 'boolean' && opt.args === 'none') {
-          optLines.push({
-            sig: `    --no-${kebabLong}`,
-            desc: `Negate --${kebabLong}`,
-          })
-        }
+    const options: IHelpOptionLine[] = []
+    for (const opt of allOptions) {
+      const kebabLong = camelToKebabCase(opt.long)
+      let sig = opt.short ? `-${opt.short}, ` : '    '
+      sig += `--${kebabLong}`
+      if (opt.args !== 'none') {
+        sig += ' <value>'
       }
 
-      const maxSigLen = Math.max(...optLines.map(l => l.sig.length))
-      for (const { sig, desc } of optLines) {
+      let desc = opt.desc
+      if (opt.default !== undefined && opt.type !== 'boolean') {
+        desc += ` (default: ${JSON.stringify(opt.default)})`
+      }
+      if (opt.choices) {
+        desc += ` [choices: ${opt.choices.join(', ')}]`
+      }
+
+      options.push({ sig, desc })
+
+      if (opt.type === 'boolean' && opt.args === 'none') {
+        options.push({
+          sig: `    --no-${kebabLong}`,
+          desc: `Negate --${kebabLong}`,
+        })
+      }
+    }
+
+    const commands: IHelpCommandLine[] = []
+    const showHelpSubcommand = this.#builtin.command.help && this.#subcommandsList.length > 0
+    if (showHelpSubcommand) {
+      commands.push({ name: 'help', desc: 'Show help for a command' })
+    }
+    for (const entry of this.#subcommandsList) {
+      let name = entry.name
+      if (entry.aliases.length > 0) {
+        name += `, ${entry.aliases.join(', ')}`
+      }
+      commands.push({ name, desc: entry.command.#desc })
+    }
+
+    const examples: IHelpExampleLine[] = this.#examples.map(example => ({
+      title: example.title,
+      usage: commandPath ? `${commandPath} ${example.usage}` : example.usage,
+      desc: example.desc,
+    }))
+
+    return {
+      desc: this.#desc,
+      usage,
+      options,
+      commands,
+      examples,
+    }
+  }
+
+  #renderHelpPlain(helpData: IHelpData): string {
+    const lines: string[] = []
+    lines.push(helpData.desc)
+    lines.push('')
+
+    lines.push(helpData.usage)
+    lines.push('')
+
+    if (helpData.options.length > 0) {
+      lines.push('Options:')
+      const maxSigLen = Math.max(...helpData.options.map(line => line.sig.length))
+      for (const { sig, desc } of helpData.options) {
         const padding = ' '.repeat(maxSigLen - sig.length + 2)
         lines.push(`  ${sig}${padding}${desc}`)
       }
       lines.push('')
     }
 
-    // Commands
-    const showHelpSubcommand = this.#builtin.command.help && this.#subcommandsList.length > 0
-    if (this.#subcommandsList.length > 0) {
+    if (helpData.commands.length > 0) {
       lines.push('Commands:')
-      const cmdLines: Array<{ name: string; desc: string }> = []
-
-      // Add help subcommand if enabled and has subcommands
-      if (showHelpSubcommand) {
-        cmdLines.push({ name: 'help', desc: 'Show help for a command' })
-      }
-
-      for (const entry of this.#subcommandsList) {
-        let name = entry.name
-        if (entry.aliases.length > 0) {
-          name += `, ${entry.aliases.join(', ')}`
-        }
-        cmdLines.push({ name, desc: entry.command.#desc })
-      }
-      const maxNameLen = Math.max(...cmdLines.map(l => l.name.length))
-      for (const { name, desc } of cmdLines) {
+      const maxNameLen = Math.max(...helpData.commands.map(line => line.name.length))
+      for (const { name, desc } of helpData.commands) {
         const padding = ' '.repeat(maxNameLen - name.length + 2)
         lines.push(`  ${name}${padding}${desc}`)
       }
       lines.push('')
+    }
+
+    if (helpData.examples.length > 0) {
+      lines.push('Examples:')
+      for (const example of helpData.examples) {
+        lines.push(`  - ${example.title}`)
+        lines.push(`    ${example.usage}`)
+        lines.push(`    ${example.desc}`)
+        lines.push('')
+      }
+    }
+
+    return lines.join('\n')
+  }
+
+  #renderHelpTerminal(helpData: IHelpData): string {
+    const lines: string[] = []
+    lines.push(helpData.desc)
+    lines.push('')
+
+    lines.push(styleText(helpData.usage, TERMINAL_STYLE.bold))
+    lines.push('')
+
+    if (helpData.options.length > 0) {
+      lines.push(styleText('Options:', TERMINAL_STYLE.bold, TERMINAL_STYLE.underline))
+      const maxSigLen = Math.max(...helpData.options.map(line => line.sig.length))
+      for (const { sig, desc } of helpData.options) {
+        const padding = ' '.repeat(maxSigLen - sig.length + 2)
+        lines.push(`  ${styleText(sig, TERMINAL_STYLE.cyan)}${padding}${desc}`)
+      }
+      lines.push('')
+    }
+
+    if (helpData.commands.length > 0) {
+      lines.push(styleText('Commands:', TERMINAL_STYLE.bold, TERMINAL_STYLE.underline))
+      const maxNameLen = Math.max(...helpData.commands.map(line => line.name.length))
+      for (const { name, desc } of helpData.commands) {
+        const padding = ' '.repeat(maxNameLen - name.length + 2)
+        lines.push(`  ${styleText(name, TERMINAL_STYLE.cyan)}${padding}${desc}`)
+      }
+      lines.push('')
+    }
+
+    if (helpData.examples.length > 0) {
+      lines.push(styleText('Examples:', TERMINAL_STYLE.bold, TERMINAL_STYLE.underline))
+      for (const example of helpData.examples) {
+        lines.push(`  - ${styleText(example.title, TERMINAL_STYLE.bold)}`)
+        lines.push(`    ${styleText(example.usage, TERMINAL_STYLE.cyan)}`)
+        lines.push(`    ${styleText(example.desc, TERMINAL_STYLE.italic, TERMINAL_STYLE.dim)}`)
+        lines.push('')
+      }
     }
 
     return lines.join('\n')
@@ -658,7 +750,7 @@ export class Command implements ICommand {
   /**
    * Route and return the full command chain (root → leaf).
    */
-  #route(argv: string[]): IInternalRouteResult {
+  #route(argv: string[]): IInternalRouteResult<Command> {
     const chain: Command[] = [this]
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let current: Command = this
@@ -846,7 +938,7 @@ export class Command implements ICommand {
       const cmd = chain[i]
       const includeVersion = i === 0
       const tokens = consumedTokens.get(cmd) ?? []
-      const opts = cmd.#parseOptions(tokens, includeVersion)
+      const opts = cmd.#parseOptions(tokens, includeVersion, ctx.envs)
       optsMap.set(cmd, opts)
 
       // Call apply callbacks
@@ -873,9 +965,14 @@ export class Command implements ICommand {
   /**
    * Parse tokens into options for this command.
    */
-  #parseOptions(tokens: ICommandToken[], includeVersion: boolean): ICommandParsedOpts {
+  #parseOptions(
+    tokens: ICommandToken[],
+    includeVersion: boolean,
+    envs: Record<string, string | undefined>,
+  ): ICommandParsedOpts {
     const allOptions = this.#getMergedOptions(includeVersion)
     const opts: ICommandParsedOpts = {}
+    let sawColorToken = false
 
     // Initialize defaults
     for (const opt of allOptions) {
@@ -909,6 +1006,10 @@ export class Command implements ICommand {
         // This shouldn't happen as shift() should have filtered unknown options
         i += 1
         continue
+      }
+
+      if (opt.long === 'color') {
+        sawColorToken = true
       }
 
       // Check for negative option used on non-boolean
@@ -1019,6 +1120,10 @@ export class Command implements ICommand {
           }
         }
       }
+    }
+
+    if (isNoColorEnabled(envs) && !sawColorToken && opts['color'] === true) {
+      opts['color'] = false
     }
 
     return opts
@@ -1143,6 +1248,7 @@ export class Command implements ICommand {
     const optionMap = new Map<string, ICommandOptionConfig>()
 
     // Add built-in options first (can be overridden)
+    const hasUserColor = this.#options.some(o => o.long === 'color')
     const hasUserHelp = this.#options.some(o => o.long === 'help')
     const hasUserVersion = this.#options.some(o => o.long === 'version')
     const hasUserLogLevel = this.#options.some(o => o.long === 'logLevel')
@@ -1150,6 +1256,9 @@ export class Command implements ICommand {
     const hasUserLogDate = this.#options.some(o => o.long === 'logDate')
     const hasUserLogColorful = this.#options.some(o => o.long === 'logColorful')
 
+    if (this.#builtin.option.color && !hasUserColor) {
+      optionMap.set('color', BUILTIN_COLOR_OPTION)
+    }
     if (!hasUserHelp) {
       optionMap.set('help', BUILTIN_HELP_OPTION)
     }
@@ -1320,6 +1429,36 @@ export class Command implements ICommand {
     }
   }
 
+  #normalizeExample(example: ICommandExample): ICommandExample {
+    const title = example.title.trim()
+    const usage = example.usage.trim()
+    const desc = example.desc.trim()
+
+    if (!title) {
+      throw new CommanderError(
+        'ConfigurationError',
+        'example title cannot be empty',
+        this.#getCommandPath(),
+      )
+    }
+    if (!usage) {
+      throw new CommanderError(
+        'ConfigurationError',
+        'example usage cannot be empty',
+        this.#getCommandPath(),
+      )
+    }
+    if (!desc) {
+      throw new CommanderError(
+        'ConfigurationError',
+        'example description cannot be empty',
+        this.#getCommandPath(),
+      )
+    }
+
+    return { title, usage, desc }
+  }
+
   // ==================== Private: Utilities ====================
 
   async #runAction(params: ICommandActionParams): Promise<void> {
@@ -1334,6 +1473,46 @@ export class Command implements ICommand {
       }
       process.exit(1)
     }
+  }
+
+  #resolveHelpColorOption(
+    tokens: ICommandToken[],
+    envs: Record<string, string | undefined>,
+  ): boolean {
+    // Help is handled before parse(), so we resolve --color/--no-color directly from tokens.
+    const colorOption = this.#getMergedOptions().find(opt => opt.long === 'color')
+    let color = !isNoColorEnabled(envs)
+
+    if (!colorOption || colorOption.type !== 'boolean' || colorOption.args !== 'none') {
+      return color
+    }
+
+    for (const token of tokens) {
+      if (token.type !== 'long' || token.name !== 'color') {
+        continue
+      }
+
+      const eqIdx = token.resolved.indexOf('=')
+      if (eqIdx === -1) {
+        color = true
+        continue
+      }
+
+      const value = token.resolved.slice(eqIdx + 1)
+      if (value === 'true') {
+        color = true
+      } else if (value === 'false') {
+        color = false
+      } else {
+        throw new CommanderError(
+          'InvalidBooleanValue',
+          `invalid value "${value}" for boolean option "--color". Use "true" or "false"`,
+          this.#getCommandPath(),
+        )
+      }
+    }
+
+    return color
   }
 
   #hasFlag(tokens: ICommandToken[], longName: string, shortName: string): boolean {

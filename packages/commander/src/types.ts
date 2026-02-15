@@ -109,6 +109,8 @@ export interface ICommandArgumentConfig<T = unknown> {
 // ==================== Command Types ====================
 
 export interface ICommandBuiltinOptionConfig {
+  /** Enable built-in --color/--no-color option for help rendering (defaults respect NO_COLOR) */
+  color?: boolean
   /** Enable built-in --log-level option */
   logLevel?: boolean
   /** Enable built-in --silent option */
@@ -129,6 +131,16 @@ export interface ICommandBuiltinConfig {
   option?: boolean | ICommandBuiltinOptionConfig
   /** Built-in command configuration */
   command?: boolean | ICommandBuiltinCommandConfig
+}
+
+/** Command example configuration */
+export interface ICommandExample {
+  /** Example title */
+  title: string
+  /** Usage fragment relative to command path */
+  usage: string
+  /** Example description */
+  desc: string
 }
 
 /** Command configuration */
@@ -153,6 +165,7 @@ export interface ICommand {
   readonly parent: ICommand | undefined
   readonly options: ICommandOptionConfig[]
   readonly arguments: ICommandArgumentConfig[]
+  readonly examples: ICommandExample[]
   readonly subcommands: Map<string, ICommand>
 }
 
@@ -243,6 +256,64 @@ export interface ICommandParseResult {
   args: ICommandParsedArgs
   /** Raw argument strings */
   rawArgs: string[]
+}
+
+/** Built-in option resolution result (internal) */
+export interface ICommandBuiltinOptionResolved {
+  color: boolean
+  logLevel: boolean
+  silent: boolean
+  logDate: boolean
+  logColorful: boolean
+}
+
+/** Built-in config resolution result (internal) */
+export interface ICommandBuiltinResolved {
+  option: ICommandBuiltinOptionResolved
+  command: {
+    help: boolean
+  }
+}
+
+/** Subcommand registry entry (internal) */
+export interface ISubcommandEntry<TCommand = ICommand> {
+  name: string
+  aliases: string[]
+  command: TCommand
+}
+
+/** Internal route result */
+export interface IInternalRouteResult<TCommand = ICommand> {
+  chain: TCommand[]
+  remaining: string[]
+}
+
+/** Help option line (internal) */
+export interface IHelpOptionLine {
+  sig: string
+  desc: string
+}
+
+/** Help command line (internal) */
+export interface IHelpCommandLine {
+  name: string
+  desc: string
+}
+
+/** Help example line (internal) */
+export interface IHelpExampleLine {
+  title: string
+  usage: string
+  desc: string
+}
+
+/** Structured help data for rendering (internal) */
+export interface IHelpData {
+  desc: string
+  usage: string
+  options: IHelpOptionLine[]
+  commands: IHelpCommandLine[]
+  examples: IHelpExampleLine[]
 }
 
 // ==================== Error Types ====================

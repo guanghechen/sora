@@ -643,6 +643,23 @@ describe('Command', () => {
       expect(result.opts['silent']).toBe(true)
     })
 
+    it('should auto integrate --color/--no-color option', () => {
+      const cmd = new Command({ name: 'test', desc: 'Test' })
+      expect(cmd.parse({ argv: [], envs: {} }).opts['color']).toBe(true)
+      expect(cmd.parse({ argv: ['--no-color'], envs: {} }).opts['color']).toBe(false)
+    })
+
+    it('should default color to false when NO_COLOR is set', () => {
+      const cmd = new Command({ name: 'test', desc: 'Test' })
+      expect(cmd.parse({ argv: [], envs: { NO_COLOR: '1' } }).opts['color']).toBe(false)
+    })
+
+    it('should allow --color to override NO_COLOR', () => {
+      const cmd = new Command({ name: 'test', desc: 'Test' })
+      expect(cmd.parse({ argv: ['--color'], envs: { NO_COLOR: '1' } }).opts['color']).toBe(true)
+      expect(cmd.parse({ argv: ['--no-color'], envs: { NO_COLOR: '1' } }).opts['color']).toBe(false)
+    })
+
     it('should auto integrate --log-date/--no-log-date option', () => {
       const cmd = new Command({ name: 'test', desc: 'Test' })
       expect(cmd.parse({ argv: [], envs: {} }).opts['logDate']).toBe(true)
@@ -658,14 +675,16 @@ describe('Command', () => {
     it('should disable built-in log options when builtin.option is false', () => {
       const cmd = new Command({ name: 'test', desc: 'Test', builtin: { option: false } })
       expect(() => cmd.parse({ argv: ['--log-level', 'warn'], envs: {} })).toThrow('unknown option')
+      expect(() => cmd.parse({ argv: ['--color'], envs: {} })).toThrow('unknown option')
     })
 
     it('should support partial built-in option config', () => {
       const cmd = new Command({
         name: 'test',
         desc: 'Test',
-        builtin: { option: { logDate: false, logColorful: false } },
+        builtin: { option: { color: false, logDate: false, logColorful: false } },
       })
+      expect(() => cmd.parse({ argv: ['--color'], envs: {} })).toThrow('unknown option')
       expect(() => cmd.parse({ argv: ['--log-date'], envs: {} })).toThrow('unknown option')
       expect(() => cmd.parse({ argv: ['--log-colorful'], envs: {} })).toThrow('unknown option')
       expect(cmd.parse({ argv: ['--log-level', 'error'], envs: {} }).opts['logLevel']).toBe('error')
@@ -680,6 +699,7 @@ describe('Command', () => {
       expect(() => root.parse({ argv: ['--silent'], envs: {} })).toThrow('unknown option')
       expect(() => root.parse({ argv: ['--log-date'], envs: {} })).toThrow('unknown option')
       expect(() => root.parse({ argv: ['--log-colorful'], envs: {} })).toThrow('unknown option')
+      expect(() => root.parse({ argv: ['--color'], envs: {} })).toThrow('unknown option')
     })
 
     it('should enable all built-in options when builtin.option is true', () => {
@@ -691,6 +711,7 @@ describe('Command', () => {
 
       expect(cmd.parse({ argv: ['--log-level', 'warn'], envs: {} }).opts['logLevel']).toBe('warn')
       expect(cmd.parse({ argv: ['--silent'], envs: {} }).opts['silent']).toBe(true)
+      expect(cmd.parse({ argv: ['--no-color'], envs: {} }).opts['color']).toBe(false)
       expect(cmd.parse({ argv: ['--no-log-date'], envs: {} }).opts['logDate']).toBe(false)
       expect(cmd.parse({ argv: ['--no-log-colorful'], envs: {} }).opts['logColorful']).toBe(false)
     })
@@ -706,6 +727,7 @@ describe('Command', () => {
       expect(() => cmd.parse({ argv: ['--silent'], envs: {} })).toThrow('unknown option')
 
       // Unspecified options keep default enabled state
+      expect(cmd.parse({ argv: ['--no-color'], envs: {} }).opts['color']).toBe(false)
       expect(cmd.parse({ argv: ['--no-log-date'], envs: {} }).opts['logDate']).toBe(false)
       expect(cmd.parse({ argv: ['--no-log-colorful'], envs: {} }).opts['logColorful']).toBe(false)
     })
@@ -833,6 +855,114 @@ describe('Command', () => {
       expect(help).toContain('--verbose')
       expect(help).toContain('--no-verbose')
       expect(help).toContain('Negate --verbose')
+    })
+
+    it('should match plain help snapshot', () => {
+      const root = new Command({ name: 'cli', desc: 'CLI tool', builtin: false })
+      root.option({ type: 'boolean', args: 'none', long: 'verbose', short: 'v', desc: 'Verbose' })
+      root.argument({ name: 'input', kind: 'required', desc: 'Input file' })
+      root.subcommand('build', new Command({ desc: 'Build project', builtin: false }))
+      root.example('Quick Build', 'build src.ts', 'Build one input file')
+
+      expect(root.formatHelp()).toMatchInlineSnapshot(`
+        "CLI tool
+
+        Usage: cli [options] [command] <input>
+
+        Options:
+          -h, --help        Show help information
+              --no-help     Negate --help
+          -V, --version     Show version number
+              --no-version  Negate --version
+          -v, --verbose     Verbose
+              --no-verbose  Negate --verbose
+
+        Commands:
+          build  Build project
+
+        Examples:
+          - Quick Build
+            cli build src.ts
+            Build one input file
+        "
+      `)
+    })
+
+    it('should show examples in help', () => {
+      const cmd = new Command({ name: 'mycli', desc: 'My CLI' })
+      cmd.example('Initialize Project', 'init my-app', 'Create project scaffold')
+      cmd.example('Watch Build', 'build --watch', 'Rebuild on file changes')
+
+      const help = cmd.formatHelp()
+
+      expect(help).toContain('Examples:')
+      expect(help).toContain('- Initialize Project')
+      expect(help).toContain('Initialize Project')
+      expect(help).toContain('mycli init my-app')
+      expect(help).toContain('Create project scaffold')
+      expect(help).toContain('Watch Build')
+      expect(help).toContain('mycli build --watch')
+      expect(help).toContain('Rebuild on file changes')
+    })
+
+    it('should not include parent examples in subcommand help', () => {
+      const root = new Command({ name: 'cli', desc: 'CLI' })
+      root.example('Root Example', 'build', 'Root-only example')
+
+      const sub = new Command({ desc: 'Initialize' })
+      sub.example('Sub Example', '--template basic', 'Sub-only example')
+      sub.action(() => {})
+      root.subcommand('init', sub)
+
+      const rootHelp = root.formatHelp()
+      const subHelp = sub.formatHelp()
+
+      expect(rootHelp).toContain('Root Example')
+      expect(rootHelp).not.toContain('Sub Example')
+      expect(subHelp).toContain('Sub Example')
+      expect(subHelp).toContain('cli init --template basic')
+      expect(subHelp).not.toContain('Root Example')
+    })
+  })
+
+  describe('example', () => {
+    it('should register examples in order', () => {
+      const cmd = new Command({ name: 'test', desc: 'Test' })
+
+      cmd.example('First', 'sub --a', 'first desc')
+      cmd.example('Second', 'sub --a', 'second desc')
+
+      expect(cmd.examples).toEqual([
+        { title: 'First', usage: 'sub --a', desc: 'first desc' },
+        { title: 'Second', usage: 'sub --a', desc: 'second desc' },
+      ])
+    })
+
+    it('should throw when title is empty', () => {
+      const cmd = new Command({ name: 'test', desc: 'Test' })
+      expect(() => cmd.example('   ', 'run', 'desc')).toThrow('example title cannot be empty')
+    })
+
+    it('should throw when usage is empty', () => {
+      const cmd = new Command({ name: 'test', desc: 'Test' })
+      expect(() => cmd.example('Title', '   ', 'desc')).toThrow('example usage cannot be empty')
+    })
+
+    it('should throw when description is empty', () => {
+      const cmd = new Command({ name: 'test', desc: 'Test' })
+      expect(() => cmd.example('Title', 'run', '   ')).toThrow(
+        'example description cannot be empty',
+      )
+    })
+
+    it('should return defensive copies from examples getter', () => {
+      const cmd = new Command({ name: 'test', desc: 'Test' })
+      cmd.example('Title', 'run', 'desc')
+
+      const examples = cmd.examples
+      examples[0].title = 'mutated'
+
+      expect(cmd.examples[0].title).toBe('Title')
     })
   })
 
@@ -1173,6 +1303,165 @@ describe('Command', () => {
       await cmd.run({ argv: ['-h'], envs: {} })
       expect(consoleSpy).toHaveBeenCalled()
       expect(consoleSpy.mock.calls[0][0]).toContain('Test command')
+      consoleSpy.mockRestore()
+    })
+
+    it('should render styled help in tty mode', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const cmd = new Command({ name: 'test', desc: 'Test command' })
+      cmd.example('Quick Start', 'run --watch', 'Run in watch mode')
+      cmd.action(() => {})
+
+      const originalIsTTY = process.stdout.isTTY
+      ;(process.stdout as { isTTY?: boolean }).isTTY = true
+
+      try {
+        await cmd.run({ argv: ['--help'], envs: {} })
+      } finally {
+        ;(process.stdout as { isTTY?: boolean }).isTTY = originalIsTTY
+      }
+
+      const output = String(consoleSpy.mock.calls[0][0])
+      expect(output).toContain('\x1b[1mUsage: test')
+      expect(output).toContain('\x1b[1m\x1b[4mExamples:\x1b[0m')
+      expect(output).toContain('- \x1b[1mQuick Start\x1b[0m')
+      expect(output).toContain('\x1b[36mtest run --watch\x1b[0m')
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should match styled help snapshot in tty mode', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const cmd = new Command({ name: 'test', desc: 'Test command' })
+      cmd.example('Quick Start', 'run --watch', 'Run in watch mode')
+      cmd.action(() => {})
+
+      const originalIsTTY = process.stdout.isTTY
+      ;(process.stdout as { isTTY?: boolean }).isTTY = true
+
+      try {
+        await cmd.run({ argv: ['--help'], envs: {} })
+      } finally {
+        ;(process.stdout as { isTTY?: boolean }).isTTY = originalIsTTY
+      }
+
+      const output = String(consoleSpy.mock.calls[0][0])
+      expect(output).toMatchInlineSnapshot(`
+        "Test command
+
+        [1mUsage: test [options][0m
+
+        [1m[4mOptions:[0m
+          [36m    --color[0m              Enable colored help output
+          [36m    --no-color[0m           Negate --color
+          [36m-h, --help[0m               Show help information
+          [36m    --no-help[0m            Negate --help
+          [36m-V, --version[0m            Show version number
+          [36m    --no-version[0m         Negate --version
+          [36m    --log-level <value>[0m  Set log level (default: "info") [choices: debug, info, hint, warn, error]
+          [36m    --silent[0m             Suppress non-error output
+          [36m    --no-silent[0m          Negate --silent
+          [36m    --log-date[0m           Enable log timestamp
+          [36m    --no-log-date[0m        Negate --log-date
+          [36m    --log-colorful[0m       Enable colorful log output
+          [36m    --no-log-colorful[0m    Negate --log-colorful
+
+        [1m[4mExamples:[0m
+          - [1mQuick Start[0m
+            [36mtest run --watch[0m
+            [3m[2mRun in watch mode[0m
+        "
+      `)
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should render plain help in non-tty mode', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const cmd = new Command({ name: 'test', desc: 'Test command' })
+      cmd.example('Quick Start', 'run --watch', 'Run in watch mode')
+      cmd.action(() => {})
+
+      const originalIsTTY = process.stdout.isTTY
+      ;(process.stdout as { isTTY?: boolean }).isTTY = false
+
+      try {
+        await cmd.run({ argv: ['--help'], envs: {} })
+      } finally {
+        ;(process.stdout as { isTTY?: boolean }).isTTY = originalIsTTY
+      }
+
+      const output = String(consoleSpy.mock.calls[0][0])
+      expect(output).toContain('Usage: test')
+      expect(output).not.toContain('\x1b[')
+      expect(output).toContain('- Quick Start')
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should render plain help when --no-color is used in tty mode', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const cmd = new Command({ name: 'test', desc: 'Test command' })
+      cmd.example('Quick Start', 'run --watch', 'Run in watch mode')
+      cmd.action(() => {})
+
+      const originalIsTTY = process.stdout.isTTY
+      ;(process.stdout as { isTTY?: boolean }).isTTY = true
+
+      try {
+        await cmd.run({ argv: ['--help', '--no-color'], envs: {} })
+      } finally {
+        ;(process.stdout as { isTTY?: boolean }).isTTY = originalIsTTY
+      }
+
+      const output = String(consoleSpy.mock.calls[0][0])
+      expect(output).toContain('Usage: test')
+      expect(output).not.toContain('\x1b[')
+      expect(output).toContain('- Quick Start')
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should render plain help in tty mode when NO_COLOR is set', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const cmd = new Command({ name: 'test', desc: 'Test command' })
+      cmd.example('Quick Start', 'run --watch', 'Run in watch mode')
+      cmd.action(() => {})
+
+      const originalIsTTY = process.stdout.isTTY
+      ;(process.stdout as { isTTY?: boolean }).isTTY = true
+
+      try {
+        await cmd.run({ argv: ['--help'], envs: { NO_COLOR: '1' } })
+      } finally {
+        ;(process.stdout as { isTTY?: boolean }).isTTY = originalIsTTY
+      }
+
+      const output = String(consoleSpy.mock.calls[0][0])
+      expect(output).toContain('Usage: test')
+      expect(output).not.toContain('\x1b[')
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should allow --color to override NO_COLOR in tty mode', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const cmd = new Command({ name: 'test', desc: 'Test command' })
+      cmd.example('Quick Start', 'run --watch', 'Run in watch mode')
+      cmd.action(() => {})
+
+      const originalIsTTY = process.stdout.isTTY
+      ;(process.stdout as { isTTY?: boolean }).isTTY = true
+
+      try {
+        await cmd.run({ argv: ['--help', '--color'], envs: { NO_COLOR: '1' } })
+      } finally {
+        ;(process.stdout as { isTTY?: boolean }).isTTY = originalIsTTY
+      }
+
+      const output = String(consoleSpy.mock.calls[0][0])
+      expect(output).toContain('\x1b[')
+
       consoleSpy.mockRestore()
     })
 
@@ -1781,6 +2070,32 @@ describe('Command', () => {
       const output = consoleSpy.mock.calls[0][0]
       expect(output).toContain('Initialize project')
       expect(output).toContain('--template')
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should show leaf command examples with "help <subcommand>"', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+      const root = new Command({
+        name: 'cli',
+        desc: 'CLI tool',
+        builtin: { command: { help: true } },
+      })
+      root.example('Root Example', 'init', 'Root level example')
+
+      const sub = new Command({ desc: 'Initialize project' })
+      sub.example('Use Template', '--template basic', 'Initialize with basic template')
+      sub.action(() => {})
+      root.subcommand('init', sub)
+
+      await root.run({ argv: ['help', 'init'], envs: {} })
+
+      const output = String(consoleSpy.mock.calls[0][0])
+      expect(output).toContain('Examples:')
+      expect(output).toContain('Use Template')
+      expect(output).toContain('cli init --template basic')
+      expect(output).not.toContain('Root Example')
 
       consoleSpy.mockRestore()
     })

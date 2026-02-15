@@ -202,6 +202,29 @@ new Command({ name: 'example', description: 'Option types demo' })
   })
 ```
 
+### Help Examples
+
+```typescript
+import { Command } from '@guanghechen/commander'
+
+const cli = new Command({ name: 'mycli', desc: 'My CLI tool' })
+
+cli
+  .example('Initialize Project', 'init my-app', 'Create project scaffold')
+  .example('Watch Build', 'build --watch', 'Rebuild on file changes')
+  .action(() => {})
+
+await cli.run({ argv: ['--help'], envs: process.env })
+```
+
+`usage` 是相对当前 command path 的片段，help 中会自动补齐前缀，例如 `mycli build --watch`。
+
+`--color` / `--no-color` 仅控制 help 文本的终端着色；
+`--log-colorful` / `--no-log-colorful` 控制 `Reporter` 的日志着色。
+
+当环境变量 `NO_COLOR` 存在时，help 渲染默认视为 `--no-color`；
+显式传入 `--color` 可以覆盖这个默认值。
+
 ## Reference
 
 - [homepage][homepage]

@@ -22,7 +22,14 @@ interface ICommand {
   readonly parent: ICommand | undefined
   readonly options: ICommandOptionConfig[]
   readonly arguments: ICommandArgumentConfig[]
+  readonly examples: ICommandExample[]
   readonly subcommands: Map<string, ICommand>
+}
+
+interface ICommandExample {
+  title: string
+  usage: string
+  desc: string
 }
 
 /** Command 构造配置 */
@@ -32,6 +39,7 @@ interface ICommandConfig {
   version?: string        // 版本号（用于 --version）
   builtin?: boolean | {
     option?: boolean | {
+      color?: boolean
       logLevel?: boolean
       silent?: boolean
       logDate?: boolean
@@ -119,10 +127,18 @@ const cmd = new Command({
 | `.option(opt: ICommandOptionConfig)`       | 添加选项     |
 | `.argument(arg: ICommandArgumentConfig)`   | 添加位置参数 |
 | `.action(fn: ICommandAction)`              | 设置 action  |
+| `.example(title, usage, desc)`             | 添加示例     |
 | `.subcommand(name: string, cmd: Command)`  | 添加子命令   |
 | `.run(params: ICommandRunParams)`          | 解析 + 执行  |
 | `.parse(params: ICommandRunParams)`        | 仅解析       |
 | `.formatHelp()`                            | 生成帮助文本 |
+
+`example(title, usage, desc)` 规则：
+
+- 仅支持 fluent API，不支持构造参数注入
+- 每次调用按顺序追加，不去重
+- `usage` 是相对当前 command path 的片段，渲染时自动补齐前缀
+- examples 不继承，只显示当前 command 自己注册的条目
 
 ---
 
@@ -338,6 +354,7 @@ cli sub -- --like-option        # --like-option 作为位置参数
 
 | 选项                                    | 短选项 | 说明                 |
 | --------------------------------------- | ------ | -------------------- |
+| `--color` / `--no-color`                | -      | 控制 help 彩色渲染   |
 | `--help`                                | `-h`   | 显示帮助并退出       |
 | `--version`                             | `-V`   | 显示版本（仅 root）  |
 | `--log-level`                           | -      | 设置日志级别         |
@@ -346,6 +363,12 @@ cli sub -- --like-option        # --like-option 作为位置参数
 | `--log-colorful` / `--no-log-colorful`  | -      | 控制彩色输出         |
 
 用户可定义同名选项覆盖默认行为。
+
+`--color` 仅影响 help 的终端渲染；
+`--log-colorful` 影响 `Reporter` 的日志输出。
+
+当 `NO_COLOR` 环境变量存在时，help 渲染默认使用 `--no-color`；
+显式传入 `--color` 优先级更高。
 
 ---
 
@@ -378,6 +401,8 @@ Process Manager
 Usage: pm [options] [command]
 
 Options:
+      --color            Enable colored help output
+      --no-color         Negate --color
   -v, --verbose       Verbose output
       --no-verbose    Negate --verbose
   -h, --help          Show help information
@@ -386,6 +411,15 @@ Options:
 Commands:
   start, s            Start a process
   stop                Stop a process
+
+Examples:
+  - Start In Background
+    pm start myapp --detach
+    Start process in daemon mode
+
+  - Watch Build
+    pm start --verbose myapp
+    Run start command with verbose logging
 ```
 
 ---

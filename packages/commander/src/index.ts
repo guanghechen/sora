@@ -19,6 +19,7 @@ export type {
   ICommandBuiltinOptionConfig,
   ICommandConfig,
   ICommandContext,
+  ICommandExample,
   ICommandOptionArgs,
   ICommandOptionConfig,
   ICommandOptionType,
