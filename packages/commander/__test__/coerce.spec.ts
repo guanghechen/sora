@@ -116,4 +116,64 @@ describe('coerce', () => {
       expect(() => coerce('0')).toThrow('duration must be positive number')
     })
   })
+
+  describe('Coerce.port', () => {
+    it('should return parsed port number', () => {
+      const coerce = Coerce.port('--port')
+
+      expect(coerce('0')).toBe(0)
+      expect(coerce('80')).toBe(80)
+      expect(coerce('65535')).toBe(65535)
+    })
+
+    it('should throw default error on invalid port input', () => {
+      const coerce = Coerce.port('--port')
+
+      expect(() => coerce('-1')).toThrow(
+        '--port is expected as a valid port number (0-65535), but got -1',
+      )
+      expect(() => coerce('65536')).toThrow(
+        '--port is expected as a valid port number (0-65535), but got 65536',
+      )
+      expect(() => coerce('3.14')).toThrow(
+        '--port is expected as a valid port number (0-65535), but got 3.14',
+      )
+      expect(() => coerce('abc')).toThrow(
+        '--port is expected as a valid port number (0-65535), but got abc',
+      )
+    })
+
+    it('should allow custom error message', () => {
+      const coerce = Coerce.port('--port', 'port must be 0-65535')
+
+      expect(() => coerce('65536')).toThrow('port must be 0-65535')
+    })
+  })
+
+  describe('Coerce.choice', () => {
+    it('should return matched enum value', () => {
+      const coerce = Coerce.choice('--mode', ['dev', 'test', 'prod'] as const)
+
+      expect(coerce('dev')).toBe('dev')
+      expect(coerce('prod')).toBe('prod')
+    })
+
+    it('should throw default error on invalid enum input', () => {
+      const coerce = Coerce.choice('--mode', ['dev', 'test', 'prod'] as const)
+
+      expect(() => coerce('staging')).toThrow(
+        '--mode is expected as one of [dev, test, prod], but got staging',
+      )
+    })
+
+    it('should allow custom error message', () => {
+      const coerce = Coerce.choice(
+        '--mode',
+        ['dev', 'test', 'prod'] as const,
+        'mode must be dev/test/prod',
+      )
+
+      expect(() => coerce('staging')).toThrow('mode must be dev/test/prod')
+    })
+  })
 })

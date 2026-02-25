@@ -26,12 +26,37 @@ export class Coerce {
     }
   }
 
-  public static number(name: string, errorMessage?: string): (rawValue: string) => number {
-    return this.create(name, 'a finite number', value => Number.isFinite(value), errorMessage)
+  public static choice<TValue extends string>(
+    name: string,
+    values: ReadonlyArray<TValue>,
+    errorMessage?: string,
+  ): (rawValue: string) => TValue {
+    return (rawValue: string): TValue => {
+      if (values.includes(rawValue as TValue)) {
+        return rawValue as TValue
+      }
+
+      throw new Error(
+        errorMessage ?? `${name} is expected as one of [${values.join(', ')}], but got ${rawValue}`,
+      )
+    }
   }
 
   public static integer(name: string, errorMessage?: string): (rawValue: string) => number {
     return this.create(name, 'an integer', value => Number.isInteger(value), errorMessage)
+  }
+
+  public static number(name: string, errorMessage?: string): (rawValue: string) => number {
+    return this.create(name, 'a finite number', value => Number.isFinite(value), errorMessage)
+  }
+
+  public static port(name: string, errorMessage?: string): (rawValue: string) => number {
+    return this.create(
+      name,
+      'a valid port number (0-65535)',
+      value => Number.isInteger(value) && value >= 0 && value <= 65535,
+      errorMessage,
+    )
   }
 
   public static positiveInteger(name: string, errorMessage?: string): (rawValue: string) => number {

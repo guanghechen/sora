@@ -230,6 +230,20 @@ new Command({ name: 'example', desc: 'Coerce demo' })
     desc: 'Duration in seconds',
   })
   .option({
+    long: 'port',
+    type: 'number',
+    args: 'required',
+    coerce: Coerce.port('--port'),
+    desc: 'Server port',
+  })
+  .option({
+    long: 'mode',
+    type: 'string',
+    args: 'required',
+    coerce: Coerce.choice('--mode', ['dev', 'test', 'prod'] as const),
+    desc: 'Deploy mode',
+  })
+  .option({
     long: 'scale',
     type: 'number',
     args: 'required',
@@ -263,11 +277,11 @@ await cli.run({ argv: ['--help'], envs: process.env })
 
 `usage` 是相对当前 command path 的片段，help 中会自动补齐前缀，例如 `mycli build --watch`。
 
-`--color` / `--no-color` 仅控制 help 文本的终端着色；
-`--log-colorful` / `--no-log-colorful` 控制 `Reporter` 的日志着色。
+`--color` / `--no-color` 仅控制 help 文本的终端着色； `--log-colorful` / `--no-log-colorful` 控制
+`Reporter` 的日志着色。
 
-当环境变量 `NO_COLOR` 存在时，help 渲染默认视为 `--no-color`；
-显式传入 `--color` 可以覆盖这个默认值。
+当环境变量 `NO_COLOR` 存在时，help 渲染默认视为 `--no-color`；显式传入 `--color`
+可以覆盖这个默认值。
 
 ## Reference
 
