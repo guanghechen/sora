@@ -1,5 +1,12 @@
 # Change Log
 
+## 4.5.1
+
+### Patch Changes
+
+- Add built-in host and network validators (ip, domain, host), expose is helpers, and extend coerce
+  factories with port and choice support.
+
 ## 4.5.0
 
 ### Minor Changes
