@@ -202,6 +202,50 @@ new Command({ name: 'example', description: 'Option types demo' })
   })
 ```
 
+### Built-in Coerce Factories
+
+```typescript
+import { Coerce, Command } from '@guanghechen/commander'
+
+new Command({ name: 'example', desc: 'Coerce demo' })
+  .option({
+    long: 'offset',
+    type: 'number',
+    args: 'required',
+    coerce: Coerce.integer('--offset'),
+    desc: 'Signed offset',
+  })
+  .option({
+    long: 'parallel',
+    type: 'number',
+    args: 'required',
+    coerce: Coerce.positiveInteger('--parallel'),
+    desc: 'Parallel workers',
+  })
+  .option({
+    long: 'duration',
+    type: 'number',
+    args: 'required',
+    coerce: Coerce.positiveNumber('--duration'),
+    desc: 'Duration in seconds',
+  })
+  .option({
+    long: 'scale',
+    type: 'number',
+    args: 'required',
+    coerce: Coerce.number('--scale'),
+    desc: 'Scale factor',
+  })
+```
+
+Default error message format:
+
+```text
+{name} is expected as {coerce type}, but got {raw}
+```
+
+You can still override the message via `Coerce.xxx(name, 'custom error message')`.
+
 ### Help Examples
 
 ```typescript

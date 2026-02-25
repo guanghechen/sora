@@ -247,6 +247,84 @@ const cmd = new Command('app')
 .option({ ...logLevelOption, default: 'warn' })
 ```
 
+## 预定义 Coerce 工厂
+
+Commander 也提供了常用的 `coerce` 工厂方法：
+
+```typescript
+import { Coerce } from '@guanghechen/commander'
+
+cmd
+  .option({
+    long: 'offset',
+    type: 'number',
+    args: 'required',
+    coerce: Coerce.integer('--offset'),
+    desc: 'Signed offset',
+  })
+  .option({
+    long: 'parallel',
+    type: 'number',
+    args: 'required',
+    coerce: Coerce.positiveInteger('--parallel'),
+    desc: 'Parallel workers',
+  })
+  .option({
+    long: 'duration',
+    type: 'number',
+    args: 'required',
+    coerce: Coerce.positiveNumber('--duration'),
+    desc: 'Duration seconds',
+  })
+  .option({
+    long: 'scale',
+    type: 'number',
+    args: 'required',
+    coerce: Coerce.number('--scale'),
+    desc: 'Scale factor',
+  })
+```
+
+默认错误文案：
+
+```text
+{name} is expected as {coerce type}, but got {raw}
+```
+
+如需自定义，也可传第二个参数：`Coerce.xxx(name, 'custom error message')`。
+
+### Coerce.number
+
+| 属性     | 值                                    |
+| -------- | ------------------------------------- |
+| 输入     | `string`                              |
+| 输出     | `(raw: string) => number`             |
+| 校验规则 | `Number.isFinite(value)`              |
+
+### Coerce.integer
+
+| 属性     | 值                                    |
+| -------- | ------------------------------------- |
+| 输入     | `string`                              |
+| 输出     | `(raw: string) => number`             |
+| 校验规则 | `Number.isInteger(value)`             |
+
+### Coerce.positiveInteger
+
+| 属性     | 值                                     |
+| -------- | -------------------------------------- |
+| 输入     | `string`                               |
+| 输出     | `(raw: string) => number`              |
+| 校验规则 | `Number.isInteger(value) && value > 0` |
+
+### Coerce.positiveNumber
+
+| 属性     | 值                                    |
+| -------- | ------------------------------------- |
+| 输入     | `string`                              |
+| 输出     | `(raw: string) => number`             |
+| 校验规则 | `Number.isFinite(value) && value > 0` |
+
 ### logLevelOption
 
 日志级别选项，支持 `debug | info | hint | warn | error`：

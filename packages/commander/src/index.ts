@@ -5,6 +5,7 @@
  */
 
 export { Command } from './command'
+export { Coerce } from './coerce'
 export { BashCompletion, CompletionCommand, FishCompletion, PwshCompletion } from './completion'
 export { logColorfulOption, logDateOption, logLevelOption, silentOption } from './options'
 export type {
