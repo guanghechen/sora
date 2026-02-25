@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.5.0
+
+### Minor Changes
+
+- Add built-in coerce factories for numeric option parsing in commander.
+
 ## 4.4.1
 
 ### Patch Changes
