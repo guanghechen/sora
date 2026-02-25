@@ -176,4 +176,92 @@ describe('coerce', () => {
       expect(() => coerce('staging')).toThrow('mode must be dev/test/prod')
     })
   })
+
+  describe('Coerce.domain', () => {
+    it('should return valid domain', () => {
+      const coerce = Coerce.domain('--domain')
+
+      expect(coerce('example.com')).toBe('example.com')
+      expect(coerce('api.example.co.uk')).toBe('api.example.co.uk')
+    })
+
+    it('should throw default error on invalid domain input', () => {
+      const coerce = Coerce.domain('--domain')
+
+      expect(() => coerce('localhost')).toThrow(
+        '--domain is expected as a valid domain, but got localhost',
+      )
+      expect(() => coerce('example')).toThrow(
+        '--domain is expected as a valid domain, but got example',
+      )
+      expect(() => coerce('-a.example.com')).toThrow(
+        '--domain is expected as a valid domain, but got -a.example.com',
+      )
+      expect(() => coerce('127.0.0.1')).toThrow(
+        '--domain is expected as a valid domain, but got 127.0.0.1',
+      )
+    })
+
+    it('should allow custom error message', () => {
+      const coerce = Coerce.domain('--domain', 'domain must be valid')
+
+      expect(() => coerce('localhost')).toThrow('domain must be valid')
+    })
+  })
+
+  describe('Coerce.host', () => {
+    it('should return valid host', () => {
+      const coerce = Coerce.host('--host')
+
+      expect(coerce('example.com')).toBe('example.com')
+      expect(coerce('127.0.0.1')).toBe('127.0.0.1')
+      expect(coerce('::1')).toBe('::1')
+    })
+
+    it('should throw default error on invalid host input', () => {
+      const coerce = Coerce.host('--host')
+
+      expect(() => coerce('localhost')).toThrow(
+        '--host is expected as a valid host (IP or domain), but got localhost',
+      )
+      expect(() => coerce('256.0.0.1')).toThrow(
+        '--host is expected as a valid host (IP or domain), but got 256.0.0.1',
+      )
+      expect(() => coerce('-a.example.com')).toThrow(
+        '--host is expected as a valid host (IP or domain), but got -a.example.com',
+      )
+    })
+
+    it('should allow custom error message', () => {
+      const coerce = Coerce.host('--host', 'host must be ip or domain')
+
+      expect(() => coerce('localhost')).toThrow('host must be ip or domain')
+    })
+  })
+
+  describe('Coerce.ip', () => {
+    it('should return valid ip', () => {
+      const coerce = Coerce.ip('--ip')
+
+      expect(coerce('127.0.0.1')).toBe('127.0.0.1')
+      expect(coerce('::1')).toBe('::1')
+    })
+
+    it('should throw default error on invalid ip input', () => {
+      const coerce = Coerce.ip('--ip')
+
+      expect(() => coerce('256.0.0.1')).toThrow(
+        '--ip is expected as a valid IP address, but got 256.0.0.1',
+      )
+      expect(() => coerce('example.com')).toThrow(
+        '--ip is expected as a valid IP address, but got example.com',
+      )
+    })
+
+    it('should allow custom error message', () => {
+      const coerce = Coerce.ip('--ip', 'ip must be valid')
+
+      expect(() => coerce('example.com')).toThrow('ip must be valid')
+    })
+  })
 })

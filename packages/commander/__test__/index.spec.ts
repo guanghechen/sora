@@ -5,6 +5,10 @@ import {
   CompletionCommand,
   FishCompletion,
   PwshCompletion,
+  isDomain,
+  isIp,
+  isIpv4,
+  isIpv6,
 } from '../src'
 
 describe('index exports', () => {
@@ -36,5 +40,12 @@ describe('index exports', () => {
   it('should export CommanderError class', () => {
     expect(CommanderError).toBeDefined()
     expect(typeof CommanderError).toBe('function')
+  })
+
+  it('should export is helpers', () => {
+    expect(typeof isIpv4).toBe('function')
+    expect(typeof isIpv6).toBe('function')
+    expect(typeof isIp).toBe('function')
+    expect(typeof isDomain).toBe('function')
   })
 })

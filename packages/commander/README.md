@@ -237,6 +237,27 @@ new Command({ name: 'example', desc: 'Coerce demo' })
     desc: 'Server port',
   })
   .option({
+    long: 'domain',
+    type: 'string',
+    args: 'required',
+    coerce: Coerce.domain('--domain'),
+    desc: 'Domain name',
+  })
+  .option({
+    long: 'ip',
+    type: 'string',
+    args: 'required',
+    coerce: Coerce.ip('--ip'),
+    desc: 'IP address',
+  })
+  .option({
+    long: 'host',
+    type: 'string',
+    args: 'required',
+    coerce: Coerce.host('--host'),
+    desc: 'Host (IP or domain)',
+  })
+  .option({
     long: 'mode',
     type: 'string',
     args: 'required',
@@ -259,6 +280,17 @@ Default error message format:
 ```
 
 You can still override the message via `Coerce.xxx(name, 'custom error message')`.
+
+### Built-in Is Helpers
+
+```typescript
+import { isDomain, isIp, isIpv4, isIpv6 } from '@guanghechen/commander'
+
+isIpv4('127.0.0.1') // true
+isIpv6('::1') // true
+isIp('2001:db8::1') // true
+isDomain('example.com') // true
+```
 
 ### Help Examples
 

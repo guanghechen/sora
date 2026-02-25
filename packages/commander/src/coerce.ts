@@ -1,3 +1,5 @@
+import { isDomain, isIp } from './is'
+
 /**
  * Pre-defined coerce factory methods for @guanghechen/commander.
  *
@@ -42,8 +44,42 @@ export class Coerce {
     }
   }
 
+  public static domain(name: string, errorMessage?: string): (rawValue: string) => string {
+    return (rawValue: string): string => {
+      if (isDomain(rawValue)) {
+        return rawValue
+      }
+
+      throw new Error(errorMessage ?? `${name} is expected as a valid domain, but got ${rawValue}`)
+    }
+  }
+
+  public static host(name: string, errorMessage?: string): (rawValue: string) => string {
+    return (rawValue: string): string => {
+      if (isIp(rawValue) || isDomain(rawValue)) {
+        return rawValue
+      }
+
+      throw new Error(
+        errorMessage ?? `${name} is expected as a valid host (IP or domain), but got ${rawValue}`,
+      )
+    }
+  }
+
   public static integer(name: string, errorMessage?: string): (rawValue: string) => number {
     return this.create(name, 'an integer', value => Number.isInteger(value), errorMessage)
+  }
+
+  public static ip(name: string, errorMessage?: string): (rawValue: string) => string {
+    return (rawValue: string): string => {
+      if (isIp(rawValue)) {
+        return rawValue
+      }
+
+      throw new Error(
+        errorMessage ?? `${name} is expected as a valid IP address, but got ${rawValue}`,
+      )
+    }
   }
 
   public static number(name: string, errorMessage?: string): (rawValue: string) => number {
