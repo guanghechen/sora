@@ -1,5 +1,12 @@
 # Change Log
 
+## 4.6.0
+
+### Minor Changes
+
+- Add preset-root and command-level preset resolution for commander, align control/preset pipeline
+  behavior with spec, and include updated preset parsing and validation semantics.
+
 ## 4.5.1
 
 ### Patch Changes
