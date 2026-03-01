@@ -28,7 +28,7 @@ const start = new Command({ desc: 'Start a process' })
   .argument({ name: 'name', desc: 'Process name', kind: 'required' })
   .option({ long: 'detach', short: 'd', type: 'boolean', args: 'none', desc: 'Background' })
   .action(async ({ opts, args }) => {
-    console.log(`Starting ${args.name}, verbose: ${opts.verbose}, detach: ${opts.detach}`)
+    console.log(`Starting ${args.name}, detach: ${opts.detach}`)
   })
 
 pm.subcommand('start', start).subcommand('s', start)
