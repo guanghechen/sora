@@ -109,6 +109,8 @@ export interface ICommandArgumentConfig<T = unknown> {
 // ==================== Command Types ====================
 
 export interface ICommandBuiltinOptionConfig {
+  /** Enable built-in --version option (root only, requires configured version) */
+  version?: boolean
   /** Enable built-in --color/--no-color option for help rendering (defaults respect NO_COLOR) */
   color?: boolean
   /** Enable built-in --log-level option */
@@ -121,16 +123,9 @@ export interface ICommandBuiltinOptionConfig {
   logColorful?: boolean
 }
 
-export interface ICommandBuiltinCommandConfig {
-  /** Enable built-in help subcommand */
-  help?: boolean
-}
-
 export interface ICommandBuiltinConfig {
   /** Built-in options configuration */
   option?: boolean | ICommandBuiltinOptionConfig
-  /** Built-in command configuration */
-  command?: boolean | ICommandBuiltinCommandConfig
 }
 
 /** Command example configuration */
@@ -162,6 +157,7 @@ export interface ICommand {
   readonly name: string | undefined
   readonly description: string
   readonly version: string | undefined
+  readonly builtin: ICommandConfig['builtin'] | undefined
   readonly parent: ICommand | undefined
   readonly options: ICommandOptionConfig[]
   readonly arguments: ICommandArgumentConfig[]
@@ -173,12 +169,16 @@ export interface ICommand {
 export interface ICommandContext {
   /** Current command node */
   cmd: ICommand
-  /** Environment variables */
+  /** Command chain from root to leaf */
+  chain: ICommand[]
+  /** Effective environment variables */
   envs: Record<string, string | undefined>
+  /** Built-in control hit status */
+  controls: ICommandControls
+  /** Input source snapshots */
+  sources: ICommandInputSources
   /** Reporter instance */
   reporter: IReporter
-  /** Original argv */
-  argv: string[]
 }
 
 /** Action callback parameters */
@@ -215,11 +215,31 @@ export type ICommandParsedArgs = Record<string, unknown>
 // ==================== Stage Result Types (internal) ====================
 
 /** Route stage result */
-export interface ICommandRouteResult {
+export interface ICommandRouteResult<TCommand = ICommand> {
   /** Command chain from root to leaf */
-  chain: ICommand[]
+  chain: TCommand[]
   /** Remaining argv after routing */
   remaining: string[]
+  /** Routed command tokens from user argv (name/alias) */
+  cmds: string[]
+}
+
+/** Control-scan stage result */
+export interface ICommandControlScanResult {
+  /** Built-in control hit status */
+  controls: ICommandControls
+  /** Remaining argv after stripping control tokens */
+  remaining: string[]
+  /** Optional target token from `help <child>` syntax */
+  helpTarget?: string
+}
+
+/** Preset stage result */
+export interface ICommandPresetResult {
+  /** Effective tail argv after preset merge */
+  tailArgv: string[]
+  /** Effective envs after preset merge */
+  envs: Record<string, string | undefined>
 }
 
 /** Tokenize stage result */
@@ -258,8 +278,31 @@ export interface ICommandParseResult {
   rawArgs: string[]
 }
 
+/** Input source snapshots for debugging/tracing */
+export interface ICommandInputSources {
+  preset: {
+    argv: string[]
+    envs: Record<string, string>
+  }
+  user: {
+    /** Routed command tokens (name/alias as entered by user) */
+    cmds: string[]
+    /** Clean user tail argv after removing command chain/control/preset directives */
+    argv: string[]
+    /** Raw env snapshot from run/parse params */
+    envs: Record<string, string | undefined>
+  }
+}
+
+/** Built-in run controls */
+export interface ICommandControls {
+  help: boolean
+  version: boolean
+}
+
 /** Built-in option resolution result (internal) */
 export interface ICommandBuiltinOptionResolved {
+  version: boolean
   color: boolean
   logLevel: boolean
   silent: boolean
@@ -270,9 +313,6 @@ export interface ICommandBuiltinOptionResolved {
 /** Built-in config resolution result (internal) */
 export interface ICommandBuiltinResolved {
   option: ICommandBuiltinOptionResolved
-  command: {
-    help: boolean
-  }
 }
 
 /** Subcommand registry entry (internal) */
@@ -280,12 +320,6 @@ export interface ISubcommandEntry<TCommand = ICommand> {
   name: string
   aliases: string[]
   command: TCommand
-}
-
-/** Internal route result */
-export interface IInternalRouteResult<TCommand = ICommand> {
-  chain: TCommand[]
-  remaining: string[]
 }
 
 /** Help option line (internal) */

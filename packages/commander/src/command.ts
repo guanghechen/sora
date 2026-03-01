@@ -1,13 +1,16 @@
 /**
  * Command class - CLI command builder with fluent API
  *
- * Execution flow: route → tokenize → resolve → parse → run
+ * Execution flow: route → control-scan → run-control(run) → preset → tokenize → resolve → parse → run
  *
  * @module @guanghechen/commander
  */
 
+import { parse as parseEnv } from '@guanghechen/env'
 import type { IReporter } from '@guanghechen/reporter'
 import { Reporter } from '@guanghechen/reporter'
+import { readFile } from 'node:fs/promises'
+import path from 'node:path'
 import { TERMINAL_STYLE, styleText } from './chalk'
 import { logColorfulOption, logDateOption, logLevelOption, silentOption } from './options'
 import type {
@@ -20,12 +23,17 @@ import type {
   ICommandBuiltinResolved,
   ICommandConfig,
   ICommandContext,
+  ICommandControlScanResult,
+  ICommandControls,
   ICommandExample,
+  ICommandInputSources,
   ICommandOptionConfig,
   ICommandParseResult,
   ICommandParsedArgs,
   ICommandParsedOpts,
+  ICommandPresetResult,
   ICommandResolveResult,
+  ICommandRouteResult,
   ICommandRunParams,
   ICommandShiftResult,
   ICommandToken,
@@ -36,7 +44,6 @@ import type {
   IHelpData,
   IHelpExampleLine,
   IHelpOptionLine,
-  IInternalRouteResult,
   ISubcommandEntry,
 } from './types'
 import { CommanderError } from './types'
@@ -47,6 +54,9 @@ import { CommanderError } from './types'
 const LONG_OPTION_REGEX = /^--[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/
 /** Format validation regex for negative options (lowercase kebab-case) */
 const NEGATIVE_OPTION_REGEX = /^--no-[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/
+
+const PRESET_OPTS_FLAG = '--preset-opts'
+const PRESET_ENVS_FLAG = '--preset-envs'
 
 /** Convert kebab-case to camelCase. Input should be lowercase. */
 function kebabToCamelCase(str: string): string {
@@ -200,7 +210,6 @@ function tokenize(argv: string[], commandPath: string): ICommandTokenizeResult {
 
 const BUILTIN_HELP_OPTION: ICommandOptionConfig = {
   long: 'help',
-  short: 'h',
   type: 'boolean',
   args: 'none',
   desc: 'Show help information',
@@ -208,7 +217,6 @@ const BUILTIN_HELP_OPTION: ICommandOptionConfig = {
 
 const BUILTIN_VERSION_OPTION: ICommandOptionConfig = {
   long: 'version',
-  short: 'V',
   type: 'boolean',
   args: 'none',
   desc: 'Show version number',
@@ -224,12 +232,11 @@ const BUILTIN_COLOR_OPTION: ICommandOptionConfig = {
 
 interface ICommandOptionPolicy {
   readonly mergedOptions: ICommandOptionConfig[]
-  readonly enableBuiltinHelp: boolean
-  readonly enableBuiltinVersion: boolean
 }
 
 function createBuiltinOptionState(enabled: boolean): ICommandBuiltinOptionResolved {
   return {
+    version: enabled,
     color: enabled,
     logLevel: enabled,
     silent: enabled,
@@ -247,9 +254,6 @@ function normalizeBuiltinConfig(
 ): ICommandBuiltinResolved {
   const resolved: ICommandBuiltinResolved = {
     option: createBuiltinOptionState(true),
-    command: {
-      help: false,
-    },
   }
 
   if (builtin === undefined) {
@@ -259,14 +263,12 @@ function normalizeBuiltinConfig(
   if (builtin === true) {
     return {
       option: createBuiltinOptionState(true),
-      command: { help: true },
     }
   }
 
   if (builtin === false) {
     return {
       option: createBuiltinOptionState(false),
-      command: { help: false },
     }
   }
 
@@ -276,6 +278,7 @@ function normalizeBuiltinConfig(
     } else if (builtin.option === true) {
       resolved.option = createBuiltinOptionState(true)
     } else {
+      if (builtin.option.version !== undefined) resolved.option.version = builtin.option.version
       if (builtin.option.color !== undefined) resolved.option.color = builtin.option.color
       if (builtin.option.logLevel !== undefined) {
         resolved.option.logLevel = builtin.option.logLevel
@@ -288,16 +291,6 @@ function normalizeBuiltinConfig(
     }
   }
 
-  if (builtin.command !== undefined) {
-    if (builtin.command === false) {
-      resolved.command = { help: false }
-    } else if (builtin.command === true) {
-      resolved.command = { help: true }
-    } else if (builtin.command.help !== undefined) {
-      resolved.command.help = builtin.command.help
-    }
-  }
-
   return resolved
 }
 
@@ -307,6 +300,7 @@ export class Command implements ICommand {
   #name: string
   readonly #desc: string
   readonly #version: string | undefined
+  readonly #builtinConfig: ICommandConfig['builtin'] | undefined
   readonly #builtin: ICommandBuiltinResolved
   readonly #reporter: IReporter | undefined
   #parent: Command | undefined
@@ -322,6 +316,7 @@ export class Command implements ICommand {
     this.#name = config.name ?? ''
     this.#desc = config.desc
     this.#version = config.version
+    this.#builtinConfig = config.builtin
     this.#builtin = normalizeBuiltinConfig(config.builtin)
     this.#reporter = config.reporter
   }
@@ -338,6 +333,10 @@ export class Command implements ICommand {
 
   public get version(): string | undefined {
     return this.#version
+  }
+
+  public get builtin(): ICommandConfig['builtin'] | undefined {
+    return this.#builtinConfig
   }
 
   public get parent(): Command | undefined {
@@ -388,11 +387,10 @@ export class Command implements ICommand {
   // ==================== Assembly Methods ====================
 
   public subcommand(name: string, cmd: Command): this {
-    // Check for reserved name conflict
-    if (this.#builtin.command.help && name === 'help') {
+    if (name === 'help') {
       throw new CommanderError(
         'ConfigurationError',
-        '"help" is a reserved subcommand name when help subcommand is enabled',
+        '"help" is a reserved subcommand name',
         this.#getCommandPath(),
       )
     }
@@ -408,6 +406,16 @@ export class Command implements ICommand {
     // Check if cmd is already registered
     const existing = this.#subcommandsList.find(e => e.command === cmd)
     if (existing) {
+      if (existing.aliases.includes(name)) {
+        return this
+      }
+      if (name === 'help') {
+        throw new CommanderError(
+          'ConfigurationError',
+          '"help" is a reserved subcommand alias',
+          this.#getCommandPath(),
+        )
+      }
       // Add name as alias
       existing.aliases.push(name)
       this.#subcommandsMap.set(name, cmd)
@@ -429,49 +437,55 @@ export class Command implements ICommand {
     const { argv, envs, reporter } = params
 
     try {
-      // 0. Handle "help <subcommand>" syntax if enabled
-      const processedArgv = this.#processHelpSubcommand(argv)
-
-      // 1. ROUTE: determine command chain
-      const routeResult = this.#route(processedArgv)
-      const { chain, remaining } = routeResult
+      // 0. ROUTE
+      const routeResult = this.#route(argv)
+      const { chain } = routeResult
       const leafCommand = chain[chain.length - 1]
 
-      // 2. TOKENIZE: remaining → ICommandToken[]
-      const tokenizeResult = tokenize(remaining, leafCommand.#getCommandPath())
-      const { optionTokens, restArgs } = tokenizeResult
-      const optionPolicyMap = this.#buildOptionPolicyMap(chain)
-      const leafPolicy = this.#mustGetOptionPolicy(optionPolicyMap, leafCommand)
+      const ctx = this.#createContext({
+        chain,
+        cmds: routeResult.cmds,
+        envs,
+        reporter,
+      })
 
-      // 3. Check for built-in --help / --version BEFORE parsing
-      if (leafPolicy.enableBuiltinHelp && this.#hasFlag(optionTokens, 'help', 'h')) {
-        const helpColor = leafCommand.#resolveHelpColorOption(optionTokens, envs, leafPolicy)
-        console.log(leafCommand.#formatHelpForDisplay({ color: helpColor }))
+      // 1. CONTROL SCAN
+      const controlScanResult = this.#controlScan(routeResult.remaining, leafCommand)
+      ctx.controls = controlScanResult.controls
+      ctx.sources.user.argv = [...controlScanResult.remaining]
+
+      // 2. RUN CONTROL
+      if (ctx.controls.help) {
+        const helpCommand = this.#resolveHelpCommand(leafCommand, controlScanResult.helpTarget)
+        const helpColor = helpCommand.#resolveHelpColorFromTailArgv(
+          controlScanResult.remaining,
+          ctx.envs,
+        )
+        console.log(helpCommand.#formatHelpForDisplay({ color: helpColor }))
+        return
+      }
+      if (ctx.controls.version) {
+        console.log(leafCommand.#version)
         return
       }
 
-      if (leafPolicy.enableBuiltinVersion) {
-        if (this.#hasFlag(optionTokens, 'version', 'V')) {
-          console.log(leafCommand.#version)
-          return
-        }
-      }
+      // 3. PRESET
+      const presetResult = await this.#preset(controlScanResult.remaining, ctx)
+      ctx.sources = presetResult.sources
+      ctx.envs = presetResult.envs
 
-      // 4. RESOLVE: bottom-up option consumption
+      // 4. TOKENIZE
+      const tokenizeResult = tokenize(presetResult.tailArgv, leafCommand.#getCommandPath())
+      const { optionTokens, restArgs } = tokenizeResult
+      const optionPolicyMap = this.#buildOptionPolicyMap(chain)
+
+      // 5. RESOLVE
       const resolveResult = this.#resolve(chain, optionTokens, optionPolicyMap)
 
-      // 5. Build context
-      const ctx: ICommandContext = {
-        cmd: leafCommand,
-        envs,
-        reporter: reporter ?? this.#reporter ?? new Reporter(),
-        argv,
-      }
-
-      // 6. PARSE: top-down tokens → opts, call apply
+      // 6. PARSE
       const parseResult = this.#parse(chain, resolveResult, optionPolicyMap, ctx, restArgs)
 
-      // 7. RUN: execute leaf command action
+      // 7. RUN
       const actionParams: ICommandActionParams = {
         ctx: parseResult.ctx,
         opts: parseResult.opts,
@@ -482,7 +496,7 @@ export class Command implements ICommand {
       if (leafCommand.#action) {
         await leafCommand.#runAction(actionParams)
       } else if (leafCommand.#subcommandsList.length > 0) {
-        const helpColor = leafCommand.#resolveHelpColorOption(optionTokens, envs, leafPolicy)
+        const helpColor = leafCommand.#resolveHelpColorFromTailArgv(presetResult.tailArgv, ctx.envs)
         console.log(leafCommand.#formatHelpForDisplay({ color: helpColor }))
       } else {
         throw new CommanderError(
@@ -501,32 +515,38 @@ export class Command implements ICommand {
     }
   }
 
-  public parse(params: ICommandRunParams): ICommandParseResult {
+  public async parse(params: ICommandRunParams): Promise<ICommandParseResult> {
     const { argv, envs, reporter } = params
 
-    // 0. Handle "help <subcommand>" syntax if enabled
-    const processedArgv = this.#processHelpSubcommand(argv)
-
-    // 1. ROUTE
-    const routeResult = this.#route(processedArgv)
-    const { chain, remaining } = routeResult
+    // 0. ROUTE
+    const routeResult = this.#route(argv)
+    const { chain } = routeResult
     const leafCommand = chain[chain.length - 1]
 
-    // 2. TOKENIZE
-    const tokenizeResult = tokenize(remaining, leafCommand.#getCommandPath())
+    const ctx = this.#createContext({
+      chain,
+      cmds: routeResult.cmds,
+      envs,
+      reporter,
+    })
+
+    // 1. CONTROL SCAN
+    const controlScanResult = this.#controlScan(routeResult.remaining, leafCommand)
+    ctx.controls = controlScanResult.controls
+    ctx.sources.user.argv = [...controlScanResult.remaining]
+
+    // 2. PRESET
+    const presetResult = await this.#preset(controlScanResult.remaining, ctx)
+    ctx.sources = presetResult.sources
+    ctx.envs = presetResult.envs
+
+    // 3. TOKENIZE
+    const tokenizeResult = tokenize(presetResult.tailArgv, leafCommand.#getCommandPath())
     const { optionTokens, restArgs } = tokenizeResult
     const optionPolicyMap = this.#buildOptionPolicyMap(chain)
 
-    // 3. RESOLVE
+    // 4. RESOLVE
     const resolveResult = this.#resolve(chain, optionTokens, optionPolicyMap)
-
-    // 4. Build context
-    const ctx: ICommandContext = {
-      cmd: leafCommand,
-      envs,
-      reporter: reporter ?? this.#reporter ?? new Reporter(),
-      argv,
-    }
 
     // 5. PARSE
     return this.#parse(chain, resolveResult, optionPolicyMap, ctx, restArgs)
@@ -550,7 +570,11 @@ export class Command implements ICommand {
   }
 
   #buildHelpData(): IHelpData {
-    const allOptions = this.#resolveOptionPolicy().mergedOptions
+    const parseOptions = this.#resolveOptionPolicy().mergedOptions
+    const allOptions: ICommandOptionConfig[] = [...parseOptions, BUILTIN_HELP_OPTION]
+    if (this.#supportsBuiltinVersion()) {
+      allOptions.push(BUILTIN_VERSION_OPTION)
+    }
     const commandPath = this.#getCommandPath()
 
     let usage = `Usage: ${commandPath}`
@@ -585,7 +609,12 @@ export class Command implements ICommand {
 
       options.push({ sig, desc })
 
-      if (opt.type === 'boolean' && opt.args === 'none') {
+      if (
+        opt.type === 'boolean' &&
+        opt.args === 'none' &&
+        opt.long !== 'help' &&
+        opt.long !== 'version'
+      ) {
         options.push({
           sig: `    --no-${kebabLong}`,
           desc: `Negate --${kebabLong}`,
@@ -594,8 +623,7 @@ export class Command implements ICommand {
     }
 
     const commands: IHelpCommandLine[] = []
-    const showHelpSubcommand = this.#builtin.command.help && this.#subcommandsList.length > 0
-    if (showHelpSubcommand) {
+    if (this.#subcommandsList.length > 0) {
       commands.push({ name: 'help', desc: 'Show help for a command' })
     }
     for (const entry of this.#subcommandsList) {
@@ -739,75 +767,12 @@ export class Command implements ICommand {
     return this.#subcommandsList.find(e => e.name === token || e.aliases.includes(token))
   }
 
-  #createUnknownSubcommandError(subcommand: string): CommanderError {
-    const commandPath = this.#getCommandPath()
-    return new CommanderError(
-      'UnknownSubcommand',
-      `unknown subcommand "${subcommand}" for command "${commandPath}"`,
-      commandPath,
-    )
-  }
-
-  #processHelpSubcommand(argv: string[]): string[] {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    let current: Command = this
-
-    for (let i = 0; i < argv.length; ++i) {
-      const token = argv[i]
-
-      if (token.startsWith('-')) {
-        return argv
-      }
-
-      if (token === 'help') {
-        if (!current.#builtin.command.help) {
-          if (current.#subcommandsList.length > 0) {
-            throw current.#createUnknownSubcommandError('help')
-          }
-          return argv
-        }
-
-        if (current.#subcommandsList.length === 0) {
-          return argv
-        }
-
-        const target = argv[i + 1]
-        if (target === undefined) {
-          return [...argv.slice(0, i), '--help']
-        }
-
-        const targetEntry = current.#findSubcommandEntry(target)
-        if (targetEntry === undefined) {
-          throw current.#createUnknownSubcommandError(target)
-        }
-
-        if (argv[i + 2] !== undefined) {
-          throw new CommanderError(
-            'UnexpectedArgument',
-            'help subcommand accepts at most one subcommand argument',
-            current.#getCommandPath(),
-          )
-        }
-
-        return [...argv.slice(0, i), target, '--help']
-      }
-
-      const entry = current.#findSubcommandEntry(token)
-      if (entry === undefined) {
-        return argv
-      }
-
-      current = entry.command
-    }
-
-    return argv
-  }
-
   /**
    * Route and return the full command chain (root → leaf).
    */
-  #route(argv: string[]): IInternalRouteResult<Command> {
+  #route(argv: string[]): ICommandRouteResult<Command> {
     const chain: Command[] = [this]
+    const cmds: string[] = []
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let current: Command = this
     let idx = 0
@@ -823,11 +788,298 @@ export class Command implements ICommand {
       if (!entry) break
 
       current = entry.command
+      cmds.push(token)
       chain.push(current)
       idx += 1
     }
 
-    return { chain, remaining: argv.slice(idx) }
+    return { chain, remaining: argv.slice(idx), cmds }
+  }
+
+  #controlScan(tailArgv: string[], leafCommand: Command): ICommandControlScanResult {
+    const controls: ICommandControls = { help: false, version: false }
+    const separatorIndex = tailArgv.indexOf('--')
+    const beforeSeparator = separatorIndex === -1 ? tailArgv : tailArgv.slice(0, separatorIndex)
+    const afterSeparator = separatorIndex === -1 ? [] : tailArgv.slice(separatorIndex + 1)
+
+    let helpTarget: string | undefined
+    let scanStartIndex = 0
+
+    if (beforeSeparator[0] === 'help') {
+      controls.help = true
+      scanStartIndex = 1
+      const candidate = beforeSeparator[1]
+      if (candidate !== undefined && !candidate.startsWith('-')) {
+        helpTarget = candidate
+        scanStartIndex = 2
+      }
+    }
+
+    const remainingBeforeSeparator: string[] = []
+    for (let i = scanStartIndex; i < beforeSeparator.length; i += 1) {
+      const token = beforeSeparator[i]
+
+      if (token === '--help') {
+        controls.help = true
+        continue
+      }
+
+      if (token === '--version' && leafCommand.#supportsBuiltinVersion()) {
+        controls.version = true
+        continue
+      }
+
+      remainingBeforeSeparator.push(token)
+    }
+
+    const remaining =
+      separatorIndex === -1
+        ? remainingBeforeSeparator
+        : [...remainingBeforeSeparator, '--', ...afterSeparator]
+
+    return {
+      controls,
+      remaining,
+      helpTarget,
+    }
+  }
+
+  #createContext(params: {
+    chain: Command[]
+    cmds: string[]
+    envs: Record<string, string | undefined>
+    reporter?: IReporter
+  }): ICommandContext {
+    const { chain, cmds, envs, reporter } = params
+    const leafCommand = chain[chain.length - 1]
+    const envSnapshot = { ...envs }
+
+    return {
+      cmd: leafCommand,
+      chain,
+      envs: envSnapshot,
+      controls: { help: false, version: false },
+      sources: {
+        preset: {
+          argv: [],
+          envs: {},
+        },
+        user: {
+          cmds: [...cmds],
+          argv: [],
+          envs: envSnapshot,
+        },
+      },
+      reporter: reporter ?? this.#reporter ?? new Reporter(),
+    }
+  }
+
+  #resolveHelpCommand(leafCommand: Command, helpTarget: string | undefined): Command {
+    if (helpTarget === undefined) {
+      return leafCommand
+    }
+
+    const target = leafCommand.#findSubcommandEntry(helpTarget)
+    if (target === undefined) {
+      return leafCommand
+    }
+
+    return target.command
+  }
+
+  async #preset(
+    controlTailArgv: string[],
+    ctx: ICommandContext,
+  ): Promise<ICommandPresetResult & { sources: ICommandInputSources }> {
+    const commandPath = (ctx.chain[ctx.chain.length - 1] as Command).#getCommandPath()
+    const scanResult = this.#scanPresetDirectives(controlTailArgv, commandPath)
+    const userSources: ICommandInputSources['user'] = {
+      cmds: [...ctx.sources.user.cmds],
+      argv: [...scanResult.cleanArgv],
+      envs: { ...ctx.sources.user.envs },
+    }
+
+    const presetArgv: string[] = []
+    for (const filepath of scanResult.presetOptsFilepaths) {
+      const content = await this.#readPresetFile(filepath, commandPath)
+      const tokens = this.#tokenizePresetOptions(content)
+      this.#validatePresetOptionTokens(tokens, filepath, commandPath)
+      presetArgv.push(...tokens)
+    }
+
+    const presetEnvs: Record<string, string> = {}
+    for (const filepath of scanResult.presetEnvsFilepaths) {
+      const content = await this.#readPresetFile(filepath, commandPath)
+      const parsed = parseEnv(content)
+      Object.assign(presetEnvs, parsed)
+    }
+
+    const sources: ICommandInputSources = {
+      user: userSources,
+      preset: {
+        argv: presetArgv,
+        envs: presetEnvs,
+      },
+    }
+
+    const envs = { ...sources.user.envs, ...sources.preset.envs }
+    const tailArgv = [...sources.preset.argv, ...sources.user.argv]
+
+    return { tailArgv, envs, sources }
+  }
+
+  #scanPresetDirectives(
+    tailArgv: string[],
+    commandPath: string,
+  ): {
+    cleanArgv: string[]
+    presetOptsFilepaths: string[]
+    presetEnvsFilepaths: string[]
+  } {
+    const separatorIndex = tailArgv.indexOf('--')
+    const beforeSeparator = separatorIndex === -1 ? tailArgv : tailArgv.slice(0, separatorIndex)
+    const afterSeparator = separatorIndex === -1 ? [] : tailArgv.slice(separatorIndex + 1)
+
+    const cleanBeforeSeparator: string[] = []
+    const presetOptsFilepaths: string[] = []
+    const presetEnvsFilepaths: string[] = []
+
+    let index = 0
+    while (index < beforeSeparator.length) {
+      const token = beforeSeparator[index]
+
+      if (token === PRESET_OPTS_FLAG || token === PRESET_ENVS_FLAG) {
+        const filepath = beforeSeparator[index + 1]
+        if (!filepath) {
+          throw new CommanderError(
+            'ConfigurationError',
+            `missing value for "${token}"`,
+            commandPath,
+          )
+        }
+        if (token === PRESET_OPTS_FLAG) {
+          presetOptsFilepaths.push(filepath)
+        } else {
+          presetEnvsFilepaths.push(filepath)
+        }
+        index += 2
+        continue
+      }
+
+      if (token.startsWith(`${PRESET_OPTS_FLAG}=`)) {
+        const filepath = token.slice(PRESET_OPTS_FLAG.length + 1)
+        if (!filepath) {
+          throw new CommanderError(
+            'ConfigurationError',
+            `missing value for "${PRESET_OPTS_FLAG}"`,
+            commandPath,
+          )
+        }
+        presetOptsFilepaths.push(filepath)
+        index += 1
+        continue
+      }
+
+      if (token.startsWith(`${PRESET_ENVS_FLAG}=`)) {
+        const filepath = token.slice(PRESET_ENVS_FLAG.length + 1)
+        if (!filepath) {
+          throw new CommanderError(
+            'ConfigurationError',
+            `missing value for "${PRESET_ENVS_FLAG}"`,
+            commandPath,
+          )
+        }
+        presetEnvsFilepaths.push(filepath)
+        index += 1
+        continue
+      }
+
+      cleanBeforeSeparator.push(token)
+      index += 1
+    }
+
+    const cleanArgv =
+      separatorIndex === -1
+        ? cleanBeforeSeparator
+        : [...cleanBeforeSeparator, '--', ...afterSeparator]
+
+    return { cleanArgv, presetOptsFilepaths, presetEnvsFilepaths }
+  }
+
+  async #readPresetFile(filepath: string, commandPath: string): Promise<string> {
+    const absolutePath = path.resolve(process.cwd(), filepath)
+    try {
+      return await readFile(absolutePath, 'utf8')
+    } catch (error) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `failed to read preset file "${filepath}": ${(error as Error).message}`,
+        commandPath,
+      )
+    }
+  }
+
+  #tokenizePresetOptions(content: string): string[] {
+    return content
+      .split(/\s+/)
+      .map(token => token.trim())
+      .filter(token => token.length > 0)
+  }
+
+  #validatePresetOptionTokens(tokens: string[], filepath: string, commandPath: string): void {
+    if (tokens.length === 0) {
+      return
+    }
+
+    if (!tokens[0].startsWith('-')) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `invalid preset options in "${filepath}": bare token "${tokens[0]}" cannot appear before any option token`,
+        commandPath,
+      )
+    }
+
+    let hasSeenOptionToken = false
+    for (const token of tokens) {
+      if (token.startsWith('-')) {
+        hasSeenOptionToken = true
+      } else if (!hasSeenOptionToken) {
+        throw new CommanderError(
+          'ConfigurationError',
+          `invalid preset options in "${filepath}": token "${token}" cannot be resolved as an option fragment`,
+          commandPath,
+        )
+      }
+
+      if (token === '--') {
+        throw new CommanderError(
+          'ConfigurationError',
+          `invalid preset options in "${filepath}": "--" is not allowed`,
+          commandPath,
+        )
+      }
+
+      if (token === 'help' || token === '--help' || token === '--version') {
+        throw new CommanderError(
+          'ConfigurationError',
+          `invalid preset options in "${filepath}": control token "${token}" is not allowed`,
+          commandPath,
+        )
+      }
+
+      if (
+        token === PRESET_OPTS_FLAG ||
+        token.startsWith(`${PRESET_OPTS_FLAG}=`) ||
+        token === PRESET_ENVS_FLAG ||
+        token.startsWith(`${PRESET_ENVS_FLAG}=`)
+      ) {
+        throw new CommanderError(
+          'ConfigurationError',
+          `invalid preset options in "${filepath}": preset directive "${token}" is not allowed`,
+          commandPath,
+        )
+      }
+    }
   }
 
   // ==================== Stage 3: RESOLVE ====================
@@ -1006,17 +1258,19 @@ export class Command implements ICommand {
       }
     }
 
-    // Merge options (root → leaf)
-    const mergedOpts: ICommandParsedOpts = {}
-    for (const cmd of chain) {
-      Object.assign(mergedOpts, optsMap.get(cmd) ?? {})
+    const leafLocalOpts: ICommandParsedOpts = {}
+    const leafParsedOpts = optsMap.get(leafCommand) ?? {}
+    for (const opt of leafCommand.#options) {
+      if (Object.prototype.hasOwnProperty.call(leafParsedOpts, opt.long)) {
+        leafLocalOpts[opt.long] = leafParsedOpts[opt.long]
+      }
     }
 
     // Parse arguments
     const rawArgStrings = [...argTokens.map(t => t.original), ...restArgs]
     const { args, rawArgs } = leafCommand.#parseArguments(rawArgStrings)
 
-    return { ctx, opts: mergedOpts, args, rawArgs }
+    return { ctx, opts: leafLocalOpts, args, rawArgs }
   }
 
   /**
@@ -1304,32 +1558,21 @@ export class Command implements ICommand {
     return this.#options.some(option => option.long === long)
   }
 
-  #canUseBuiltinVersion(): boolean {
-    return this.#version !== undefined
+  #supportsBuiltinVersion(): boolean {
+    return this.#parent === undefined && this.#version !== undefined && this.#builtin.option.version
   }
 
   #resolveOptionPolicy(): ICommandOptionPolicy {
     const optionMap = new Map<string, ICommandOptionConfig>()
 
     const hasUserColor = this.#hasUserOption('color')
-    const hasUserHelp = this.#hasUserOption('help')
-    const hasUserVersion = this.#hasUserOption('version')
     const hasUserLogLevel = this.#hasUserOption('logLevel')
     const hasUserSilent = this.#hasUserOption('silent')
     const hasUserLogDate = this.#hasUserOption('logDate')
     const hasUserLogColorful = this.#hasUserOption('logColorful')
 
-    const enableBuiltinHelp = !hasUserHelp
-    const enableBuiltinVersion = !hasUserVersion && this.#canUseBuiltinVersion()
-
     if (this.#builtin.option.color && !hasUserColor) {
       optionMap.set('color', BUILTIN_COLOR_OPTION)
-    }
-    if (enableBuiltinHelp) {
-      optionMap.set('help', BUILTIN_HELP_OPTION)
-    }
-    if (enableBuiltinVersion) {
-      optionMap.set('version', BUILTIN_VERSION_OPTION)
     }
     if (this.#builtin.option.logLevel && !hasUserLogLevel) {
       optionMap.set('logLevel', logLevelOption as ICommandOptionConfig)
@@ -1352,8 +1595,6 @@ export class Command implements ICommand {
 
     return {
       mergedOptions: Array.from(optionMap.values()),
-      enableBuiltinHelp,
-      enableBuiltinVersion,
     }
   }
 
@@ -1414,6 +1655,14 @@ export class Command implements ICommand {
   // ==================== Private: Validation ====================
 
   #validateOptionConfig<T>(opt: ICommandOptionConfig<T>): void {
+    if (opt.long === 'help' || opt.long === 'version') {
+      throw new CommanderError(
+        'ConfigurationError',
+        `option long name "${opt.long}" is reserved`,
+        this.#getCommandPath(),
+      )
+    }
+
     // Validate type + args combination
     if (opt.type === 'boolean' && opt.args !== 'none') {
       throw new CommanderError(
@@ -1573,12 +1822,11 @@ export class Command implements ICommand {
     }
   }
 
-  #resolveHelpColorOption(
-    tokens: ICommandToken[],
+  #resolveHelpColorFromTailArgv(
+    tailArgv: string[],
     envs: Record<string, string | undefined>,
     policy: ICommandOptionPolicy = this.#resolveOptionPolicy(),
   ): boolean {
-    // Help is handled before parse(), so we resolve --color/--no-color directly from tokens.
     const colorOption = policy.mergedOptions.find(opt => opt.long === 'color')
     let color = !isNoColorEnabled(envs)
 
@@ -1586,18 +1834,25 @@ export class Command implements ICommand {
       return color
     }
 
-    for (const token of tokens) {
-      if (token.type !== 'long' || token.name !== 'color') {
-        continue
-      }
+    const separatorIndex = tailArgv.indexOf('--')
+    const scanTokens = separatorIndex === -1 ? tailArgv : tailArgv.slice(0, separatorIndex)
 
-      const eqIdx = token.resolved.indexOf('=')
-      if (eqIdx === -1) {
+    for (const token of scanTokens) {
+      if (token === '--color') {
         color = true
         continue
       }
 
-      const value = token.resolved.slice(eqIdx + 1)
+      if (token === '--no-color') {
+        color = false
+        continue
+      }
+
+      if (!token.startsWith('--color=')) {
+        continue
+      }
+
+      const value = token.slice('--color='.length)
       if (value === 'true') {
         color = true
       } else if (value === 'false') {
@@ -1612,18 +1867,6 @@ export class Command implements ICommand {
     }
 
     return color
-  }
-
-  #hasFlag(tokens: ICommandToken[], longName: string, shortName: string): boolean {
-    for (const token of tokens) {
-      if (token.type === 'long' && token.name === longName) {
-        return true
-      }
-      if (token.type === 'short' && token.name === shortName) {
-        return true
-      }
-    }
-    return false
   }
 
   #getCommandPath(): string {

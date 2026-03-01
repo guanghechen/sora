@@ -4,9 +4,28 @@
  * @module @guanghechen/commander/options
  */
 
-import type { ILogLevel } from '@guanghechen/reporter'
-import { LOG_LEVELS, resolveLogLevel } from '@guanghechen/reporter'
 import type { ICommandOptionConfig } from './types'
+
+const BUILTIN_LOG_LEVELS = ['debug', 'info', 'hint', 'warn', 'error'] as const
+
+type IReporterLogLevel = (typeof BUILTIN_LOG_LEVELS)[number]
+
+function resolveReporterLogLevel(raw: string): IReporterLogLevel | undefined {
+  const normalized = raw.trim().toLowerCase()
+  return BUILTIN_LOG_LEVELS.find(level => level === normalized)
+}
+
+function setReporterLevel(ctx: unknown, level: IReporterLogLevel): void {
+  const reporter = (ctx as { reporter?: { setLevel?: (value: string) => void } }).reporter
+  reporter?.setLevel?.(level)
+}
+
+function setReporterFlight(ctx: unknown, flight: { date?: boolean; color?: boolean }): void {
+  const reporter = (
+    ctx as { reporter?: { setFlight?: (value: { date?: boolean; color?: boolean }) => void } }
+  ).reporter
+  reporter?.setFlight?.(flight)
+}
 
 /**
  * Pre-defined --log-level option for setting log verbosity.
@@ -43,16 +62,16 @@ export const logLevelOption: ICommandOptionConfig<string> = {
   args: 'required',
   desc: 'Set log level',
   default: 'info',
-  choices: LOG_LEVELS as ILogLevel[],
+  choices: [...BUILTIN_LOG_LEVELS],
   coerce: (raw: string): string => {
-    const level = resolveLogLevel(raw)
+    const level = resolveReporterLogLevel(raw)
     if (level === undefined) {
       throw new Error(`Invalid log level: ${raw}`)
     }
     return level
   },
   apply: (value, ctx): void => {
-    ctx.reporter.setLevel(value as ILogLevel)
+    setReporterLevel(ctx, value as IReporterLogLevel)
   },
 }
 
@@ -73,7 +92,7 @@ export const logDateOption: ICommandOptionConfig<boolean> = {
   desc: 'Enable log timestamp',
   default: true,
   apply: (value, ctx): void => {
-    ctx.reporter.setFlight({ date: Boolean(value) })
+    setReporterFlight(ctx, { date: Boolean(value) })
   },
 }
 
@@ -94,7 +113,7 @@ export const logColorfulOption: ICommandOptionConfig<boolean> = {
   desc: 'Enable colorful log output',
   default: true,
   apply: (value, ctx): void => {
-    ctx.reporter.setFlight({ color: Boolean(value) })
+    setReporterFlight(ctx, { color: Boolean(value) })
   },
 }
 
@@ -129,7 +148,7 @@ export const silentOption: ICommandOptionConfig<boolean> = {
   default: false,
   apply: (value, ctx): void => {
     if (value) {
-      ctx.reporter.setLevel('error')
+      setReporterLevel(ctx, 'error')
     }
   },
 }

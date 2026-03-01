@@ -91,6 +91,9 @@ importers:
 
   packages/commander:
     dependencies:
+      '@guanghechen/env':
+        specifier: workspace:^
+        version: link:../env
       '@guanghechen/reporter':
         specifier: workspace:^
         version: link:../reporter

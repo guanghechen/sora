@@ -48,6 +48,7 @@
     "README.md"
   ],
   "dependencies": {
+    "@guanghechen/env": "workspace:^",
     "@guanghechen/reporter": "workspace:^"
   }
 }
