@@ -438,5 +438,5 @@ export interface ICompletionCommandConfig {
   /** Program name for completion scripts (defaults to root.name) */
   programName?: string
   /** Default completion file paths for each shell */
-  paths: ICompletionPaths
+  paths?: Partial<ICompletionPaths>
 }

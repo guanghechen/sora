@@ -409,13 +409,6 @@ export class Command implements ICommand {
       if (existing.aliases.includes(name)) {
         return this
       }
-      if (name === 'help') {
-        throw new CommanderError(
-          'ConfigurationError',
-          '"help" is a reserved subcommand alias',
-          this.#getCommandPath(),
-        )
-      }
       // Add name as alias
       existing.aliases.push(name)
       this.#subcommandsMap.set(name, cmd)
@@ -469,15 +462,16 @@ export class Command implements ICommand {
         return
       }
 
+      const optionPolicyMap = this.#buildOptionPolicyMap(chain)
+
       // 3. PRESET
-      const presetResult = await this.#preset(controlScanResult.remaining, ctx)
+      const presetResult = await this.#preset(controlScanResult.remaining, ctx, optionPolicyMap)
       ctx.sources = presetResult.sources
       ctx.envs = presetResult.envs
 
       // 4. TOKENIZE
       const tokenizeResult = tokenize(presetResult.tailArgv, leafCommand.#getCommandPath())
       const { optionTokens, restArgs } = tokenizeResult
-      const optionPolicyMap = this.#buildOptionPolicyMap(chain)
 
       // 5. RESOLVE
       const resolveResult = this.#resolve(chain, optionTokens, optionPolicyMap)
@@ -535,15 +529,16 @@ export class Command implements ICommand {
     ctx.controls = controlScanResult.controls
     ctx.sources.user.argv = [...controlScanResult.remaining]
 
+    const optionPolicyMap = this.#buildOptionPolicyMap(chain)
+
     // 2. PRESET
-    const presetResult = await this.#preset(controlScanResult.remaining, ctx)
+    const presetResult = await this.#preset(controlScanResult.remaining, ctx, optionPolicyMap)
     ctx.sources = presetResult.sources
     ctx.envs = presetResult.envs
 
     // 3. TOKENIZE
     const tokenizeResult = tokenize(presetResult.tailArgv, leafCommand.#getCommandPath())
     const { optionTokens, restArgs } = tokenizeResult
-    const optionPolicyMap = this.#buildOptionPolicyMap(chain)
 
     // 4. RESOLVE
     const resolveResult = this.#resolve(chain, optionTokens, optionPolicyMap)
@@ -890,6 +885,7 @@ export class Command implements ICommand {
   async #preset(
     controlTailArgv: string[],
     ctx: ICommandContext,
+    optionPolicyMap: Map<Command, ICommandOptionPolicy>,
   ): Promise<ICommandPresetResult & { sources: ICommandInputSources }> {
     const commandPath = (ctx.chain[ctx.chain.length - 1] as Command).#getCommandPath()
     const scanResult = this.#scanPresetDirectives(controlTailArgv, commandPath)
@@ -904,13 +900,23 @@ export class Command implements ICommand {
       const content = await this.#readPresetFile(filepath, commandPath)
       const tokens = this.#tokenizePresetOptions(content)
       this.#validatePresetOptionTokens(tokens, filepath, commandPath)
+      this.#assertPresetOptionFragments(tokens, filepath, ctx.chain as Command[], optionPolicyMap)
       presetArgv.push(...tokens)
     }
 
     const presetEnvs: Record<string, string> = {}
     for (const filepath of scanResult.presetEnvsFilepaths) {
       const content = await this.#readPresetFile(filepath, commandPath)
-      const parsed = parseEnv(content)
+      let parsed: Record<string, string>
+      try {
+        parsed = parseEnv(content)
+      } catch (error) {
+        throw new CommanderError(
+          'ConfigurationError',
+          `failed to parse preset envs file "${filepath}": ${(error as Error).message}`,
+          commandPath,
+        )
+      }
       Object.assign(presetEnvs, parsed)
     }
 
@@ -926,6 +932,47 @@ export class Command implements ICommand {
     const tailArgv = [...sources.preset.argv, ...sources.user.argv]
 
     return { tailArgv, envs, sources }
+  }
+
+  #assertPresetOptionFragments(
+    tokens: string[],
+    filepath: string,
+    chain: Command[],
+    optionPolicyMap: Map<Command, ICommandOptionPolicy>,
+  ): void {
+    if (tokens.length === 0) {
+      return
+    }
+
+    const commandPath = chain[chain.length - 1].#getCommandPath()
+
+    try {
+      const { optionTokens, restArgs } = tokenize(tokens, commandPath)
+      void restArgs
+
+      const { argTokens } = this.#resolve(chain, optionTokens, optionPolicyMap)
+      if (argTokens.length > 0) {
+        throw new CommanderError(
+          'ConfigurationError',
+          `invalid preset options in "${filepath}": token "${argTokens[0].original}" cannot be resolved as an option fragment`,
+          commandPath,
+        )
+      }
+    } catch (error) {
+      if (error instanceof CommanderError) {
+        if (error.kind === 'ConfigurationError') {
+          throw error
+        }
+
+        throw new CommanderError(
+          'ConfigurationError',
+          `invalid preset options in "${filepath}": ${error.message}`,
+          commandPath,
+        )
+      }
+
+      throw error
+    }
   }
 
   #scanPresetDirectives(
@@ -1039,18 +1086,7 @@ export class Command implements ICommand {
       )
     }
 
-    let hasSeenOptionToken = false
     for (const token of tokens) {
-      if (token.startsWith('-')) {
-        hasSeenOptionToken = true
-      } else if (!hasSeenOptionToken) {
-        throw new CommanderError(
-          'ConfigurationError',
-          `invalid preset options in "${filepath}": token "${token}" cannot be resolved as an option fragment`,
-          commandPath,
-        )
-      }
-
       if (token === '--') {
         throw new CommanderError(
           'ConfigurationError',
@@ -1270,7 +1306,12 @@ export class Command implements ICommand {
     const rawArgStrings = [...argTokens.map(t => t.original), ...restArgs]
     const { args, rawArgs } = leafCommand.#parseArguments(rawArgStrings)
 
-    return { ctx, opts: leafLocalOpts, args, rawArgs }
+    const parseCtx: ICommandContext = {
+      ...ctx,
+      sources: this.#freezeInputSources(ctx.sources),
+    }
+
+    return { ctx: parseCtx, opts: leafLocalOpts, args, rawArgs }
   }
 
   /**
@@ -1867,6 +1908,20 @@ export class Command implements ICommand {
     }
 
     return color
+  }
+
+  #freezeInputSources(sources: ICommandInputSources): ICommandInputSources {
+    return Object.freeze({
+      preset: Object.freeze({
+        argv: Object.freeze([...sources.preset.argv]),
+        envs: Object.freeze({ ...sources.preset.envs }),
+      }),
+      user: Object.freeze({
+        cmds: Object.freeze([...sources.user.cmds]),
+        argv: Object.freeze([...sources.user.argv]),
+        envs: Object.freeze({ ...sources.user.envs }),
+      }),
+    }) as ICommandInputSources
   }
 
   #getCommandPath(): string {

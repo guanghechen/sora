@@ -1,6 +1,11 @@
 import { Coerce } from '../src'
 
 describe('coerce', () => {
+  it('should keep constructor private at type level but callable at runtime', () => {
+    const Ctor = Coerce as unknown as new () => unknown
+    expect(() => new Ctor()).not.toThrow()
+  })
+
   describe('Coerce.number', () => {
     it('should return parsed finite number', () => {
       const coerce = Coerce.number('--scale')

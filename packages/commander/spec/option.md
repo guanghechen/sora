@@ -284,7 +284,7 @@ info
 | 约束                                                              | 目的                              |
 | ----------------------------------------------------------------- | --------------------------------- |
 | option 文件仅允许 option 片段（`-x`/`--xxx` 及其参数值）          | 避免污染命令路由和位置参数语义    |
-| 在 options preset 文件中禁止递归引用 `--preset-opts`              | 防止循环加载                      |
+| 在 options preset 文件中禁止声明 `--preset-opts`                  | 防止递归加载                      |
 | 在 options preset 文件中禁止声明 `--preset-envs`                  | 防止跨类型递归与来源混乱          |
 | 在 options preset 文件中禁止声明 `help` / `--help` / `--version`  | 保持 run 控制项提前中断语义       |
 | 在 options preset 文件中禁止出现 `--` 分隔符                      | 避免污染位置参数分段语义          |
@@ -308,8 +308,7 @@ info
 | options 文件中出现 `--preset-opts` / `--preset-envs`    | 立即报错并终止（禁止递归与跨类型引用）                   |
 | options 文件中出现 `--help` / `help` / `--version`      | 立即报错并终止（控制项仅允许来自 user tail 并提前中断）  |
 | options 文件中出现 `--`                                 | 立即报错并终止（不允许位置参数分隔符）                   |
-| preset 加载路径出现循环依赖                             | 立即报错并终止（禁止递归加载）                           |
-| envs 文件不符合 `@guanghechen/env` 语法                 | 立即报错并终止（可透传 `SyntaxError`）                   |
+| envs 文件不符合 `@guanghechen/env` 语法                 | 立即报错并终止（包装为 `ConfigurationError`）            |
 | `--` 之后的 `--preset-*`                                | 不作为 preset 指令，按普通参数处理                       |
 | `run()` 命中控制项 short-circuit                        | 不读取任何 preset 文件，直接结束流程                     |
 
@@ -348,12 +347,12 @@ info
 
 ## 已知限制
 
-短选项无法接受负数值：
+负数值仅支持长选项内联 `=` 语法：
 
 ```bash
 mycli -n -1        # ❌ -1 被识别为选项
+mycli --number -1  # ❌ -1 被识别为选项
 mycli --number=-1  # ✅ 长选项 = 语法
-mycli --number -1  # ✅ 长选项空格语法
 ```
 
 ---
@@ -506,4 +505,3 @@ cmd
 | `args`     | `'none'`                                  |
 | `default`  | `true`                                    |
 | `apply`    | `ctx.reporter.setFlight({ color: val })`  |
-

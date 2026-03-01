@@ -29,6 +29,8 @@ describe('is', () => {
       expect(isIpv6('gggg::1')).toBe(false)
       expect(isIpv6('::ffff:256.0.0.1')).toBe(false)
       expect(isIpv6('')).toBe(false)
+      expect(isIpv6('1::2::3')).toBe(false)
+      expect(isIpv6('12345::1')).toBe(false)
     })
   })
 
@@ -57,6 +59,7 @@ describe('is', () => {
       expect(isDomain('-a.example.com')).toBe(false)
       expect(isDomain('example.com.')).toBe(false)
       expect(isDomain('127.0.0.1')).toBe(false)
+      expect(isDomain(`${'a'.repeat(64)}.example.com`)).toBe(false)
     })
   })
 })

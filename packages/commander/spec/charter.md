@@ -9,7 +9,7 @@
 | 目标           | 说明                                      |
 | -------------- | ----------------------------------------- |
 | Tree Structure | Command 是树节点，子命令层级组合          |
-| Type Safety    | 强类型推导（opts/args/action/parse）      |
+| Type Safety    | 明确类型定义与稳定运行时契约              |
 | Inheritance    | 选项沿祖先链继承，子节点可覆盖            |
 | Decoupled      | 不隐式访问 `process.argv` / `process.env` |
 | Fluent API     | 链式调用构建命令                          |
@@ -18,7 +18,7 @@
 ### 1.1 执行流程
 
 ```
-user argv → route → control-scan(run/parse) → run-control(run only) → preset(vNext) → tokenize → resolve → parse → run
+user argv → route → control-scan(run/parse) → run-control(run only) → preset → tokenize → resolve → parse → run
 ```
 
 | 阶段                      | 方向     | 说明                                                                                                         |
@@ -36,7 +36,7 @@ user argv → route → control-scan(run/parse) → run-control(run only) → pr
 
 若 user tail（`--` 之前）同时包含 `--help` 与 `--version`，按 `help > version` 优先级处理。
 
-说明：`preset` 阶段当前为 vNext 草案，尚未发布；其余阶段语义为当前规范。
+说明：`preset` 阶段属于当前规范与实现的一部分。
 
 术语约定：
 
@@ -229,7 +229,7 @@ tokenize 阶段校验长选项格式：
 | ---------- | --------- | -------------------------------- |
 | 短选项粘连 | `-ofile`  | 使用 `-o file`                   |
 | 短选项赋值 | `-o=file` | 使用 `-o file`                   |
-| 短选项负数 | `-o -1`   | 使用 `--long=-1` 或 `--long -1`  |
+| 负数值输入 | `-o -1` / `--long -1` | 使用 `--long=-1` |
 
 ### 4.3 Negative 选项
 

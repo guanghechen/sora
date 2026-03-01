@@ -132,6 +132,40 @@ describe('FishCompletion', () => {
     expect(script).toContain('-l verbose')
     expect(script).toContain('-l no-verbose')
   })
+
+  it('should generate nested conditions for non-root subcommand completions', () => {
+    const meta: ICompletionMeta = {
+      name: 'testcli',
+      desc: 'Test CLI',
+      aliases: [],
+      options: [],
+      subcommands: [
+        {
+          name: 'repo',
+          desc: 'Repo',
+          aliases: [],
+          options: [],
+          subcommands: [
+            {
+              name: 'sync',
+              desc: 'Sync',
+              aliases: ['s'],
+              options: [],
+              subcommands: [],
+            },
+          ],
+        },
+      ],
+    }
+
+    const completion = new FishCompletion(meta, 'testcli')
+    const script = completion.generate()
+
+    expect(script).toContain(
+      '__fish_seen_subcommand_from repo; and not __fish_seen_subcommand_from sync s',
+    )
+    expect(script).toContain('-a s')
+  })
 })
 
 describe('PwshCompletion', () => {
@@ -223,6 +257,107 @@ describe('Integration with Command', () => {
 })
 
 describe('CompletionCommand', () => {
+  it('should fallback to "program" when root has no name and programName is omitted', async () => {
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    const root = new Command({ desc: 'Root without name' })
+    const completionCmd = new CompletionCommand(root)
+    root.subcommand('completion', completionCmd)
+
+    await root.run({ argv: ['completion', '--bash'], envs: {} })
+
+    expect(String(consoleSpy.mock.calls[0]?.[0] ?? '')).toContain('_program_completions()')
+    consoleSpy.mockRestore()
+  })
+
+  it('should resolve ~ path using USERPROFILE when HOME is missing', async () => {
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    const tempProfile = fs.mkdtempSync(path.join(os.tmpdir(), 'completion-profile-'))
+    const originalHome = process.env['HOME']
+    const originalUserProfile = process.env['USERPROFILE']
+    delete process.env['HOME']
+    process.env['USERPROFILE'] = tempProfile
+
+    const root = new Command({ name: 'mycli', desc: 'My CLI' })
+    const completionCmd = new CompletionCommand(root, {
+      paths: {
+        bash: '~/.mycli-completion',
+      },
+    })
+    root.subcommand('completion', completionCmd)
+
+    try {
+      await root.run({ argv: ['completion', '--bash', '--write='], envs: {} })
+
+      const expectedPath = path.join(tempProfile, '.mycli-completion')
+      expect(fs.existsSync(expectedPath)).toBe(true)
+    } finally {
+      if (originalHome === undefined) {
+        delete process.env['HOME']
+      } else {
+        process.env['HOME'] = originalHome
+      }
+      if (originalUserProfile === undefined) {
+        delete process.env['USERPROFILE']
+      } else {
+        process.env['USERPROFILE'] = originalUserProfile
+      }
+      fs.rmSync(tempProfile, { recursive: true, force: true })
+      consoleSpy.mockRestore()
+    }
+  })
+
+  it('should allow constructor without config', async () => {
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    const root = new Command({ name: 'mycli', desc: 'My CLI' })
+    const completionCmd = new CompletionCommand(root)
+    root.subcommand('completion', completionCmd)
+
+    await root.run({ argv: ['completion', '--bash'], envs: {} })
+
+    expect(consoleSpy).toHaveBeenCalled()
+    const output = String(consoleSpy.mock.calls[0]?.[0] ?? '')
+    expect(output).toContain('_mycli_completions()')
+
+    consoleSpy.mockRestore()
+  })
+
+  it('should use derived default write path when config paths are omitted', async () => {
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    const tempHome = fs.mkdtempSync(path.join(os.tmpdir(), 'completion-home-'))
+    const originalHome = process.env['HOME']
+    const originalUserProfile = process.env['USERPROFILE']
+    process.env['HOME'] = tempHome
+    delete process.env['USERPROFILE']
+
+    const root = new Command({ name: 'mycli', desc: 'My CLI' })
+    const completionCmd = new CompletionCommand(root)
+    root.subcommand('completion', completionCmd)
+
+    try {
+      await root.run({ argv: ['completion', '--bash', '--write='], envs: {} })
+
+      const expectedPath = path.join(tempHome, '.local/share/bash-completion/completions/mycli')
+      expect(fs.existsSync(expectedPath)).toBe(true)
+    } finally {
+      if (originalHome === undefined) {
+        delete process.env['HOME']
+      } else {
+        process.env['HOME'] = originalHome
+      }
+      if (originalUserProfile === undefined) {
+        delete process.env['USERPROFILE']
+      } else {
+        process.env['USERPROFILE'] = originalUserProfile
+      }
+      fs.rmSync(tempHome, { recursive: true, force: true })
+      consoleSpy.mockRestore()
+    }
+  })
+
   it('should create a completion subcommand', () => {
     const root = new Command({ name: 'mycli', desc: 'My CLI' })
     const completionCmd = new CompletionCommand(root, { paths: testPaths })

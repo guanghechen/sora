@@ -41,9 +41,12 @@ function camelToKebabCase(str: string): string {
  * ```
  */
 export class CompletionCommand extends Command {
-  constructor(root: Command, config: ICompletionCommandConfig) {
-    const paths = config.paths
+  constructor(root: Command, config: ICompletionCommandConfig = {}) {
     const programName = config.programName ?? root.name ?? 'program'
+    const paths: ICompletionPaths = {
+      ...createDefaultCompletionPaths(programName),
+      ...config.paths,
+    }
 
     super({ desc: 'Generate shell completion script' })
 
@@ -132,6 +135,14 @@ export class CompletionCommand extends Command {
 }
 
 // ==================== Helper Functions ====================
+
+function createDefaultCompletionPaths(programName: string): ICompletionPaths {
+  return {
+    bash: `~/.local/share/bash-completion/completions/${programName}`,
+    fish: `~/.config/fish/completions/${programName}.fish`,
+    pwsh: '~/.config/powershell/Microsoft.PowerShell_profile.ps1',
+  }
+}
 
 /**
  * Expand ~ to home directory
