@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -201,6 +201,80 @@ describe('Command (spec aligned)', () => {
   })
 
   describe('preset phase', () => {
+    it('should resolve --preset-root with default .opt.local/.env.local', async () => {
+      await withTempDir(async tmpDir => {
+        await writeFile(path.join(tmpDir, '.opt.local'), '--mode preset-default')
+        await writeFile(path.join(tmpDir, '.env.local'), 'NAME=from-default\n')
+
+        const cmd = new Command({ name: 'cli', desc: 'cli' }).option({
+          long: 'mode',
+          type: 'string',
+          args: 'required',
+          desc: 'mode',
+          default: 'safe',
+        })
+
+        const result = await cmd.parse({
+          argv: [`--preset-root=${tmpDir}`],
+          envs: { NAME: 'user' },
+        })
+
+        expect(result.opts).toEqual({ mode: 'preset-default' })
+        expect(result.ctx.envs.NAME).toBe('from-default')
+      })
+    })
+
+    it('should use last --preset-root when provided multiple times', async () => {
+      await withTempDir(async tmpDir => {
+        const firstRoot = path.join(tmpDir, 'first')
+        const secondRoot = path.join(tmpDir, 'second')
+        await mkdir(firstRoot, { recursive: true })
+        await mkdir(secondRoot, { recursive: true })
+        await writeFile(path.join(firstRoot, '.opt.local'), '--mode from-first')
+        await writeFile(path.join(secondRoot, '.opt.local'), '--mode from-second')
+
+        const cmd = new Command({ name: 'cli', desc: 'cli' }).option({
+          long: 'mode',
+          type: 'string',
+          args: 'required',
+          desc: 'mode',
+          default: 'safe',
+        })
+
+        const result = await cmd.parse({
+          argv: [`--preset-root=${firstRoot}`, `--preset-root=${secondRoot}`],
+          envs: {},
+        })
+
+        expect(result.opts).toEqual({ mode: 'from-second' })
+      })
+    })
+
+    it('should resolve preset file paths after final presetRoot is decided', async () => {
+      await withTempDir(async tmpDir => {
+        const rootA = path.join(tmpDir, 'a')
+        const rootB = path.join(tmpDir, 'b')
+        await mkdir(rootA, { recursive: true })
+        await mkdir(rootB, { recursive: true })
+        await writeFile(path.join(rootA, 'cli.opt'), '--mode from-a')
+        await writeFile(path.join(rootB, 'cli.opt'), '--mode from-b')
+
+        const cmd = new Command({ name: 'cli', desc: 'cli' }).option({
+          long: 'mode',
+          type: 'string',
+          args: 'required',
+          desc: 'mode',
+        })
+
+        const result = await cmd.parse({
+          argv: [`--preset-opts=cli.opt`, `--preset-root=${rootA}`, `--preset-root=${rootB}`],
+          envs: {},
+        })
+
+        expect(result.opts).toEqual({ mode: 'from-b' })
+      })
+    })
+
     it('should load preset opts (multiline) and merge before user argv', async () => {
       await withTempDir(async tmpDir => {
         const presetOptsPath = path.join(tmpDir, 'preset.argv')
@@ -241,6 +315,148 @@ describe('Command (spec aligned)', () => {
       })
     })
 
+    it('should fallback to leaf command preset root and stop upward scan', async () => {
+      await withTempDir(async rootDir => {
+        await withTempDir(async leafDir => {
+          await writeFile(path.join(rootDir, '.opt.local'), '--mode from-root')
+          await writeFile(path.join(leafDir, '.opt.local'), '--mode from-leaf')
+
+          const root = new Command({
+            name: 'cli',
+            desc: 'cli',
+            preset: { root: rootDir },
+          })
+          const leaf = new Command({
+            desc: 'leaf',
+            preset: { root: leafDir },
+          }).option({ long: 'mode', type: 'string', args: 'required', desc: 'mode' })
+          root.subcommand('run', leaf)
+          root.subcommand('r', leaf)
+
+          const result = await root.parse({ argv: ['r'], envs: {} })
+          expect(result.opts).toEqual({ mode: 'from-leaf' })
+          expect(result.ctx.sources.user.cmds).toEqual(['r'])
+        })
+      })
+    })
+
+    it('cli --preset-root should override command preset root but keep command opt/env defaults', async () => {
+      await withTempDir(async commandRoot => {
+        await withTempDir(async cliRoot => {
+          const optFile = 'named.opt'
+          const envFile = 'named.env'
+          await writeFile(path.join(commandRoot, optFile), '--mode from-command-root')
+          await writeFile(path.join(cliRoot, optFile), '--mode from-cli-root')
+          await writeFile(path.join(commandRoot, envFile), 'NAME=from-command-root\n')
+          await writeFile(path.join(cliRoot, envFile), 'NAME=from-cli-root\n')
+
+          const cmd = new Command({
+            name: 'cli',
+            desc: 'cli',
+            preset: { root: commandRoot, opt: optFile, env: envFile },
+          }).option({ long: 'mode', type: 'string', args: 'required', desc: 'mode' })
+
+          const result = await cmd.parse({
+            argv: [`--preset-root=${cliRoot}`],
+            envs: { NAME: 'user' },
+          })
+          expect(result.opts).toEqual({ mode: 'from-cli-root' })
+          expect(result.ctx.envs.NAME).toBe('from-cli-root')
+        })
+      })
+    })
+
+    it('should throw immediately when fallback command preset root is invalid', async () => {
+      await withTempDir(async rootDir => {
+        const root = new Command({
+          name: 'cli',
+          desc: 'cli',
+          preset: { root: rootDir },
+        })
+        const leaf = new Command({
+          desc: 'leaf',
+          preset: { root: 'relative/path' },
+        })
+        root.subcommand('run', leaf)
+
+        await expect(root.parse({ argv: ['run'], envs: {} })).rejects.toThrow('invalid preset root')
+      })
+    })
+
+    it('should apply command preset opt/env relative to final preset root', async () => {
+      await withTempDir(async presetRoot => {
+        const optRel = 'config/preset.opt'
+        const envRel = 'config/preset.env'
+        await mkdir(path.join(presetRoot, 'config'), { recursive: true })
+        await writeFile(path.join(presetRoot, optRel), '--mode from-command-preset')
+        await writeFile(path.join(presetRoot, envRel), 'NAME=from-command-preset\n')
+
+        const cmd = new Command({
+          name: 'cli',
+          desc: 'cli',
+          preset: { root: presetRoot, opt: optRel, env: envRel },
+        }).option({ long: 'mode', type: 'string', args: 'required', desc: 'mode' })
+
+        const result = await cmd.parse({ argv: [], envs: { NAME: 'user' } })
+        expect(result.opts).toEqual({ mode: 'from-command-preset' })
+        expect(result.ctx.envs.NAME).toBe('from-command-preset')
+      })
+    })
+
+    it('should treat invalid command preset opt/env as unset and fallback to defaults', async () => {
+      await withTempDir(async presetRoot => {
+        await writeFile(path.join(presetRoot, '.opt.local'), '--mode from-default-opt')
+        await writeFile(path.join(presetRoot, '.env.local'), 'NAME=from-default-env\n')
+
+        const cmd = new Command({
+          name: 'cli',
+          desc: 'cli',
+          preset: {
+            root: presetRoot,
+            opt: '..invalid.opt',
+            env: '..invalid.env',
+          },
+        }).option({ long: 'mode', type: 'string', args: 'required', desc: 'mode' })
+
+        const result = await cmd.parse({ argv: [], envs: { NAME: 'user' } })
+        expect(result.opts).toEqual({ mode: 'from-default-opt' })
+        expect(result.ctx.envs.NAME).toBe('from-default-env')
+      })
+    })
+
+    it('should throw when explicit command preset file does not exist', async () => {
+      await withTempDir(async presetRoot => {
+        const cmd = new Command({
+          name: 'cli',
+          desc: 'cli',
+          preset: { root: presetRoot, opt: 'missing.opt' },
+        }).option({ long: 'mode', type: 'string', args: 'required', desc: 'mode' })
+
+        await expect(cmd.parse({ argv: [], envs: {} })).rejects.toThrow(
+          'failed to read preset file',
+        )
+      })
+    })
+
+    it('should ignore missing implicit default files under preset root', async () => {
+      await withTempDir(async presetRoot => {
+        const cmd = new Command({
+          name: 'cli',
+          desc: 'cli',
+          preset: { root: presetRoot },
+        }).option({
+          long: 'mode',
+          type: 'string',
+          args: 'required',
+          desc: 'mode',
+          default: 'safe',
+        })
+
+        const result = await cmd.parse({ argv: [], envs: {} })
+        expect(result.opts).toEqual({ mode: 'safe' })
+      })
+    })
+
     it('should wrap invalid preset envs parse error as configuration error', async () => {
       await withTempDir(async tmpDir => {
         const envPath = path.join(tmpDir, 'broken.env')
@@ -272,6 +488,38 @@ describe('Command (spec aligned)', () => {
       await expect(cmd.parse({ argv: ['--preset-opts'], envs: {} })).rejects.toThrow(
         'missing value for "--preset-opts"',
       )
+      await expect(cmd.parse({ argv: ['--preset-root'], envs: {} })).rejects.toThrow(
+        'missing value for "--preset-root"',
+      )
+    })
+
+    it('should validate explicit preset file values for CLI directives', async () => {
+      const cmd = new Command({ name: 'cli', desc: 'cli' })
+      await expect(cmd.parse({ argv: ['--preset-opts=..bad.opt'], envs: {} })).rejects.toThrow(
+        'invalid value for "--preset-opts"',
+      )
+      await expect(cmd.parse({ argv: ['--preset-envs=..bad.env'], envs: {} })).rejects.toThrow(
+        'invalid value for "--preset-envs"',
+      )
+    })
+
+    it('should resolve preset root before validating preset opts/env directives', async () => {
+      const cmd = new Command({ name: 'cli', desc: 'cli' })
+      await expect(
+        cmd.parse({ argv: ['--preset-root=relative/path', '--preset-opts=..bad.opt'], envs: {} }),
+      ).rejects.toThrow('invalid preset root')
+    })
+
+    it('should forbid --preset-root directive inside preset opts file', async () => {
+      await withTempDir(async tmpDir => {
+        const presetOptsPath = path.join(tmpDir, 'preset.argv')
+        await writeFile(presetOptsPath, '--preset-root=/tmp')
+
+        const cmd = new Command({ name: 'cli', desc: 'cli' })
+        await expect(
+          cmd.parse({ argv: [`--preset-opts=${presetOptsPath}`], envs: {} }),
+        ).rejects.toThrow('preset directive')
+      })
     })
 
     it('should forbid control tokens in preset opts file', async () => {
@@ -324,11 +572,13 @@ describe('Command (spec aligned)', () => {
       })
 
       const result = await cmd.parse({
-        argv: ['--', '--preset-opts=./x', '--preset-envs=./y'],
+        argv: ['--', '--preset-root=/x', '--preset-opts=./x', '--preset-envs=./y'],
         envs: {},
       })
 
-      expect(result.args).toEqual({ items: ['--preset-opts=./x', '--preset-envs=./y'] })
+      expect(result.args).toEqual({
+        items: ['--preset-root=/x', '--preset-opts=./x', '--preset-envs=./y'],
+      })
     })
   })
 

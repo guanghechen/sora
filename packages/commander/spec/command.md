@@ -20,6 +20,7 @@ interface ICommand {
   readonly name: string | undefined
   readonly version: string | undefined
   readonly builtin: ICommandConfig['builtin'] | undefined
+  readonly preset: ICommandPresetConfig | undefined
   readonly description: string
   readonly parent: ICommand | undefined
   readonly options: ICommandOptionConfig[]
@@ -32,6 +33,12 @@ interface ICommandExample {
   title: string
   usage: string
   desc: string
+}
+
+interface ICommandPresetConfig {
+  root?: string  // 绝对目录；作为 preset 文件解析根（默认 undefined）
+  opt?: string   // options 预置文件名或路径（同 `<file>` 判定：非空且不以 `..` 开头；无效视为未设置并回退 .opt.local）
+  env?: string   // envs 预置文件名或路径（同 `<file>` 判定：非空且不以 `..` 开头；无效视为未设置并回退 .env.local）
 }
 
 /** Command 构造配置 */
@@ -49,6 +56,7 @@ interface ICommandConfig {
       logColorful?: boolean
     }
   }
+  preset?: ICommandPresetConfig
   reporter?: IReporter    // Reporter 实例（来自 @guanghechen/reporter）
 }
 
@@ -379,7 +387,10 @@ const cmd = new Command({ name: 'copy', desc: 'Copy files' })
 │                                   ↓                                          │
 │  ┌────────────────────────────────────────────────────────────────────────┐  │
 │  │ 3. PRESET（输入预置，拟议）                                            │  │
-│  │    仅在 `--` 之前扫描 --preset-opts / --preset-envs 指令               │  │
+│  │    仅在 `--` 之前扫描 --preset-root/--preset-opts/--preset-envs        │  │
+│  │    先决议唯一 presetRoot（CLI --preset-root LWW > command fallback）   │  │
+│  │    command fallback: leaf -> ... -> root 首命中即停止                  │  │
+│  │    再解析/collect opts 与 envs                                         │  │
 │  │    从 controlTailArgv 移除这些指令，写入 sources.user.argv（clean）    │  │
 │  │    options 文件按 whitespace 分词写入 sources.preset.argv              │  │
 │  │    envs 文件用 @guanghechen/env.parse 写入 sources.preset.envs         │  │
@@ -470,19 +481,29 @@ interface ICommandParseResult {
 
 ### PRESET 规则（拟议）
 
-1. `--preset-opts=<file>` 与 `--preset-opts <file>` 语义等价。
-2. `--preset-envs=<file>` 与 `--preset-envs <file>` 语义等价。
-3. 仅处理 `--` 之前的 preset 指令；`--` 之后的 `--preset-*` 按普通参数处理。
-4. route 阶段产物应先写入 `ctx.sources.user.cmds`（保留 name/alias）与 user tail argv。
-5. 扫描到的 preset 指令会从 `controlTailArgv` 中移除，移除后的数组写入 `ctx.sources.user.argv`。
-6. 若同一命令行出现多个 `--preset-opts`，按出现顺序依次展开并拼接到 `ctx.sources.preset.argv`。
-7. 若同一命令行出现多个 `--preset-envs`，按出现顺序依次解析并合并到 `ctx.sources.preset.envs`，后者覆盖前者。
-8. 合并顺序固定：`effectiveTailArgv = [...ctx.sources.preset.argv, ...ctx.sources.user.argv]`。
-9. 合并顺序固定：`ctx.envs = { ...ctx.sources.user.envs, ...ctx.sources.preset.envs }`。
-10. 若 RUN CONTROL 阶段已命中 short-circuit，则 PRESET 阶段不会执行。
-11. options preset 文件中不允许出现 `--help` / `help` / `--version`；命中即报 `ConfigurationError` 并终止。
-12. 读取失败、解析失败、非法格式应立即报错并终止流程。
-13. 约束细节见 [option.md](./option.md)“强制约束（拟议）”与“错误语义（拟议）”。
+1. `--preset-root=<abs-dir>` 与 `--preset-root <abs-dir>` 语义等价。
+2. `--preset-opts=<file>` 与 `--preset-opts <file>` 语义等价。
+3. `--preset-envs=<file>` 与 `--preset-envs <file>` 语义等价。
+4. 仅处理 `--` 之前的 preset 指令；`--` 之后的 `--preset-*` 按普通参数处理。
+5. route 阶段产物应先写入 `ctx.sources.user.cmds`（保留 name/alias）与 user tail argv。
+6. 扫描到的 preset 指令会从 `controlTailArgv` 中移除，移除后的数组写入 `ctx.sources.user.argv`。
+7. command 级 preset root 决议：在 `ctx.chain` 上按 `leaf -> ... -> root` 扫描，遇到第一个声明了 `command.preset.root` 的命令即停止。
+8. 若该命中的 `command.preset.root` 不是有效绝对目录，必须立即抛 `ConfigurationError`，且不得继续向上回退扫描。
+9. 命中有效 `command.preset.root` 后，整份 `command.preset` 生效；`opt/env` 未设置或无效值时分别回退到 `.opt.local` / `.env.local`。
+10. PRESET 阶段先决议唯一 `presetRoot`（先聚合 CLI `--preset-root`，后者覆盖前者；若未声明则回退 command preset root）。
+11. 仅在 `presetRoot` 决议完成后，才处理 `--preset-opts` / `--preset-envs` collect 与文件路径解析。
+12. CLI 指令优先级高于 command preset：`--preset-root` 覆盖 `command.preset.root`，`--preset-opts/--preset-envs` 覆盖默认文件决议。
+13. 若同一命令行出现多个 `--preset-opts`，按出现顺序 collect 并展开拼接到 `ctx.sources.preset.argv`。
+14. 若同一命令行出现多个 `--preset-envs`，按出现顺序 collect 并解析合并到 `ctx.sources.preset.envs`，后者覆盖前者。
+15. `--preset-opts` / `--preset-envs` 的显式 `<file>` 参数必须满足：非空字符串且不能以 `..` 开头。
+16. `command.preset.opt` / `command.preset.env` 采用同一 `<file>` 判定；不合法时按“未设置”处理并回退默认文件名。
+17. `command.preset.opt` / `command.preset.env` 若为相对路径，按最终决议的 `presetRoot` 解析。
+18. 合并顺序固定：`effectiveTailArgv = [...ctx.sources.preset.argv, ...ctx.sources.user.argv]`。
+19. 合并顺序固定：`ctx.envs = { ...ctx.sources.user.envs, ...ctx.sources.preset.envs }`。
+20. 若 RUN CONTROL 阶段已命中 short-circuit，则 PRESET 阶段不会执行。
+21. options preset 文件中不允许出现 `--help` / `help` / `--version`；命中即报 `ConfigurationError` 并终止。
+22. 显式声明文件（CLI `--preset-opts/--preset-envs` 与 `command.preset.opt/env`）读取失败、解析失败、非法格式应立即报错并终止；默认文件缺失可忽略。
+23. 约束细节见 [option.md](./option.md)“强制约束（拟议）”与“错误语义（拟议）”。
 
 ### CONTROL SCAN 规则（拟议）
 
@@ -639,8 +660,8 @@ Process Manager
 Usage: pm [options] [command]
 
 Options:
-      --color            Enable colored help output
-      --no-color         Negate --color
+      --color         Enable colored help output
+      --no-color      Negate --color
   -v, --verbose       Verbose output
       --no-verbose    Negate --verbose
       --help          Show help information

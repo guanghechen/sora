@@ -198,31 +198,78 @@ root.subcommand('build', sub)
 
 ## 预置输入文件（拟议）
 
-为支持“从文件注入预置输入”，新增两个 preset 入口：
+为支持“从文件注入预置输入”，新增三个 preset 入口：
 
 ```bash
-mycli --preset-opts=./options.argv --preset-envs=./preset.env --log-level debug
+mycli --preset-root=/abs/project --preset-opts=config/opt.ci --preset-envs=config/env.ci --log-level debug
 ```
 
 入口语法（拟议）：
 
-1. `--preset-opts=<file>` 或 `--preset-opts <file>`。
-2. `--preset-envs=<file>` 或 `--preset-envs <file>`。
-3. 可多次出现，按命令行出现顺序处理。
-4. 相对路径按当前进程工作目录（cwd）解析。
-5. `--` 之后出现的 `--preset-*` 视为普通参数，不参与 preset 阶段。
+1. `--preset-root=<abs-dir>` 或 `--preset-root <abs-dir>`。
+2. `--preset-opts=<file>` 或 `--preset-opts <file>`。
+3. `--preset-envs=<file>` 或 `--preset-envs <file>`。
+4. `--preset-root` 可多次出现，按出现顺序覆盖（Last Write Wins）。
+5. `--preset-opts` / `--preset-envs` 可多次出现，按出现顺序收集（collect）。
+6. `--` 之后出现的 `--preset-*` 视为普通参数，不参与 preset 阶段。
+7. PRESET 阶段固定顺序：先决议唯一 `presetRoot`，再解析/collect `--preset-opts` 与 `--preset-envs`。
+
+`<file>` 值合法性（适用于显式声明的 preset file 参数：CLI + command.preset）：
+
+1. 必须是非空字符串。
+2. 不能以 `..` 开头。
+3. 上述规则仅作用于显式 `<file>` 参数，不作用于默认文件名 `.opt.local/.env.local`。
+
+`command.preset.opt` / `command.preset.env` 使用同一 `<file>` 合法性判定；不合法视为“未设置”，并回退默认文件名。
+若其为相对路径，则按最终决议的 `presetRoot` 解析。
+
+### `--preset-root=<abs-dir>`
+
+语义：
+
+1. `<abs-dir>` 必须是有效绝对目录，否则立即报 `ConfigurationError`。
+2. 生效后作为 `--preset-opts` / `--preset-envs` 相对路径的 parent dir。
+3. 若 `--preset-root` 多次出现，后者覆盖前者。
+4. 当存在有效 preset root 且用户未显式提供对应 `--preset-opts` / `--preset-envs` 时，自动尝试默认文件：
+   - options: `${presetRoot}/.opt.local`
+   - envs: `${presetRoot}/.env.local`
+5. 若默认文件不存在，按“可选默认输入”处理并忽略；若显式声明了 `--preset-opts` / `--preset-envs` 且文件不存在，则报错。
+
+### Command preset 默认决议（强调）
+
+`Command` 构造参数可声明：
+
+```typescript
+interface ICommandPresetConfig {
+  root?: string
+  opt?: string
+  env?: string
+}
+```
+
+决议规则（MUST）：
+
+1. 在 `ctx.chain` 上按 `leaf -> ... -> root` 扫描，遇到第一个声明了 `command.preset.root` 的命令即停止。
+2. 该命中的 `command.preset.root` 必须是有效绝对目录；若无效，立即报 `ConfigurationError`，且不得继续向上回退。
+3. 命中后整份 `command.preset` 生效；即使 `opt/env` 未设置或无效，也直接回退默认文件名 `.opt.local/.env.local`。
+4. CLI 覆盖优先级高于 command preset：
+   - `--preset-root` 覆盖 `command.preset.root`
+   - `--preset-opts` 覆盖 `command.preset.opt`（或其默认 `.opt.local`）
+   - `--preset-envs` 覆盖 `command.preset.env`（或其默认 `.env.local`）
+5. 若既没有有效 `command.preset.root`，也没有 CLI `--preset-root`，则不会自动尝试 `.opt.local/.env.local`。
 
 ### `--preset-opts=<file>`
 
 语义：
 
 1. 在 PRESET 阶段执行时读取 `<file>`，得到 `ctx.sources.preset.argv: string[]`。
-2. 若配置多个 options 文件，按出现顺序拼接为单一 `ctx.sources.preset.argv`。
+2. 若配置多个 options 文件，按出现顺序拼接为单一 `ctx.sources.preset.argv`（collect）。
 3. 从 `CONTROL SCAN` 阶段产出的 `controlTailArgv` 中移除 preset 指令，得到 `ctx.sources.user.argv`（clean argv）。
 4. 组装 `effectiveTailArgv = [...ctx.sources.preset.argv, ...ctx.sources.user.argv]`。
 5. 将来源快照挂载到 `ctx.sources`（`preset/user`）。
 6. 后续沿用 tokenize/resolve/parse 流程。
 7. 若 `run()` 在 RUN CONTROL 阶段命中 short-circuit，则不会读取 options preset 文件。
+8. 当存在有效 `presetRoot` 且 `<file>` 为相对路径时，按 `presetRoot` 解析；否则按 `cwd` 解析。
 
 文件内容语义：
 
@@ -245,11 +292,12 @@ info
 
 1. 在 PRESET 阶段执行时读取 `<file>`。
 2. 使用 `@guanghechen/env` 的 `parse(content)` 解析为 env 记录。
-3. 若配置多个 env 文件，按出现顺序合并，后者覆盖前者，得到 `ctx.sources.preset.envs`。
+3. 若配置多个 env 文件，按出现顺序收集并合并，后者覆盖前者，得到 `ctx.sources.preset.envs`。
 4. 组装 `ctx.envs = { ...ctx.sources.user.envs, ...ctx.sources.preset.envs }`。
 5. 将来源快照挂载到 `ctx.sources`（`preset/user`）。
 6. 后续 parse/run 阶段统一使用 `ctx.envs`。
 7. 若 `run()` 在 RUN CONTROL 阶段命中 short-circuit，则不会读取 envs preset 文件。
+8. 当存在有效 `presetRoot` 且 `<file>` 为相对路径时，按 `presetRoot` 解析；否则按 `cwd` 解析。
 
 文件格式约束：
 
@@ -258,21 +306,26 @@ info
 
 ### 优先级
 
-选项值优先级（同一命令层内）：
+为避免歧义，分两层描述：
 
-| 来源                               | 优先级说明                                           |
-| ---------------------------------- | ---------------------------------------------------- |
-| CLI（用户实时输入）                | 最高；位于 `effectiveTailArgv` 右侧，覆盖左侧        |
-| preset-opts（文件注入）            | 中间；覆盖命令定义 `default`                         |
-| env fallback（当前仅 `NO_COLOR`）  | 仅在未出现对应选项 token 时生效                      |
-| option `default` / 隐式默认        | 最低（`boolean=false`、`variadic=[]`）               |
+1. preset 来源决议（先确定读取哪些文件与根目录）。
+2. token/env 值覆盖（再确定最终值）。
 
-环境变量优先级：
+preset 来源决议：
 
-| 来源                         | 优先级说明                                     |
-| ---------------------------- | ---------------------------------------------- |
-| `ctx.sources.preset.envs`    | 最高（来自 `--preset-envs` 文件）              |
-| `ctx.sources.user.envs`      | 次高（调用方传入，如 `process.env`）           |
+| 决议对象          | 规则                                                                          |
+| ----------------- | ----------------------------------------------------------------------------- |
+| `presetRoot`      | 先决议唯一 root：CLI `--preset-root` 后者覆盖前者；若未声明则回退 command preset root；若命中 root 无效则立即 `ConfigurationError` |
+| `presetOptsFiles` | 在 root 决议后再 collect：按顺序收集 CLI `--preset-opts`；为空且有有效 root 才尝试默认文件                                           |
+| `presetEnvsFiles` | 在 root 决议后再 collect：按顺序收集 CLI `--preset-envs`；为空且有有效 root 才尝试默认文件                                           |
+
+值覆盖优先级：
+
+| 维度            | 覆盖顺序（高 -> 低）                                              |
+| --------------- | ----------------------------------------------------------------- |
+| option 值       | user CLI token > preset-opts token > option `default` / 隐式默认  |
+| env 值          | `ctx.sources.preset.envs` > `ctx.sources.user.envs`               |
+| color fallback  | 显式 `--color/--no-color` > `NO_COLOR` fallback                   |
 
 注意：
 
@@ -284,12 +337,13 @@ info
 | 约束                                                              | 目的                              |
 | ----------------------------------------------------------------- | --------------------------------- |
 | option 文件仅允许 option 片段（`-x`/`--xxx` 及其参数值）          | 避免污染命令路由和位置参数语义    |
+| 在 options preset 文件中禁止声明 `--preset-root`                  | 防止递归改写 preset 根目录        |
 | 在 options preset 文件中禁止声明 `--preset-opts`                  | 防止递归加载                      |
 | 在 options preset 文件中禁止声明 `--preset-envs`                  | 防止跨类型递归与来源混乱          |
 | 在 options preset 文件中禁止声明 `help` / `--help` / `--version`  | 保持 run 控制项提前中断语义       |
 | 在 options preset 文件中禁止出现 `--` 分隔符                      | 避免污染位置参数分段语义          |
 | preset 文件统一使用 UTF-8 编码                                    | 降低跨平台解析歧义                |
-| preset 文件读取失败或格式错误直接报错                             | 避免静默降级导致行为不可预测      |
+| 显式声明的 preset 文件读取失败或格式错误直接报错                  | 避免静默降级导致行为不可预测      |
 
 ### 边界行为
 
@@ -302,10 +356,15 @@ info
 
 | 场景                                                    | 行为约定                                                 |
 | ------------------------------------------------------- | -------------------------------------------------------- |
+| `--preset-root` 缺少值                                  | 立即报错并终止                                           |
+| `--preset-root` 不是有效绝对目录                        | 立即报错并终止（`ConfigurationError`）                   |
 | `--preset-opts` / `--preset-envs` 缺少值                | 立即报错并终止                                           |
-| preset 文件不存在或不可读                               | 立即报错并终止                                           |
+| `--preset-opts` / `--preset-envs` 的 `<file>` 非法      | 立即报错并终止（非空且不能以 `..` 开头）                 |
+| `command.preset.opt` / `command.preset.env` 非法        | 视为未设置并回退默认文件名（不报错）                     |
+| 显式声明的 preset 文件不存在或不可读                    | 立即报错并终止（包括 CLI `--preset-opts/--preset-envs` 与 `command.preset.opt/env`） |
+| 默认 preset 文件（`.opt.local/.env.local`）不存在       | 忽略（不报错）                                           |
 | options 文件分词后存在无法组成 option 片段的 token      | 立即报错并终止（例如文件开头裸 token）                   |
-| options 文件中出现 `--preset-opts` / `--preset-envs`    | 立即报错并终止（禁止递归与跨类型引用）                   |
+| options 文件中出现任意 `--preset-*`                     | 立即报错并终止（禁止递归与跨类型引用）                   |
 | options 文件中出现 `--help` / `help` / `--version`      | 立即报错并终止（控制项仅允许来自 user tail 并提前中断）  |
 | options 文件中出现 `--`                                 | 立即报错并终止（不允许位置参数分隔符）                   |
 | envs 文件不符合 `@guanghechen/env` 语法                 | 立即报错并终止（包装为 `ConfigurationError`）            |

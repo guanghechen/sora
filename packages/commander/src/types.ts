@@ -138,6 +138,16 @@ export interface ICommandExample {
   desc: string
 }
 
+/** Command preset defaults */
+export interface ICommandPresetConfig {
+  /** Preset root directory (absolute path) */
+  root?: string
+  /** Default preset options file */
+  opt?: string
+  /** Default preset envs file */
+  env?: string
+}
+
 /** Command configuration */
 export interface ICommandConfig {
   /** Command name (only for root command) */
@@ -148,6 +158,8 @@ export interface ICommandConfig {
   version?: string
   /** Built-in features configuration */
   builtin?: boolean | ICommandBuiltinConfig
+  /** Command-level preset defaults */
+  preset?: ICommandPresetConfig
   /** Default reporter for this command */
   reporter?: IReporter
 }
@@ -158,6 +170,7 @@ export interface ICommand {
   readonly description: string
   readonly version: string | undefined
   readonly builtin: ICommandConfig['builtin'] | undefined
+  readonly preset: ICommandPresetConfig | undefined
   readonly parent: ICommand | undefined
   readonly options: ICommandOptionConfig[]
   readonly arguments: ICommandArgumentConfig[]

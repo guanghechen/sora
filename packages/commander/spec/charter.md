@@ -26,7 +26,7 @@ user argv → route → control-scan(run/parse) → run-control(run only) → pr
 | route                     | 自顶向下 | 基于 user argv 匹配 subcommand（name/alias），不改写 argv                                                    |
 | control-scan（run/parse） | -        | 在 user tail（`--` 之前）识别控制语义：`--help` 按 token 扫描，`--version` 需 `supportsBuiltinVersion(leaf)`，`help` 仅 tail 首 token 生效，并写入 `ctx.controls` 后剥离控制 token |
 | run-control（仅 run）     | -        | 依据 `ctx.controls` 执行 short-circuit，优先级 `help > version`                                              |
-| preset（拟议）            | -        | 加载 `--preset-opts` / `--preset-envs` 并合并输入；preset 文件禁止 `--help/help/--version` 控制项            |
+| preset（拟议）            | -        | 加载 `--preset-root` / `--preset-opts` / `--preset-envs` 并合并输入；presetRoot 决议为 CLI LWW 优先，未声明时回退 command preset（leaf→root 首命中） |
 | tokenize                  | -        | effective tail argv → `ICommandToken[]`（格式校验）                                                          |
 | resolve                   | 自底向上 | 每个 Command 消费自己的 tokens                                                                               |
 | parse                     | 自顶向下 | tokens → opts，调用 apply 更新 ctx；对外仅暴露 leaf 本地声明的 `opts/args`                                   |
@@ -35,6 +35,8 @@ user argv → route → control-scan(run/parse) → run-control(run only) → pr
 详见 [command.md](./command.md) 中“内建 version 支持判定（拟议）”“CONTROL SCAN 规则（拟议）”“RUN CONTROL 规则（拟议）”与“支持矩阵（代表性场景）”。
 
 若 user tail（`--` 之前）同时包含 `--help` 与 `--version`，按 `help > version` 优先级处理。
+
+`preset` root 决议为强约束：先决议 CLI `--preset-root`（Last Write Wins），若未声明再按 `leaf -> ... -> root` 命中第一个 `command.preset.root`；命中 root 无效则直接报错且不回退。
 
 说明：`preset` 阶段属于当前规范与实现的一部分。
 

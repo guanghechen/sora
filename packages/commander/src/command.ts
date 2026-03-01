@@ -9,7 +9,7 @@
 import { parse as parseEnv } from '@guanghechen/env'
 import type { IReporter } from '@guanghechen/reporter'
 import { Reporter } from '@guanghechen/reporter'
-import { readFile } from 'node:fs/promises'
+import { readFile, stat } from 'node:fs/promises'
 import path from 'node:path'
 import { TERMINAL_STYLE, styleText } from './chalk'
 import { logColorfulOption, logDateOption, logLevelOption, silentOption } from './options'
@@ -31,6 +31,7 @@ import type {
   ICommandParseResult,
   ICommandParsedArgs,
   ICommandParsedOpts,
+  ICommandPresetConfig,
   ICommandPresetResult,
   ICommandResolveResult,
   ICommandRouteResult,
@@ -57,6 +58,9 @@ const NEGATIVE_OPTION_REGEX = /^--no-[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/
 
 const PRESET_OPTS_FLAG = '--preset-opts'
 const PRESET_ENVS_FLAG = '--preset-envs'
+const PRESET_ROOT_FLAG = '--preset-root'
+const DEFAULT_PRESET_OPTS_FILENAME = '.opt.local'
+const DEFAULT_PRESET_ENVS_FILENAME = '.env.local'
 
 /** Convert kebab-case to camelCase. Input should be lowercase. */
 function kebabToCamelCase(str: string): string {
@@ -234,6 +238,12 @@ interface ICommandOptionPolicy {
   readonly mergedOptions: ICommandOptionConfig[]
 }
 
+interface IPresetFileSource {
+  displayPath: string
+  absolutePath: string
+  explicit: boolean
+}
+
 function createBuiltinOptionState(enabled: boolean): ICommandBuiltinOptionResolved {
   return {
     version: enabled,
@@ -302,6 +312,7 @@ export class Command implements ICommand {
   readonly #version: string | undefined
   readonly #builtinConfig: ICommandConfig['builtin'] | undefined
   readonly #builtin: ICommandBuiltinResolved
+  readonly #presetConfig: ICommandPresetConfig | undefined
   readonly #reporter: IReporter | undefined
   #parent: Command | undefined
 
@@ -318,6 +329,7 @@ export class Command implements ICommand {
     this.#version = config.version
     this.#builtinConfig = config.builtin
     this.#builtin = normalizeBuiltinConfig(config.builtin)
+    this.#presetConfig = config.preset
     this.#reporter = config.reporter
   }
 
@@ -337,6 +349,10 @@ export class Command implements ICommand {
 
   public get builtin(): ICommandConfig['builtin'] | undefined {
     return this.#builtinConfig
+  }
+
+  public get preset(): ICommandPresetConfig | undefined {
+    return this.#presetConfig === undefined ? undefined : { ...this.#presetConfig }
   }
 
   public get parent(): Command | undefined {
@@ -888,32 +904,75 @@ export class Command implements ICommand {
     optionPolicyMap: Map<Command, ICommandOptionPolicy>,
   ): Promise<ICommandPresetResult & { sources: ICommandInputSources }> {
     const commandPath = (ctx.chain[ctx.chain.length - 1] as Command).#getCommandPath()
-    const scanResult = this.#scanPresetDirectives(controlTailArgv, commandPath)
+    const separatorIndex = controlTailArgv.indexOf('--')
+    const beforeSeparator =
+      separatorIndex === -1 ? controlTailArgv : controlTailArgv.slice(0, separatorIndex)
+    const afterSeparator = separatorIndex === -1 ? [] : controlTailArgv.slice(separatorIndex + 1)
+
+    const rootScanResult = this.#scanPresetRootDirectives(beforeSeparator, commandPath)
+
+    const commandPreset = this.#resolveCommandPresetFromChain(ctx.chain as Command[])
+    const presetRoot = await this.#resolveEffectivePresetRoot(
+      rootScanResult.cliPresetRoots,
+      commandPreset,
+      commandPath,
+    )
+
+    const fileScanResult = this.#scanPresetFileDirectives(rootScanResult.cleanArgv, commandPath)
+    const cleanArgv =
+      separatorIndex === -1
+        ? fileScanResult.cleanArgv
+        : [...fileScanResult.cleanArgv, '--', ...afterSeparator]
+
+    const presetOptsFiles = this.#resolvePresetFileSources({
+      cliFiles: fileScanResult.cliPresetOptsFiles,
+      commandPresetFile: this.#normalizeCommandPresetFile(commandPreset?.opt),
+      presetRoot,
+      defaultFilename: DEFAULT_PRESET_OPTS_FILENAME,
+    })
+    const presetEnvsFiles = this.#resolvePresetFileSources({
+      cliFiles: fileScanResult.cliPresetEnvsFiles,
+      commandPresetFile: this.#normalizeCommandPresetFile(commandPreset?.env),
+      presetRoot,
+      defaultFilename: DEFAULT_PRESET_ENVS_FILENAME,
+    })
+
     const userSources: ICommandInputSources['user'] = {
       cmds: [...ctx.sources.user.cmds],
-      argv: [...scanResult.cleanArgv],
+      argv: [...cleanArgv],
       envs: { ...ctx.sources.user.envs },
     }
 
     const presetArgv: string[] = []
-    for (const filepath of scanResult.presetOptsFilepaths) {
-      const content = await this.#readPresetFile(filepath, commandPath)
+    for (const file of presetOptsFiles) {
+      const content = await this.#readPresetFile(file, commandPath)
+      if (content === undefined) {
+        continue
+      }
       const tokens = this.#tokenizePresetOptions(content)
-      this.#validatePresetOptionTokens(tokens, filepath, commandPath)
-      this.#assertPresetOptionFragments(tokens, filepath, ctx.chain as Command[], optionPolicyMap)
+      this.#validatePresetOptionTokens(tokens, file.displayPath, commandPath)
+      this.#assertPresetOptionFragments(
+        tokens,
+        file.displayPath,
+        ctx.chain as Command[],
+        optionPolicyMap,
+      )
       presetArgv.push(...tokens)
     }
 
     const presetEnvs: Record<string, string> = {}
-    for (const filepath of scanResult.presetEnvsFilepaths) {
-      const content = await this.#readPresetFile(filepath, commandPath)
+    for (const file of presetEnvsFiles) {
+      const content = await this.#readPresetFile(file, commandPath)
+      if (content === undefined) {
+        continue
+      }
       let parsed: Record<string, string>
       try {
         parsed = parseEnv(content)
       } catch (error) {
         throw new CommanderError(
           'ConfigurationError',
-          `failed to parse preset envs file "${filepath}": ${(error as Error).message}`,
+          `failed to parse preset envs file "${file.displayPath}": ${(error as Error).message}`,
           commandPath,
         )
       }
@@ -932,6 +991,129 @@ export class Command implements ICommand {
     const tailArgv = [...sources.preset.argv, ...sources.user.argv]
 
     return { tailArgv, envs, sources }
+  }
+
+  #resolveCommandPresetFromChain(chain: Command[]): ICommandPresetConfig | undefined {
+    for (let index = chain.length - 1; index >= 0; index -= 1) {
+      const preset = chain[index].#presetConfig
+      if (preset?.root !== undefined) {
+        return preset
+      }
+    }
+
+    return undefined
+  }
+
+  async #resolveEffectivePresetRoot(
+    cliPresetRoots: string[],
+    commandPreset: ICommandPresetConfig | undefined,
+    commandPath: string,
+  ): Promise<string | undefined> {
+    if (cliPresetRoots.length > 0) {
+      const root = cliPresetRoots[cliPresetRoots.length - 1]
+      return await this.#assertPresetRoot(root, PRESET_ROOT_FLAG, commandPath)
+    }
+
+    if (commandPreset?.root === undefined) {
+      return undefined
+    }
+
+    return await this.#assertPresetRoot(commandPreset.root, 'command.preset.root', commandPath)
+  }
+
+  async #assertPresetRoot(root: string, sourceName: string, commandPath: string): Promise<string> {
+    if (!path.isAbsolute(root)) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `invalid preset root from "${sourceName}": "${root}" is not an absolute directory`,
+        commandPath,
+      )
+    }
+
+    let stats
+    try {
+      stats = await stat(root)
+    } catch (error) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `invalid preset root from "${sourceName}": "${root}" cannot be accessed (${(error as Error).message})`,
+        commandPath,
+      )
+    }
+
+    if (!stats.isDirectory()) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `invalid preset root from "${sourceName}": "${root}" is not a directory`,
+        commandPath,
+      )
+    }
+
+    return root
+  }
+
+  #normalizeCommandPresetFile(filepath: string | undefined): string | undefined {
+    if (filepath === undefined) {
+      return undefined
+    }
+
+    if (!this.#isValidPresetFileValue(filepath)) {
+      return undefined
+    }
+
+    return filepath
+  }
+
+  #resolvePresetFileSources(params: {
+    cliFiles: string[]
+    commandPresetFile: string | undefined
+    presetRoot: string | undefined
+    defaultFilename: string
+  }): IPresetFileSource[] {
+    const { cliFiles, commandPresetFile, presetRoot, defaultFilename } = params
+
+    if (cliFiles.length > 0) {
+      return cliFiles.map(filepath => ({
+        displayPath: filepath,
+        absolutePath: this.#resolvePresetFileAbsolutePath(filepath, presetRoot),
+        explicit: true,
+      }))
+    }
+
+    if (presetRoot === undefined) {
+      return []
+    }
+
+    if (commandPresetFile !== undefined) {
+      return [
+        {
+          displayPath: commandPresetFile,
+          absolutePath: this.#resolvePresetFileAbsolutePath(commandPresetFile, presetRoot),
+          explicit: true,
+        },
+      ]
+    }
+
+    const absolutePath = path.resolve(presetRoot, defaultFilename)
+    return [
+      {
+        displayPath: absolutePath,
+        absolutePath,
+        explicit: false,
+      },
+    ]
+  }
+
+  #resolvePresetFileAbsolutePath(filepath: string, presetRoot: string | undefined): string {
+    if (path.isAbsolute(filepath)) {
+      return filepath
+    }
+
+    if (presetRoot !== undefined) {
+      return path.resolve(presetRoot, filepath)
+    }
+
+    return path.resolve(process.cwd(), filepath)
   }
 
   #assertPresetOptionFragments(
@@ -975,92 +1157,157 @@ export class Command implements ICommand {
     }
   }
 
-  #scanPresetDirectives(
-    tailArgv: string[],
+  #scanPresetRootDirectives(
+    argv: string[],
     commandPath: string,
-  ): {
-    cleanArgv: string[]
-    presetOptsFilepaths: string[]
-    presetEnvsFilepaths: string[]
-  } {
-    const separatorIndex = tailArgv.indexOf('--')
-    const beforeSeparator = separatorIndex === -1 ? tailArgv : tailArgv.slice(0, separatorIndex)
-    const afterSeparator = separatorIndex === -1 ? [] : tailArgv.slice(separatorIndex + 1)
-
-    const cleanBeforeSeparator: string[] = []
-    const presetOptsFilepaths: string[] = []
-    const presetEnvsFilepaths: string[] = []
+  ): { cleanArgv: string[]; cliPresetRoots: string[] } {
+    const cleanArgv: string[] = []
+    const cliPresetRoots: string[] = []
 
     let index = 0
-    while (index < beforeSeparator.length) {
-      const token = beforeSeparator[index]
+    while (index < argv.length) {
+      const token = argv[index]
+
+      if (token === PRESET_ROOT_FLAG) {
+        const value = argv[index + 1]
+        if (value === undefined || value.length === 0) {
+          throw new CommanderError(
+            'ConfigurationError',
+            `missing value for "${PRESET_ROOT_FLAG}"`,
+            commandPath,
+          )
+        }
+        cliPresetRoots.push(value)
+        index += 2
+        continue
+      }
+
+      if (token.startsWith(`${PRESET_ROOT_FLAG}=`)) {
+        const value = token.slice(PRESET_ROOT_FLAG.length + 1)
+        if (value.length === 0) {
+          throw new CommanderError(
+            'ConfigurationError',
+            `missing value for "${PRESET_ROOT_FLAG}"`,
+            commandPath,
+          )
+        }
+        cliPresetRoots.push(value)
+        index += 1
+        continue
+      }
+
+      cleanArgv.push(token)
+      index += 1
+    }
+
+    return { cleanArgv, cliPresetRoots }
+  }
+
+  #scanPresetFileDirectives(
+    argv: string[],
+    commandPath: string,
+  ): { cleanArgv: string[]; cliPresetOptsFiles: string[]; cliPresetEnvsFiles: string[] } {
+    const cleanArgv: string[] = []
+    const cliPresetOptsFiles: string[] = []
+    const cliPresetEnvsFiles: string[] = []
+
+    const assertAndPush = (
+      flag: typeof PRESET_OPTS_FLAG | typeof PRESET_ENVS_FLAG,
+      value: string,
+    ): void => {
+      this.#assertPresetFileValue(value, flag, commandPath)
+      if (flag === PRESET_OPTS_FLAG) {
+        cliPresetOptsFiles.push(value)
+      } else {
+        cliPresetEnvsFiles.push(value)
+      }
+    }
+
+    let index = 0
+    while (index < argv.length) {
+      const token = argv[index]
 
       if (token === PRESET_OPTS_FLAG || token === PRESET_ENVS_FLAG) {
-        const filepath = beforeSeparator[index + 1]
-        if (!filepath) {
+        const value = argv[index + 1]
+        if (value === undefined || value.length === 0) {
           throw new CommanderError(
             'ConfigurationError',
             `missing value for "${token}"`,
             commandPath,
           )
         }
-        if (token === PRESET_OPTS_FLAG) {
-          presetOptsFilepaths.push(filepath)
-        } else {
-          presetEnvsFilepaths.push(filepath)
-        }
+        assertAndPush(token, value)
         index += 2
         continue
       }
 
       if (token.startsWith(`${PRESET_OPTS_FLAG}=`)) {
-        const filepath = token.slice(PRESET_OPTS_FLAG.length + 1)
-        if (!filepath) {
+        const value = token.slice(PRESET_OPTS_FLAG.length + 1)
+        if (value.length === 0) {
           throw new CommanderError(
             'ConfigurationError',
             `missing value for "${PRESET_OPTS_FLAG}"`,
             commandPath,
           )
         }
-        presetOptsFilepaths.push(filepath)
+        assertAndPush(PRESET_OPTS_FLAG, value)
         index += 1
         continue
       }
 
       if (token.startsWith(`${PRESET_ENVS_FLAG}=`)) {
-        const filepath = token.slice(PRESET_ENVS_FLAG.length + 1)
-        if (!filepath) {
+        const value = token.slice(PRESET_ENVS_FLAG.length + 1)
+        if (value.length === 0) {
           throw new CommanderError(
             'ConfigurationError',
             `missing value for "${PRESET_ENVS_FLAG}"`,
             commandPath,
           )
         }
-        presetEnvsFilepaths.push(filepath)
+        assertAndPush(PRESET_ENVS_FLAG, value)
         index += 1
         continue
       }
 
-      cleanBeforeSeparator.push(token)
+      cleanArgv.push(token)
       index += 1
     }
 
-    const cleanArgv =
-      separatorIndex === -1
-        ? cleanBeforeSeparator
-        : [...cleanBeforeSeparator, '--', ...afterSeparator]
-
-    return { cleanArgv, presetOptsFilepaths, presetEnvsFilepaths }
+    return { cleanArgv, cliPresetOptsFiles, cliPresetEnvsFiles }
   }
 
-  async #readPresetFile(filepath: string, commandPath: string): Promise<string> {
-    const absolutePath = path.resolve(process.cwd(), filepath)
+  #isValidPresetFileValue(filepath: string): boolean {
+    return filepath.length > 0 && !filepath.startsWith('..')
+  }
+
+  #assertPresetFileValue(
+    filepath: string,
+    directive: typeof PRESET_OPTS_FLAG | typeof PRESET_ENVS_FLAG,
+    commandPath: string,
+  ): void {
+    if (this.#isValidPresetFileValue(filepath)) {
+      return
+    }
+
+    throw new CommanderError(
+      'ConfigurationError',
+      `invalid value for "${directive}": "${filepath}" (must be non-empty and must not start with "..")`,
+      commandPath,
+    )
+  }
+
+  async #readPresetFile(file: IPresetFileSource, commandPath: string): Promise<string | undefined> {
     try {
-      return await readFile(absolutePath, 'utf8')
+      return await readFile(file.absolutePath, 'utf8')
     } catch (error) {
+      const ioError = error as NodeJS.ErrnoException
+      if (!file.explicit && ioError.code === 'ENOENT') {
+        return undefined
+      }
+
       throw new CommanderError(
         'ConfigurationError',
-        `failed to read preset file "${filepath}": ${(error as Error).message}`,
+        `failed to read preset file "${file.displayPath}": ${ioError.message}`,
         commandPath,
       )
     }
@@ -1104,6 +1351,8 @@ export class Command implements ICommand {
       }
 
       if (
+        token === PRESET_ROOT_FLAG ||
+        token.startsWith(`${PRESET_ROOT_FLAG}=`) ||
         token === PRESET_OPTS_FLAG ||
         token.startsWith(`${PRESET_OPTS_FLAG}=`) ||
         token === PRESET_ENVS_FLAG ||
