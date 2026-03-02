@@ -1,5 +1,12 @@
 # Change Log
 
+## 4.7.0
+
+### Minor Changes
+
+- Add explicit runtime entry points for browser and node, and align command runtime abstractions and
+  tests.
+
 ## 4.6.0
 
 ### Minor Changes
