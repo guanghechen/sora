@@ -1,40 +1,35 @@
+import * as internalExports from '../src/index'
 import {
-  BashCompletion,
   Command,
   CommanderError,
-  CompletionCommand,
-  FishCompletion,
-  PwshCompletion,
   isDomain,
   isIp,
   isIpv4,
   isIpv6,
-} from '../src'
+} from '../src/runtime/browser/entry'
+import * as browserExports from '../src/runtime/browser/entry'
+import * as nodeExports from '../src/runtime/node'
 
 describe('index exports', () => {
-  it('should export Command class', () => {
+  it('should export Command class from browser entry', () => {
     expect(Command).toBeDefined()
     expect(typeof Command).toBe('function')
   })
 
-  it('should export CompletionCommand class', () => {
-    expect(CompletionCommand).toBeDefined()
-    expect(typeof CompletionCommand).toBe('function')
+  it('should not export completion classes from default entry', () => {
+    const source = browserExports as Record<string, unknown>
+    expect(source['CompletionCommand']).toBeUndefined()
+    expect(source['BashCompletion']).toBeUndefined()
+    expect(source['FishCompletion']).toBeUndefined()
+    expect(source['PwshCompletion']).toBeUndefined()
   })
 
-  it('should export BashCompletion class', () => {
-    expect(BashCompletion).toBeDefined()
-    expect(typeof BashCompletion).toBe('function')
-  })
-
-  it('should export FishCompletion class', () => {
-    expect(FishCompletion).toBeDefined()
-    expect(typeof FishCompletion).toBe('function')
-  })
-
-  it('should export PwshCompletion class', () => {
-    expect(PwshCompletion).toBeDefined()
-    expect(typeof PwshCompletion).toBe('function')
+  it('should export completion classes from node entry', () => {
+    const source = nodeExports as Record<string, unknown>
+    expect(source['CompletionCommand']).toBeDefined()
+    expect(source['BashCompletion']).toBeDefined()
+    expect(source['FishCompletion']).toBeDefined()
+    expect(source['PwshCompletion']).toBeDefined()
   })
 
   it('should export CommanderError class', () => {
@@ -47,5 +42,13 @@ describe('index exports', () => {
     expect(typeof isIpv6).toBe('function')
     expect(typeof isIp).toBe('function')
     expect(typeof isDomain).toBe('function')
+  })
+
+  it('should keep internal barrel exports available for entries', () => {
+    const source = internalExports as Record<string, unknown>
+    expect(typeof source['Command']).toBe('function')
+    expect(typeof source['Coerce']).toBe('function')
+    expect(typeof source['getDefaultCommandRuntime']).toBe('function')
+    expect(source['CompletionCommand']).toBeUndefined()
   })
 })

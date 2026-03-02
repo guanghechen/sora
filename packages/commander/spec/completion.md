@@ -33,7 +33,8 @@ interface ICompletionMeta {
 内置补全子命令，需手动挂载：
 
 ```typescript
-import { Command, CompletionCommand } from '@guanghechen/commander'
+import { Command } from '@guanghechen/commander/browser'
+import { CompletionCommand } from '@guanghechen/commander/node'
 
 const pm = new Command({ name: 'pm', desc: 'Process Manager', version: '1.0.0' })
   .option({ long: 'verbose', short: 'v', type: 'boolean', args: 'none', desc: 'Verbose' })
@@ -61,7 +62,7 @@ pm completion --pwsh >> $PROFILE
 底层生成器可独立使用：
 
 ```typescript
-import { BashCompletion, FishCompletion, PwshCompletion } from '@guanghechen/commander'
+import { BashCompletion, FishCompletion, PwshCompletion } from '@guanghechen/commander/node'
 
 const meta = pm.getCompletionMeta()
 const script = new BashCompletion(meta, 'pm').generate()

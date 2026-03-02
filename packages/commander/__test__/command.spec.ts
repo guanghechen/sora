@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Command } from '../src'
+import { Command } from '../src/runtime/node'
 import { CommanderError } from '../src/types'
 
 afterEach(() => {

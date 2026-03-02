@@ -20,17 +20,20 @@
   ],
   "type": "module",
   "exports": {
-    ".": {
-      "types": "./lib/types/index.d.ts",
-      "source": "./src/index.ts",
-      "import": "./lib/esm/index.mjs",
-      "require": "./lib/cjs/index.cjs"
+    ".": null,
+    "./browser": {
+      "types": "./lib/types/browser.d.ts",
+      "source": "./src/runtime/browser/entry.ts",
+      "import": "./lib/esm/browser.mjs",
+      "require": "./lib/cjs/browser.cjs"
+    },
+    "./node": {
+      "types": "./lib/types/node.d.ts",
+      "source": "./src/runtime/node/index.ts",
+      "import": "./lib/esm/node.mjs",
+      "require": "./lib/cjs/node.cjs"
     }
   },
-  "source": "./src/index.ts",
-  "main": "./lib/cjs/index.cjs",
-  "module": "./lib/esm/index.mjs",
-  "types": "./lib/types/index.d.ts",
   "license": "MIT",
   "scripts": {
     "build": "rollup -c ../../rollup.config.mjs",

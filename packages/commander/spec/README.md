@@ -19,7 +19,8 @@
 ## 快速示例
 
 ```typescript
-import { Command, CompletionCommand } from '@guanghechen/commander'
+import { Command } from '@guanghechen/commander/browser'
+import { CompletionCommand } from '@guanghechen/commander/node'
 
 const pm = new Command({ name: 'pm', desc: 'Process Manager', version: '1.0.0' })
   .option({ long: 'verbose', short: 'v', type: 'boolean', args: 'none', desc: 'Verbose' })
@@ -43,6 +44,11 @@ pm s myapp -d
 pm --help
 pm completion --bash > ~/.local/share/bash-completion/completions/pm
 ```
+
+入口约束：
+
+1. 必须显式导入 `@guanghechen/commander/browser` 或 `@guanghechen/commander/node`。
+2. `@guanghechen/commander` 根入口不对外导出。
 
 ---
 

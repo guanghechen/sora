@@ -148,6 +148,25 @@ export interface ICommandPresetConfig {
   env?: string
 }
 
+/** Runtime file stats abstraction */
+export interface ICommandRuntimeStats {
+  isDirectory(): boolean
+}
+
+/** Runtime abstraction for environment-dependent operations */
+export interface ICommandRuntime {
+  /** Current working directory */
+  cwd(): string
+  /** Path absolute check */
+  isAbsolute(filepath: string): boolean
+  /** Resolve paths into an absolute path */
+  resolve(...paths: string[]): string
+  /** Read UTF-8 text file */
+  readFile(filepath: string): Promise<string>
+  /** Stat file system entry */
+  stat(filepath: string): Promise<ICommandRuntimeStats>
+}
+
 /** Command configuration */
 export interface ICommandConfig {
   /** Command name (only for root command) */
@@ -162,6 +181,8 @@ export interface ICommandConfig {
   preset?: ICommandPresetConfig
   /** Default reporter for this command */
   reporter?: IReporter
+  /** Runtime adapter for environment-dependent operations */
+  runtime?: ICommandRuntime
 }
 
 /** Command interface */

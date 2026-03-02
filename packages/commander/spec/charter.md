@@ -12,6 +12,7 @@
 | Type Safety    | 明确类型定义与稳定运行时契约              |
 | Inheritance    | 选项沿祖先链继承，子节点可覆盖            |
 | Decoupled      | 不隐式访问 `process.argv` / `process.env` |
+| Explicit Entry | 必须显式使用 `/browser` 或 `/node` 入口   |
 | Fluent API     | 链式调用构建命令                          |
 | Strict Mode    | 严格解析，unknown option 报错             |
 
@@ -26,13 +27,13 @@ user argv → route → control-scan(run/parse) → run-control(run only) → pr
 | route                     | 自顶向下 | 基于 user argv 匹配 subcommand（name/alias），不改写 argv                                                    |
 | control-scan（run/parse） | -        | 在 user tail（`--` 之前）识别控制语义：`--help` 按 token 扫描，`--version` 需 `supportsBuiltinVersion(leaf)`，`help` 仅 tail 首 token 生效，并写入 `ctx.controls` 后剥离控制 token |
 | run-control（仅 run）     | -        | 依据 `ctx.controls` 执行 short-circuit，优先级 `help > version`                                              |
-| preset（拟议）            | -        | 加载 `--preset-root` / `--preset-opts` / `--preset-envs` 并合并输入；presetRoot 决议为 CLI LWW 优先，未声明时回退 command preset（leaf→root 首命中） |
+| preset                    | -        | 加载 `--preset-root` / `--preset-opts` / `--preset-envs` 并合并输入；presetRoot 决议为 CLI LWW 优先，未声明时回退 command preset（leaf→root 首命中） |
 | tokenize                  | -        | effective tail argv → `ICommandToken[]`（格式校验）                                                          |
 | resolve                   | 自底向上 | 每个 Command 消费自己的 tokens                                                                               |
 | parse                     | 自顶向下 | tokens → opts，调用 apply 更新 ctx；对外仅暴露 leaf 本地声明的 `opts/args`                                   |
 | run                       | -        | 执行 leaf command 的 action                                                                                  |
 
-详见 [command.md](./command.md) 中“内建 version 支持判定（拟议）”“CONTROL SCAN 规则（拟议）”“RUN CONTROL 规则（拟议）”与“支持矩阵（代表性场景）”。
+详见 [command.md](./command.md) 中“内建 version 支持判定”“CONTROL SCAN 规则”“RUN CONTROL 规则”与“支持矩阵（代表性场景）”。
 
 若 user tail（`--` 之前）同时包含 `--help` 与 `--version`，按 `help > version` 优先级处理。
 
@@ -45,6 +46,8 @@ user argv → route → control-scan(run/parse) → run-control(run only) → pr
 1. `route tail argv`：ROUTE 后剩余输入（未做控制语义剥离）。
 2. `control tail argv`：CONTROL SCAN 后剩余输入（已剥离控制 token）。
 3. `effective tail argv`：PRESET 合并后的最终解析输入。
+
+入口约束：仅允许 `@guanghechen/commander/browser` 与 `@guanghechen/commander/node`，根入口不对外导出。详见 [command.md](./command.md)“运行时入口契约”。
 
 ---
 

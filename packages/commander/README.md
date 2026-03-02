@@ -73,7 +73,7 @@ parsing, shell completion generation (bash, fish, pwsh), and built-in help/versi
 ### Basic Command
 
 ```typescript
-import { Command } from '@guanghechen/commander'
+import { Command } from '@guanghechen/commander/browser'
 
 const cli = new Command({
   name: 'mycli',
@@ -119,7 +119,7 @@ cli.run({
 ### Subcommands
 
 ```typescript
-import { Command } from '@guanghechen/commander'
+import { Command } from '@guanghechen/commander/browser'
 
 const root = new Command({
   name: 'git',
@@ -153,7 +153,8 @@ root.run({ argv: process.argv.slice(2), envs: process.env })
 ### Shell Completion
 
 ```typescript
-import { Command, CompletionCommand } from '@guanghechen/commander'
+import { Command } from '@guanghechen/commander/browser'
+import { CompletionCommand } from '@guanghechen/commander/node'
 
 const root = new Command({
   name: 'mycli',
@@ -173,7 +174,7 @@ root.subcommand('completion', new CompletionCommand(root))
 ### Option Types
 
 ```typescript
-import { Command } from '@guanghechen/commander'
+import { Command } from '@guanghechen/commander/browser'
 
 new Command({ name: 'example', desc: 'Option types demo' })
   // Boolean (flags)
@@ -208,19 +209,16 @@ new Command({ name: 'example', desc: 'Option types demo' })
   })
 ```
 
-### Planned: Preset Input Files
+### Preset Input Files
 
-> This is a proposed feature and not released yet.
-> README is an overview only. Authoritative semantics are defined in `packages/commander/spec/*.md`.
-
-The proposed `--preset-opts=<file>` and `--preset-envs=<file>` flags allow injecting preset argv and
+`--preset-opts=<file>` and `--preset-envs=<file>` allow injecting preset argv and
 env inputs before normal CLI parsing.
 
 ```bash
 mycli --preset-opts=./options.argv --preset-envs=./preset.env --log-level debug --color
 ```
 
-Proposed behavior:
+Behavior:
 
 1. Route command chain from user argv (name/alias only, no argv rewrite), then store route tokens in `sources.user.cmds`.
 2. Run `control-scan` on user tail argv before preset merge: detect `--help` / `--version` by token scan (`--version` only when `supportsBuiltinVersion(leaf)`), detect `help` only when it is the first tail token, write `ctx.controls`, and strip control tokens from parse input.
@@ -232,14 +230,14 @@ Proposed behavior:
 8. Build `ctx.envs = { ...sources.user.envs, ...sources.preset.envs }`.
 9. Expose source snapshots through `ctx.sources` and reuse existing tokenize/resolve/parse pipeline.
 
-Proposed precedence for same option key:
+Precedence for same option key:
 
 1. User CLI tokens (highest)
 2. Tokens loaded from `--preset-opts`
 3. Option `default` / implicit defaults
 4. `NO_COLOR` fallback for color rendering only (applies only when no explicit `--color/--no-color` token appears)
 
-Proposed precedence for same env key:
+Precedence for same env key:
 
 1. Key-values loaded from `--preset-envs` (highest)
 2. User envs (e.g. `process.env`)
@@ -261,7 +259,7 @@ Additional notes:
 ### Built-in Coerce Factories
 
 ```typescript
-import { Coerce, Command } from '@guanghechen/commander'
+import { Coerce, Command } from '@guanghechen/commander/browser'
 
 new Command({ name: 'example', desc: 'Coerce demo' })
   .option({
@@ -340,7 +338,7 @@ You can still override the message via `Coerce.xxx(name, 'custom error message')
 ### Built-in Is Helpers
 
 ```typescript
-import { isDomain, isIp, isIpv4, isIpv6 } from '@guanghechen/commander'
+import { isDomain, isIp, isIpv4, isIpv6 } from '@guanghechen/commander/browser'
 
 isIpv4('127.0.0.1') // true
 isIpv6('::1') // true
@@ -351,7 +349,7 @@ isDomain('example.com') // true
 ### Help Examples
 
 ```typescript
-import { Command } from '@guanghechen/commander'
+import { Command } from '@guanghechen/commander/browser'
 
 const cli = new Command({ name: 'mycli', desc: 'My CLI tool' })
 

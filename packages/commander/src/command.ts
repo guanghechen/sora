@@ -9,10 +9,9 @@
 import { parse as parseEnv } from '@guanghechen/env'
 import type { IReporter } from '@guanghechen/reporter'
 import { Reporter } from '@guanghechen/reporter'
-import { readFile, stat } from 'node:fs/promises'
-import path from 'node:path'
 import { TERMINAL_STYLE, styleText } from './chalk'
 import { logColorfulOption, logDateOption, logLevelOption, silentOption } from './options'
+import { getDefaultCommandRuntime } from './runtime'
 import type {
   ICommand,
   ICommandAction,
@@ -36,6 +35,7 @@ import type {
   ICommandResolveResult,
   ICommandRouteResult,
   ICommandRunParams,
+  ICommandRuntime,
   ICommandShiftResult,
   ICommandToken,
   ICommandTokenizeResult,
@@ -314,6 +314,7 @@ export class Command implements ICommand {
   readonly #builtin: ICommandBuiltinResolved
   readonly #presetConfig: ICommandPresetConfig | undefined
   readonly #reporter: IReporter | undefined
+  readonly #runtime: ICommandRuntime
   #parent: Command | undefined
 
   readonly #options: ICommandOptionConfig[] = []
@@ -331,6 +332,7 @@ export class Command implements ICommand {
     this.#builtin = normalizeBuiltinConfig(config.builtin)
     this.#presetConfig = config.preset
     this.#reporter = config.reporter
+    this.#runtime = config.runtime ?? getDefaultCommandRuntime()
   }
 
   // ==================== ICommand Properties ====================
@@ -1022,7 +1024,7 @@ export class Command implements ICommand {
   }
 
   async #assertPresetRoot(root: string, sourceName: string, commandPath: string): Promise<string> {
-    if (!path.isAbsolute(root)) {
+    if (!this.#runtime.isAbsolute(root)) {
       throw new CommanderError(
         'ConfigurationError',
         `invalid preset root from "${sourceName}": "${root}" is not an absolute directory`,
@@ -1032,7 +1034,7 @@ export class Command implements ICommand {
 
     let stats
     try {
-      stats = await stat(root)
+      stats = await this.#runtime.stat(root)
     } catch (error) {
       throw new CommanderError(
         'ConfigurationError',
@@ -1094,7 +1096,7 @@ export class Command implements ICommand {
       ]
     }
 
-    const absolutePath = path.resolve(presetRoot, defaultFilename)
+    const absolutePath = this.#runtime.resolve(presetRoot, defaultFilename)
     return [
       {
         displayPath: absolutePath,
@@ -1105,15 +1107,15 @@ export class Command implements ICommand {
   }
 
   #resolvePresetFileAbsolutePath(filepath: string, presetRoot: string | undefined): string {
-    if (path.isAbsolute(filepath)) {
+    if (this.#runtime.isAbsolute(filepath)) {
       return filepath
     }
 
     if (presetRoot !== undefined) {
-      return path.resolve(presetRoot, filepath)
+      return this.#runtime.resolve(presetRoot, filepath)
     }
 
-    return path.resolve(process.cwd(), filepath)
+    return this.#runtime.resolve(this.#runtime.cwd(), filepath)
   }
 
   #assertPresetOptionFragments(
@@ -1298,16 +1300,16 @@ export class Command implements ICommand {
 
   async #readPresetFile(file: IPresetFileSource, commandPath: string): Promise<string | undefined> {
     try {
-      return await readFile(file.absolutePath, 'utf8')
+      return await this.#runtime.readFile(file.absolutePath)
     } catch (error) {
-      const ioError = error as NodeJS.ErrnoException
+      const ioError = error as { code?: string; message?: string }
       if (!file.explicit && ioError.code === 'ENOENT') {
         return undefined
       }
 
       throw new CommanderError(
         'ConfigurationError',
-        `failed to read preset file "${file.displayPath}": ${ioError.message}`,
+        `failed to read preset file "${file.displayPath}": ${(error as Error).message}`,
         commandPath,
       )
     }

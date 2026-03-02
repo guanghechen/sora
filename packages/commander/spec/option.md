@@ -196,7 +196,7 @@ root.subcommand('build', sub)
 
 ---
 
-## 预置输入文件（拟议）
+## 预置输入文件
 
 为支持“从文件注入预置输入”，新增三个 preset 入口：
 
@@ -204,7 +204,7 @@ root.subcommand('build', sub)
 mycli --preset-root=/abs/project --preset-opts=config/opt.ci --preset-envs=config/env.ci --log-level debug
 ```
 
-入口语法（拟议）：
+入口语法：
 
 1. `--preset-root=<abs-dir>` 或 `--preset-root <abs-dir>`。
 2. `--preset-opts=<file>` 或 `--preset-opts <file>`。
@@ -332,7 +332,7 @@ preset 来源决议：
 1. `preset-opts` 是“显式 token 注入”，不是 `default` 字段替代。
 2. `NO_COLOR` 判断基于 `ctx.envs`。
 
-### 强制约束（拟议）
+### 强制约束
 
 | 约束                                                              | 目的                              |
 | ----------------------------------------------------------------- | --------------------------------- |
@@ -352,7 +352,7 @@ preset 来源决议：
 3. 若 `preset-opts` 或 CLI 显式给出 `--color/--no-color`，优先于 `NO_COLOR` fallback。
 4. `preset-envs` 同 key 多次定义时，以 `@guanghechen/env` 的解析结果为准（后写覆盖前写）。
 
-### 错误语义（拟议）
+### 错误语义
 
 | 场景                                                    | 行为约定                                                 |
 | ------------------------------------------------------- | -------------------------------------------------------- |
@@ -426,7 +426,7 @@ import {
   logDateOption,
   logLevelOption,
   silentOption,
-} from '@guanghechen/commander'
+} from '@guanghechen/commander/browser'
 
 const cmd = new Command({ name: 'app', desc: 'Application' })
   .option(logLevelOption)   // --log-level
@@ -443,7 +443,7 @@ const cmd = new Command({ name: 'app', desc: 'Application' })
 Commander 也提供了常用的 `coerce` 工厂方法：
 
 ```typescript
-import { Coerce } from '@guanghechen/commander'
+import { Coerce } from '@guanghechen/commander/browser'
 
 cmd
   .option({

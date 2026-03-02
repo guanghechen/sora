@@ -7,6 +7,6 @@
 export * from './command'
 export * from './coerce'
 export * from './is'
-export * from './completion'
 export * from './options'
+export * from './runtime'
 export * from './types'
