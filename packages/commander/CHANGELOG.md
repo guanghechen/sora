@@ -1,5 +1,12 @@
 # Change Log
 
+## 4.7.1
+
+### Patch Changes
+
+- Fix built-in `--version` handling so leaf commands with a configured `version` print their own
+  version.
+
 ## 4.7.0
 
 ### Minor Changes
