@@ -230,11 +230,12 @@ tokenize 阶段校验长选项格式：
 
 ### 4.2 不支持的语法
 
-| 语法       | 示例      | 建议                             |
-| ---------- | --------- | -------------------------------- |
-| 短选项粘连 | `-ofile`  | 使用 `-o file`                   |
-| 短选项赋值 | `-o=file` | 使用 `-o file`                   |
-| 负数值输入 | `-o -1` / `--long -1` | 使用 `--long=-1` |
+| 语法             | 示例                     | 建议                     |
+| ---------------- | ------------------------ | ------------------------ |
+| 短选项粘连       | `-ofile`                 | 使用 `-o file`           |
+| 短选项赋值       | `-o=value`               | 使用 `-o value`          |
+| 负数值输入       | `-o -1` / `--long -1`    | 使用 `--long=-1`         |
+| 短选项负数内联赋值 | `-o=-1`                  | 不支持，使用 `--long=-1` |
 
 ### 4.3 Negative 选项
 
@@ -334,14 +335,14 @@ for token in argv:
 
 ### 8.2 运行时
 
-| 校验项          | 阶段    | 说明                      |
-| --------------- | ------- | ------------------------- |
-| unknown option  | resolve | 未定义的选项              |
-| required        | parse   | 缺失必需选项              |
-| type            | parse   | 值类型不匹配              |
-| choices         | parse   | 值不在列表中              |
-| negative type   | parse   | `--no-xxx` 用于非 boolean |
-| boolean value   | parse   | boolean 赋值非 true/false |
+| 校验项         | 阶段    | 说明                                 |
+| -------------- | ------- | ------------------------------------ |
+| unknown option | resolve | 未定义的选项                         |
+| required       | parse   | 缺失必需选项                         |
+| type           | parse   | 值类型不匹配（option/argument）      |
+| choices        | parse   | 值不在列表中（option/argument）      |
+| negative type  | parse   | `--no-xxx` 用于非 boolean            |
+| boolean value  | parse   | boolean 赋值非 true/false            |
 
 ---
 

@@ -112,6 +112,42 @@ c.txt → 位置参数
 
 ---
 
+## number 值语法与负数输入
+
+`type: 'number'` 的 option 解析规则：
+
+1. 输入值必须符合 JS primitive number 字面量语法；支持 numeric separator（`_`）。
+2. 语义等价于：按字面量语法预校验后移除 `_`，再执行 `Number(raw)` 转换。
+3. 支持十进制 / 科学计数法 / 二进制(`0b`) / 八进制(`0o`) / 十六进制(`0x`)。
+   例如：`+1`、`.5`、`1.`、`1_000`、`1e3`、`0b1010`、`0o755`、`0x10`。
+4. 非十进制前缀值仅支持无符号形式：`0x...` / `0b...` / `0o...`。
+   带符号形式（如 `+0x10`、`-0x10`、`+0b10`、`-0b10`、`+0o10`、`-0o10`）视为非法输入。
+5. 不接受空串、纯空白、`NaN`、`Infinity`、`-Infinity` 与其他非法字面量；命中时报 `InvalidType`。
+6. 负数值必须使用长选项内联 `=` 语法：`--long=-1`（同样适用于所有负数输入）。
+7. `--long -1` 与 `-o -1` 中的 `-1` 会被识别为 option token，不作为 value。
+8. 短选项不支持 `=` 语法（包含 `-o=-1` 与其他 `-o=value`）。
+
+示例：
+
+```bash
+mycli --number=1e3      # ✅
+mycli --number=0x10     # ✅
+mycli --number=+1       # ✅
+mycli --number=.5       # ✅
+mycli --number=1.       # ✅
+mycli --number=1_000    # ✅
+mycli --number=-1       # ✅
+mycli --number=-16      # ✅
+mycli --number=+0x10    # ❌ 非十进制前缀不支持显式正号
+mycli --number=-0x10    # ❌ 非十进制前缀不支持显式负号
+mycli --number -1       # ❌ -1 被识别为选项
+mycli -n -1             # ❌ -1 被识别为选项
+mycli -n=-1             # ❌ 不支持短选项赋值语法
+mycli --numbers=-1 --numbers=-2  # ✅ variadic 重复长选项
+```
+
+---
+
 ## Coerce
 
 单值转换，替代内置类型转换：
@@ -401,18 +437,6 @@ preset 来源决议：
 - boolean 值校验（仅 true/false）
 - `--no-xxx` 仅用于 boolean
 - unknown option 报错
-
----
-
-## 已知限制
-
-负数值仅支持长选项内联 `=` 语法：
-
-```bash
-mycli -n -1        # ❌ -1 被识别为选项
-mycli --number -1  # ❌ -1 被识别为选项
-mycli --number=-1  # ✅ 长选项 = 语法
-```
 
 ---
 

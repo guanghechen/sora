@@ -26,7 +26,7 @@ const pm = new Command({ name: 'pm', desc: 'Process Manager', version: '1.0.0' }
   .option({ long: 'verbose', short: 'v', type: 'boolean', args: 'none', desc: 'Verbose' })
 
 const start = new Command({ desc: 'Start a process' })
-  .argument({ name: 'name', desc: 'Process name', kind: 'required' })
+  .argument({ name: 'name', desc: 'Process name', kind: 'required', type: 'string' })
   .option({ long: 'detach', short: 'd', type: 'boolean', args: 'none', desc: 'Background' })
   .action(async ({ opts, args }) => {
     console.log(`Starting ${args.name}, detach: ${opts.detach}`)

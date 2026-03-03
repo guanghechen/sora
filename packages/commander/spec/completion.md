@@ -17,14 +17,34 @@ interface ICompletionOptionMeta {
   choices?: string[]
 }
 
+interface ICompletionArgumentMeta {
+  name: string
+  kind: 'required' | 'optional' | 'variadic' | 'some'
+  type: 'string' | 'choice'
+  choices?: string[] // 仅 type='choice' 时存在
+}
+
 interface ICompletionMeta {
   name: string
   desc: string
   aliases: string[]
   options: ICompletionOptionMeta[]
+  arguments: ICompletionArgumentMeta[]
   subcommands: ICompletionMeta[]
 }
 ```
+
+`ICompletionArgumentMeta.choices` 生成规则：
+
+- 来源于 `ICommandArgumentConfig.choices`
+- 元素统一按 `String(value)` 序列化为 shell 候选值
+- 对于 `type: 'choice'`，`choices` 必有值
+
+`ICompletionOptionMeta.choices` 生成规则：
+
+- 来源于 `ICommandOptionConfig.choices`
+- 元素统一按 `String(value)` 序列化为 shell 候选值
+- 生成脚本时必须按 shell 类型做转义（bash/fish/pwsh 各自遵循本 shell 的转义规则）
 
 ---
 
@@ -88,3 +108,18 @@ const script = new BashCompletion(meta, 'pm').generate()
 - `--no-{kebab-long}`（如 `--no-verbose`）
 
 `long`（camelCase）自动转换为 kebab-case 显示。
+
+---
+
+## Argument Choices 补全
+
+当 leaf command 的当前位置处于位置参数解析槽位，且该参数声明了 `choices` 时，shell 补全必须提供对应候选值。
+
+规则：
+
+1. 候选来源：当前槽位对应的 argument `choices`（按 `String(value)` 输出）。
+2. `variadic` / `some` 参数若声明了 `choices`，则每个后续槽位都重复给出同一组候选。
+3. `type: 'choice'` 的 argument 因 `choices` 必填，必须具备 choices 自动补全。
+4. `type: 'string'` 时不提供 argument 候选。
+5. 若当前在 option value 槽位，则优先补全该 option 的 value 候选（若定义了 option `choices`），不提供 argument 候选。
+6. 补全优先级：先处理子命令与 option 名补全；当进入 argument 槽位时再给出 argument `choices` 候选。

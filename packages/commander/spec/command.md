@@ -283,7 +283,7 @@ const root = new Command({ name: 'app', desc: 'App' })
 
 const deploy = new Command({ desc: 'Deploy' })
   .option({ long: 'force', type: 'boolean', args: 'none', desc: 'Force deploy' })
-  .argument({ name: 'target', desc: 'Deploy target', kind: 'required' })
+  .argument({ name: 'target', desc: 'Deploy target', kind: 'required', type: 'string' })
   .action(({ opts, args }) => {
     opts['force']      // 运行时存在（本地声明）
     args['target']     // 运行时存在（本地声明）
@@ -309,7 +309,7 @@ const root = new Command({ name: 'pm', desc: 'Process Manager', version: '1.0.0'
   .option({ long: 'verbose', short: 'v', type: 'boolean', args: 'none', desc: 'Verbose' })
 
 const start = new Command({ desc: 'Start a process' })
-  .argument({ name: 'name', desc: 'Process name', kind: 'required' })
+  .argument({ name: 'name', desc: 'Process name', kind: 'required', type: 'string' })
   .option({ long: 'detach', short: 'd', type: 'boolean', args: 'none', desc: 'Background' })
   .action(async ({ opts, args }) => {
     console.log(`Starting ${args.name}, detach: ${opts.detach}`)
@@ -355,27 +355,87 @@ root.subcommand('build', sub)
 位置参数**不继承**，仅在 leaf command 生效。
 
 ```typescript
+type ICommandArgumentType = 'string' | 'choice'
+type ICommandArgumentChoice = string
+
 interface ICommandArgumentConfig<T = unknown> {
-  name: string                        // 参数名称
-  desc: string                 // 描述
-  kind: 'required' | 'optional' | 'variadic'
-  type?: 'string' | 'number'          // 值类型（默认 string）
-  default?: T                         // 默认值（仅 optional）
-  coerce?: (rawValue: string) => T    // 自定义转换
+  name: string                          // 参数名称
+  desc: string                          // 描述
+  kind: 'required' | 'optional' | 'variadic' | 'some'
+  type: ICommandArgumentType            // 值类型（必填）
+  choices?: readonly ICommandArgumentChoice[] // 仅 type='choice' 可用
+  default?: T                           // 默认值（仅 optional）
+  coerce?: (rawValue: string) => T      // 自定义转换（优先于内置 type 转换）
 }
 ```
 
+`kind` 语义：
+
+| kind       | 基数约束  | help signature | 输出值形态         |
+| ---------- | --------- | -------------- | ------------------ |
+| `required` | 恰好 1 个 | `<name>`       | 单值               |
+| `optional` | 0 或 1 个 | `[name]`       | 单值或 `undefined` |
+| `variadic` | 0 或更多  | `[name...]`    | 数组（可空）       |
+| `some`     | 1 或更多  | `<name...>`    | 数组（至少 1 项）  |
+
 **约束**：
 
-- `required` 必须在 `optional` 之前
-- `variadic` 只能出现一次，且必须在最后
+- `required` 必须在 `optional` / `variadic` / `some` 之前
+- `variadic` 与 `some` 只能出现一次（两者合计最多一个），且必须在最后
 - `required` 不能有 `default`
+- `type` 为必填，不允许省略
+- `type='string'` 时，不允许提供 `choices`
+- `type='choice'` 时，`choices` 必填且必须为非空 `string[]`
+- `default` 仅允许用于 `optional`，且必须通过 `type + choices` 校验
+- `default` 校验不经过 `coerce`
+
+上述约束违例均属于构建期 `ConfigurationError`。
+
+`default` 校验细则：
+
+- `type='string'`：`default` 必须是 `string`
+- `type='choice'`：`default` 必须是 `string`，且命中 `choices`
+
+**解析与校验顺序**（单值）：
+
+1. 若存在 `coerce`，先执行 `coerce(raw)`。
+2. 若不存在 `coerce`，执行内置 `type` 转换：
+   - `string`: 保留原始字符串。
+   - `choice`: 保留原始字符串。
+3. 若 `type='choice'`，执行 choices 校验；不在集合内时报 `InvalidChoice`。
+
+当存在 `coerce` 时：
+
+- `coerce` 返回值必须与 `type` 对齐：
+  - `type='string'`：返回值必须是 `string`
+  - `type='choice'`：返回值必须是 `string`
+- 不对齐属于 parse 阶段错误，抛 `InvalidType`。
+- `type='choice'` 时，`choices` 校验对象为 `coerce` 返回值。
+
+`variadic` 与 `some` 参数在 parse 阶段按元素逐项执行上述顺序，并逐项做 choices 校验。
+
+额外约束：
+
+- `kind='variadic'` 允许解析为空数组 `[]`。
+- `kind='some'` 解析结果必须至少包含 1 项；否则报 `MissingRequiredArgument`。
 
 ```typescript
 const cmd = new Command({ name: 'copy', desc: 'Copy files' })
-  .argument({ name: 'source', desc: 'Source', kind: 'required' })
-  .argument({ name: 'dest', desc: 'Destination', kind: 'required' })
-  .argument({ name: 'extras', desc: 'Extra files', kind: 'variadic' })
+  .argument({ name: 'source', desc: 'Source', kind: 'required', type: 'string' })
+  .argument({
+    name: 'mode',
+    desc: 'Copy mode',
+    kind: 'optional',
+    type: 'choice',
+    default: 'safe',
+    choices: ['safe', 'force'],
+  })
+  .argument({
+    name: 'extras',
+    desc: 'Extra files',
+    kind: 'some',
+    type: 'string',
+  })
 ```
 
 ---
@@ -409,7 +469,7 @@ const cmd = new Command({ name: 'copy', desc: 'Copy files' })
 │  └────────────────────────────────────────────────────────────────────────┘  │
 │                                   ↓                                          │
 │  ┌────────────────────────────────────────────────────────────────────────┐  │
-│  │ 3. PRESET（输入预置）                                                 │  │
+│  │ 3. PRESET（输入预置）                                                  │  │
 │  │    仅在 `--` 之前扫描 --preset-root/--preset-opts/--preset-envs        │  │
 │  │    先决议唯一 presetRoot（CLI --preset-root LWW > command fallback）   │  │
 │  │    command fallback: leaf -> ... -> root 首命中即停止                  │  │
@@ -677,10 +737,36 @@ cli repo help sync # 显示 repo sync 子命令帮助
 
 ## 帮助输出格式
 
+help 输出 section 顺序：`Usage` → `Arguments` → `Options` → `Commands` → `Examples`。
+
+`Arguments` section 渲染规则：
+
+1. 仅当当前 command 声明了至少一个位置参数时展示。
+2. `signature` 按 `kind` 渲染：`required => <name>`、`optional => [name]`、`variadic => [name...]`、`some => <name...>`。
+3. 每行包含 `signature + desc`，并按需追加元信息：
+   - `[type: ...]`（始终展示）
+   - `[default: ...]`（仅 `optional` 且声明了 `default`）
+   - `[choices: ...]`（声明了 `choices`）
+4. 元信息顺序固定为：`[type: ...] [default: ...] [choices: ...]`。
+5. `default` 与 `choices` 的值展示使用 `JSON.stringify`：
+   - `[default: {JSON.stringify(value)}]`
+   - `[choices: {choices.map(JSON.stringify).join(', ')}]`
+6. `Arguments` / `Options` / `Commands` 三个 section 的描述列起始位置必须全局对齐：
+   - 先收集三者所有签名列（`signature/name`），计算统一 `labelWidth`（按显示宽度计算，ASCII=1，CJK=2）。
+   - 每行渲染为：`  {label.padEnd(labelWidth)}  {desc}`。
+   - plain/terminal 渲染必须复用同一套 display-width helper，禁止各自实现不同宽度算法。
+   - 显示宽度计算必须忽略 ANSI 转义序列；combining mark 记为宽度 0。
+   - 终端彩色渲染下，颜色转义序列不计入宽度。
+
 ```
 Process Manager
 
-Usage: pm [options] [command]
+Usage: pm [options] [command] <target> [mode] <extras...>
+
+Arguments:
+  <target>            Deploy target [type: string]
+  [mode]              Deploy mode [type: choice] [default: "safe"] [choices: "safe", "force"]
+  <extras...>         Extra files [type: string]
 
 Options:
       --color         Enable colored help output
@@ -717,7 +803,7 @@ const pm = new Command({ name: 'pm', desc: 'Process Manager', version: '1.0.0' }
   .option({ long: 'config', short: 'c', type: 'string', args: 'required', desc: 'Config' })
 
 const start = new Command({ desc: 'Start a process' })
-  .argument({ name: 'name', desc: 'Process name', kind: 'required' })
+  .argument({ name: 'name', desc: 'Process name', kind: 'required', type: 'string' })
   .option({ long: 'detach', short: 'd', type: 'boolean', args: 'none', desc: 'Background' })
   .action(async ({ opts, args }) => {
     console.log(`Starting ${args.name}...`)
