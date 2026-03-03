@@ -28,7 +28,7 @@ describe('Command (spec aligned)', () => {
       const cmd = new Command({ name: 'app', desc: 'app' })
         .option({ long: 'verbose', short: 'v', type: 'boolean', args: 'none', desc: 'verbose' })
         .option({ long: 'port', type: 'number', args: 'required', desc: 'port' })
-        .argument({ name: 'input', kind: 'required', desc: 'input' })
+        .argument({ name: 'input', kind: 'required', type: 'string', desc: 'input' })
 
       const result = await cmd.parse({ argv: ['-v', '--port', '8080', 'index.ts'], envs: {} })
 
@@ -108,6 +108,7 @@ describe('Command (spec aligned)', () => {
       const cmd = new Command({ name: 'cli', desc: 'cli' }).argument({
         name: 'input',
         kind: 'required',
+        type: 'string',
         desc: 'input',
       })
 
@@ -124,6 +125,7 @@ describe('Command (spec aligned)', () => {
       const cmd = new Command({ name: 'cli', desc: 'cli' }).argument({
         name: 'input',
         kind: 'required',
+        type: 'string',
         desc: 'input',
       })
 
@@ -568,6 +570,7 @@ describe('Command (spec aligned)', () => {
       const cmd = new Command({ name: 'cli', desc: 'cli' }).argument({
         name: 'items',
         kind: 'variadic',
+        type: 'string',
         desc: 'items',
       })
 
@@ -794,7 +797,7 @@ describe('Command (spec aligned)', () => {
           args: 'variadic',
           desc: 'files',
         })
-        .argument({ name: 'rest', kind: 'variadic', desc: 'rest' })
+        .argument({ name: 'rest', kind: 'variadic', type: 'string', desc: 'rest' })
 
       const result = await cmd.parse({ argv: ['--files=first', 'a', 'b'], envs: {} })
       expect(result.opts).toEqual({ files: ['first'] })
@@ -875,10 +878,55 @@ describe('Command (spec aligned)', () => {
       )
     })
 
+    it('should parse JS primitive number literals for options and enforce negative-value boundary', async () => {
+      const cmd = new Command({ name: 'cli', desc: 'cli' }).option({
+        long: 'port',
+        short: 'p',
+        type: 'number',
+        args: 'required',
+        desc: 'port',
+      })
+
+      const samples = [
+        '1e3',
+        '0x10',
+        '0b1010',
+        '0o10',
+        '+1',
+        '.5',
+        '1.',
+        '1.5',
+        '1.5e2',
+        '1_000',
+        '-1',
+      ]
+      for (const sample of samples) {
+        const result = await cmd.parse({ argv: [`--port=${sample}`], envs: {} })
+        expect(result.opts.port).toBe(Number(sample.replaceAll('_', '')))
+      }
+
+      await expect(cmd.parse({ argv: ['--port', '-1'], envs: {} })).rejects.toThrow(
+        'requires a value',
+      )
+      await expect(cmd.parse({ argv: ['--port=+0x10'], envs: {} })).rejects.toThrow(
+        'invalid number',
+      )
+      await expect(cmd.parse({ argv: ['--port=-0x10'], envs: {} })).rejects.toThrow(
+        'invalid number',
+      )
+      await expect(cmd.parse({ argv: ['-p=-1'], envs: {} })).rejects.toThrow('is not supported')
+    })
+
     it('should parse optional argument default and reject too many args', async () => {
       const cmd = new Command({ name: 'cli', desc: 'cli' })
-        .argument({ name: 'input', kind: 'required', desc: 'input' })
-        .argument({ name: 'output', kind: 'optional', desc: 'output', default: 'dist.txt' })
+        .argument({ name: 'input', kind: 'required', type: 'string', desc: 'input' })
+        .argument({
+          name: 'output',
+          kind: 'optional',
+          type: 'string',
+          desc: 'output',
+          default: 'dist.txt',
+        })
 
       const result = await cmd.parse({ argv: ['a.txt'], envs: {} })
       expect(result.args).toEqual({ input: 'a.txt', output: 'dist.txt' })
@@ -888,25 +936,55 @@ describe('Command (spec aligned)', () => {
       )
     })
 
-    it('should reject invalid argument conversion', async () => {
+    it('should enforce some argument cardinality', async () => {
+      const cmd = new Command({ name: 'cli', desc: 'cli' }).argument({
+        name: 'files',
+        kind: 'some',
+        type: 'string',
+        desc: 'files',
+      })
+
+      await expect(cmd.parse({ argv: [], envs: {} })).rejects.toThrow('missing required argument')
+
+      const result = await cmd.parse({ argv: ['a.txt', 'b.txt'], envs: {} })
+      expect(result.args).toEqual({ files: ['a.txt', 'b.txt'] })
+    })
+
+    it('should validate argument choice and coerce result type', async () => {
       const cmd = new Command({ name: 'cli', desc: 'cli' })
-        .argument({ name: 'port', kind: 'required', type: 'number', desc: 'port' })
+        .argument({
+          name: 'mode',
+          kind: 'required',
+          type: 'choice',
+          choices: ['safe', 'force'],
+          desc: 'mode',
+        })
         .argument({
           name: 'target',
           kind: 'optional',
+          type: 'string',
           desc: 'target',
           coerce: raw => {
             if (raw === 'bad') {
               throw new Error('bad')
             }
+            if (raw === 'typed') {
+              return 123 as unknown as string
+            }
             return raw
           },
         })
 
-      await expect(cmd.parse({ argv: ['abc'], envs: {} })).rejects.toThrow('invalid number "abc"')
-      await expect(cmd.parse({ argv: ['8080', 'bad'], envs: {} })).rejects.toThrow(
+      await expect(cmd.parse({ argv: ['abc'], envs: {} })).rejects.toThrow('invalid value "abc"')
+      await expect(cmd.parse({ argv: ['safe', 'bad'], envs: {} })).rejects.toThrow(
         'invalid value "bad"',
       )
+      await expect(cmd.parse({ argv: ['safe', 'typed'], envs: {} })).rejects.toThrow(
+        'expected string',
+      )
+
+      const result = await cmd.parse({ argv: ['force', 'ok'], envs: {} })
+      expect(result.args).toEqual({ mode: 'force', target: 'ok' })
     })
   })
 
@@ -960,7 +1038,7 @@ describe('Command (spec aligned)', () => {
     it('should expose defensive getters', () => {
       const cmd = new Command({ name: 'cli', desc: 'cli', version: '1.0.0' })
       cmd.option({ long: 'verbose', type: 'boolean', args: 'none', short: 'v', desc: 'verbose' })
-      cmd.argument({ name: 'input', kind: 'required', desc: 'input' })
+      cmd.argument({ name: 'input', kind: 'required', type: 'string', desc: 'input' })
       cmd.example('Title', 'run', 'desc')
 
       const options = cmd.options
@@ -968,7 +1046,7 @@ describe('Command (spec aligned)', () => {
       const examples = cmd.examples
 
       options.push({ long: 'foo', type: 'boolean', args: 'none', desc: 'foo' })
-      args.push({ name: 'x', kind: 'optional', desc: 'x' })
+      args.push({ name: 'x', kind: 'optional', type: 'string', desc: 'x' })
       examples[0].title = 'Mutated'
 
       expect(cmd.version).toBe('1.0.0')
@@ -1037,26 +1115,62 @@ describe('Command (spec aligned)', () => {
       ).toThrow('already defined')
 
       expect(() =>
-        cmd.argument({ name: 'input', kind: 'required', desc: 'input', default: 'x' }),
-      ).toThrow('cannot have a default value')
+        cmd.argument({
+          name: 'input',
+          kind: 'required',
+          type: 'string',
+          desc: 'input',
+          default: 'x',
+        }),
+      ).toThrow('only optional argument')
 
       const argsCmd = new Command({ name: 'args', desc: 'args' })
-      argsCmd.argument({ name: 'first', kind: 'optional', desc: 'first' })
+      argsCmd.argument({ name: 'first', kind: 'optional', type: 'string', desc: 'first' })
       expect(() =>
-        argsCmd.argument({ name: 'required', kind: 'required', desc: 'required' }),
+        argsCmd.argument({ name: 'required', kind: 'required', type: 'string', desc: 'required' }),
       ).toThrow('cannot come after optional/variadic')
 
       const variadicCmd = new Command({ name: 'variadic', desc: 'variadic' })
-      variadicCmd.argument({ name: 'files', kind: 'variadic', desc: 'files' })
-      expect(() => variadicCmd.argument({ name: 'next', kind: 'optional', desc: 'next' })).toThrow(
-        'variadic argument must be the last argument',
-      )
+      variadicCmd.argument({ name: 'files', kind: 'variadic', type: 'string', desc: 'files' })
+      expect(() =>
+        variadicCmd.argument({ name: 'next', kind: 'optional', type: 'string', desc: 'next' }),
+      ).toThrow('variadic/some argument must be the last argument')
 
       const multiVariadicCmd = new Command({ name: 'multi', desc: 'multi' })
-      multiVariadicCmd.argument({ name: 'files', kind: 'variadic', desc: 'files' })
+      multiVariadicCmd.argument({ name: 'files', kind: 'variadic', type: 'string', desc: 'files' })
       expect(() =>
-        multiVariadicCmd.argument({ name: 'more', kind: 'variadic', desc: 'more' }),
-      ).toThrow('only one variadic argument is allowed')
+        multiVariadicCmd.argument({ name: 'more', kind: 'variadic', type: 'string', desc: 'more' }),
+      ).toThrow('only one variadic/some argument is allowed')
+
+      expect(() =>
+        cmd.argument({
+          name: 'mode',
+          kind: 'optional',
+          type: 'choice',
+          desc: 'mode',
+        }),
+      ).toThrow('must declare a non-empty choices array')
+
+      expect(() =>
+        cmd.argument({
+          name: 'label',
+          kind: 'optional',
+          type: 'string',
+          choices: ['a'],
+          desc: 'label',
+        }),
+      ).toThrow('cannot declare choices')
+
+      expect(() =>
+        cmd.argument({
+          name: 'channel',
+          kind: 'optional',
+          type: 'choice',
+          choices: ['dev', 'prod'],
+          default: 'test',
+          desc: 'channel',
+        }),
+      ).toThrow('must be one of declared choices')
     })
 
     it('should validate example payloads', () => {
@@ -1112,7 +1226,7 @@ describe('Command (spec aligned)', () => {
 
       const root = new Command({ name: 'cli', desc: 'cli root' })
         .option({ long: 'verbose', short: 'v', type: 'boolean', args: 'none', desc: 'verbose' })
-        .argument({ name: 'input', kind: 'optional', desc: 'input' })
+        .argument({ name: 'input', kind: 'optional', type: 'string', desc: 'input' })
         .example('Quick Start', 'build src.ts', 'build one file')
       const sub = new Command({ desc: 'build subcommand' })
       root.subcommand('build', sub).subcommand('b', sub)
@@ -1184,6 +1298,7 @@ describe('Command (spec aligned)', () => {
       const cmd = new Command({ name: 'cli', desc: 'cli' }).argument({
         name: 'items',
         kind: 'variadic',
+        type: 'string',
         desc: 'items',
       })
 
@@ -1249,7 +1364,7 @@ describe('Command (spec aligned)', () => {
 
         const cmd = new Command({ name: 'cli', desc: 'cli' })
           .option({ long: 'mode', type: 'string', args: 'required', desc: 'mode' })
-          .argument({ name: 'rest', kind: 'variadic', desc: 'rest' })
+          .argument({ name: 'rest', kind: 'variadic', type: 'string', desc: 'rest' })
 
         const result = await cmd.parse({
           argv: [
@@ -1336,6 +1451,50 @@ describe('Command (spec aligned)', () => {
       expect(helpText).toContain('Examples:')
       expect(helpText).toContain('  - Quick Start')
       expect(helpText).toContain('    cli run')
+    })
+
+    it('formatHelp should render Arguments section and keep columns aligned', () => {
+      const cmd = new Command({ name: 'cli', desc: 'cli' })
+        .argument({ name: 'target', kind: 'required', type: 'string', desc: 'Deploy target' })
+        .argument({
+          name: 'mode',
+          kind: 'optional',
+          type: 'choice',
+          choices: ['safe', 'force'],
+          default: 'safe',
+          desc: 'Deploy mode',
+        })
+        .option({
+          long: 'verbose',
+          short: 'v',
+          type: 'boolean',
+          args: 'none',
+          desc: 'Verbose output',
+        })
+
+      cmd.subcommand('start', new Command({ desc: 'Start process' }))
+
+      const helpText = cmd.formatHelp()
+      const lines = helpText.split('\n')
+
+      const argLine = lines.find(line => line.includes('Deploy target'))
+      const optionLine = lines.find(line => line.includes('Verbose output'))
+      const commandLine = lines.find(line => line.includes('Start process'))
+      const modeLine = lines.find(line => line.includes('Deploy mode'))
+
+      expect(helpText).toContain('Arguments:')
+      expect(helpText).toContain('<target>')
+      expect(modeLine).toContain('[type: choice]')
+      expect(modeLine).toContain('[default: "safe"]')
+      expect(modeLine).toContain('[choices: "safe", "force"]')
+      expect(argLine).toBeDefined()
+      expect(optionLine).toBeDefined()
+      expect(commandLine).toBeDefined()
+
+      if (argLine && optionLine && commandLine) {
+        expect(argLine.indexOf('Deploy target')).toBe(optionLine.indexOf('Verbose output'))
+        expect(argLine.indexOf('Deploy target')).toBe(commandLine.indexOf('Start process'))
+      }
     })
 
     it('should handle action errors with exit code 1', async () => {

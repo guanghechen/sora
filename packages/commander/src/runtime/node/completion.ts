@@ -175,6 +175,7 @@ export class BashCompletion {
       '',
       `${funcName}() {`,
       '  local cur prev words cword',
+      '  local opts arg_choices prefer_value_choices',
       '  _init_completion || return',
       '',
       ...this.#generateCommandCase(this.#meta, 1),
@@ -193,25 +194,24 @@ export class BashCompletion {
     const indent = '  '.repeat(depth)
     const lines: string[] = []
 
-    // Build options string (including --no-{kebab-long} for boolean options)
+    // Build options string (including --no-{kebab-long} for boolean options).
     const optParts: string[] = []
     for (const opt of cmd.options) {
       const kebabLong = camelToKebabCase(opt.long)
-      if (opt.short) optParts.push(`-${opt.short}`)
-      optParts.push(`--${kebabLong}`)
+      if (opt.short) optParts.push(this.#escapeWord(`-${opt.short}`))
+      optParts.push(this.#escapeWord(`--${kebabLong}`))
       if (!opt.takesValue) {
-        // Boolean option - add negative form
-        optParts.push(`--no-${kebabLong}`)
+        optParts.push(this.#escapeWord(`--no-${kebabLong}`))
       }
     }
 
-    // Build subcommands string
-    const subParts = cmd.subcommands.flatMap(sub => [sub.name, ...sub.aliases])
+    const subParts = cmd.subcommands
+      .flatMap(sub => [sub.name, ...sub.aliases])
+      .map(value => this.#escapeWord(value))
 
     const allOpts = [...optParts, ...subParts].join(' ')
 
     if (cmd.subcommands.length > 0) {
-      // Has subcommands - use case statement
       lines.push(`${indent}case "\${words[${depth}]}" in`)
 
       for (const sub of cmd.subcommands) {
@@ -223,14 +223,121 @@ export class BashCompletion {
 
       lines.push(`${indent}  *)`)
       lines.push(`${indent}    opts="${allOpts}"`)
+      this.#appendChoiceLogicForCommand(lines, `${indent}    `, cmd, depth)
       lines.push(`${indent}    ;;`)
       lines.push(`${indent}esac`)
     } else {
-      // Leaf command
       lines.push(`${indent}opts="${allOpts}"`)
+      this.#appendChoiceLogicForCommand(lines, indent, cmd, depth)
     }
 
     return lines
+  }
+
+  #serializeWordList(words: string[]): string {
+    return words.map(choice => this.#escapeWord(choice)).join(' ')
+  }
+
+  #appendChoiceLogicForCommand(
+    lines: string[],
+    indent: string,
+    cmd: ICompletionMeta,
+    depth: number,
+  ): void {
+    const valueOptions = cmd.options.filter(opt => opt.takesValue)
+    const valueOptionsWithChoices = valueOptions.filter(
+      opt => opt.choices && opt.choices.length > 0,
+    )
+    const valueLongPatterns = valueOptions.map(opt => `--${camelToKebabCase(opt.long)}`)
+    const valueShortPatterns = valueOptions
+      .map(opt => opt.short)
+      .filter((short): short is string => typeof short === 'string')
+
+    lines.push(`${indent}prefer_value_choices=0`)
+
+    if (valueOptionsWithChoices.length > 0) {
+      lines.push(`${indent}if [[ "$cur" != -* ]]; then`)
+      lines.push(`${indent}  case "$prev" in`)
+      for (const opt of valueOptionsWithChoices) {
+        const patterns = [`--${camelToKebabCase(opt.long)}`]
+        if (opt.short) {
+          patterns.push(`-${opt.short}`)
+        }
+        lines.push(`${indent}    ${patterns.join('|')})`)
+        lines.push(`${indent}      opts="${this.#serializeWordList(opt.choices ?? [])}"`)
+        lines.push(`${indent}      prefer_value_choices=1`)
+        lines.push(`${indent}      ;;`)
+      }
+      lines.push(`${indent}  esac`)
+      lines.push(`${indent}fi`)
+    }
+
+    lines.push(`${indent}if [[ $prefer_value_choices -eq 0 ]]; then`)
+    lines.push(`${indent}  positional_count=0`)
+    lines.push(`${indent}  expect_value=0`)
+    lines.push(`${indent}  for ((idx=${depth}; idx<cword; idx++)); do`)
+    lines.push(`${indent}    token="\${words[idx]}"`)
+    lines.push(`${indent}    if [[ $expect_value -eq 1 ]]; then`)
+    lines.push(`${indent}      expect_value=0`)
+    lines.push(`${indent}      continue`)
+    lines.push(`${indent}    fi`)
+    lines.push(`${indent}    if [[ "$token" == --* ]]; then`)
+    lines.push(`${indent}      if [[ "$token" == *=* ]]; then`)
+    lines.push(`${indent}        continue`)
+    lines.push(`${indent}      fi`)
+    if (valueLongPatterns.length > 0) {
+      lines.push(`${indent}      case "$token" in`)
+      lines.push(`${indent}        ${valueLongPatterns.join('|')}) expect_value=1 ;;`)
+      lines.push(`${indent}      esac`)
+    }
+    lines.push(`${indent}      continue`)
+    lines.push(`${indent}    fi`)
+    lines.push(`${indent}    if [[ "$token" == -* && "$token" != "-" ]]; then`)
+    lines.push(`${indent}      if [[ \${#token} -eq 2 ]]; then`)
+    if (valueShortPatterns.length > 0) {
+      lines.push(`${indent}        case "\${token:1:1}" in`)
+      lines.push(`${indent}          ${valueShortPatterns.join('|')}) expect_value=1 ;;`)
+      lines.push(`${indent}        esac`)
+    }
+    lines.push(`${indent}      fi`)
+    lines.push(`${indent}      continue`)
+    lines.push(`${indent}    fi`)
+    lines.push(`${indent}    positional_count=$((positional_count + 1))`)
+    lines.push(`${indent}  done`)
+    lines.push(`${indent}  if [[ $expect_value -eq 1 ]]; then`)
+    lines.push(`${indent}    opts=""`)
+    lines.push(`${indent}    prefer_value_choices=1`)
+    lines.push(`${indent}  elif [[ "$cur" != -* ]]; then`)
+    lines.push(`${indent}    arg_slot=-1`)
+    lines.push(`${indent}    arg_count=${cmd.arguments.length}`)
+    const hasRestArgument =
+      cmd.arguments.length > 0 &&
+      (cmd.arguments[cmd.arguments.length - 1].kind === 'variadic' ||
+        cmd.arguments[cmd.arguments.length - 1].kind === 'some')
+    lines.push(`${indent}    has_rest=${hasRestArgument ? 1 : 0}`)
+    lines.push(
+      `${indent}    if [[ $has_rest -eq 1 && $positional_count -ge $((arg_count - 1)) ]]; then`,
+    )
+    lines.push(`${indent}      arg_slot=$((arg_count - 1))`)
+    lines.push(`${indent}    elif [[ $positional_count -lt $arg_count ]]; then`)
+    lines.push(`${indent}      arg_slot=$positional_count`)
+    lines.push(`${indent}    fi`)
+    lines.push(`${indent}    case "$arg_slot" in`)
+    for (let index = 0; index < cmd.arguments.length; index += 1) {
+      const arg = cmd.arguments[index]
+      if (arg.type !== 'choice' || !arg.choices || arg.choices.length === 0) {
+        continue
+      }
+
+      lines.push(`${indent}      ${index}) opts="${this.#serializeWordList(arg.choices)}" ;;`)
+    }
+    lines.push(`${indent}    esac`)
+    lines.push(`${indent}  fi`)
+    lines.push(`${indent}fi`)
+  }
+
+  #escapeWord(word: string): string {
+    return word.replace(/([\\\s'"`$!])/g, '\\$1')
   }
 
   #sanitizeName(name: string): string {
@@ -243,16 +350,20 @@ export class BashCompletion {
 export class FishCompletion {
   readonly #meta: ICompletionMeta
   readonly #programName: string
+  readonly #slotMatcherName: string
 
   constructor(meta: ICompletionMeta, programName: string) {
     this.#meta = meta
     this.#programName = programName
+    this.#slotMatcherName = `__${this.#sanitizeName(programName)}_match_arg_slot`
   }
 
   public generate(): string {
     const lines: string[] = [
       `# Fish completion for ${this.#programName}`,
       '# Generated by @guanghechen/commander',
+      '',
+      ...this.#generateSlotMatcherFunction(),
       '',
       ...this.#generateCommandCompletions(this.#meta, []),
       '',
@@ -277,7 +388,7 @@ export class FishCompletion {
       line += ` -l ${kebabLong}`
       line += ` -d '${this.#escape(opt.desc)}'`
       if (opt.choices && opt.choices.length > 0) {
-        line += ` -xa '${opt.choices.join(' ')}'`
+        line += ` -xa '${opt.choices.map(choice => this.#escapeChoice(choice)).join(' ')}'`
       }
       lines.push(line)
 
@@ -289,6 +400,41 @@ export class FishCompletion {
         noLine += ` -d '${this.#escape(opt.desc)}'`
         lines.push(noLine)
       }
+    }
+
+    const valueOptionLongs = cmd.options
+      .filter(opt => opt.takesValue)
+      .map(opt => camelToKebabCase(opt.long))
+      .join(',')
+    const valueOptionShorts = cmd.options
+      .filter(opt => opt.takesValue && opt.short)
+      .map(opt => opt.short as string)
+      .join(',')
+    const argCount = cmd.arguments.length
+    const hasRestArgument =
+      argCount > 0 &&
+      (cmd.arguments[argCount - 1].kind === 'variadic' ||
+        cmd.arguments[argCount - 1].kind === 'some')
+
+    for (let index = 0; index < cmd.arguments.length; index += 1) {
+      const arg = cmd.arguments[index]
+      if (arg.type !== 'choice' || !arg.choices || arg.choices.length === 0) {
+        continue
+      }
+
+      let line = `complete -c ${this.#programName}`
+      const slotCondition = `${this.#slotMatcherName} ${parentPath.length} ${argCount} ${
+        hasRestArgument ? 1 : 0
+      } ${index} '${valueOptionLongs}' '${valueOptionShorts}'`
+      if (condition) {
+        line += ` -n '${condition}; and ${slotCondition}'`
+      } else {
+        line += ` -n '${slotCondition}'`
+      }
+      line += ` -f`
+      line += ` -a '${arg.choices.map(choice => this.#escapeChoice(choice)).join(' ')}'`
+      line += ` -d '${this.#escape(`Argument: ${arg.name}`)}'`
+      lines.push(line)
     }
 
     // Generate subcommand completions
@@ -337,6 +483,71 @@ export class FishCompletion {
   #escape(s: string): string {
     return s.replace(/'/g, "\\'")
   }
+
+  #escapeChoice(s: string): string {
+    return s.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\s/g, '\\ ')
+  }
+
+  #sanitizeName(name: string): string {
+    return name.replace(/[^a-zA-Z0-9]/g, '_')
+  }
+
+  #generateSlotMatcherFunction(): string[] {
+    return [
+      `function ${this.#slotMatcherName} --argument-names depth arg_count has_rest target_index long_opts short_opts`,
+      '  set -l tokens (commandline -opc)',
+      '  set -l start (math $depth + 2)',
+      '  set -l positional 0',
+      '  set -l expect_value 0',
+      '  set -l i $start',
+      '  set -l token_count (count $tokens)',
+      '  set -l long_list (string split "," -- $long_opts)',
+      '  set -l short_list (string split "," -- $short_opts)',
+      '  while test $i -le $token_count',
+      '    set -l token $tokens[$i]',
+      '    if test $expect_value -eq 1',
+      '      set expect_value 0',
+      '      set i (math $i + 1)',
+      '      continue',
+      '    end',
+      '    if string match -q -- "--*" $token',
+      '      if string match -q -- "*=*" $token',
+      '        set i (math $i + 1)',
+      '        continue',
+      '      end',
+      '      set -l opt_name (string replace -r "^--" "" -- $token)',
+      '      if contains -- $opt_name $long_list',
+      '        set expect_value 1',
+      '      end',
+      '      set i (math $i + 1)',
+      '      continue',
+      '    end',
+      '    if test "$token" != "-"; and string match -q -- "-*" $token',
+      '      set -l raw_short (string replace -r "^-" "" -- $token)',
+      '      if test (string length -- $raw_short) -eq 1',
+      '        if contains -- $raw_short $short_list',
+      '          set expect_value 1',
+      '        end',
+      '      end',
+      '      set i (math $i + 1)',
+      '      continue',
+      '    end',
+      '    set positional (math $positional + 1)',
+      '    set i (math $i + 1)',
+      '  end',
+      '  if test $expect_value -eq 1',
+      '    return 1',
+      '  end',
+      '  set -l slot -1',
+      '  if test $has_rest -eq 1; and test $positional -ge (math $arg_count - 1)',
+      '    set slot (math $arg_count - 1)',
+      '  else if test $positional -lt $arg_count',
+      '    set slot $positional',
+      '  end',
+      '  test $slot -eq $target_index',
+      'end',
+    ]
+  }
 }
 
 // ==================== PwshCompletion ====================
@@ -367,15 +578,104 @@ export class PwshCompletion {
       '',
       '  # Find current command context',
       '  $cmd = $commands',
+      '  $commandDepth = 1',
       '  foreach ($word in $words[1..($words.Count - 1)]) {',
       '    if ($word.StartsWith("-")) { continue }',
       '    if ($cmd.subcommands -and $cmd.subcommands.ContainsKey($word)) {',
       '      $cmd = $cmd.subcommands[$word]',
+      '      $commandDepth += 1',
       '    }',
       '  }',
       '',
       '  # Generate completions',
       '  $completions = @()',
+      '',
+      '  # Option value slot (always higher priority than arguments)',
+      '  $previous = if ($words.Count -ge 2) { $words[$words.Count - 2] } else { $null }',
+      '  if ($previous) {',
+      '    foreach ($opt in $cmd.options) {',
+      '      $isLong = $previous -eq "--$($opt.long)"',
+      '      $isShort = $opt.short -and $previous -eq "-$($opt.short)"',
+      '      if ($isLong -or $isShort) {',
+      '        if ($opt.choices) {',
+      '          foreach ($choice in $opt.choices) {',
+      '            if ($choice -like "$current*") {',
+      '              $completions += [System.Management.Automation.CompletionResult]::new(',
+      '                $choice,',
+      '                $choice,',
+      '                "ParameterValue",',
+      '                $choice',
+      '              )',
+      '            }',
+      '          }',
+      '        }',
+      '        return $completions',
+      '      }',
+      '    }',
+      '  }',
+      '',
+      '  # Determine argument slot',
+      '  $positionalCount = 0',
+      '  $expectValue = $false',
+      '  for ($i = $commandDepth; $i -lt ($words.Count - 1); $i += 1) {',
+      '    $token = $words[$i]',
+      '    if ($expectValue) {',
+      '      $expectValue = $false',
+      '      continue',
+      '    }',
+      '    if ($token.StartsWith("--")) {',
+      '      if ($token.Contains("=")) { continue }',
+      '      foreach ($opt in $cmd.options) {',
+      '        if ($token -eq "--$($opt.long)" -and $opt.takesValue) {',
+      '          $expectValue = $true',
+      '          break',
+      '        }',
+      '      }',
+      '      continue',
+      '    }',
+      '    if ($token.StartsWith("-") -and $token -ne "-") {',
+      '      if ($token.Length -eq 2) {',
+      '        foreach ($opt in $cmd.options) {',
+      '          if ($opt.short -and $token -eq "-$($opt.short)" -and $opt.takesValue) {',
+      '            $expectValue = $true',
+      '            break',
+      '          }',
+      '        }',
+      '      }',
+      '      continue',
+      '    }',
+      '    $positionalCount += 1',
+      '  }',
+      '  if ($expectValue) {',
+      '    return $completions',
+      '  }',
+      '  if (-not $current.StartsWith("-") -and $cmd.arguments -and $cmd.arguments.Count -gt 0) {',
+      '    $argSlot = -1',
+      '    $argCount = $cmd.arguments.Count',
+      '    $lastArg = $cmd.arguments[$argCount - 1]',
+      '    $hasRest = $lastArg.kind -eq "variadic" -or $lastArg.kind -eq "some"',
+      '    if ($hasRest -and $positionalCount -ge ($argCount - 1)) {',
+      '      $argSlot = $argCount - 1',
+      '    } elseif ($positionalCount -lt $argCount) {',
+      '      $argSlot = $positionalCount',
+      '    }',
+      '    if ($argSlot -ge 0) {',
+      '      $argMeta = $cmd.arguments[$argSlot]',
+      '      if ($argMeta.choices) {',
+      '        foreach ($choice in $argMeta.choices) {',
+      '          if ($choice -like "$current*") {',
+      '            $completions += [System.Management.Automation.CompletionResult]::new(',
+      '              $choice,',
+      '              $choice,',
+      '              "ParameterValue",',
+      '              $choice',
+      '            )',
+      '          }',
+      '        }',
+      '        return $completions',
+      '      }',
+      '    }',
+      '  }',
       '',
       '  # Options',
       '  if ($current.StartsWith("-")) {',
@@ -385,7 +685,7 @@ export class PwshCompletion {
       '          "--$($opt.long)",',
       '          $opt.long,',
       '          "ParameterName",',
-      '          $opt.desc',
+      '          $opt.description',
       '        )',
       '      }',
       '      if ($opt.isBoolean -and "--no-$($opt.long)" -like "$current*") {',
@@ -393,7 +693,7 @@ export class PwshCompletion {
       '          "--no-$($opt.long)",',
       '          "no-$($opt.long)",',
       '          "ParameterName",',
-      '          $opt.desc',
+      '          $opt.description',
       '        )',
       '      }',
       '      if ($opt.short -and "-$($opt.short)" -like "$current*") {',
@@ -401,7 +701,7 @@ export class PwshCompletion {
       '          "-$($opt.short)",',
       '          $opt.short,',
       '          "ParameterName",',
-      '          $opt.desc',
+      '          $opt.description',
       '        )',
       '      }',
       '    }',
@@ -415,7 +715,7 @@ export class PwshCompletion {
       '          $sub,',
       '          $sub,',
       '          "Command",',
-      '          $cmd.subcommands[$sub].desc',
+      '          $cmd.subcommands[$sub].description',
       '        )',
       '      }',
       '    }',
@@ -443,8 +743,31 @@ export class PwshCompletion {
       lines.push(`${indent}    long = '${kebabLong}'`)
       lines.push(`${indent}    description = '${this.#escape(opt.desc)}'`)
       lines.push(`${indent}    isBoolean = $${!opt.takesValue}`)
+      lines.push(`${indent}    takesValue = $${opt.takesValue}`)
       if (opt.choices) {
-        lines.push(`${indent}    choices = @('${opt.choices.join("', '")}')`)
+        lines.push(
+          `${indent}    choices = @('${opt.choices
+            .map(choice => this.#escape(choice))
+            .join("', '")}')`,
+        )
+      }
+      lines.push(`${indent}  }`)
+    }
+    lines.push(`${indent})`)
+
+    // Arguments
+    lines.push(`${indent}arguments = @(`)
+    for (const arg of cmd.arguments) {
+      lines.push(`${indent}  @{`)
+      lines.push(`${indent}    name = '${this.#escape(arg.name)}'`)
+      lines.push(`${indent}    kind = '${arg.kind}'`)
+      lines.push(`${indent}    type = '${arg.type}'`)
+      if (arg.choices && arg.choices.length > 0) {
+        lines.push(
+          `${indent}    choices = @('${arg.choices
+            .map(choice => this.#escape(choice))
+            .join("', '")}')`,
+        )
       }
       lines.push(`${indent}  }`)
     }

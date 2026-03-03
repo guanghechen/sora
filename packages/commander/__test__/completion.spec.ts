@@ -25,12 +25,14 @@ describe('BashCompletion', () => {
       desc: 'Test CLI',
       aliases: [],
       options: [{ short: 'h', long: 'help', desc: 'Show help', takesValue: false }],
+      arguments: [],
       subcommands: [
         {
           name: 'sub',
           desc: 'Subcommand',
           aliases: [],
           options: [],
+          arguments: [],
           subcommands: [],
         },
       ],
@@ -53,6 +55,7 @@ describe('BashCompletion', () => {
       desc: 'My CLI Tool',
       aliases: [],
       options: [],
+      arguments: [],
       subcommands: [],
     }
 
@@ -69,6 +72,7 @@ describe('BashCompletion', () => {
       desc: 'Test CLI',
       aliases: [],
       options: [{ long: 'verbose', desc: 'Verbose mode', takesValue: false }],
+      arguments: [],
       subcommands: [],
     }
 
@@ -95,6 +99,7 @@ describe('FishCompletion', () => {
           choices: ['json', 'yaml'],
         },
       ],
+      arguments: [],
       subcommands: [],
     }
 
@@ -114,6 +119,7 @@ describe('FishCompletion', () => {
       desc: "It's a test",
       aliases: [],
       options: [{ long: 'opt', desc: "Option's description", takesValue: false }],
+      arguments: [],
       subcommands: [],
     }
 
@@ -129,6 +135,7 @@ describe('FishCompletion', () => {
       desc: 'Test CLI',
       aliases: [],
       options: [{ long: 'verbose', desc: 'Verbose mode', takesValue: false }],
+      arguments: [],
       subcommands: [],
     }
 
@@ -145,18 +152,21 @@ describe('FishCompletion', () => {
       desc: 'Test CLI',
       aliases: [],
       options: [],
+      arguments: [],
       subcommands: [
         {
           name: 'repo',
           desc: 'Repo',
           aliases: [],
           options: [],
+          arguments: [],
           subcommands: [
             {
               name: 'sync',
               desc: 'Sync',
               aliases: ['s'],
               options: [],
+              arguments: [],
               subcommands: [],
             },
           ],
@@ -181,12 +191,14 @@ describe('PwshCompletion', () => {
       desc: 'Test CLI',
       aliases: [],
       options: [{ short: 'h', long: 'help', desc: 'Show help', takesValue: false }],
+      arguments: [],
       subcommands: [
         {
           name: 'init',
           desc: 'Initialize',
           aliases: [],
           options: [],
+          arguments: [],
           subcommands: [],
         },
       ],
@@ -208,6 +220,7 @@ describe('PwshCompletion', () => {
       desc: "It's a test",
       aliases: [],
       options: [],
+      arguments: [],
       subcommands: [],
     }
 
@@ -223,6 +236,7 @@ describe('PwshCompletion', () => {
       desc: 'Test CLI',
       aliases: [],
       options: [{ long: 'verbose', desc: 'Verbose mode', takesValue: false }],
+      arguments: [],
       subcommands: [],
     }
 
@@ -259,6 +273,50 @@ describe('Integration with Command', () => {
 
     const pwshScript = new PwshCompletion(meta, 'mycli').generate()
     expect(pwshScript).toContain("long = 'config'")
+  })
+
+  it('should expose argument choices in completion metadata and scripts', () => {
+    const root = new Command({ name: 'mycli', desc: 'My CLI' })
+      .argument({
+        name: 'mode',
+        kind: 'required',
+        type: 'choice',
+        choices: ['safe', 'force'],
+        desc: 'Mode',
+      })
+      .option({
+        long: 'format',
+        short: 'f',
+        type: 'string',
+        args: 'required',
+        choices: ['json', 'yaml'],
+        desc: 'Format',
+      })
+
+    const meta = root.getCompletionMeta()
+    expect(meta.arguments).toEqual([
+      {
+        name: 'mode',
+        kind: 'required',
+        type: 'choice',
+        choices: ['safe', 'force'],
+      },
+    ])
+
+    const bashScript = new BashCompletion(meta, 'mycli').generate()
+    expect(bashScript).toContain('safe force')
+
+    const fishScript = new FishCompletion(meta, 'mycli').generate()
+    expect(fishScript).toContain('Argument: mode')
+    expect(fishScript).toContain("-xa 'json yaml'")
+
+    const pwshScript = new PwshCompletion(meta, 'mycli').generate()
+    expect(pwshScript).toContain("choices = @('safe', 'force')")
+    expect(pwshScript).toContain('Determine argument slot')
+
+    expect(bashScript).toContain('arg_slot')
+    expect(pwshScript).toContain('$argSlot')
+    expect(fishScript).toContain('_match_arg_slot')
   })
 })
 
@@ -743,12 +801,14 @@ describe('Completion with aliases and nested subcommands', () => {
       desc: 'Test CLI',
       aliases: [],
       options: [],
+      arguments: [],
       subcommands: [
         {
           name: 'build',
           desc: 'Build project',
           aliases: ['b', 'compile'],
           options: [],
+          arguments: [],
           subcommands: [],
         },
       ],
@@ -766,12 +826,14 @@ describe('Completion with aliases and nested subcommands', () => {
       desc: 'Test CLI',
       aliases: [],
       options: [],
+      arguments: [],
       subcommands: [
         {
           name: 'build',
           desc: 'Build project',
           aliases: ['b'],
           options: [],
+          arguments: [],
           subcommands: [],
         },
       ],
@@ -791,12 +853,14 @@ describe('Completion with aliases and nested subcommands', () => {
       desc: 'Test CLI',
       aliases: [],
       options: [],
+      arguments: [],
       subcommands: [
         {
           name: 'build',
           desc: 'Build project',
           aliases: ['b'],
           options: [],
+          arguments: [],
           subcommands: [],
         },
       ],
@@ -815,18 +879,21 @@ describe('Completion with aliases and nested subcommands', () => {
       desc: 'Test CLI',
       aliases: [],
       options: [],
+      arguments: [],
       subcommands: [
         {
           name: 'config',
           desc: 'Config commands',
           aliases: [],
           options: [],
+          arguments: [],
           subcommands: [
             {
               name: 'set',
               desc: 'Set config value',
               aliases: [],
               options: [{ long: 'key', desc: 'Key name', takesValue: true }],
+              arguments: [],
               subcommands: [],
             },
           ],
@@ -848,18 +915,21 @@ describe('Completion with aliases and nested subcommands', () => {
       desc: 'Test CLI',
       aliases: [],
       options: [],
+      arguments: [],
       subcommands: [
         {
           name: 'config',
           desc: 'Config commands',
           aliases: [],
           options: [],
+          arguments: [],
           subcommands: [
             {
               name: 'set',
               desc: 'Set config value',
               aliases: ['s'],
               options: [],
+              arguments: [],
               subcommands: [],
             },
           ],
@@ -890,6 +960,7 @@ describe('Completion with aliases and nested subcommands', () => {
           choices: ['json', 'yaml', 'xml'],
         },
       ],
+      arguments: [],
       subcommands: [],
     }
 
@@ -912,6 +983,7 @@ describe('Completion with aliases and nested subcommands', () => {
           takesValue: false,
         },
       ],
+      arguments: [],
       subcommands: [],
     }
 

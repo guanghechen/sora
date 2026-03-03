@@ -39,8 +39,10 @@ import type {
   ICommandShiftResult,
   ICommandToken,
   ICommandTokenizeResult,
+  ICompletionArgumentMeta,
   ICompletionMeta,
   ICompletionOptionMeta,
+  IHelpArgumentLine,
   IHelpCommandLine,
   IHelpData,
   IHelpExampleLine,
@@ -70,6 +72,145 @@ function kebabToCamelCase(str: string): string {
 /** Convert camelCase to kebab-case. */
 function camelToKebabCase(str: string): string {
   return str.replace(/[A-Z]/g, m => '-' + m.toLowerCase())
+}
+
+const ANSI_ESCAPE_REGEX = new RegExp(String.raw`\\x1B\\[[0-?]*[ -/]*[@-~]`, 'g')
+const DECIMAL_INTEGER_REGEX = /^\d(?:_?\d)*$/
+const DECIMAL_FRACTION_REGEX = /^\d(?:_?\d)*$/
+const DECIMAL_EXPONENT_REGEX = /^[eE][+-]?\d(?:_?\d)*$/
+const BINARY_LITERAL_REGEX = /^0[bB][01](?:_?[01])*$/
+const OCTAL_LITERAL_REGEX = /^0[oO][0-7](?:_?[0-7])*$/
+const HEX_LITERAL_REGEX = /^0[xX][0-9a-fA-F](?:_?[0-9a-fA-F])*$/
+
+function stripAnsi(value: string): string {
+  return value.replace(ANSI_ESCAPE_REGEX, '')
+}
+
+function isCombiningMark(codePoint: number): boolean {
+  return (
+    (codePoint >= 0x0300 && codePoint <= 0x036f) ||
+    (codePoint >= 0x1ab0 && codePoint <= 0x1aff) ||
+    (codePoint >= 0x1dc0 && codePoint <= 0x1dff) ||
+    (codePoint >= 0x20d0 && codePoint <= 0x20ff) ||
+    (codePoint >= 0xfe20 && codePoint <= 0xfe2f)
+  )
+}
+
+function isWideCodePoint(codePoint: number): boolean {
+  if (codePoint < 0x1100) {
+    return false
+  }
+
+  return (
+    codePoint <= 0x115f ||
+    codePoint === 0x2329 ||
+    codePoint === 0x232a ||
+    (codePoint >= 0x2e80 && codePoint <= 0x3247 && codePoint !== 0x303f) ||
+    (codePoint >= 0x3250 && codePoint <= 0x4dbf) ||
+    (codePoint >= 0x4e00 && codePoint <= 0xa4c6) ||
+    (codePoint >= 0xa960 && codePoint <= 0xa97c) ||
+    (codePoint >= 0xac00 && codePoint <= 0xd7a3) ||
+    (codePoint >= 0xf900 && codePoint <= 0xfaff) ||
+    (codePoint >= 0xfe10 && codePoint <= 0xfe19) ||
+    (codePoint >= 0xfe30 && codePoint <= 0xfe6b) ||
+    (codePoint >= 0xff01 && codePoint <= 0xff60) ||
+    (codePoint >= 0xffe0 && codePoint <= 0xffe6) ||
+    (codePoint >= 0x1b000 && codePoint <= 0x1b001) ||
+    (codePoint >= 0x1f200 && codePoint <= 0x1f251) ||
+    (codePoint >= 0x20000 && codePoint <= 0x3fffd)
+  )
+}
+
+function getDisplayWidth(value: string): number {
+  const normalized = stripAnsi(value).normalize('NFC')
+  let width = 0
+
+  for (const char of normalized) {
+    const codePoint = char.codePointAt(0)
+    if (codePoint === undefined || isCombiningMark(codePoint)) {
+      continue
+    }
+
+    width += isWideCodePoint(codePoint) ? 2 : 1
+  }
+
+  return width
+}
+
+function padDisplayEnd(value: string, targetWidth: number): string {
+  const width = getDisplayWidth(value)
+  if (width >= targetWidth) {
+    return value
+  }
+  return value + ' '.repeat(targetWidth - width)
+}
+
+function isValidPrimitiveNumberLiteral(rawValue: string): boolean {
+  if (rawValue.trim() !== rawValue || rawValue.length === 0) {
+    return false
+  }
+
+  if (rawValue === 'NaN' || rawValue === 'Infinity' || rawValue === '-Infinity') {
+    return false
+  }
+
+  if (BINARY_LITERAL_REGEX.test(rawValue)) {
+    return true
+  }
+  if (OCTAL_LITERAL_REGEX.test(rawValue)) {
+    return true
+  }
+  if (HEX_LITERAL_REGEX.test(rawValue)) {
+    return true
+  }
+
+  const sign = rawValue[0] === '+' || rawValue[0] === '-' ? rawValue[0] : ''
+  const body = sign ? rawValue.slice(1) : rawValue
+
+  if (body.length === 0) {
+    return false
+  }
+
+  const expIndex = body.search(/[eE]/)
+  const basePart = expIndex === -1 ? body : body.slice(0, expIndex)
+  const expPart = expIndex === -1 ? '' : body.slice(expIndex)
+
+  if (expPart && !DECIMAL_EXPONENT_REGEX.test(expPart)) {
+    return false
+  }
+
+  if (basePart.includes('.')) {
+    const decimalParts = basePart.split('.')
+    if (decimalParts.length !== 2) {
+      return false
+    }
+
+    const [intPart, fracPart] = decimalParts
+    const intOk = intPart.length === 0 || DECIMAL_INTEGER_REGEX.test(intPart)
+    const fracOk = fracPart.length === 0 || DECIMAL_FRACTION_REGEX.test(fracPart)
+
+    if (!intOk || !fracOk) {
+      return false
+    }
+
+    return intPart.length > 0 || fracPart.length > 0
+  }
+
+  return DECIMAL_INTEGER_REGEX.test(basePart)
+}
+
+function parsePrimitiveNumber(rawValue: string): number | undefined {
+  if (!isValidPrimitiveNumberLiteral(rawValue)) {
+    return undefined
+  }
+
+  const normalized = rawValue.replaceAll('_', '')
+  const value = Number(normalized)
+  if (!Number.isFinite(value)) {
+    return undefined
+  }
+
+  return value
 }
 
 // ==================== Tokenize ====================
@@ -598,9 +739,34 @@ export class Command implements ICommand {
         usage += ` <${arg.name}>`
       } else if (arg.kind === 'optional') {
         usage += ` [${arg.name}]`
+      } else if (arg.kind === 'some') {
+        usage += ` <${arg.name}...>`
       } else {
         usage += ` [${arg.name}...]`
       }
+    }
+
+    const argumentsLines: IHelpArgumentLine[] = []
+    for (const arg of this.#arguments) {
+      const sig =
+        arg.kind === 'required'
+          ? `<${arg.name}>`
+          : arg.kind === 'optional'
+            ? `[${arg.name}]`
+            : arg.kind === 'some'
+              ? `<${arg.name}...>`
+              : `[${arg.name}...]`
+
+      const metadata: string[] = [`[type: ${arg.type}]`]
+      if (arg.kind === 'optional' && arg.default !== undefined) {
+        metadata.push(`[default: ${JSON.stringify(arg.default)}]`)
+      }
+      if (arg.choices && arg.choices.length > 0) {
+        metadata.push(`[choices: ${arg.choices.map(choice => JSON.stringify(choice)).join(', ')}]`)
+      }
+
+      const desc = metadata.length > 0 ? `${arg.desc} ${metadata.join(' ')}` : arg.desc
+      argumentsLines.push({ sig, desc })
     }
 
     const options: IHelpOptionLine[] = []
@@ -617,7 +783,7 @@ export class Command implements ICommand {
         desc += ` (default: ${JSON.stringify(opt.default)})`
       }
       if (opt.choices) {
-        desc += ` [choices: ${opt.choices.join(', ')}]`
+        desc += ` [choices: ${opt.choices.map(choice => JSON.stringify(choice)).join(', ')}]`
       }
 
       options.push({ sig, desc })
@@ -656,6 +822,7 @@ export class Command implements ICommand {
     return {
       desc: this.#desc,
       usage,
+      arguments: argumentsLines,
       options,
       commands,
       examples,
@@ -664,28 +831,34 @@ export class Command implements ICommand {
 
   #renderHelpPlain(helpData: IHelpData): string {
     const lines: string[] = []
+    const labelWidth = this.#getHelpLabelWidth(helpData)
+
     lines.push(helpData.desc)
     lines.push('')
 
     lines.push(helpData.usage)
     lines.push('')
 
+    if (helpData.arguments.length > 0) {
+      lines.push('Arguments:')
+      for (const { sig, desc } of helpData.arguments) {
+        lines.push(this.#renderAlignedHelpLine(sig, desc, labelWidth))
+      }
+      lines.push('')
+    }
+
     if (helpData.options.length > 0) {
       lines.push('Options:')
-      const maxSigLen = Math.max(...helpData.options.map(line => line.sig.length))
       for (const { sig, desc } of helpData.options) {
-        const padding = ' '.repeat(maxSigLen - sig.length + 2)
-        lines.push(`  ${sig}${padding}${desc}`)
+        lines.push(this.#renderAlignedHelpLine(sig, desc, labelWidth))
       }
       lines.push('')
     }
 
     if (helpData.commands.length > 0) {
       lines.push('Commands:')
-      const maxNameLen = Math.max(...helpData.commands.map(line => line.name.length))
       for (const { name, desc } of helpData.commands) {
-        const padding = ' '.repeat(maxNameLen - name.length + 2)
-        lines.push(`  ${name}${padding}${desc}`)
+        lines.push(this.#renderAlignedHelpLine(name, desc, labelWidth))
       }
       lines.push('')
     }
@@ -705,28 +878,46 @@ export class Command implements ICommand {
 
   #renderHelpTerminal(helpData: IHelpData): string {
     const lines: string[] = []
+    const labelWidth = this.#getHelpLabelWidth(helpData)
+
     lines.push(helpData.desc)
     lines.push('')
 
     lines.push(styleText(helpData.usage, TERMINAL_STYLE.bold))
     lines.push('')
 
+    if (helpData.arguments.length > 0) {
+      lines.push(styleText('Arguments:', TERMINAL_STYLE.bold, TERMINAL_STYLE.underline))
+      for (const { sig, desc } of helpData.arguments) {
+        lines.push(
+          this.#renderAlignedHelpLine(sig, desc, labelWidth, value =>
+            styleText(value, TERMINAL_STYLE.cyan),
+          ),
+        )
+      }
+      lines.push('')
+    }
+
     if (helpData.options.length > 0) {
       lines.push(styleText('Options:', TERMINAL_STYLE.bold, TERMINAL_STYLE.underline))
-      const maxSigLen = Math.max(...helpData.options.map(line => line.sig.length))
       for (const { sig, desc } of helpData.options) {
-        const padding = ' '.repeat(maxSigLen - sig.length + 2)
-        lines.push(`  ${styleText(sig, TERMINAL_STYLE.cyan)}${padding}${desc}`)
+        lines.push(
+          this.#renderAlignedHelpLine(sig, desc, labelWidth, value =>
+            styleText(value, TERMINAL_STYLE.cyan),
+          ),
+        )
       }
       lines.push('')
     }
 
     if (helpData.commands.length > 0) {
       lines.push(styleText('Commands:', TERMINAL_STYLE.bold, TERMINAL_STYLE.underline))
-      const maxNameLen = Math.max(...helpData.commands.map(line => line.name.length))
       for (const { name, desc } of helpData.commands) {
-        const padding = ' '.repeat(maxNameLen - name.length + 2)
-        lines.push(`  ${styleText(name, TERMINAL_STYLE.cyan)}${padding}${desc}`)
+        lines.push(
+          this.#renderAlignedHelpLine(name, desc, labelWidth, value =>
+            styleText(value, TERMINAL_STYLE.cyan),
+          ),
+        )
       }
       lines.push('')
     }
@@ -744,9 +935,34 @@ export class Command implements ICommand {
     return lines.join('\n')
   }
 
+  #getHelpLabelWidth(helpData: IHelpData): number {
+    const labels = [
+      ...helpData.arguments.map(line => line.sig),
+      ...helpData.options.map(line => line.sig),
+      ...helpData.commands.map(line => line.name),
+    ]
+    if (labels.length === 0) {
+      return 0
+    }
+
+    return Math.max(...labels.map(getDisplayWidth))
+  }
+
+  #renderAlignedHelpLine(
+    label: string,
+    desc: string,
+    labelWidth: number,
+    styleLabel?: (value: string) => string,
+  ): string {
+    const paddedLabel = padDisplayEnd(label, labelWidth)
+    const outputLabel = styleLabel ? styleLabel(paddedLabel) : paddedLabel
+    return `  ${outputLabel}  ${desc}`
+  }
+
   public getCompletionMeta(): ICompletionMeta {
     const allOptions = this.#resolveOptionPolicy().mergedOptions
     const options: ICompletionOptionMeta[] = []
+    const argumentsMeta: ICompletionArgumentMeta[] = []
 
     for (const opt of allOptions) {
       options.push({
@@ -754,7 +970,16 @@ export class Command implements ICommand {
         short: opt.short,
         desc: opt.desc,
         takesValue: opt.args !== 'none',
-        choices: opt.choices as string[] | undefined,
+        choices: opt.choices?.map(choice => String(choice)),
+      })
+    }
+
+    for (const arg of this.#arguments) {
+      argumentsMeta.push({
+        name: arg.name,
+        kind: arg.kind,
+        type: arg.type,
+        choices: arg.type === 'choice' ? arg.choices?.map(choice => String(choice)) : undefined,
       })
     }
 
@@ -763,6 +988,7 @@ export class Command implements ICommand {
       desc: this.#desc,
       aliases: [],
       options,
+      arguments: argumentsMeta,
       subcommands: this.#subcommandsList.map(entry => {
         const subMeta = entry.command.getCompletionMeta()
         return {
@@ -1742,8 +1968,8 @@ export class Command implements ICommand {
 
     // Built-in type conversion
     if (opt.type === 'number') {
-      const num = Number(rawValue)
-      if (Number.isNaN(num)) {
+      const num = parsePrimitiveNumber(rawValue)
+      if (num === undefined) {
         throw new CommanderError(
           'InvalidType',
           `invalid number "${rawValue}" for option "--${camelToKebabCase(opt.long)}"`,
@@ -1764,12 +1990,37 @@ export class Command implements ICommand {
     const args: ICommandParsedArgs = {}
 
     // Required count check
-    const requiredCount = argumentDefs.filter(a => a.kind === 'required').length
-    if (rawArgs.length < requiredCount) {
-      const missing = argumentDefs
-        .filter(a => a.kind === 'required')
-        .slice(rawArgs.length)
-        .map(a => a.name)
+    const missing: string[] = []
+    let remaining = rawArgs.length
+    for (const def of argumentDefs) {
+      if (def.kind === 'required') {
+        if (remaining === 0) {
+          missing.push(def.name)
+        } else {
+          remaining -= 1
+        }
+        continue
+      }
+
+      if (def.kind === 'optional') {
+        if (remaining > 0) {
+          remaining -= 1
+        }
+        continue
+      }
+
+      if (def.kind === 'some') {
+        if (remaining === 0) {
+          missing.push(def.name)
+        }
+        remaining = 0
+        continue
+      }
+
+      remaining = 0
+    }
+
+    if (missing.length > 0) {
       throw new CommanderError(
         'MissingRequiredArgument',
         `missing required argument(s): ${missing.join(', ')}`,
@@ -1788,12 +2039,31 @@ export class Command implements ICommand {
         break
       }
 
+      if (def.kind === 'some') {
+        const rest = rawArgs.slice(index)
+        if (rest.length === 0) {
+          throw new CommanderError(
+            'MissingRequiredArgument',
+            `missing required argument(s): ${def.name}`,
+            this.#getCommandPath(),
+          )
+        }
+        args[def.name] = rest.map(raw => this.#convertArgument(def, raw))
+        index = rawArgs.length
+        break
+      }
+
       const raw = rawArgs[index]
       if (raw === undefined) {
         if (def.kind === 'optional') {
           args[def.name] = def.default ?? undefined
           continue
         }
+        throw new CommanderError(
+          'MissingRequiredArgument',
+          `missing required argument(s): ${def.name}`,
+          this.#getCommandPath(),
+        )
       } else {
         args[def.name] = this.#convertArgument(def, raw)
         index += 1
@@ -1801,8 +2071,8 @@ export class Command implements ICommand {
     }
 
     // Too many arguments check (non-variadic)
-    const hasVariadic = argumentDefs.some(a => a.kind === 'variadic')
-    if (!hasVariadic && index < rawArgs.length) {
+    const hasRestArgument = argumentDefs.some(a => a.kind === 'variadic' || a.kind === 'some')
+    if (!hasRestArgument && index < rawArgs.length) {
       throw new CommanderError(
         'TooManyArguments',
         `too many arguments: expected ${argumentDefs.length}, got ${rawArgs.length}`,
@@ -1817,9 +2087,11 @@ export class Command implements ICommand {
    * Convert a single raw argument value.
    */
   #convertArgument(def: ICommandArgumentConfig, raw: string): unknown {
+    let value: unknown
+
     if (def.coerce) {
       try {
-        return def.coerce(raw)
+        value = def.coerce(raw)
       } catch {
         throw new CommanderError(
           'InvalidType',
@@ -1827,21 +2099,32 @@ export class Command implements ICommand {
           this.#getCommandPath(),
         )
       }
+    } else {
+      value = raw
     }
 
-    if (def.type === 'number') {
-      const n = Number(raw)
-      if (Number.isNaN(n)) {
+    if (typeof value !== 'string') {
+      throw new CommanderError(
+        'InvalidType',
+        `invalid value for argument "${def.name}": expected ${def.type}`,
+        this.#getCommandPath(),
+      )
+    }
+
+    if (def.type === 'choice') {
+      const choices = def.choices ?? []
+      if (!choices.includes(value)) {
         throw new CommanderError(
-          'InvalidType',
-          `invalid number "${raw}" for argument "${def.name}"`,
+          'InvalidChoice',
+          `invalid value "${value}" for argument "${def.name}". Allowed: ${choices
+            .map(choice => JSON.stringify(choice))
+            .join(', ')}`,
           this.#getCommandPath(),
         )
       }
-      return n
     }
 
-    return raw
+    return value
   }
 
   // ==================== Private: Option Merging ====================
@@ -2027,19 +2310,57 @@ export class Command implements ICommand {
   }
 
   #validateArgumentConfig(arg: ICommandArgumentConfig): void {
-    if (arg.kind === 'required' && arg.default !== undefined) {
+    if (arg.type !== 'string' && arg.type !== 'choice') {
       throw new CommanderError(
         'ConfigurationError',
-        `required argument "${arg.name}" cannot have a default value`,
+        `argument "${arg.name}" must specify a valid type`,
         this.#getCommandPath(),
       )
     }
 
-    if (arg.kind === 'variadic') {
-      if (this.#arguments.some(a => a.kind === 'variadic')) {
+    if (arg.default !== undefined && arg.kind !== 'optional') {
+      throw new CommanderError(
+        'ConfigurationError',
+        `only optional argument "${arg.name}" can have a default value`,
+        this.#getCommandPath(),
+      )
+    }
+
+    if (arg.type === 'string' && arg.choices !== undefined) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `argument "${arg.name}" of type "string" cannot declare choices`,
+        this.#getCommandPath(),
+      )
+    }
+
+    if (arg.type === 'choice') {
+      if (!Array.isArray(arg.choices) || arg.choices.length === 0) {
         throw new CommanderError(
           'ConfigurationError',
-          'only one variadic argument is allowed',
+          `argument "${arg.name}" of type "choice" must declare a non-empty choices array`,
+          this.#getCommandPath(),
+        )
+      }
+
+      if (arg.choices.some(choice => typeof choice !== 'string')) {
+        throw new CommanderError(
+          'ConfigurationError',
+          `argument "${arg.name}" choices must be string[]`,
+          this.#getCommandPath(),
+        )
+      }
+    }
+
+    if (arg.default !== undefined) {
+      this.#validateArgumentDefaultValue(arg)
+    }
+
+    if (arg.kind === 'variadic' || arg.kind === 'some') {
+      if (this.#arguments.some(a => a.kind === 'variadic' || a.kind === 'some')) {
+        throw new CommanderError(
+          'ConfigurationError',
+          'only one variadic/some argument is allowed',
           this.#getCommandPath(),
         )
       }
@@ -2047,21 +2368,44 @@ export class Command implements ICommand {
 
     if (this.#arguments.length > 0) {
       const last = this.#arguments[this.#arguments.length - 1]
-      if (last.kind === 'variadic') {
+      if (last.kind === 'variadic' || last.kind === 'some') {
         throw new CommanderError(
           'ConfigurationError',
-          'variadic argument must be the last argument',
+          'variadic/some argument must be the last argument',
           this.#getCommandPath(),
         )
       }
     }
 
     if (arg.kind === 'required') {
-      const hasOptional = this.#arguments.some(a => a.kind === 'optional' || a.kind === 'variadic')
+      const hasOptional = this.#arguments.some(
+        a => a.kind === 'optional' || a.kind === 'variadic' || a.kind === 'some',
+      )
       if (hasOptional) {
         throw new CommanderError(
           'ConfigurationError',
-          `required argument "${arg.name}" cannot come after optional/variadic arguments`,
+          `required argument "${arg.name}" cannot come after optional/variadic/some arguments`,
+          this.#getCommandPath(),
+        )
+      }
+    }
+  }
+
+  #validateArgumentDefaultValue(arg: ICommandArgumentConfig): void {
+    if (typeof arg.default !== 'string') {
+      throw new CommanderError(
+        'ConfigurationError',
+        `default value for argument "${arg.name}" must match type "${arg.type}"`,
+        this.#getCommandPath(),
+      )
+    }
+
+    if (arg.type === 'choice') {
+      const choices = arg.choices ?? []
+      if (!choices.includes(arg.default)) {
+        throw new CommanderError(
+          'ConfigurationError',
+          `default value for argument "${arg.name}" must be one of declared choices`,
           this.#getCommandPath(),
         )
       }

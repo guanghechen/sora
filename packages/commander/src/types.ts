@@ -76,10 +76,10 @@ export interface ICommandOptionConfig<T = unknown> {
 // ==================== Argument Types ====================
 
 /** Argument kind */
-export type ICommandArgumentKind = 'required' | 'optional' | 'variadic'
+export type ICommandArgumentKind = 'required' | 'optional' | 'variadic' | 'some'
 
 /** Argument value type */
-export type ICommandArgumentType = 'string' | 'number'
+export type ICommandArgumentType = 'string' | 'choice'
 
 /**
  * Positional argument configuration.
@@ -98,8 +98,10 @@ export interface ICommandArgumentConfig<T = unknown> {
   desc: string
   /** Argument kind: required / optional / variadic */
   kind: ICommandArgumentKind
-  /** Value type, defaults to 'string' */
-  type?: ICommandArgumentType
+  /** Value type */
+  type: ICommandArgumentType
+  /** Allowed values for choice type */
+  choices?: ReadonlyArray<string>
   /** Default value when not provided (only for optional arguments) */
   default?: T
   /** Custom value transformation (takes precedence over type conversion) */
@@ -362,6 +364,12 @@ export interface IHelpOptionLine {
   desc: string
 }
 
+/** Help argument line (internal) */
+export interface IHelpArgumentLine {
+  sig: string
+  desc: string
+}
+
 /** Help command line (internal) */
 export interface IHelpCommandLine {
   name: string
@@ -379,6 +387,7 @@ export interface IHelpExampleLine {
 export interface IHelpData {
   desc: string
   usage: string
+  arguments: IHelpArgumentLine[]
   options: IHelpOptionLine[]
   commands: IHelpCommandLine[]
   examples: IHelpExampleLine[]
@@ -443,6 +452,18 @@ export interface ICompletionOptionMeta {
   choices?: string[]
 }
 
+/** Argument metadata for completion */
+export interface ICompletionArgumentMeta {
+  /** Argument name */
+  name: string
+  /** Argument kind */
+  kind: ICommandArgumentKind
+  /** Argument type */
+  type: ICommandArgumentType
+  /** Allowed values (only for type='choice') */
+  choices?: string[]
+}
+
 /** Command metadata for completion */
 export interface ICompletionMeta {
   /** Command name */
@@ -453,6 +474,8 @@ export interface ICompletionMeta {
   aliases: string[]
   /** Options */
   options: ICompletionOptionMeta[]
+  /** Positional arguments */
+  arguments: ICompletionArgumentMeta[]
   /** Subcommands */
   subcommands: ICompletionMeta[]
 }
