@@ -109,7 +109,7 @@ export interface ICommandArgumentConfig<T = unknown> {
 // ==================== Command Types ====================
 
 export interface ICommandBuiltinOptionConfig {
-  /** Enable built-in --version option (root only, requires configured version) */
+  /** Enable built-in --version option (requires configured version on target command) */
   version?: boolean
   /** Enable built-in --color/--no-color option for help rendering (defaults respect NO_COLOR) */
   color?: boolean

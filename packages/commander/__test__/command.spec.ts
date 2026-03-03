@@ -145,7 +145,7 @@ describe('Command (spec aligned)', () => {
       expect(process.exit).toHaveBeenCalledWith(2)
     })
 
-    it('run should support root --version only when enabled', async () => {
+    it('run should support leaf --version when enabled', async () => {
       mockProcessExit()
       const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
@@ -156,17 +156,17 @@ describe('Command (spec aligned)', () => {
       expect(process.exit).not.toHaveBeenCalled()
     })
 
-    it('subcommand --version should be treated as normal token and fail unknown option', async () => {
+    it('subcommand --version should print subcommand version when configured', async () => {
       mockProcessExit()
-      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
       const root = new Command({ name: 'cli', desc: 'cli', version: '1.0.0' })
       root.subcommand('sub', new Command({ desc: 'sub', version: '2.0.0' }))
 
       await root.run({ argv: ['sub', '--version'], envs: {} })
 
-      expect(errorSpy).toHaveBeenCalledOnce()
-      expect(process.exit).toHaveBeenCalledWith(2)
+      expect(logSpy).toHaveBeenCalledWith('2.0.0')
+      expect(process.exit).not.toHaveBeenCalled()
     })
 
     it('should support help and help <child> syntax in run', async () => {
@@ -1208,6 +1208,14 @@ describe('Command (spec aligned)', () => {
       await expect(root.parse({ argv: ['sub', '--version'], envs: {} })).rejects.toThrow(
         'unknown option',
       )
+    })
+
+    it('should detect --version as control on subcommand with version', async () => {
+      const root = new Command({ name: 'cli', desc: 'cli', version: '1.0.0' })
+      root.subcommand('sub', new Command({ desc: 'sub', version: '2.0.0' }))
+
+      const result = await root.parse({ argv: ['sub', '--version'], envs: {} })
+      expect(result.ctx.controls).toEqual({ help: false, version: true })
     })
 
     it('should reject short option conflicts across chain', async () => {

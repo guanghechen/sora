@@ -1851,7 +1851,7 @@ export class Command implements ICommand {
   }
 
   #supportsBuiltinVersion(): boolean {
-    return this.#parent === undefined && this.#version !== undefined && this.#builtin.option.version
+    return this.#version !== undefined && this.#builtin.option.version
   }
 
   #resolveOptionPolicy(): ICommandOptionPolicy {
