@@ -71,9 +71,28 @@ await pm.run({ argv: process.argv.slice(2), envs: process.env })
 pm completion --bash > ~/.local/share/bash-completion/completions/pm
 pm completion --fish > ~/.config/fish/completions/pm.fish
 pm completion --pwsh >> $PROFILE
+pm completion --fish --write
+pm completion --fish --write ~/.config/fish/completions/pm.fish
 ```
 
 必须且只能指定一个 shell 选项。
+
+shell 选项错误语义：
+
+1. 未指定 shell（`--bash/--fish/--pwsh` 全未命中）时，抛 `MissingRequired`。
+2. 同时指定多个 shell 时，抛 `OptionConflict`。
+3. 上述两类属于 parse/validation 错误：`parse()` 抛错，`run()` 作为 CLI 入口时按 Exit Code `2` 处理。
+
+`--write` 语义：
+
+1. 长选项：`--write`、`--write=`、`--write <filepath>`、`--write=<filepath>` 均合法。
+2. 短选项：仅 `-w` 与 `-w <filepath>` 合法；不支持 `-w=` / `-w=<filepath>` / `-w<filepath>`。
+3. `--write`（无 filepath）时，`write = undefined`，视为启用写入模式并写入当前 shell 默认安装路径。
+4. `--write=` 时，`write = ''`，同样视为启用写入模式并写入当前 shell 默认安装路径。
+5. `--write <filepath>` 或 `--write=<filepath>`（以及 `-w <filepath>`）时，`write = '<filepath>'`，写入指定路径。
+6. 未出现 `--write`/`-w` 时，`write` key 不存在（读取值为 `undefined`），输出脚本到 stdout。
+7. 写入模式下，若父目录不存在则自动创建。
+8. 是否启用写入模式必须按 key 存在性判断（如 `Object.prototype.hasOwnProperty.call(opts, 'write')`），不能仅比较 `opts.write !== undefined`。
 
 ---
 

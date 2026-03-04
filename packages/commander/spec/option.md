@@ -6,11 +6,11 @@
 
 ## 命名规范
 
-| 场景                         | 格式                       | 示例          |
-| ---------------------------- | -------------------------- | ------------- |
-| `ICommandOptionConfig.long`  | camelCase                  | `logLevel`    |
-| 命令行输入                   | kebab-case（大小写不敏感） | `--log-level` |
-| help / 错误提示              | kebab-case（全小写）       | `--log-level` |
+| 场景                        | 格式                       | 示例          |
+| --------------------------- | -------------------------- | ------------- |
+| `ICommandOptionConfig.long` | camelCase                  | `logLevel`    |
+| 命令行输入                  | kebab-case（大小写不敏感） | `--log-level` |
+| help / 错误提示             | kebab-case（全小写）       | `--log-level` |
 
 详见 [charter.md](./charter.md) §3。
 
@@ -23,7 +23,7 @@
 type ICommandOptionType = 'boolean' | 'number' | 'string'
 
 /** 参数模式 */
-type ICommandOptionArgs = 'none' | 'required' | 'variadic'
+type ICommandOptionArgs = 'none' | 'required' | 'optional' | 'variadic'
 
 /** 选项配置 */
 interface ICommandOptionConfig<T = unknown> {
@@ -60,24 +60,45 @@ interface ICommandToken {
 
 `type` 和 `args` **必须同时指定**，组合决定默认解析类型：
 
-| type       | args       | 默认解析类型 | 示例                  |
-| ---------- | ---------- | ------------ | --------------------- |
-| `boolean`  | `none`     | `boolean`    | `--verbose`           |
-| `string`   | `required` | `string`     | `--output file`       |
-| `number`   | `required` | `number`     | `--port 8080`         |
-| `string`   | `variadic` | `string[]`   | `--files a.txt b.txt` |
-| `number`   | `variadic` | `number[]`   | `--ports 80 443`      |
+| type      | args       | 默认解析类型         | 示例                       |
+| --------- | ---------- | -------------------- | -------------------------- |
+| `boolean` | `none`     | `boolean`            | `--verbose`                |
+| `string`  | `required` | `string`             | `--output file`            |
+| `string`  | `optional` | `string / undefined` | `--write` / `--write path` |
+| `number`  | `required` | `number`             | `--port 8080`              |
+| `string`  | `variadic` | `string[]`           | `--files a.txt b.txt`      |
+| `number`  | `variadic` | `number[]`           | `--ports 80 443`           |
 
-说明：若提供 `coerce`，`none/required` 的输出类型为 `T`，`variadic` 的输出类型为 `T[]`（元素级 coerce）。
+说明：若提供 `coerce`：
+
+1. `none/required` 的输出类型为 `T`。
+2. `optional` 的输出类型为 `T | undefined`。
+3. `variadic` 的输出类型为 `T[]`（元素级 coerce）。
+
+`optional` 约束：
+
+1. 当前仅允许 `type: 'string', args: 'optional'`。
+2. 当 token 为裸 `--long` / `-s` 且未消费到值时，解析结果为 `undefined`。
+3. 当 token 为 `--long=` 时，解析结果为 `''`（空字符串）。
+4. 当 token 为 `--long=<value>` 或 `--long <value>`（`<value>` 非 option token）时，解析结果为该值。
+5. 当 option 未出现时，读取该字段同样可能得到 `undefined`；若需区分“未出现”与“显式传入无值”，必须结合 key 存在性判断（如 `Object.prototype.hasOwnProperty.call(opts, 'write')`）。
+
+`required` 约束：
+
+1. `required` 仅表示“该 option 必须出现”（presence），不等价于 `args: 'required'`。
+2. `required: true` 仅允许与 `args: 'required'` 组合。
+3. `required: true` 与 `args: 'optional'` / `args: 'variadic'` 组合属于非法配置（构建期 `ConfigurationError`）。
 
 **非法组合**（构建时报错）：
 
-| type       | args       | 原因                     |
-| ---------- | ---------- | ------------------------ |
-| `boolean`  | `required` | boolean 不接受参数       |
-| `boolean`  | `variadic` | boolean 不接受参数       |
-| `string`   | `none`     | string/number 必须有参数 |
-| `number`   | `none`     | string/number 必须有参数 |
+| type      | args       | 原因                     |
+| --------- | ---------- | ------------------------ |
+| `boolean` | `required` | boolean 不接受参数       |
+| `boolean` | `optional` | boolean 不接受参数       |
+| `boolean` | `variadic` | boolean 不接受参数       |
+| `string`  | `none`     | string/number 必须有参数 |
+| `number`  | `none`     | string/number 必须有参数 |
+| `number`  | `optional` | optional 仅支持 string   |
 
 ---
 
@@ -85,11 +106,12 @@ interface ICommandToken {
 
 resolve 阶段按 `args` 贪婪消费后续 tokens：
 
-| args        | 消费行为                            |
-| ----------- | ----------------------------------- |
-| `none`      | 不消费参数                          |
-| `required`  | 消费一个参数                        |
-| `variadic`  | 持续消费，直到遇到 `-` 开头的 token |
+| args       | 消费行为                                           |
+| ---------- | -------------------------------------------------- |
+| `none`     | 不消费参数                                         |
+| `required` | 消费一个参数                                       |
+| `optional` | 优先消费一个参数；若后续为 option 或不存在则不消费 |
+| `variadic` | 持续消费，直到遇到 `-` 开头的 token                |
 
 **`=` 语法**：值内嵌时立刻停止，不再贪婪：
 
@@ -105,10 +127,29 @@ resolve 阶段按 `args` 贪婪消费后续 tokens：
 tokens: [--output, foo.txt, --files, a.txt, b.txt, --verbose, c.txt]
 
 --output (required): 消费 foo.txt → 停止
+--write (optional): 若后续为普通 token 则消费一个；否则不消费 value token（落值语义见下）
 --files (variadic): 消费 a.txt, b.txt → 遇到 --verbose 停止
 --verbose (none): 不消费
 c.txt → 位置参数
 ```
+
+`optional` 示例：
+
+```bash
+mycli completion --fish --write            # write = undefined（字段存在，使用 shell 默认路径）
+mycli completion --fish                    # write 字段不存在（读取为 undefined）
+mycli completion --fish --write=           # write = ''
+mycli completion --fish --write out.fish   # write = 'out.fish'
+mycli completion --fish --write=out.fish   # write = 'out.fish'
+mycli completion --fish --write undefined  # write = 'undefined'
+```
+
+### optional 的 key 存在性与 default 回退
+
+1. 解析结果允许“值语义”和“存在语义”同时生效：`opts.write` 可为 `undefined`，但 key 仍可能存在。
+2. `default` 回退仅在 key 不存在时触发；key 已存在（即使值为 `undefined` / `''`）也不回退。
+3. 判定是否显式传入 option，必须使用 key 存在性判断，而非仅比较值是否为 `undefined`。
+4. `apply` 触发仍按值语义：当值为 `undefined` 时不触发 `apply`，即使 key 存在也不触发。
 
 ---
 
@@ -167,13 +208,18 @@ mycli --numbers=-1 --numbers=-2  # ✅ variadic 重复长选项
 // --port 80 443 → [80, 443]
 ```
 
-| 规则          | 说明                                               |
-| ------------- | -------------------------------------------------- |
-| 执行时机      | 解析到选项值后立即调用                             |
-| 作用域        | 每个值单独调用（variadic 逐项）                    |
-| variadic 结果 | 元素类型为 `coerce` 返回类型，整体为数组 `T[]`     |
-| 顺序          | 先 coerce，再 choices 校验                         |
-| 异常          | 抛出异常则中止解析                                 |
+| 规则          | 说明                                           |
+| ------------- | ---------------------------------------------- |
+| 执行时机      | 解析到选项值后立即调用                         |
+| 作用域        | 每个值单独调用（variadic 逐项）                |
+| variadic 结果 | 元素类型为 `coerce` 返回类型，整体为数组 `T[]` |
+| 顺序          | 先 coerce，再 choices 校验                     |
+| 异常          | 抛出异常则中止解析                             |
+
+补充：`args='optional'` 时：
+
+1. 裸 `--long` / `-s`（值为 `undefined`）不执行 `coerce`。
+2. `--long=`（值为 `''`）与 `--long=<value>`（值为非空字符串）会执行 `coerce`。
 
 ---
 
@@ -195,12 +241,12 @@ parse 阶段将解析后的值应用到 context：
 })
 ```
 
-| 规则       | 说明                               |
-| ---------- | ---------------------------------- |
-| 执行时机   | parse 阶段，tokens → opts 之后     |
-| 执行顺序   | 自顶向下（root → leaf）            |
-| 触发条件   | 仅在值非 undefined 时执行          |
-| 覆盖行为   | 子命令覆盖选项时使用子命令的 apply |
+| 规则     | 说明                               |
+| -------- | ---------------------------------- |
+| 执行时机 | parse 阶段，tokens → opts 之后     |
+| 执行顺序 | 自顶向下（root → leaf）            |
+| 触发条件 | 仅在值非 undefined 时执行          |
+| 覆盖行为 | 子命令覆盖选项时使用子命令的 apply |
 
 ---
 
@@ -222,11 +268,11 @@ root.subcommand('build', sub)
 
 `cli build --log-level debug` 合并后：
 
-| long      | 来源 |
-| --------- | ---- |
-| verbose   | root |
-| logLevel  | sub  |
-| watch     | sub  |
+| long     | 来源 |
+| -------- | ---- |
+| verbose  | root |
+| logLevel | sub  |
+| watch    | sub  |
 
 `long` 是唯一标识，`short` 仅是 alias。
 
@@ -263,7 +309,7 @@ mycli --preset-root=/abs/project --preset-opts=config/opt.ci --preset-envs=confi
 
 语义：
 
-1. `<abs-dir>` 必须是有效绝对目录，否则立即报 `ConfigurationError`。
+1. `<abs-dir>` 必须是有效绝对目录（`isAbsolute(root) && stat(root).isDirectory()`），否则立即报 `ConfigurationError`。
 2. 生效后作为 `--preset-opts` / `--preset-envs` 相对路径的 parent dir。
 3. 若 `--preset-root` 多次出现，后者覆盖前者。
 4. 当存在有效 preset root 且用户未显式提供对应 `--preset-opts` / `--preset-envs` 时，自动尝试默认文件：
@@ -349,19 +395,19 @@ info
 
 preset 来源决议：
 
-| 决议对象          | 规则                                                                          |
-| ----------------- | ----------------------------------------------------------------------------- |
+| 决议对象          | 规则                                                                                                                               |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | `presetRoot`      | 先决议唯一 root：CLI `--preset-root` 后者覆盖前者；若未声明则回退 command preset root；若命中 root 无效则立即 `ConfigurationError` |
-| `presetOptsFiles` | 在 root 决议后再 collect：按顺序收集 CLI `--preset-opts`；为空且有有效 root 才尝试默认文件                                           |
-| `presetEnvsFiles` | 在 root 决议后再 collect：按顺序收集 CLI `--preset-envs`；为空且有有效 root 才尝试默认文件                                           |
+| `presetOptsFiles` | 在 root 决议后再 collect：按顺序收集 CLI `--preset-opts`；为空且有有效 root 才尝试默认文件                                         |
+| `presetEnvsFiles` | 在 root 决议后再 collect：按顺序收集 CLI `--preset-envs`；为空且有有效 root 才尝试默认文件                                         |
 
 值覆盖优先级：
 
-| 维度            | 覆盖顺序（高 -> 低）                                              |
-| --------------- | ----------------------------------------------------------------- |
-| option 值       | user CLI token > preset-opts token > option `default` / 隐式默认  |
-| env 值          | `ctx.sources.preset.envs` > `ctx.sources.user.envs`               |
-| color fallback  | 显式 `--color/--no-color` > `NO_COLOR` fallback                   |
+| 维度           | 覆盖顺序（高 -> 低）                                             |
+| -------------- | ---------------------------------------------------------------- |
+| option 值      | user CLI token > preset-opts token > option `default` / 隐式默认 |
+| env 值         | `ctx.sources.preset.envs` > `ctx.sources.user.envs`              |
+| color fallback | 显式 `--color/--no-color` > `NO_COLOR` fallback                  |
 
 注意：
 
@@ -370,42 +416,42 @@ preset 来源决议：
 
 ### 强制约束
 
-| 约束                                                              | 目的                              |
-| ----------------------------------------------------------------- | --------------------------------- |
-| option 文件仅允许 option 片段（`-x`/`--xxx` 及其参数值）          | 避免污染命令路由和位置参数语义    |
-| 在 options preset 文件中禁止声明 `--preset-root`                  | 防止递归改写 preset 根目录        |
-| 在 options preset 文件中禁止声明 `--preset-opts`                  | 防止递归加载                      |
-| 在 options preset 文件中禁止声明 `--preset-envs`                  | 防止跨类型递归与来源混乱          |
-| 在 options preset 文件中禁止声明 `help` / `--help` / `--version`  | 保持 run 控制项提前中断语义       |
-| 在 options preset 文件中禁止出现 `--` 分隔符                      | 避免污染位置参数分段语义          |
-| preset 文件统一使用 UTF-8 编码                                    | 降低跨平台解析歧义                |
-| 显式声明的 preset 文件读取失败或格式错误直接报错                  | 避免静默降级导致行为不可预测      |
+| 约束                                                             | 目的                           |
+| ---------------------------------------------------------------- | ------------------------------ |
+| option 文件仅允许 option 片段（`-x`/`--xxx` 及其参数值）         | 避免污染命令路由和位置参数语义 |
+| 在 options preset 文件中禁止声明 `--preset-root`                 | 防止递归改写 preset 根目录     |
+| 在 options preset 文件中禁止声明 `--preset-opts`                 | 防止递归加载                   |
+| 在 options preset 文件中禁止声明 `--preset-envs`                 | 防止跨类型递归与来源混乱       |
+| 在 options preset 文件中禁止声明 `help` / `--help` / `--version` | 保持 run 控制项提前中断语义    |
+| 在 options preset 文件中禁止出现 `--` 分隔符                     | 避免污染位置参数分段语义       |
+| preset 文件统一使用 UTF-8 编码                                   | 降低跨平台解析歧义             |
+| 显式声明的 preset 文件读取失败或格式错误直接报错                 | 避免静默降级导致行为不可预测   |
 
 ### 边界行为
 
-1. 对 `boolean` / `required`：右侧 token 覆盖左侧 token（Last Write Wins）。
+1. 对 `boolean` / `required` / `optional`：右侧 token 覆盖左侧 token（Last Write Wins）。
 2. 对 `variadic`：左侧和右侧按出现顺序累积。
 3. 若 `preset-opts` 或 CLI 显式给出 `--color/--no-color`，优先于 `NO_COLOR` fallback。
 4. `preset-envs` 同 key 多次定义时，以 `@guanghechen/env` 的解析结果为准（后写覆盖前写）。
 
 ### 错误语义
 
-| 场景                                                    | 行为约定                                                 |
-| ------------------------------------------------------- | -------------------------------------------------------- |
-| `--preset-root` 缺少值                                  | 立即报错并终止                                           |
-| `--preset-root` 不是有效绝对目录                        | 立即报错并终止（`ConfigurationError`）                   |
-| `--preset-opts` / `--preset-envs` 缺少值                | 立即报错并终止                                           |
-| `--preset-opts` / `--preset-envs` 的 `<file>` 非法      | 立即报错并终止（非空且不能以 `..` 开头）                 |
-| `command.preset.opt` / `command.preset.env` 非法        | 视为未设置并回退默认文件名（不报错）                     |
-| 显式声明的 preset 文件不存在或不可读                    | 立即报错并终止（包括 CLI `--preset-opts/--preset-envs` 与 `command.preset.opt/env`） |
-| 默认 preset 文件（`.opt.local/.env.local`）不存在       | 忽略（不报错）                                           |
-| options 文件分词后存在无法组成 option 片段的 token      | 立即报错并终止（例如文件开头裸 token）                   |
-| options 文件中出现任意 `--preset-*`                     | 立即报错并终止（禁止递归与跨类型引用）                   |
-| options 文件中出现 `--help` / `help` / `--version`      | 立即报错并终止（控制项仅允许来自 user tail 并提前中断）  |
-| options 文件中出现 `--`                                 | 立即报错并终止（不允许位置参数分隔符）                   |
-| envs 文件不符合 `@guanghechen/env` 语法                 | 立即报错并终止（包装为 `ConfigurationError`）            |
-| `--` 之后的 `--preset-*`                                | 不作为 preset 指令，按普通参数处理                       |
-| `run()` 命中控制项 short-circuit                        | 不读取任何 preset 文件，直接结束流程                     |
+| 场景                                               | 行为约定                                                                             |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `--preset-root` 缺少值                             | 立即报错并终止                                                                       |
+| `--preset-root` 不是有效绝对目录                   | 立即报错并终止（`ConfigurationError`）                                               |
+| `--preset-opts` / `--preset-envs` 缺少值           | 立即报错并终止                                                                       |
+| `--preset-opts` / `--preset-envs` 的 `<file>` 非法 | 立即报错并终止（非空且不能以 `..` 开头）                                             |
+| `command.preset.opt` / `command.preset.env` 非法   | 视为未设置并回退默认文件名（不报错）                                                 |
+| 显式声明且路径合法的 preset 文件不存在或不可读     | 立即报错并终止（包括 CLI `--preset-opts/--preset-envs` 与 `command.preset.opt/env`） |
+| 默认 preset 文件（`.opt.local/.env.local`）不存在  | 忽略（不报错）                                                                       |
+| options 文件分词后存在无法组成 option 片段的 token | 立即报错并终止（例如文件开头裸 token）                                               |
+| options 文件中出现任意 `--preset-*`                | 立即报错并终止（禁止递归与跨类型引用）                                               |
+| options 文件中出现 `--help` / `help` / `--version` | 立即报错并终止（控制项仅允许来自 user tail 并提前中断）                              |
+| options 文件中出现 `--`                            | 立即报错并终止（不允许位置参数分隔符）                                               |
+| envs 文件不符合 `@guanghechen/env` 语法            | 立即报错并终止（包装为 `ConfigurationError`）                                        |
+| `--` 之后的 `--preset-*`                           | 不作为 preset 指令，按普通参数处理                                                   |
+| `run()` 命中控制项 short-circuit                   | 不读取任何 preset 文件，直接结束流程                                                 |
 
 其中“无法组成 option 片段”的判定规则为：
 
@@ -425,6 +471,7 @@ preset 来源决议：
 - `type` + `args` 非法组合
 - `required` + `default` 互斥
 - `boolean` + `required` 互斥
+- `required` 仅允许搭配 `args: 'required'`
 - `long: 'help'` / `long: 'version'` 属于保留名，不允许自定义
 - `long` 必须 camelCase 且不能以 `no` 开头
 - `short` 若提供，必须是单字符
@@ -511,19 +558,19 @@ cmd
 
 ### Coerce.number
 
-| 属性     | 值                                     |
-| -------- | -------------------------------------- |
-| 输入     | `string`                               |
-| 输出     | `(raw: string) => number`              |
-| 校验规则 | `Number.isFinite(value)`               |
+| 属性     | 值                        |
+| -------- | ------------------------- |
+| 输入     | `string`                  |
+| 输出     | `(raw: string) => number` |
+| 校验规则 | `Number.isFinite(value)`  |
 
 ### Coerce.integer
 
-| 属性     | 值                                     |
-| -------- | -------------------------------------- |
-| 输入     | `string`                               |
-| 输出     | `(raw: string) => number`              |
-| 校验规则 | `Number.isInteger(value)`              |
+| 属性     | 值                        |
+| -------- | ------------------------- |
+| 输入     | `string`                  |
+| 输出     | `(raw: string) => number` |
+| 校验规则 | `Number.isInteger(value)` |
 
 ### Coerce.positiveInteger
 
@@ -535,57 +582,57 @@ cmd
 
 ### Coerce.positiveNumber
 
-| 属性     | 值                                     |
-| -------- | -------------------------------------- |
-| 输入     | `string`                               |
-| 输出     | `(raw: string) => number`              |
-| 校验规则 | `Number.isFinite(value) && value > 0`  |
+| 属性     | 值                                    |
+| -------- | ------------------------------------- |
+| 输入     | `string`                              |
+| 输出     | `(raw: string) => number`             |
+| 校验规则 | `Number.isFinite(value) && value > 0` |
 
 ### logLevelOption
 
 日志级别选项，支持 `debug | info | hint | warn | error`：
 
-| 属性       | 值                           |
-| ---------- | ---------------------------- |
-| `long`     | `'logLevel'`                 |
-| `type`     | `'string'`                   |
-| `args`     | `'required'`                 |
-| `default`  | `'info'`                     |
-| `choices`  | 所有日志级别                 |
-| `coerce`   | 大小写不敏感                 |
-| `apply`    | `ctx.reporter.setLevel(val)` |
+| 属性      | 值                           |
+| --------- | ---------------------------- |
+| `long`    | `'logLevel'`                 |
+| `type`    | `'string'`                   |
+| `args`    | `'required'`                 |
+| `default` | `'info'`                     |
+| `choices` | 所有日志级别                 |
+| `coerce`  | 大小写不敏感                 |
+| `apply`   | `ctx.reporter.setLevel(val)` |
 
 ### silentOption
 
 静默输出选项：
 
-| 属性       | 值          |
-| ---------- | ----------- |
-| `long`     | `'silent'`  |
-| `type`     | `'boolean'` |
-| `args`     | `'none'`    |
-| `default`  | `false`     |
+| 属性      | 值          |
+| --------- | ----------- |
+| `long`    | `'silent'`  |
+| `type`    | `'boolean'` |
+| `args`    | `'none'`    |
+| `default` | `false`     |
 
 ### logDateOption
 
 日志时间戳控制选项：
 
-| 属性       | 值                                       |
-| ---------- | ---------------------------------------- |
-| `long`     | `'logDate'`                              |
-| `type`     | `'boolean'`                              |
-| `args`     | `'none'`                                 |
-| `default`  | `true`                                   |
-| `apply`    | `ctx.reporter.setFlight({ date: val })`  |
+| 属性      | 值                                      |
+| --------- | --------------------------------------- |
+| `long`    | `'logDate'`                             |
+| `type`    | `'boolean'`                             |
+| `args`    | `'none'`                                |
+| `default` | `true`                                  |
+| `apply`   | `ctx.reporter.setFlight({ date: val })` |
 
 ### logColorfulOption
 
 日志彩色输出控制选项：
 
-| 属性       | 值                                        |
-| ---------- | ----------------------------------------- |
-| `long`     | `'logColorful'`                           |
-| `type`     | `'boolean'`                               |
-| `args`     | `'none'`                                  |
-| `default`  | `true`                                    |
-| `apply`    | `ctx.reporter.setFlight({ color: val })`  |
+| 属性      | 值                                       |
+| --------- | ---------------------------------------- |
+| `long`    | `'logColorful'`                          |
+| `type`    | `'boolean'`                              |
+| `args`    | `'none'`                                 |
+| `default` | `true`                                   |
+| `apply`   | `ctx.reporter.setFlight({ color: val })` |

@@ -36,7 +36,7 @@ export interface ICommandToken {
 export type ICommandOptionType = 'boolean' | 'number' | 'string'
 
 /** Option argument mode */
-export type ICommandOptionArgs = 'none' | 'required' | 'variadic'
+export type ICommandOptionArgs = 'none' | 'required' | 'optional' | 'variadic'
 
 /**
  * Option configuration.
@@ -44,6 +44,7 @@ export type ICommandOptionArgs = 'none' | 'required' | 'variadic'
  * `type` and `args` must be specified together. Valid combinations:
  * - boolean + none → boolean
  * - string + required → string
+ * - string + optional → string | undefined
  * - number + required → number
  * - string + variadic → string[]
  * - number + variadic → number[]

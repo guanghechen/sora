@@ -37,6 +37,21 @@ describe('Command (spec aligned)', () => {
       expect(result.rawArgs).toEqual(['index.ts'])
     })
 
+    it('should parse inline boolean values true and false', async () => {
+      const cmd = new Command({ name: 'app', desc: 'app' }).option({
+        long: 'verbose',
+        type: 'boolean',
+        args: 'none',
+        desc: 'verbose',
+      })
+
+      const enabled = await cmd.parse({ argv: ['--verbose=true'], envs: {} })
+      const disabled = await cmd.parse({ argv: ['--verbose=false'], envs: {} })
+
+      expect(enabled.opts).toEqual({ verbose: true })
+      expect(disabled.opts).toEqual({ verbose: false })
+    })
+
     it('should throw when unknown option exists', async () => {
       const cmd = new Command({ name: 'app', desc: 'app' })
       await expect(cmd.parse({ argv: ['--unknown'], envs: {} })).rejects.toThrow('unknown option')
@@ -92,6 +107,111 @@ describe('Command (spec aligned)', () => {
       expect(inheritedApplied).toBe(true)
       expect(result.opts).toEqual({ target: 'prod' })
       expect(result.ctx.sources.user.cmds).toEqual(['sub'])
+    })
+
+    it('should throw UnknownSubcommand with hint when leaf has subcommands and first tail token is bare', async () => {
+      const root = new Command({ name: 'cli', desc: 'cli' })
+      const build = new Command({ desc: 'build' })
+      build.subcommand('watch', new Command({ desc: 'watch' }))
+      root.subcommand('build', build)
+
+      await expect(root.parse({ argv: ['build', 'watc'], envs: {} })).rejects.toMatchObject({
+        name: 'CommanderError',
+        kind: 'UnknownSubcommand',
+      })
+
+      await expect(root.parse({ argv: ['build', 'watc'], envs: {} })).rejects.toThrow(
+        'did you mean "watch"?',
+      )
+      await expect(root.parse({ argv: ['build', 'watc'], envs: {} })).rejects.toThrow(
+        'does not accept positional arguments',
+      )
+    })
+
+    it('should not throw UnknownSubcommand when first tail token matches known subcommand', async () => {
+      const root = new Command({ name: 'cli', desc: 'cli' })
+      const build = new Command({ desc: 'build' }).argument({
+        name: 'target',
+        kind: 'optional',
+        type: 'string',
+        desc: 'target',
+      })
+      build.subcommand('watch', new Command({ desc: 'watch' }))
+      root.subcommand('build', build)
+
+      const result = await root.parse({ argv: ['build', '--help', 'watch'], envs: {} })
+
+      expect(result.ctx.controls.help).toBe(true)
+      expect(result.args).toEqual({ target: 'watch' })
+    })
+
+    it('should not use alias as did-you-mean candidate', async () => {
+      const root = new Command({ name: 'cli', desc: 'cli' })
+      const build = new Command({ desc: 'build' })
+      const watch = new Command({ desc: 'watch' })
+      build.subcommand('watch', watch)
+      build.subcommand('w', watch)
+      root.subcommand('build', build)
+
+      await expect(root.parse({ argv: ['build', 'ww'], envs: {} })).rejects.toMatchObject({
+        name: 'CommanderError',
+        kind: 'UnknownSubcommand',
+      })
+      await expect(root.parse({ argv: ['build', 'ww'], envs: {} })).rejects.not.toThrow(
+        'did you mean',
+      )
+    })
+
+    it('should not show did-you-mean when nearest distance is tied', async () => {
+      const root = new Command({ name: 'cli', desc: 'cli' })
+      const build = new Command({ desc: 'build' })
+      build.subcommand('cat', new Command({ desc: 'cat' }))
+      build.subcommand('cut', new Command({ desc: 'cut' }))
+      root.subcommand('build', build)
+
+      await expect(root.parse({ argv: ['build', 'cot'], envs: {} })).rejects.toMatchObject({
+        name: 'CommanderError',
+        kind: 'UnknownSubcommand',
+      })
+      await expect(root.parse({ argv: ['build', 'cot'], envs: {} })).rejects.not.toThrow(
+        'did you mean',
+      )
+    })
+
+    it('should prefer UnknownSubcommand over UnexpectedArgument', async () => {
+      const root = new Command({ name: 'cli', desc: 'cli' })
+      const build = new Command({ desc: 'build' })
+      build.subcommand('watch', new Command({ desc: 'watch' }))
+      root.subcommand('build', build)
+
+      await expect(root.parse({ argv: ['build', 'foo'], envs: {} })).rejects.toMatchObject({
+        name: 'CommanderError',
+        kind: 'UnknownSubcommand',
+      })
+    })
+
+    it('should throw UnexpectedArgument when command does not accept positional arguments', async () => {
+      const cmd = new Command({ name: 'cli', desc: 'cli' })
+
+      await expect(cmd.parse({ argv: ['foo'], envs: {} })).rejects.toMatchObject({
+        name: 'CommanderError',
+        kind: 'UnexpectedArgument',
+      })
+    })
+
+    it('should throw UnexpectedArgument when first token is option and later has bare token', async () => {
+      const root = new Command({ name: 'cli', desc: 'cli' }).option({
+        long: 'verbose',
+        type: 'boolean',
+        args: 'none',
+        desc: 'verbose',
+      })
+      root.subcommand('start', new Command({ desc: 'start' }))
+
+      await expect(root.parse({ argv: ['--verbose', 'foo'], envs: {} })).rejects.toMatchObject({
+        name: 'CommanderError',
+        kind: 'UnexpectedArgument',
+      })
     })
   })
 
@@ -789,6 +909,72 @@ describe('Command (spec aligned)', () => {
       await expect(cmd.parse({ argv: ['--output'], envs: {} })).rejects.toThrow('requires a value')
     })
 
+    it('should parse optional option values and keep key presence semantics', async () => {
+      const cmd = new Command({ name: 'cli', desc: 'cli' }).option({
+        long: 'write',
+        short: 'w',
+        type: 'string',
+        args: 'optional',
+        desc: 'write',
+      })
+
+      const absent = await cmd.parse({ argv: [], envs: {} })
+      expect(Object.prototype.hasOwnProperty.call(absent.opts, 'write')).toBe(false)
+      expect(absent.opts['write']).toBeUndefined()
+
+      const bareLong = await cmd.parse({ argv: ['--write'], envs: {} })
+      expect(Object.prototype.hasOwnProperty.call(bareLong.opts, 'write')).toBe(true)
+      expect(bareLong.opts['write']).toBeUndefined()
+
+      const emptyEq = await cmd.parse({ argv: ['--write='], envs: {} })
+      expect(Object.prototype.hasOwnProperty.call(emptyEq.opts, 'write')).toBe(true)
+      expect(emptyEq.opts['write']).toBe('')
+
+      const withValue = await cmd.parse({ argv: ['--write', 'out.fish'], envs: {} })
+      expect(withValue.opts['write']).toBe('out.fish')
+
+      const withEqValue = await cmd.parse({ argv: ['--write=out.fish'], envs: {} })
+      expect(withEqValue.opts['write']).toBe('out.fish')
+
+      const shortBare = await cmd.parse({ argv: ['-w'], envs: {} })
+      expect(Object.prototype.hasOwnProperty.call(shortBare.opts, 'write')).toBe(true)
+      expect(shortBare.opts['write']).toBeUndefined()
+    })
+
+    it('should not fallback to default when optional option is explicitly passed without value', async () => {
+      const cmd = new Command({ name: 'cli', desc: 'cli' }).option({
+        long: 'write',
+        type: 'string',
+        args: 'optional',
+        desc: 'write',
+        default: 'default-path',
+      })
+
+      const absent = await cmd.parse({ argv: [], envs: {} })
+      expect(absent.opts['write']).toBe('default-path')
+
+      const bare = await cmd.parse({ argv: ['--write'], envs: {} })
+      expect(Object.prototype.hasOwnProperty.call(bare.opts, 'write')).toBe(true)
+      expect(bare.opts['write']).toBeUndefined()
+    })
+
+    it('should not trigger apply when optional option value is undefined', async () => {
+      const applySpy = vi.fn()
+      const cmd = new Command({ name: 'cli', desc: 'cli' }).option({
+        long: 'write',
+        type: 'string',
+        args: 'optional',
+        desc: 'write',
+        apply: applySpy,
+      })
+
+      await cmd.parse({ argv: ['--write'], envs: {} })
+      expect(applySpy).not.toHaveBeenCalled()
+
+      await cmd.parse({ argv: ['--write='], envs: {} })
+      expect(applySpy).toHaveBeenCalledWith('', expect.anything())
+    })
+
     it('should parse inline variadic value for option', async () => {
       const cmd = new Command({ name: 'cli', desc: 'cli' })
         .option({
@@ -1123,7 +1309,10 @@ describe('Command (spec aligned)', () => {
       ).toThrow("must have args: 'none'")
       expect(() =>
         cmd.option({ long: 'output', type: 'string', args: 'none', desc: 'output' }),
-      ).toThrow("must have args: 'required' or 'variadic'")
+      ).toThrow("must have args: 'required', 'optional', or 'variadic'")
+      expect(() =>
+        cmd.option({ long: 'port', type: 'number', args: 'optional', desc: 'port' }),
+      ).toThrow("does not support args: 'optional'")
       expect(() =>
         cmd.option({ long: 'noOutput', type: 'boolean', args: 'none', desc: 'bad' }),
       ).toThrow('cannot start with "no"')
@@ -1149,6 +1338,24 @@ describe('Command (spec aligned)', () => {
           desc: 's',
         }),
       ).toThrow('cannot be required')
+      expect(() =>
+        cmd.option({
+          long: 'target',
+          type: 'string',
+          args: 'optional',
+          required: true,
+          desc: 'target',
+        }),
+      ).toThrow("must use args: 'required'")
+      expect(() =>
+        cmd.option({
+          long: 'tags',
+          type: 'string',
+          args: 'variadic',
+          required: true,
+          desc: 'tags',
+        }),
+      ).toThrow("must use args: 'required'")
 
       cmd.option({ long: 'uniqueLong', short: 'u', type: 'boolean', args: 'none', desc: 'u' })
       expect(() =>

@@ -215,6 +215,33 @@ function parsePrimitiveNumber(rawValue: string): number | undefined {
   return value
 }
 
+function normalizeSubcommandNameForDistance(name: string): string {
+  return camelToKebabCase(name).toLowerCase()
+}
+
+function levenshteinDistance(left: string, right: string): number {
+  if (left === right) {
+    return 0
+  }
+  if (left.length === 0) {
+    return right.length
+  }
+  if (right.length === 0) {
+    return left.length
+  }
+
+  let prev = Array.from({ length: right.length + 1 }, (_, i) => i)
+  for (let i = 0; i < left.length; i += 1) {
+    const current = [i + 1]
+    for (let j = 0; j < right.length; j += 1) {
+      const substitutionCost = left[i] === right[j] ? 0 : 1
+      current[j + 1] = Math.min(current[j] + 1, prev[j + 1] + 1, prev[j] + substitutionCost)
+    }
+    prev = current
+  }
+  return prev[right.length]
+}
+
 // ==================== Tokenize ====================
 
 /**
@@ -785,7 +812,9 @@ export class Command implements ICommand {
       const kebabLong = camelToKebabCase(opt.long)
       let sig = opt.short ? `-${opt.short}, ` : '    '
       sig += `--${kebabLong}`
-      if (opt.args !== 'none') {
+      if (opt.args === 'optional') {
+        sig += ' [value]'
+      } else if (opt.args !== 'none') {
         sig += ' <value>'
       }
 
@@ -1687,10 +1716,20 @@ export class Command implements ICommand {
         const opt = optionByLong.get(token.name)
         if (opt) {
           consumed.push(token)
-          // Consume additional tokens for required/variadic
+          // Consume additional tokens for required/optional/variadic
           if (opt.args === 'required') {
             // Check for inline value (--foo=bar)
             if (!token.resolved.includes('=') && i + 1 < tokens.length) {
+              i += 1
+              consumed.push(tokens[i])
+            }
+          } else if (opt.args === 'optional') {
+            // Prefer one following positional token when value is not inline.
+            if (
+              !token.resolved.includes('=') &&
+              i + 1 < tokens.length &&
+              tokens[i + 1].type === 'none'
+            ) {
               i += 1
               consumed.push(tokens[i])
             }
@@ -1718,8 +1757,13 @@ export class Command implements ICommand {
         const opt = optionByShort.get(token.name)
         if (opt) {
           consumed.push(token)
-          // Consume additional tokens for required/variadic
+          // Consume additional tokens for required/optional/variadic
           if (opt.args === 'required') {
+            if (i + 1 < tokens.length && tokens[i + 1].type === 'none') {
+              i += 1
+              consumed.push(tokens[i])
+            }
+          } else if (opt.args === 'optional') {
             if (i + 1 < tokens.length && tokens[i + 1].type === 'none') {
               i += 1
               consumed.push(tokens[i])
@@ -1789,6 +1833,8 @@ export class Command implements ICommand {
         leafLocalOpts[opt.long] = leafParsedOpts[opt.long]
       }
     }
+
+    leafCommand.#assertUnknownSubcommand(ctx.sources.user.argv)
 
     // Parse arguments
     const rawArgStrings = [...argTokens.map(t => t.original), ...restArgs]
@@ -1908,6 +1954,29 @@ export class Command implements ICommand {
         continue
       }
 
+      // Optional option
+      if (opt.args === 'optional') {
+        const eqIdx = token.resolved.indexOf('=')
+
+        if (eqIdx !== -1) {
+          // --long= and --long=<value>
+          opts[opt.long] = this.#convertValue(opt, token.resolved.slice(eqIdx + 1))
+          i += 1
+          continue
+        }
+
+        // Bare --long / -s
+        if (i + 1 < tokens.length && tokens[i + 1].type === 'none') {
+          opts[opt.long] = this.#convertValue(opt, tokens[i + 1].original)
+          i += 1
+        } else {
+          opts[opt.long] = undefined
+        }
+
+        i += 1
+        continue
+      }
+
       // Variadic option
       if (opt.args === 'variadic') {
         const values: unknown[] = Array.isArray(opts[opt.long]) ? (opts[opt.long] as unknown[]) : []
@@ -1929,12 +1998,13 @@ export class Command implements ICommand {
         continue
       }
 
+      /* c8 ignore next 2 -- option() validation guarantees args are exhausted above */
       i += 1
     }
 
     // Validate required options
     for (const opt of allOptions) {
-      if (opt.required && opts[opt.long] === undefined) {
+      if (opt.required && !Object.prototype.hasOwnProperty.call(opts, opt.long)) {
         throw new CommanderError(
           'MissingRequired',
           `missing required option "--${camelToKebabCase(opt.long)}"`,
@@ -2000,6 +2070,14 @@ export class Command implements ICommand {
     const argumentDefs = this.#arguments
     const args: ICommandParsedArgs = {}
 
+    if (argumentDefs.length === 0 && rawArgs.length > 0) {
+      throw new CommanderError(
+        'UnexpectedArgument',
+        `unexpected argument "${rawArgs[0]}"`,
+        this.#getCommandPath(),
+      )
+    }
+
     // Required count check
     const missing: string[] = []
     let remaining = rawArgs.length
@@ -2052,33 +2130,26 @@ export class Command implements ICommand {
 
       if (def.kind === 'some') {
         const rest = rawArgs.slice(index)
-        if (rest.length === 0) {
-          throw new CommanderError(
-            'MissingRequiredArgument',
-            `missing required argument(s): ${def.name}`,
-            this.#getCommandPath(),
-          )
-        }
         args[def.name] = rest.map(raw => this.#convertArgument(def, raw))
         index = rawArgs.length
         break
       }
 
-      const raw = rawArgs[index]
-      if (raw === undefined) {
-        if (def.kind === 'optional') {
+      if (def.kind === 'optional') {
+        const raw = rawArgs[index]
+        if (raw === undefined) {
           args[def.name] = def.default ?? undefined
           continue
         }
-        throw new CommanderError(
-          'MissingRequiredArgument',
-          `missing required argument(s): ${def.name}`,
-          this.#getCommandPath(),
-        )
-      } else {
+
         args[def.name] = this.#convertArgument(def, raw)
         index += 1
+        continue
       }
+
+      const raw = rawArgs[index] as string
+      args[def.name] = this.#convertArgument(def, raw)
+      index += 1
     }
 
     // Too many arguments check (non-variadic)
@@ -2136,6 +2207,63 @@ export class Command implements ICommand {
     }
 
     return value
+  }
+
+  #assertUnknownSubcommand(userTailArgv: string[]): void {
+    if (this.#subcommandsList.length === 0) {
+      return
+    }
+
+    const token = userTailArgv[0]
+    if (token === undefined || token.startsWith('-') || token === 'help') {
+      return
+    }
+
+    if (this.#findSubcommandEntry(token) !== undefined) {
+      return
+    }
+
+    const hints: string[] = []
+    if (this.#arguments.length === 0) {
+      hints.push(`Hint: command "${this.#getCommandPath()}" does not accept positional arguments.`)
+    }
+
+    const candidate = this.#resolveDidYouMeanSubcommandName(token)
+    if (candidate !== undefined) {
+      hints.push(`Hint: did you mean "${candidate}"?`)
+    }
+
+    const details = hints.length > 0 ? `\n${hints.join('\n')}` : ''
+
+    throw new CommanderError(
+      'UnknownSubcommand',
+      `unknown subcommand "${token}" for command "${this.#getCommandPath()}"${details}`,
+      this.#getCommandPath(),
+    )
+  }
+
+  #resolveDidYouMeanSubcommandName(token: string): string | undefined {
+    const source = normalizeSubcommandNameForDistance(token)
+    let minDistance = Number.POSITIVE_INFINITY
+    let bestName: string | undefined
+    let isUniqueBest = false
+
+    for (const entry of this.#subcommandsList) {
+      const target = normalizeSubcommandNameForDistance(entry.name)
+      const distance = levenshteinDistance(source, target)
+      if (distance < minDistance) {
+        minDistance = distance
+        bestName = entry.name
+        isUniqueBest = true
+      } else if (distance === minDistance) {
+        isUniqueBest = false
+      }
+    }
+
+    if (minDistance <= 2 && isUniqueBest) {
+      return bestName
+    }
+    return undefined
   }
 
   // ==================== Private: Option Merging ====================
@@ -2198,16 +2326,9 @@ export class Command implements ICommand {
     optionPolicyMap: Map<Command, ICommandOptionPolicy>,
     cmd: Command,
   ): ICommandOptionPolicy {
-    const policy = optionPolicyMap.get(cmd)
-    if (policy !== undefined) {
-      return policy
-    }
-
-    throw new CommanderError(
-      'ConfigurationError',
-      `missing option policy for command "${cmd.#getCommandPath()}"`,
-      this.#getCommandPath(),
-    )
+    const policy = optionPolicyMap.get(cmd) ?? cmd.#resolveOptionPolicy()
+    optionPolicyMap.set(cmd, policy)
+    return policy
   }
 
   #validateMergedShortOptions(
@@ -2260,7 +2381,14 @@ export class Command implements ICommand {
     if ((opt.type === 'string' || opt.type === 'number') && opt.args === 'none') {
       throw new CommanderError(
         'ConfigurationError',
-        `${opt.type} option "--${opt.long}" must have args: 'required' or 'variadic'`,
+        `${opt.type} option "--${opt.long}" must have args: 'required', 'optional', or 'variadic'`,
+        this.#getCommandPath(),
+      )
+    }
+    if (opt.type === 'number' && opt.args === 'optional') {
+      throw new CommanderError(
+        'ConfigurationError',
+        `number option "--${opt.long}" does not support args: 'optional'`,
         this.#getCommandPath(),
       )
     }
@@ -2305,6 +2433,15 @@ export class Command implements ICommand {
       throw new CommanderError(
         'ConfigurationError',
         `boolean option "--${opt.long}" cannot be required`,
+        this.#getCommandPath(),
+      )
+    }
+
+    // required options must always consume exactly one value
+    if (opt.required && opt.args !== 'required') {
+      throw new CommanderError(
+        'ConfigurationError',
+        `required option "--${opt.long}" must use args: 'required'`,
         this.#getCommandPath(),
       )
     }

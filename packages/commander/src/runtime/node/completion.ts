@@ -7,7 +7,13 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { Command } from '../../command'
-import type { ICompletionCommandConfig, ICompletionMeta, ICompletionPaths } from '../../types'
+import { CommanderError } from '../../types'
+import type {
+  ICommandContext,
+  ICompletionCommandConfig,
+  ICompletionMeta,
+  ICompletionPaths,
+} from '../../types'
 
 // ==================== Naming Utilities ====================
 
@@ -16,6 +22,52 @@ import type { ICompletionCommandConfig, ICompletionMeta, ICompletionPaths } from
  */
 function camelToKebabCase(str: string): string {
   return str.replace(/[A-Z]/g, m => '-' + m.toLowerCase())
+}
+
+const COMPLETION_SHELL_STATE = Symbol('completion-shell-state')
+
+interface ICompletionShellState {
+  shell?: keyof ICompletionPaths
+}
+
+function getCommandPath(ctx: ICommandContext): string {
+  const names = ctx.chain
+    .map(command => command.name)
+    .filter((name): name is string => Boolean(name))
+  if (names.length > 0) {
+    return names.join(' ')
+  }
+  return ctx.cmd.name ?? 'command'
+}
+
+function getCompletionShellState(ctx: ICommandContext): ICompletionShellState {
+  const host = ctx as ICommandContext & { [COMPLETION_SHELL_STATE]?: ICompletionShellState }
+  host[COMPLETION_SHELL_STATE] ??= {}
+  return host[COMPLETION_SHELL_STATE]
+}
+
+function registerCompletionShell(ctx: ICommandContext, shell: keyof ICompletionPaths): void {
+  const state = getCompletionShellState(ctx)
+  if (state.shell !== undefined && state.shell !== shell) {
+    throw new CommanderError(
+      'OptionConflict',
+      'options "--bash", "--fish", and "--pwsh" are mutually exclusive',
+      getCommandPath(ctx),
+    )
+  }
+  state.shell = shell
+}
+
+function mustGetCompletionShell(ctx: ICommandContext): keyof ICompletionPaths {
+  const state = getCompletionShellState(ctx)
+  if (state.shell === undefined) {
+    throw new CommanderError(
+      'MissingRequired',
+      'missing required option: one of "--bash", "--fish", or "--pwsh"',
+      getCommandPath(ctx),
+    )
+  }
+  return state.shell
 }
 
 // ==================== CompletionCommand ====================
@@ -55,49 +107,46 @@ export class CompletionCommand extends Command {
       type: 'boolean',
       args: 'none',
       desc: 'Generate Bash completion script',
+      apply: (value, ctx) => {
+        if (value === true) {
+          registerCompletionShell(ctx, 'bash')
+        }
+      },
     })
       .option({
         long: 'fish',
         type: 'boolean',
         args: 'none',
         desc: 'Generate Fish completion script',
+        apply: (value, ctx) => {
+          if (value === true) {
+            registerCompletionShell(ctx, 'fish')
+          }
+        },
       })
       .option({
         long: 'pwsh',
         type: 'boolean',
         args: 'none',
         desc: 'Generate PowerShell completion script',
+        apply: (value, ctx) => {
+          if (value === true) {
+            registerCompletionShell(ctx, 'pwsh')
+          }
+          // Always validate after shell options are parsed.
+          mustGetCompletionShell(ctx)
+        },
       })
       .option({
         long: 'write',
         short: 'w',
         type: 'string',
-        args: 'required',
-        desc: 'Write to file (use shell default path if empty)',
-        default: undefined,
+        args: 'optional',
+        desc: 'Write to file (use shell default path when value is omitted or empty)',
       })
-      .action(({ opts }) => {
+      .action(({ opts, ctx }) => {
         const meta = root.getCompletionMeta()
-
-        const selectedShells = [
-          opts['bash'] && 'bash',
-          opts['fish'] && 'fish',
-          opts['pwsh'] && 'pwsh',
-        ].filter(Boolean) as Array<keyof ICompletionPaths>
-
-        if (selectedShells.length === 0) {
-          console.error('Please specify a shell: --bash, --fish, or --pwsh')
-          process.exit(1)
-          return
-        }
-
-        if (selectedShells.length > 1) {
-          console.error('Please specify only one shell option')
-          process.exit(1)
-          return
-        }
-
-        const shell = selectedShells[0]
+        const shell = mustGetCompletionShell(ctx)
         let script: string
 
         switch (shell) {
@@ -112,8 +161,9 @@ export class CompletionCommand extends Command {
             break
         }
 
-        const writeOpt = opts['write']
-        if (writeOpt !== undefined) {
+        const hasWrite = Object.prototype.hasOwnProperty.call(opts, 'write')
+        if (hasWrite) {
+          const writeOpt = opts['write']
           // --write was specified
           const filePath = typeof writeOpt === 'string' && writeOpt !== '' ? writeOpt : paths[shell]
           const expandedPath = expandHome(filePath)

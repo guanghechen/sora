@@ -503,6 +503,24 @@ describe('CompletionCommand', () => {
     consoleSpy.mockRestore()
   })
 
+  it('should fallback command path to "command" when completion command is run standalone', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+
+    const root = new Command({ desc: 'Root without name' })
+    const completionCmd = new CompletionCommand(root)
+
+    await completionCmd.run({ argv: [], envs: {} })
+
+    const errText = String(consoleErrorSpy.mock.calls[0]?.[0] ?? '')
+    expect(errText).toContain('missing required option: one of "--bash", "--fish", or "--pwsh"')
+    expect(errText).toContain('Run "command --help" for usage.')
+    expect(exitSpy).toHaveBeenCalledWith(2)
+
+    consoleErrorSpy.mockRestore()
+    exitSpy.mockRestore()
+  })
+
   it('should resolve ~ path to absolute path when HOME and USERPROFILE are both missing', async () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     const originalHome = process.env['HOME']
@@ -670,13 +688,23 @@ describe('CompletionCommand', () => {
 
     await root.run({ argv: ['completion'], envs: {} })
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Please specify a shell: --bash, --fish, or --pwsh',
-    )
-    expect(exitSpy).toHaveBeenCalledWith(1)
+    const errText = String(consoleErrorSpy.mock.calls[0]?.[0] ?? '')
+    expect(errText).toContain('missing required option: one of "--bash", "--fish", or "--pwsh"')
+    expect(exitSpy).toHaveBeenCalledWith(2)
 
     consoleErrorSpy.mockRestore()
     exitSpy.mockRestore()
+  })
+
+  it('parse should throw MissingRequired when no shell is specified', async () => {
+    const root = new Command({ name: 'mycli', desc: 'My CLI' })
+    const completionCmd = new CompletionCommand(root, { paths: testPaths })
+    root.subcommand('completion', completionCmd)
+
+    await expect(root.parse({ argv: ['completion'], envs: {} })).rejects.toMatchObject({
+      name: 'CommanderError',
+      kind: 'MissingRequired',
+    })
   })
 
   it('should error when multiple shells are specified', async () => {
@@ -689,11 +717,25 @@ describe('CompletionCommand', () => {
 
     await root.run({ argv: ['completion', '--bash', '--fish'], envs: {} })
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Please specify only one shell option')
-    expect(exitSpy).toHaveBeenCalledWith(1)
+    const errText = String(consoleErrorSpy.mock.calls[0]?.[0] ?? '')
+    expect(errText).toContain('mutually exclusive')
+    expect(exitSpy).toHaveBeenCalledWith(2)
 
     consoleErrorSpy.mockRestore()
     exitSpy.mockRestore()
+  })
+
+  it('parse should throw OptionConflict when multiple shells are specified', async () => {
+    const root = new Command({ name: 'mycli', desc: 'My CLI' })
+    const completionCmd = new CompletionCommand(root, { paths: testPaths })
+    root.subcommand('completion', completionCmd)
+
+    await expect(
+      root.parse({ argv: ['completion', '--bash', '--fish'], envs: {} }),
+    ).rejects.toMatchObject({
+      name: 'CommanderError',
+      kind: 'OptionConflict',
+    })
   })
 
   describe('--write option', () => {
@@ -723,6 +765,24 @@ describe('CompletionCommand', () => {
       expect(fs.existsSync(fishPath)).toBe(true)
       const content = fs.readFileSync(fishPath, 'utf-8')
       expect(content).toContain('complete -c mycli')
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should write to default path when --write is used without value', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const fishPath = path.join(tempDir, 'fish-completion-no-value.fish')
+
+      const root = new Command({ name: 'mycli', desc: 'My CLI' })
+      const completionCmd = new CompletionCommand(root, {
+        paths: { ...testPaths, fish: fishPath },
+      })
+      root.subcommand('completion', completionCmd)
+
+      await root.run({ argv: ['completion', '--fish', '--write'], envs: {} })
+
+      expect(consoleSpy).toHaveBeenCalledWith(`Completion script written to: ${fishPath}`)
+      expect(fs.existsSync(fishPath)).toBe(true)
 
       consoleSpy.mockRestore()
     })
@@ -857,10 +917,9 @@ describe('CompletionCommand', () => {
 
       await root.run({ argv: ['completion', '--write', ''], envs: {} })
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Please specify a shell: --bash, --fish, or --pwsh',
-      )
-      expect(exitSpy).toHaveBeenCalledWith(1)
+      const errText = String(consoleErrorSpy.mock.calls[0]?.[0] ?? '')
+      expect(errText).toContain('missing required option: one of "--bash", "--fish", or "--pwsh"')
+      expect(exitSpy).toHaveBeenCalledWith(2)
       // Should not have written anything
       expect(consoleSpy).not.toHaveBeenCalledWith(expect.stringContaining('written to'))
 
@@ -900,6 +959,24 @@ describe('CompletionCommand', () => {
       root.subcommand('completion', completionCmd)
 
       await root.run({ argv: ['completion', '--fish', '-w', ''], envs: {} })
+
+      expect(consoleSpy).toHaveBeenCalledWith(`Completion script written to: ${fishPath}`)
+      expect(fs.existsSync(fishPath)).toBe(true)
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should use default path with -w shorthand without value', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const fishPath = path.join(tempDir, 'fish-shorthand-no-value.fish')
+
+      const root = new Command({ name: 'mycli', desc: 'My CLI' })
+      const completionCmd = new CompletionCommand(root, {
+        paths: { ...testPaths, fish: fishPath },
+      })
+      root.subcommand('completion', completionCmd)
+
+      await root.run({ argv: ['completion', '--fish', '-w'], envs: {} })
 
       expect(consoleSpy).toHaveBeenCalledWith(`Completion script written to: ${fishPath}`)
       expect(fs.existsSync(fishPath)).toBe(true)

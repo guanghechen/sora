@@ -87,7 +87,7 @@ interface ICommandConfig {
 interface ICommandInputSources {
   preset: {
     argv: string[]
-    envs: Record<string, string>
+    envs: Record<string, string> // 仅来自 preset-env 文件解析结果，不含 undefined
   }
   user: {
     cmds: string[] // command chain（按用户输入记录，允许 name/alias）
@@ -151,24 +151,24 @@ interface ICommandRunParams {
 
 `builtin` 用于控制“可配置的内置 options”开关。
 
-| 配置值                       | 语义                                                                                     |
-| ---------------------------- | ---------------------------------------------------------------------------------------- |
-| `builtin: undefined`         | 默认行为：开启可配置内置 options（`version/color/logLevel/silent/logDate/logColorful`）  |
-| `builtin: true`              | 开启全部可配置内置 options                                                               |
-| `builtin: false`             | 关闭全部可配置内置 options                                                               |
-| `builtin: { option: ... }`   | 覆盖可配置内置 options 配置                                                              |
+| 配置值                     | 语义                                                                                     |
+| -------------------------- | ---------------------------------------------------------------------------------------- |
+| `builtin: undefined`       | 默认行为：开启全部可配置内置 options                                                     |
+| `builtin: true`            | 开启全部可配置内置 options                                                               |
+| `builtin: false`           | 关闭全部可配置内置 options                                                               |
+| `builtin: { option: ... }` | 覆盖可配置内置 options 配置                                                              |
 
 `option` 字段支持 `boolean` 或细粒度对象。
 
-| 字段                  | `true` 语义               | `false` 语义              |
-| --------------------- | ------------------------- | ------------------------- |
-| `builtin.option`      | 开启全部可配置内置 option | 关闭全部可配置内置 option |
-| `option.version`      | 开启内置 `--version`      | 关闭内置 `--version`      |
-| `option.color`        | 开启内置 `--color`        | 关闭内置 `--color`        |
-| `option.logLevel`     | 开启内置 `--log-level`    | 关闭内置 `--log-level`    |
-| `option.silent`       | 开启内置 `--silent`       | 关闭内置 `--silent`       |
-| `option.logDate`      | 开启内置 `--log-date`     | 关闭内置 `--log-date`     |
-| `option.logColorful`  | 开启内置 `--log-colorful` | 关闭内置 `--log-colorful` |
+| 字段                 | `true` 语义               | `false` 语义              |
+| -------------------- | ------------------------- | ------------------------- |
+| `builtin.option`     | 开启全部可配置内置 option | 关闭全部可配置内置 option |
+| `option.version`     | 开启内置 `--version`      | 关闭内置 `--version`      |
+| `option.color`       | 开启内置 `--color`        | 关闭内置 `--color`        |
+| `option.logLevel`    | 开启内置 `--log-level`    | 关闭内置 `--log-level`    |
+| `option.silent`      | 开启内置 `--silent`       | 关闭内置 `--silent`       |
+| `option.logDate`     | 开启内置 `--log-date`     | 关闭内置 `--log-date`     |
+| `option.logColorful` | 开启内置 `--log-colorful` | 关闭内置 `--log-colorful` |
 
 细粒度对象示例：
 
@@ -217,8 +217,8 @@ function isBuiltinVersionEnabled(cmd: ICommand): boolean {
 }
 
 function supportsBuiltinVersion(cmd: ICommand): boolean {
-  // 仅 root + version 已配置 + 内建 version 已开启
-  return isBuiltinVersionEnabled(cmd) && cmd.parent === undefined && Boolean(cmd.version)
+  // 当前节点配置了 version 且内建 version 已开启
+  return isBuiltinVersionEnabled(cmd) && Boolean(cmd.version)
 }
 ```
 
@@ -227,7 +227,7 @@ function supportsBuiltinVersion(cmd: ICommand): boolean {
 1. CONTROL SCAN 在 `run()` 与 `parse()` 都执行。
 2. `--help` / `help` 始终可识别；`--version` 仅在 `supportsBuiltinVersion(leaf)===true` 时可识别，否则按普通 token 流入后续解析。
 3. RUN CONTROL 仅在 `run()` 中执行，并按 `help > version` 优先级 short-circuit。
-4. `--version` 的“仅 root”语义由 `supportsBuiltinVersion` 保证。
+4. `--version` 是否可用仅由当前 leaf 的配置决定（与是否 root 无关）。
 5. 以上判定与 route/preset 无关，只依赖 command 自身配置与节点位置。
 
 支持矩阵（代表性场景）：
@@ -237,12 +237,17 @@ function supportsBuiltinVersion(cmd: ICommand): boolean {
 | `false`                                       | root / non-root   | 任意          | `false`                  | `false`                   | `false`                  |
 | `{ option: false }`                           | root / non-root   | 任意          | `false`                  | `false`                   | `false`                  |
 | `{ option: { version: false } }`              | `undefined`(root) | 已设置        | `true`                   | `false`                   | `false`                  |
+| `{ option: { version: false } }`              | non-root          | 已设置        | `true`                   | `false`                   | `false`                  |
 | `undefined`                                   | `undefined`(root) | 已设置        | `true`                   | `true`                    | `true`                   |
 | `undefined`                                   | `undefined`(root) | 未设置        | `true`                   | `true`                    | `false`                  |
-| `undefined`                                   | non-root          | 任意          | `true`                   | `true`                    | `false`                  |
+| `undefined`                                   | non-root          | 已设置        | `true`                   | `true`                    | `true`                   |
+| `undefined`                                   | non-root          | 未设置        | `true`                   | `true`                    | `false`                  |
 | `true`                                        | `undefined`(root) | 已设置        | `true`                   | `true`                    | `true`                   |
+| `true`                                        | non-root          | 已设置        | `true`                   | `true`                    | `true`                   |
 | `{ option: true }`                            | `undefined`(root) | 已设置        | `true`                   | `true`                    | `true`                   |
+| `{ option: true }`                            | non-root          | 已设置        | `true`                   | `true`                    | `true`                   |
 | `{ option: { color: true, logDate: false } }` | `undefined`(root) | 已设置        | `true`                   | `true`                    | `true`                   |
+| `{ option: { color: true, logDate: false } }` | non-root          | 已设置        | `true`                   | `true`                    | `true`                   |
 
 注：
 
@@ -252,16 +257,16 @@ function supportsBuiltinVersion(cmd: ICommand): boolean {
 
 ## 方法
 
-| 方法                                       | 说明         |
-| ------------------------------------------ | ------------ |
-| `.option(opt: ICommandOptionConfig)`       | 添加选项     |
-| `.argument(arg: ICommandArgumentConfig)`   | 添加位置参数 |
-| `.action(fn: ICommandAction)`              | 设置 action  |
-| `.example(title, usage, desc)`             | 添加示例     |
-| `.subcommand(name: string, cmd: Command)`  | 添加子命令   |
-| `.run(params: ICommandRunParams)`          | 解析 + 执行  |
-| `.parse(params: ICommandRunParams)`        | 仅解析       |
-| `.formatHelp()`                            | 生成帮助文本 |
+| 方法                                      | 说明         |
+| ----------------------------------------- | ------------ |
+| `.option(opt: ICommandOptionConfig)`      | 添加选项     |
+| `.argument(arg: ICommandArgumentConfig)`  | 添加位置参数 |
+| `.action(fn: ICommandAction)`             | 设置 action  |
+| `.example(title, usage, desc)`            | 添加示例     |
+| `.subcommand(name: string, cmd: Command)` | 添加子命令   |
+| `.run(params: ICommandRunParams)`         | 解析 + 执行  |
+| `.parse(params: ICommandRunParams)`       | 仅解析       |
+| `.formatHelp()`                           | 生成帮助文本 |
 
 `run/parse` 契约：
 
@@ -545,7 +550,7 @@ interface ICommandControlScanResult {
 /** PRESET 阶段结果 */
 interface ICommandPresetResult {
   tailArgv: string[] // effective tail argv（preset + user）
-  envs: Record<string, string | undefined> // effective envs
+  envs: Record<string, string | undefined> // effective envs（合并后可含 user 侧 undefined）
   // sources 不在该结果中返回，通过 ctx.sources 暴露
 }
 
@@ -579,7 +584,7 @@ interface ICommandParseResult {
 5. route 阶段产物应先写入 `ctx.sources.user.cmds`（保留 name/alias）与 user tail argv。
 6. 扫描到的 preset 指令会从 `controlTailArgv` 中移除，移除后的数组写入 `ctx.sources.user.argv`。
 7. command 级 preset root 决议：在 `ctx.chain` 上按 `leaf -> ... -> root` 扫描，遇到第一个声明了 `command.preset.root` 的命令即停止。
-8. 若该命中的 `command.preset.root` 不是有效绝对目录，必须立即抛 `ConfigurationError`，且不得继续向上回退扫描。
+8. 若该命中的 `command.preset.root` 不是有效绝对目录（`isAbsolute(root) && stat(root).isDirectory()`），必须立即抛 `ConfigurationError`，且不得继续向上回退扫描。
 9. 命中有效 `command.preset.root` 后，整份 `command.preset` 生效；`opt/env` 未设置或无效值时分别回退到 `.opt.local` / `.env.local`。
 10. PRESET 阶段先决议唯一 `presetRoot`（先聚合 CLI `--preset-root`，后者覆盖前者；若未声明则回退 command preset root）。
 11. 仅在 `presetRoot` 决议完成后，才处理 `--preset-opts` / `--preset-envs` collect 与文件路径解析。
@@ -593,7 +598,7 @@ interface ICommandParseResult {
 19. 合并顺序固定：`ctx.envs = { ...ctx.sources.user.envs, ...ctx.sources.preset.envs }`。
 20. 若 RUN CONTROL 阶段已命中 short-circuit，则 PRESET 阶段不会执行。
 21. options preset 文件中不允许出现 `--help` / `help` / `--version`；命中即报 `ConfigurationError` 并终止。
-22. 显式声明文件（CLI `--preset-opts/--preset-envs` 与 `command.preset.opt/env`）读取失败、解析失败、非法格式应立即报错并终止；默认文件缺失可忽略。
+22. 显式声明且通过 `<file>` 合法性校验的 preset 文件（CLI `--preset-opts/--preset-envs` 或由 `command.preset.opt/env` 决议得到）若读取失败或内容解析失败，应立即报错并终止；默认文件缺失可忽略。
 23. 约束细节见 [option.md](./option.md)“强制约束”与“错误语义”。
 
 ### CONTROL SCAN 规则
@@ -640,10 +645,17 @@ interface ICommandShiftResult {
 2. 按 `args` 贪婪消费：
    - `none` → 只消费选项本身
    - `required` → 消费选项 + 一个参数
+   - `optional` → 优先消费一个参数；若后续是 `-` 开头 token 或不存在，则不消费参数 token（仅消费选项 token）
    - `variadic` → 消费到 `-` 开头为止
    - `--foo=bar` → 值已内嵌，不再消费
 3. 不识别的选项 → remaining
 4. 非选项 token → remaining
+
+`optional` 的落值语义在 parse 阶段定义：
+
+1. 裸 `--long` / `-s`（未消费 value token）解析为 `undefined`。
+2. `--long=` 解析为 `''`。
+3. 是否“显式传入该 option”需结合 key 存在性判断。
 
 ---
 
@@ -669,6 +681,29 @@ for token in user.argv:
         break
 ```
 
+未知子命令与意外参数语义：
+
+1. route 保持“遇到不命中子命令 token 即停止”的行为，不在 route 阶段抛错。
+2. 若 route 停止后的 leaf 存在子命令，且 tail 首 token 为裸 token（非 `help` / 非 option），parse 阶段抛 `UnknownSubcommand`。
+3. `UnknownSubcommand` 与 `UnexpectedArgument` 冲突时，优先级固定为 `UnknownSubcommand > UnexpectedArgument`。
+4. `UnexpectedArgument` 仅在未命中 `UnknownSubcommand` 且 leaf 未声明任何位置参数时触发。
+5. `TooManyArguments` 仅用于“已声明位置参数但传入数量超上限”的场景。
+6. 当抛出 `UnknownSubcommand` 且当前 leaf 同时不接受位置参数时，应追加提示行：`Hint: command "<path>" does not accept positional arguments.`。
+7. 当抛出 `UnknownSubcommand` 且存在唯一最接近候选子命令时，可追加提示行：`Hint: did you mean "<candidate>"?`。
+8. “最接近候选”判定规则：
+   - 候选集合仅包含当前 leaf 的直接子命令 `name`（不包含 aliases）；
+   - 使用小写后的 `kebab-case` 名称计算 Levenshtein distance；
+   - 仅当最小距离 `<= 2` 且最小值唯一时，才输出 `did-you-mean` hint；
+   - 若并列最小值或最小距离 `> 2`，不输出该 hint。
+
+判例：
+
+```bash
+cli build watc     # => UnknownSubcommand（可附带 did-you-mean hint）
+cli test foo       # => UnexpectedArgument（test 无子命令且不接收位置参数）
+cli build foo      # => UnknownSubcommand（即使 build 不接收位置参数，仍优先 UnknownSubcommand）
+```
+
 `help` 子命令语义（CONTROL SCAN / RUN CONTROL 阶段处理）：
 
 1. route 仅负责产出 `ctx.sources.user.cmds` 与 user tail argv；不处理 help 语义。
@@ -690,17 +725,17 @@ cli sub -- --like-option        # --like-option 作为位置参数
 
 ## 内置选项
 
-| 选项                                    | 短选项 | 说明                                                           |
-| --------------------------------------- | ------ | -------------------------------------------------------------- |
-| `--color` / `--no-color`                | -      | 控制 help 彩色渲染                                             |
-| `--help`                                | -      | 显示帮助并退出                                                 |
-| `--version`                             | -      | 显示版本（仅 root 且 `version` 已配置且 builtin version 启用） |
-| `--log-level`                           | -      | 设置日志级别                                                   |
-| `--silent`                              | -      | 静默模式（仅 error）                                           |
-| `--log-date` / `--no-log-date`          | -      | 控制日志时间戳                                                 |
-| `--log-colorful` / `--no-log-colorful`  | -      | 控制彩色输出                                                   |
+| 选项                                   | 短选项 | 说明                                                             |
+| -------------------------------------- | ------ | ---------------------------------------------------------------- |
+| `--color` / `--no-color`               | -      | 控制 help 彩色渲染                                               |
+| `--help`                               | -      | 显示帮助并退出                                                   |
+| `--version`                            | -      | 显示版本（当前 leaf 的 `version` 已配置且 builtin version 启用） |
+| `--log-level`                          | -      | 设置日志级别                                                     |
+| `--silent`                             | -      | 静默模式（仅 error）                                             |
+| `--log-date` / `--no-log-date`         | -      | 控制日志时间戳                                                   |
+| `--log-colorful` / `--no-log-colorful` | -      | 控制彩色输出                                                     |
 
-除 `help/version` 保留项外，用户可定义同名选项覆盖默认行为。
+除 `help/version` 保留项外，用户可通过 `.option()` 显式声明同名选项覆盖框架自动注入项；覆盖范围包括解析、默认值、help 展示与 `apply` 行为。
 
 `builtin` 开关仅控制框架“自动注入”的内建选项，不影响用户通过 `.option()` 显式声明的同名选项。
 

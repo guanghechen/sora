@@ -22,22 +22,22 @@
 user argv → route → control-scan(run/parse) → run-control(run only) → preset → tokenize → resolve → parse → run
 ```
 
-| 阶段                      | 方向     | 说明                                                                                                         |
-| ------------------------  | -------- | ------------------------------------------------------------------------------------------------------------ |
-| route                     | 自顶向下 | 基于 user argv 匹配 subcommand（name/alias），不改写 argv                                                    |
+| 阶段                      | 方向     | 说明                                                                                                                                                                               |
+| ------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| route                     | 自顶向下 | 基于 user argv 匹配 subcommand（name/alias），不改写 argv                                                                                                                          |
 | control-scan（run/parse） | -        | 在 user tail（`--` 之前）识别控制语义：`--help` 按 token 扫描，`--version` 需 `supportsBuiltinVersion(leaf)`，`help` 仅 tail 首 token 生效，并写入 `ctx.controls` 后剥离控制 token |
-| run-control（仅 run）     | -        | 依据 `ctx.controls` 执行 short-circuit，优先级 `help > version`                                              |
-| preset                    | -        | 加载 `--preset-root` / `--preset-opts` / `--preset-envs` 并合并输入；presetRoot 决议为 CLI LWW 优先，未声明时回退 command preset（leaf→root 首命中） |
-| tokenize                  | -        | effective tail argv → `ICommandToken[]`（格式校验）                                                          |
-| resolve                   | 自底向上 | 每个 Command 消费自己的 tokens                                                                               |
-| parse                     | 自顶向下 | tokens → opts，调用 apply 更新 ctx；对外仅暴露 leaf 本地声明的 `opts/args`                                   |
-| run                       | -        | 执行 leaf command 的 action                                                                                  |
+| run-control（仅 run）     | -        | 依据 `ctx.controls` 执行 short-circuit，优先级 `help > version`                                                                                                                    |
+| preset                    | -        | 加载 `--preset-root` / `--preset-opts` / `--preset-envs` 并合并输入；presetRoot 决议为 CLI LWW 优先，未声明时回退 command preset（leaf→root 首命中）                               |
+| tokenize                  | -        | effective tail argv → `ICommandToken[]`（格式校验）                                                                                                                                |
+| resolve                   | 自底向上 | 每个 Command 消费自己的 tokens                                                                                                                                                     |
+| parse                     | 自顶向下 | tokens → opts，调用 apply 更新 ctx；对外仅暴露 leaf 本地声明的 `opts/args`                                                                                                         |
+| run                       | -        | 执行 leaf command 的 action                                                                                                                                                        |
 
 详见 [command.md](./command.md) 中“内建 version 支持判定”“CONTROL SCAN 规则”“RUN CONTROL 规则”与“支持矩阵（代表性场景）”。
 
 若 user tail（`--` 之前）同时包含 `--help` 与 `--version`，按 `help > version` 优先级处理。
 
-`preset` root 决议为强约束：先决议 CLI `--preset-root`（Last Write Wins），若未声明再按 `leaf -> ... -> root` 命中第一个 `command.preset.root`；命中 root 无效则直接报错且不回退。
+`preset` root 决议为强约束：先决议 CLI `--preset-root`（Last Write Wins），若未声明再按 `leaf -> ... -> root` 命中第一个 `command.preset.root`；命中 root 无效（`isAbsolute(root) && stat(root).isDirectory()` 不成立）则直接报错且不回退。
 
 说明：`preset` 阶段属于当前规范与实现的一部分。
 
@@ -57,16 +57,16 @@ user argv → route → control-scan(run/parse) → run-control(run only) → pr
 
 ```typescript
 interface ICommandOptionConfig<T = unknown> {
-  long: string                                      // 长选项名（camelCase，必填）
-  short?: string                                    // 短选项（单字符）
-  type: 'boolean' | 'number' | 'string'             // 值类型（必填）
-  args: 'none' | 'required' | 'variadic'            // 参数模式（必填）
-  desc: string                                      // 描述文本
-  required?: boolean                                // 是否必需
-  default?: T                                       // 默认值
-  choices?: T[]                                     // 允许的值列表
-  coerce?: (rawValue: string) => T                  // 单值转换
-  apply?: (value: T, ctx: ICommandContext) => void  // 应用到 context
+  long: string                                        // 长选项名（camelCase，必填）
+  short?: string                                      // 短选项（单字符）
+  type: 'boolean' | 'number' | 'string'               // 值类型（必填）
+  args: 'none' | 'required' | 'optional' | 'variadic' // 参数模式（必填）
+  desc: string                                        // 描述文本
+  required?: boolean                                  // 是否必需
+  default?: T                                         // 默认值
+  choices?: T[]                                       // 允许的值列表
+  coerce?: (rawValue: string) => T                    // 单值转换
+  apply?: (value: T, ctx: ICommandContext) => void    // 应用到 context
 }
 ```
 
@@ -74,34 +74,56 @@ interface ICommandOptionConfig<T = unknown> {
 
 `type` 和 `args` **必须同时指定**，组合决定选项的默认解析类型：
 
-| type      | args       | 默认解析类型 | 示例                  |
-| --------- | ---------- | ------------ | --------------------- |
-| `boolean` | `none`     | `boolean`    | `--verbose`           |
-| `string`  | `required` | `string`     | `--output file`       |
-| `number`  | `required` | `number`     | `--port 8080`         |
-| `string`  | `variadic` | `string[]`   | `--files a.txt b.txt` |
-| `number`  | `variadic` | `number[]`   | `--ports 80 443`      |
+| type      | args       | 默认解析类型         | 示例                       |
+| --------- | ---------- | -------------------- | -------------------------- |
+| `boolean` | `none`     | `boolean`            | `--verbose`                |
+| `string`  | `required` | `string`             | `--output file`            |
+| `string`  | `optional` | `string / undefined` | `--write` / `--write path` |
+| `number`  | `required` | `number`             | `--port 8080`              |
+| `string`  | `variadic` | `string[]`           | `--files a.txt b.txt`      |
+| `number`  | `variadic` | `number[]`           | `--ports 80 443`           |
 
-若配置了 `coerce`，`none/required` 的输出类型为 `T`，`variadic` 的输出类型为 `T[]`（元素级 coerce）。
+若配置了 `coerce`：
+
+1. `none/required` 的输出类型为 `T`。
+2. `optional` 的输出类型为 `T | undefined`。
+3. `variadic` 的输出类型为 `T[]`（元素级 coerce）。
+
+`optional` 约束：
+
+1. 当前仅允许 `type: 'string', args: 'optional'`。
+2. 当 token 为裸 `--long` / `-s` 且未消费到值时，解析结果为 `undefined`。
+3. 当 token 为 `--long=` 时，解析结果为 `''`（空字符串）。
+4. 当 token 为 `--long=<value>` 或 `--long <value>`（`<value>` 非 option token）时，解析结果为该值。
+5. 当 option 未出现时，读取该字段同样可能得到 `undefined`；若需区分“未出现”与“显式传入无值”，必须结合 key 存在性判断。
+
+`required` 约束：
+
+1. `required` 仅表示“该 option 必须出现”（presence），不等价于 `args: 'required'`。
+2. `required: true` 仅允许与 `args: 'required'` 组合。
+3. `required: true` 与 `args: 'optional'` / `args: 'variadic'` 组合属于非法配置（构建期 `ConfigurationError`）。
 
 **非法组合**（构建时报错 `ConfigurationError`）：
 
 | type      | args       | 原因                     |
 | --------- | ---------- | ------------------------ |
 | `boolean` | `required` | boolean 不接受参数       |
+| `boolean` | `optional` | boolean 不接受参数       |
 | `boolean` | `variadic` | boolean 不接受参数       |
 | `string`  | `none`     | string/number 必须有参数 |
 | `number`  | `none`     | string/number 必须有参数 |
+| `number`  | `optional` | optional 仅支持 string   |
 
 ### 2.3 参数消费规则
 
 resolve 阶段按 `args` 贪婪消费后续 tokens：
 
-| args       | 消费行为                            |
-| ---------- | ----------------------------------- |
-| `none`     | 不消费参数                          |
-| `required` | 消费一个参数                        |
-| `variadic` | 持续消费，直到遇到 `-` 开头的 token |
+| args       | 消费行为                                           |
+| ---------- | -------------------------------------------------- |
+| `none`     | 不消费参数                                         |
+| `required` | 消费一个参数                                       |
+| `optional` | 优先消费一个参数；若后续为 option 或不存在则不消费 |
+| `variadic` | 持续消费，直到遇到 `-` 开头的 token                |
 
 **`=` 语法**：值内嵌时立刻停止消费，不再贪婪：
 
@@ -111,18 +133,25 @@ resolve 阶段按 `args` 贪婪消费后续 tokens：
   → a.txt, b.txt 作为位置参数
 ```
 
+### 2.4 optional 的 key 存在性与 default 回退
+
+1. `optional` option 允许“值语义”和“存在语义”同时成立：字段值可为 `undefined`，但 key 仍可能存在。
+2. `default` 回退仅在 key 不存在时触发；key 已存在（即使值为 `undefined` / `''`）也不回退。
+3. 判定是否显式传入 option，必须使用 key 存在性判断，不能仅比较值是否为 `undefined`。
+4. `apply` 触发仍按值语义：值为 `undefined` 时不触发 `apply`，即使 key 存在也不触发。
+
 ---
 
 ## 3. 命名规范
 
 ### 3.1 命名约定
 
-| 场景                        | 格式                        | 示例                         |
-| --------------------------- | --------------------------- | ---------------------------- |
-| 命令行输入                  | kebab-case（大小写不敏感）  | `--log-level`, `--LOG-LEVEL` |
-| `ICommandOptionConfig.long` | camelCase                   | `logLevel`                   |
-| help / 错误提示             | kebab-case（全小写）        | `--log-level`                |
-| opts 对象 / 配置文件        | camelCase                   | `{ logLevel: 'debug' }`      |
+| 场景                        | 格式                       | 示例                         |
+| --------------------------- | -------------------------- | ---------------------------- |
+| 命令行输入                  | kebab-case（大小写不敏感） | `--log-level`, `--LOG-LEVEL` |
+| `ICommandOptionConfig.long` | camelCase                  | `logLevel`                   |
+| help / 错误提示             | kebab-case（全小写）       | `--log-level`                |
+| opts 对象 / 配置文件        | camelCase                  | `{ logLevel: 'debug' }`      |
 
 ### 3.2 ICommandToken
 
@@ -137,11 +166,11 @@ interface ICommandToken {
 }
 ```
 
-| type    | 说明     | name      | 匹配                         |
-| ------- | -------- | --------- | ---------------------------- |
-| `long`  | 长选项   | camelCase | `ICommandOptionConfig.long`  |
-| `short` | 短选项   | 单字符    | `ICommandOptionConfig.short` |
-| `none`  | 非选项   | `''`      | 位置参数 / `--` 之后         |
+| type    | 说明   | name      | 匹配                         |
+| ------- | ------ | --------- | ---------------------------- |
+| `long`  | 长选项 | camelCase | `ICommandOptionConfig.long`  |
+| `short` | 短选项 | 单字符    | `ICommandOptionConfig.short` |
+| `none`  | 非选项 | `''`      | 位置参数 / `--` 之后         |
 
 注：`args: 'none'` 与 `token.type: 'none'` 语义不同，前者表示选项不接参数，后者表示该 token 不是选项。
 
@@ -161,12 +190,12 @@ function camelToKebabCase(s: string): string {
 
 **示例**：
 
-| 输入                | resolved            | name       |
-| ------------------- | ------------------- | ---------- |
-| `--log-level`       | `--logLevel`        | `logLevel` |
-| `--LOG-LEVEL`       | `--logLevel`        | `logLevel` |
-| `--log-level=Debug` | `--logLevel=Debug`  | `logLevel` |
-| `--no-verbose`      | `--verbose=false`   | `verbose`  |
+| 输入                | resolved           | name       |
+| ------------------- | ------------------ | ---------- |
+| `--log-level`       | `--logLevel`       | `logLevel` |
+| `--LOG-LEVEL`       | `--logLevel`       | `logLevel` |
+| `--log-level=Debug` | `--logLevel=Debug` | `logLevel` |
+| `--no-verbose`      | `--verbose=false`  | `verbose`  |
 
 > `=` 后的值保持原样；纯 camelCase 输入（如 `--logLevel`）会转为 `--loglevel`，无法匹配。
 
@@ -202,13 +231,13 @@ tokenize 阶段校验长选项格式：
 
 ### 3.5 tokenize 边界
 
-| 场景              | 处理                          |
-| ----------------- | ----------------------------- |
-| `--` 之前长选项   | 转小写 → camelCase            |
-| `--` 之后         | 不转换、不校验                |
-| 选项值            | 不转换                        |
-| 短选项            | 不转换、不做 kebab-case 校验  |
-| `--no-*`          | 转 camelCase，映射为 `=false` |
+| 场景            | 处理                          |
+| --------------- | ----------------------------- |
+| `--` 之前长选项 | 转小写 → camelCase            |
+| `--` 之后       | 不转换、不校验                |
+| 选项值          | 不转换                        |
+| 短选项          | 不转换、不做 kebab-case 校验  |
+| `--no-*`        | 转 camelCase，映射为 `=false` |
 
 ---
 
@@ -216,26 +245,27 @@ tokenize 阶段校验长选项格式：
 
 ### 4.1 支持的语法
 
-| 语法           | 示例            | 说明                      |
-| -------------- | --------------- | ------------------------- |
-| 长选项         | `--verbose`     | boolean                   |
-| 长选项赋值     | `--output=file` | 带值                      |
-| 长选项空格     | `--output file` | 带值                      |
-| 短选项         | `-v`            | 单字符                    |
-| 短选项空格     | `-o file`       | 带值                      |
-| 短选项组合     | `-abc`          | 等价 `-a -b -c`           |
-| 短选项组合带值 | `-vo file`      | 等价 `-v -o file`         |
-| Negative       | `--no-foo`      | 等价 `--foo=false`        |
-| End-of-options | `--`            | 后续全部作为位置参数      |
+| 语法           | 示例                           | 说明                                                             |
+| -------------- | ------------------------------ | ---------------------------------------------------------------- |
+| 长选项         | `--verbose`                    | boolean                                                          |
+| 长选项赋值     | `--output=file`                | 带值                                                             |
+| 长选项空格     | `--output file`                | 带值                                                             |
+| 可选参数长选项 | `--write` / `--write out.fish` | 裸 `--write` -> `undefined`；`--write=` -> `''`；有值取 filepath |
+| 短选项         | `-v`                           | 单字符                                                           |
+| 短选项空格     | `-o file`                      | 带值                                                             |
+| 短选项组合     | `-abc`                         | 等价 `-a -b -c`                                                  |
+| 短选项组合带值 | `-vo file`                     | 等价 `-v -o file`                                                |
+| Negative       | `--no-foo`                     | 等价 `--foo=false`                                               |
+| End-of-options | `--`                           | 后续全部作为位置参数                                             |
 
 ### 4.2 不支持的语法
 
-| 语法             | 示例                     | 建议                     |
-| ---------------- | ------------------------ | ------------------------ |
-| 短选项粘连       | `-ofile`                 | 使用 `-o file`           |
-| 短选项赋值       | `-o=value`               | 使用 `-o value`          |
-| 负数值输入       | `-o -1` / `--long -1`    | 使用 `--long=-1`         |
-| 短选项负数内联赋值 | `-o=-1`                  | 不支持，使用 `--long=-1` |
+| 语法               | 示例                  | 建议                     |
+| ------------------ | --------------------- | ------------------------ |
+| 短选项粘连         | `-ofile`              | 使用 `-o file`           |
+| 短选项赋值         | `-o=value`            | 使用 `-o value`          |
+| 负数值输入         | `-o -1` / `--long -1` | 使用 `--long=-1`         |
+| 短选项负数内联赋值 | `-o=-1`               | 不支持，使用 `--long=-1` |
 
 ### 4.3 Negative 选项
 
@@ -253,6 +283,7 @@ tokenize 阶段校验长选项格式：
 | ---------- | -------- | ------------------------------------------------- |
 | `none`     | 后者覆盖 | `--foo --no-foo` → `false`                        |
 | `required` | 后者覆盖 | `--name=a --name=b` → `'b'`                       |
+| `optional` | 后者覆盖 | `--write out --write` → `undefined`               |
 | `variadic` | 追加     | `--file a.txt --file b.txt` → `['a.txt','b.txt']` |
 
 **variadic 详细规则**：
@@ -307,6 +338,19 @@ for token in argv:
 
 详见 [command.md](./command.md)。
 
+未知子命令语义：
+
+1. route 保持“遇到不命中子命令 token 即停止”的行为，不在 route 阶段抛错。
+2. 若 route 停止后的 leaf 存在子命令，且 tail 首 token 为裸 token（非 `help` / 非 option），parse 阶段抛 `UnknownSubcommand`。
+3. `UnknownSubcommand` 与 `UnexpectedArgument` 冲突时，优先级固定为 `UnknownSubcommand > UnexpectedArgument`。
+4. 若抛 `UnknownSubcommand` 且 leaf 同时不接受位置参数，应追加 hint：`Hint: command "<path>" does not accept positional arguments.`。
+5. 若抛 `UnknownSubcommand` 且存在唯一最接近候选子命令，可追加 hint：`Hint: did you mean "<candidate>"?`。
+6. “最接近候选”判定规则：
+   - 候选集合仅包含当前 leaf 的直接子命令 `name`（不包含 aliases）；
+   - 使用小写后的 `kebab-case` 名称计算 Levenshtein distance；
+   - 仅当最小距离 `<= 2` 且最小值唯一时，输出 `did-you-mean` hint；
+   - 若并列最小值或最小距离 `> 2`，不输出该 hint。
+
 ---
 
 ## 7. 位置参数
@@ -315,6 +359,8 @@ for token in argv:
 - resolve 阶段第二轮处理：非 `-` 开头的 remaining → argTokens
 - `--` 之后内容直接追加到 argTokens（允许 `-` 开头）
 - `-` 开头的 remaining 触发 `UnknownOption` 错误
+- leaf 未声明任何位置参数却收到裸 token 时，若未命中 `UnknownSubcommand`，抛 `UnexpectedArgument`
+- `TooManyArguments` 仅用于“已声明位置参数但传入数量超上限”的场景
 
 ---
 
@@ -322,29 +368,33 @@ for token in argv:
 
 ### 8.1 构建时
 
-| 约束                     | 说明           |
-| ------------------------ | -------------- |
-| `type` + `args` 非法组合 | 见 §2.2        |
-| `required` + `default`   | 互斥           |
-| `boolean` + `required`   | 互斥           |
-| `long` 为 `help/version` | 保留名，不允许 |
-| 子命令名/alias 为 `help` | 保留名，不允许 |
-| 子命令名/alias 冲突      | 不允许         |
-| `long` 非 camelCase      | 不允许         |
-| `long` 以 `no` 开头      | 不允许         |
-| `short` 非单字符         | 不允许         |
-| `short` 冲突             | 不允许         |
+| 约束                     | 说明                                                  |
+| ------------------------ | ----------------------------------------------------- |
+| `type` + `args` 非法组合 | 见 §2.2                                               |
+| `required` + `default`   | 互斥                                                  |
+| `boolean` + `required`   | 互斥                                                  |
+| `required` + `args`      | 仅允许 `args: 'required'`                             |
+| `long` 为 `help/version` | 保留名，不允许                                        |
+| 子命令名/alias 为 `help` | 保留名，不允许                                        |
+| 子命令名/alias 冲突      | 不允许（同一 `cmd` 重复注册同一 `name` 视为幂等例外） |
+| `long` 非 camelCase      | 不允许                                                |
+| `long` 以 `no` 开头      | 不允许                                                |
+| `short` 非单字符         | 不允许                                                |
+| `short` 冲突             | 不允许                                                |
 
 ### 8.2 运行时
 
-| 校验项         | 阶段    | 说明                                 |
-| -------------- | ------- | ------------------------------------ |
-| unknown option | resolve | 未定义的选项                         |
-| required       | parse   | 缺失必需选项                         |
-| type           | parse   | 值类型不匹配（option/argument）      |
-| choices        | parse   | 值不在列表中（option/argument）      |
-| negative type  | parse   | `--no-xxx` 用于非 boolean            |
-| boolean value  | parse   | boolean 赋值非 true/false            |
+| 校验项              | 阶段    | 说明                                         |
+| ------------------- | ------- | -------------------------------------------- |
+| unknown option      | resolve | 未定义的选项                                 |
+| unknown subcommand  | parse   | 存在子命令但命中非法子命令 token             |
+| option conflict     | parse   | 互斥选项同时命中（如 completion 的多 shell） |
+| required            | parse   | 缺失必需选项                                 |
+| type                | parse   | 值类型不匹配（option/argument）              |
+| choices             | parse   | 值不在列表中（option/argument）              |
+| negative type       | parse   | `--no-xxx` 用于非 boolean                    |
+| boolean value       | parse   | boolean 赋值非 true/false                    |
+| unexpected argument | parse   | 当前命令不接受位置参数却收到裸 token         |
 
 ---
 
@@ -352,11 +402,11 @@ for token in argv:
 
 ### 9.1 Exit Code
 
-| Code | 说明               |
-| ---- | ------------------ |
-| 0    | 成功               |
-| 1    | action 执行失败    |
-| 2    | 解析 / 校验失败    |
+| Code | 说明            |
+| ---- | --------------- |
+| 0    | 成功            |
+| 1    | action 执行失败 |
+| 2    | 解析 / 校验失败 |
 
 说明：Exit Code 仅适用于 `run()` 作为 CLI 入口执行时；`parse()` 仅返回解析结果或抛错，不定义进程退出码。
 
@@ -367,25 +417,35 @@ Error: unknown option "--foo" for command "app sub"
 Run "app sub --help" for usage.
 ```
 
+含 hint 的格式（可选）：
+
+```
+Error: unknown subcommand "watc" for command "cli build"
+Hint: did you mean "watch"?
+Run "cli build --help" for usage.
+```
+
 ### 9.3 错误类型
 
-| Kind                      | 说明                      |
-| ------------------------- | ------------------------- |
-| `InvalidOptionFormat`     | 选项名格式非法            |
-| `InvalidNegativeOption`   | 负向选项语法错误          |
-| `NegativeOptionWithValue` | 负向选项带值              |
-| `NegativeOptionType`      | 负向选项用于非 boolean    |
-| `UnknownOption`           | 未定义的选项              |
-| `MissingValue`            | 选项缺少值                |
-| `InvalidType`             | 值类型不匹配              |
-| `UnsupportedShortSyntax`  | 不支持的短选项语法        |
-| `OptionConflict`          | 选项配置冲突              |
-| `MissingRequired`         | 缺少必需选项              |
-| `InvalidChoice`           | 值不在 choices 中         |
-| `InvalidBooleanValue`     | boolean 赋值非 true/false |
-| `MissingRequiredArgument` | 缺少必需位置参数          |
-| `TooManyArguments`        | 位置参数过多              |
-| `ConfigurationError`      | 配置错误                  |
+| Kind                      | 说明                               |
+| ------------------------- | ---------------------------------- |
+| `InvalidOptionFormat`     | 选项名格式非法                     |
+| `InvalidNegativeOption`   | 负向选项语法错误                   |
+| `NegativeOptionWithValue` | 负向选项带值                       |
+| `NegativeOptionType`      | 负向选项用于非 boolean             |
+| `UnknownOption`           | 未定义的选项                       |
+| `UnknownSubcommand`       | 未定义的子命令                     |
+| `UnexpectedArgument`      | 非预期位置参数                     |
+| `MissingValue`            | 选项缺少值                         |
+| `InvalidType`             | 值类型不匹配                       |
+| `UnsupportedShortSyntax`  | 不支持的短选项语法                 |
+| `OptionConflict`          | 选项冲突（配置期或运行时互斥）     |
+| `MissingRequired`         | 缺少必需选项                       |
+| `InvalidChoice`           | 值不在 choices 中                  |
+| `InvalidBooleanValue`     | boolean 赋值非 true/false          |
+| `MissingRequiredArgument` | 缺少必需位置参数                   |
+| `TooManyArguments`        | 位置参数过多                       |
+| `ConfigurationError`      | 配置错误                           |
 
 ---
 
