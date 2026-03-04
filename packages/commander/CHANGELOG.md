@@ -1,5 +1,12 @@
 # Change Log
 
+## 4.7.3
+
+### Patch Changes
+
+- Align commander optional/subcommand parsing with spec and keep release notes in sync. Upgrade
+  tooling dependencies and pin changesets packages to fixed versions.
+
 ## 4.7.2
 
 ### Patch Changes
