@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.1.2
+
+### Patch Changes
+
+- Republish packages that depend on @guanghechen/observable after its patch release.
+
 ## 2.1.1
 
 ### Patch Changes

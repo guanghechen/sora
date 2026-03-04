@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/task",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Atomic and resumable tasks",
   "author": {
     "name": "guanghechen",

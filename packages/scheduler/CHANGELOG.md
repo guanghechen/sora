@@ -1,5 +1,13 @@
 # Change Log
 
+## 7.1.2
+
+### Patch Changes
+
+- Republish packages that depend on @guanghechen/observable after its patch release.
+- Updated dependencies:
+  - @guanghechen/task@2.1.2
+
 ## 7.1.1
 
 ### Patch Changes
