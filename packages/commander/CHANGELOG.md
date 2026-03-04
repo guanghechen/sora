@@ -1,5 +1,12 @@
 # Change Log
 
+## 4.7.2
+
+### Patch Changes
+
+- Improve commander release quality by enforcing command validation rules and refining fish
+  completion command-chain matching.
+
 ## 4.7.1
 
 ### Patch Changes
