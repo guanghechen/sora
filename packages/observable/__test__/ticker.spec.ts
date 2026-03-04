@@ -71,9 +71,9 @@ describe('async', () => {
     const observable2 = new Observable<number>(200)
     const observable3 = new Observable<number>(300)
 
-    let unobservable1 = ticker.observe(observable1)
-    let unobservable2 = ticker.observe(observable2)
-    let unobservable3 = ticker.observe(observable3)
+    const unobservable1 = ticker.observe(observable1)
+    const unobservable2 = ticker.observe(observable2)
+    const unobservable3 = ticker.observe(observable3)
 
     expect(ticker.getSnapshot()).toEqual(3)
     expect(ticker.disposed).toEqual(false)
@@ -153,8 +153,8 @@ describe('async', () => {
 
     // ----------------------------------------------------------------------------------
 
-    unobservable2 = ticker.observe(observable2)
-    unobservable3 = ticker.observe(observable3)
+    ticker.observe(observable2)
+    ticker.observe(observable3)
 
     expect(ticker.getSnapshot()).toEqual(5)
     expect(ticker.disposed).toEqual(false)
@@ -183,7 +183,7 @@ describe('async', () => {
       '[Ticker.observe] the ticker has been disposed.',
     )
 
-    unobservable1 = ticker.observe(observable1, { strict: false })
+    ticker.observe(observable1, { strict: false })
 
     observable2.next(104, { strict: false })
     observable2.next(204, { strict: false })
