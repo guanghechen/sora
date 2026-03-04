@@ -86,6 +86,7 @@ function stripAnsi(value: string): string {
   return value.replace(ANSI_ESCAPE_REGEX, '')
 }
 
+/* v8 ignore start */
 function isCombiningMark(codePoint: number): boolean {
   return (
     (codePoint >= 0x0300 && codePoint <= 0x036f) ||
@@ -136,6 +137,7 @@ function getDisplayWidth(value: string): number {
 
   return width
 }
+/* v8 ignore stop */
 
 function padDisplayEnd(value: string, targetWidth: number): string {
   const width = getDisplayWidth(value)

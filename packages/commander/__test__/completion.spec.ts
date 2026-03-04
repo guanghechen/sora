@@ -82,6 +82,30 @@ describe('BashCompletion', () => {
     expect(script).toContain('--verbose')
     expect(script).toContain('--no-verbose')
   })
+
+  it('should generate argument slot choices while skipping non-choice arguments', () => {
+    const meta: ICompletionMeta = {
+      name: 'testcli',
+      desc: 'Test CLI',
+      aliases: [],
+      options: [
+        { long: 'config', desc: 'Config', takesValue: true },
+        { short: 'f', long: 'format', desc: 'Format', takesValue: true, choices: ['json', 'yaml'] },
+      ],
+      arguments: [
+        { name: 'input', kind: 'required', type: 'string' },
+        { name: 'mode', kind: 'optional', type: 'choice', choices: ['safe', 'force'] },
+      ],
+      subcommands: [],
+    }
+
+    const script = new BashCompletion(meta, 'testcli').generate()
+    expect(script).toContain('opts="json yaml"')
+    expect(script).toContain('arg_count=2')
+    expect(script).toContain('has_rest=0')
+    expect(script).toContain('1) opts="safe force" ;;')
+    expect(script).not.toContain('0) opts=')
+  })
 })
 
 describe('FishCompletion', () => {
@@ -182,6 +206,35 @@ describe('FishCompletion', () => {
     )
     expect(script).toContain('-a s')
   })
+
+  it('should attach argument choice completion condition for nested subcommands', () => {
+    const meta: ICompletionMeta = {
+      name: 'testcli',
+      desc: 'Test CLI',
+      aliases: [],
+      options: [],
+      arguments: [],
+      subcommands: [
+        {
+          name: 'repo',
+          desc: 'Repo',
+          aliases: ['r'],
+          options: [{ long: 'format', short: 'f', desc: 'Format', takesValue: true }],
+          arguments: [
+            { name: 'target', kind: 'required', type: 'string' },
+            { name: 'mode', kind: 'optional', type: 'choice', choices: ['safe', 'force'] },
+          ],
+          subcommands: [],
+        },
+      ],
+    }
+
+    const script = new FishCompletion(meta, 'testcli').generate()
+    expect(script).toContain(
+      "-n '__fish_seen_subcommand_from repo; and __testcli_match_arg_slot 1 2 0 1 'format' 'f''",
+    )
+    expect(script).toContain("-a 'safe force'")
+  })
 })
 
 describe('PwshCompletion', () => {
@@ -244,6 +297,26 @@ describe('PwshCompletion', () => {
     const script = completion.generate()
 
     expect(script).toContain('isBoolean = $true')
+  })
+
+  it('should include argument metadata even when argument has no choices', () => {
+    const meta: ICompletionMeta = {
+      name: 'testcli',
+      desc: 'Test CLI',
+      aliases: [],
+      options: [],
+      arguments: [
+        { name: 'input', kind: 'required', type: 'string' },
+        { name: 'mode', kind: 'optional', type: 'choice', choices: ['safe', 'force'] },
+      ],
+      subcommands: [],
+    }
+
+    const script = new PwshCompletion(meta, 'testcli').generate()
+    expect(script).toContain("name = 'input'")
+    expect(script).toContain("type = 'string'")
+    expect(script).toContain("name = 'mode'")
+    expect(script).toContain("choices = @('safe', 'force')")
   })
 })
 
@@ -385,6 +458,42 @@ describe('CompletionCommand', () => {
     const output = String(consoleSpy.mock.calls[0]?.[0] ?? '')
     expect(output).toContain('_mycli_completions()')
 
+    consoleSpy.mockRestore()
+  })
+
+  it('should resolve ~ path to absolute path when HOME and USERPROFILE are both missing', async () => {
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const originalHome = process.env['HOME']
+    const originalUserProfile = process.env['USERPROFILE']
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'completion-nohome-'))
+    const fishPath = path.join(tempDir, 'no-home.fish')
+
+    delete process.env['HOME']
+    delete process.env['USERPROFILE']
+
+    const root = new Command({ name: 'mycli', desc: 'My CLI' })
+    const completionCmd = new CompletionCommand(root, {
+      paths: { ...testPaths, fish: `~${fishPath}` },
+    })
+    root.subcommand('completion', completionCmd)
+
+    await root.run({ argv: ['completion', '--fish', '--write', ''], envs: {} })
+
+    expect(consoleSpy).toHaveBeenCalledWith(`Completion script written to: ${fishPath}`)
+    expect(fs.existsSync(fishPath)).toBe(true)
+
+    if (originalHome !== undefined) {
+      process.env['HOME'] = originalHome
+    } else {
+      delete process.env['HOME']
+    }
+    if (originalUserProfile !== undefined) {
+      process.env['USERPROFILE'] = originalUserProfile
+    } else {
+      delete process.env['USERPROFILE']
+    }
+
+    fs.rmSync(tempDir, { recursive: true, force: true })
     consoleSpy.mockRestore()
   })
 

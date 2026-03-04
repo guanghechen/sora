@@ -33,6 +33,15 @@ describe('runtime/browser', () => {
     expect(runtime.resolve('C:\\base\\dir', '.\\child')).toBe('/C:/base/dir/child')
   })
 
+  it('should trim trailing slash when resolving back to Windows drive root', () => {
+    const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue('C:\\workspace\\project')
+    const runtime = createBrowserCommandRuntime()
+
+    expect(runtime.resolve('..', '..')).toBe('C:')
+
+    cwdSpy.mockRestore()
+  })
+
   it('should use process.cwd for cwd()', () => {
     const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue('/tmp/commander')
     const runtime = createBrowserCommandRuntime()
@@ -40,6 +49,16 @@ describe('runtime/browser', () => {
     expect(runtime.cwd()).toBe('/tmp/commander')
 
     cwdSpy.mockRestore()
+  })
+
+  it('should fallback to root path when process.cwd is unavailable', () => {
+    vi.stubGlobal('process', undefined)
+    const runtime = createBrowserCommandRuntime()
+
+    expect(runtime.cwd()).toBe('/')
+    expect(runtime.resolve()).toBe('/')
+
+    vi.unstubAllGlobals()
   })
 
   it('should reject readFile in browser runtime', async () => {

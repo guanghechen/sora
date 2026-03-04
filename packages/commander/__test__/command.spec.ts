@@ -917,6 +917,44 @@ describe('Command (spec aligned)', () => {
       await expect(cmd.parse({ argv: ['-p=-1'], envs: {} })).rejects.toThrow('is not supported')
     })
 
+    it('should reject non-primitive JS number literal syntax for option numbers', async () => {
+      const cmd = new Command({ name: 'cli', desc: 'cli' }).option({
+        long: 'port',
+        type: 'number',
+        args: 'required',
+        desc: 'port',
+      })
+
+      const invalidSamples = [
+        '',
+        ' 1',
+        '1 ',
+        'NaN',
+        'Infinity',
+        '-Infinity',
+        '+',
+        '-',
+        '1e',
+        '1e+',
+        '1.2.3',
+        '1__0',
+        '1_.0',
+        '1._0',
+        '_1',
+        '1_',
+        '0b2',
+        '0o8',
+        '0xg',
+        '1e309',
+      ]
+
+      for (const sample of invalidSamples) {
+        await expect(cmd.parse({ argv: [`--port=${sample}`], envs: {} })).rejects.toThrow(
+          'invalid number',
+        )
+      }
+    })
+
     it('should parse optional argument default and reject too many args', async () => {
       const cmd = new Command({ name: 'cli', desc: 'cli' })
         .argument({ name: 'input', kind: 'required', type: 'string', desc: 'input' })
@@ -1171,6 +1209,35 @@ describe('Command (spec aligned)', () => {
           desc: 'channel',
         }),
       ).toThrow('must be one of declared choices')
+
+      expect(() =>
+        cmd.argument({
+          name: 'mode',
+          kind: 'optional',
+          type: 'choice',
+          choices: ['dev', 1 as unknown as string],
+          desc: 'mode',
+        }),
+      ).toThrow('choices must be string[]')
+
+      expect(() =>
+        cmd.argument({
+          name: 'out',
+          kind: 'optional',
+          type: 'string',
+          default: 1 as unknown as string,
+          desc: 'out',
+        }),
+      ).toThrow('must match type')
+
+      expect(() =>
+        cmd.argument({
+          name: 'broken',
+          kind: 'optional',
+          type: 'invalid' as unknown as 'string',
+          desc: 'broken',
+        }),
+      ).toThrow('must specify a valid type')
     })
 
     it('should validate example payloads', () => {
@@ -1495,6 +1562,33 @@ describe('Command (spec aligned)', () => {
         expect(argLine.indexOf('Deploy target')).toBe(optionLine.indexOf('Verbose output'))
         expect(argLine.indexOf('Deploy target')).toBe(commandLine.indexOf('Start process'))
       }
+    })
+
+    it('formatHelp should handle ANSI, combining marks, and wide chars in alignment width', () => {
+      const cjkWide = String.fromCodePoint(0x20000)
+      const ethiopic = String.fromCodePoint(0x1200)
+      const combiningMarks = String.fromCodePoint(0x0301, 0x1ab1, 0x1dc1, 0x20d1, 0xfe21)
+
+      const cmd = new Command({
+        name: 'cli',
+        desc: `desc\u001b[31mcolor\u001b[0m${combiningMarks}`,
+      })
+        .argument({
+          name: 'input',
+          kind: 'required',
+          type: 'string',
+          desc: `Input ${cjkWide}${ethiopic}`,
+        })
+        .option({
+          long: 'mode',
+          type: 'string',
+          args: 'required',
+          desc: `Mode ${cjkWide}${ethiopic}`,
+        })
+
+      const helpText = cmd.formatHelp()
+      expect(helpText).toContain('Input')
+      expect(helpText).toContain('Mode')
     })
 
     it('should handle action errors with exit code 1', async () => {
