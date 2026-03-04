@@ -231,9 +231,51 @@ describe('FishCompletion', () => {
 
     const script = new FishCompletion(meta, 'testcli').generate()
     expect(script).toContain(
-      "-n '__fish_seen_subcommand_from repo; and __testcli_match_arg_slot 1 2 0 1 'format' 'f''",
+      "-n '__fish_seen_subcommand_from repo r; and __testcli_match_arg_slot 1 2 0 1 'format' 'f''",
     )
     expect(script).toContain("-a 'safe force'")
+  })
+
+  it('should build fish conditions with full command chain to avoid sibling collisions', () => {
+    const meta: ICompletionMeta = {
+      name: 'testcli',
+      desc: 'Test CLI',
+      aliases: [],
+      options: [],
+      arguments: [],
+      subcommands: [
+        {
+          name: 'team',
+          desc: 'Team',
+          aliases: ['t'],
+          options: [],
+          arguments: [],
+          subcommands: [
+            {
+              name: 'repo',
+              desc: 'Repo in team',
+              aliases: ['r'],
+              options: [],
+              arguments: [{ name: 'mode', kind: 'required', type: 'choice', choices: ['safe'] }],
+              subcommands: [],
+            },
+          ],
+        },
+        {
+          name: 'repo',
+          desc: 'Root repo',
+          aliases: [],
+          options: [],
+          arguments: [{ name: 'mode', kind: 'required', type: 'choice', choices: ['force'] }],
+          subcommands: [],
+        },
+      ],
+    }
+
+    const script = new FishCompletion(meta, 'testcli').generate()
+    expect(script).toContain(
+      '__fish_seen_subcommand_from team t; and __fish_seen_subcommand_from repo r',
+    )
   })
 })
 

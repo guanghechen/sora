@@ -123,3 +123,4 @@ const script = new BashCompletion(meta, 'pm').generate()
 4. `type: 'string'` 时不提供 argument 候选。
 5. 若当前在 option value 槽位，则优先补全该 option 的 value 候选（若定义了 option `choices`），不提供 argument 候选。
 6. 补全优先级：先处理子命令与 option 名补全；当进入 argument 槽位时再给出 argument `choices` 候选。
+7. Fish 的 command 上下文条件必须按完整 command chain 生成（每一层一个 `__fish_seen_subcommand_from ...` 且以 `; and` 连接），不能只依赖最后一级子命令名；每层条件应同时覆盖该层 `name + aliases`。

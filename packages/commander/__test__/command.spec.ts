@@ -1105,6 +1105,12 @@ describe('Command (spec aligned)', () => {
 
       root1.subcommand('b', sub)
       root1.subcommand('b', sub)
+      root1.subcommand('build', sub)
+
+      const other = new Command({ desc: 'other' })
+      expect(() => root1.subcommand('build', other)).toThrow('conflicts with an existing command')
+      expect(() => root1.subcommand('b', other)).toThrow('conflicts with an existing command')
+
       const meta = root1.getCompletionMeta()
       expect(meta.subcommands.find(item => item.name === 'build')?.aliases).toEqual(['b'])
     })
@@ -1151,6 +1157,9 @@ describe('Command (spec aligned)', () => {
       expect(() =>
         cmd.option({ long: 'otherLong', short: 'u', type: 'boolean', args: 'none', desc: 'dup' }),
       ).toThrow('already defined')
+      expect(() =>
+        cmd.option({ long: 'badShort', short: 'ab', type: 'boolean', args: 'none', desc: 'bad' }),
+      ).toThrow('must be a single character')
 
       expect(() =>
         cmd.argument({
@@ -1238,6 +1247,15 @@ describe('Command (spec aligned)', () => {
           desc: 'broken',
         }),
       ).toThrow('must specify a valid type')
+
+      expect(() =>
+        cmd.argument({
+          name: 'badKind',
+          kind: 'invalid' as unknown as 'required',
+          type: 'string',
+          desc: 'badKind',
+        }),
+      ).toThrow('must specify a valid kind')
     })
 
     it('should validate example payloads', () => {

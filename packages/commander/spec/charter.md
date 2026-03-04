@@ -329,8 +329,10 @@ for token in argv:
 | `boolean` + `required`   | 互斥           |
 | `long` 为 `help/version` | 保留名，不允许 |
 | 子命令名/alias 为 `help` | 保留名，不允许 |
+| 子命令名/alias 冲突      | 不允许         |
 | `long` 非 camelCase      | 不允许         |
 | `long` 以 `no` 开头      | 不允许         |
+| `short` 非单字符         | 不允许         |
 | `short` 冲突             | 不允许         |
 
 ### 8.2 运行时

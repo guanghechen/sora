@@ -427,6 +427,7 @@ preset 来源决议：
 - `boolean` + `required` 互斥
 - `long: 'help'` / `long: 'version'` 属于保留名，不允许自定义
 - `long` 必须 camelCase 且不能以 `no` 开头
+- `short` 若提供，必须是单字符
 - `short` 不能冲突
 
 **运行时**：

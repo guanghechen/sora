@@ -564,10 +564,19 @@ export class Command implements ICommand {
       )
     }
 
+    const occupied = this.#subcommandsMap.get(name)
+    if (occupied && occupied !== cmd) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `subcommand name/alias "${name}" conflicts with an existing command`,
+        this.#getCommandPath(),
+      )
+    }
+
     // Check if cmd is already registered
     const existing = this.#subcommandsList.find(e => e.command === cmd)
     if (existing) {
-      if (existing.aliases.includes(name)) {
+      if (existing.name === name || existing.aliases.includes(name)) {
         return this
       }
       // Add name as alias
@@ -2274,6 +2283,14 @@ export class Command implements ICommand {
       )
     }
 
+    if (opt.short !== undefined && opt.short.length !== 1) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `option short name must be a single character: "${opt.short}"`,
+        this.#getCommandPath(),
+      )
+    }
+
     // required + default conflict
     if (opt.required && opt.default !== undefined) {
       throw new CommanderError(
@@ -2312,6 +2329,19 @@ export class Command implements ICommand {
   }
 
   #validateArgumentConfig(arg: ICommandArgumentConfig): void {
+    if (
+      arg.kind !== 'required' &&
+      arg.kind !== 'optional' &&
+      arg.kind !== 'variadic' &&
+      arg.kind !== 'some'
+    ) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `argument "${arg.name}" must specify a valid kind`,
+        this.#getCommandPath(),
+      )
+    }
+
     if (arg.type !== 'string' && arg.type !== 'choice') {
       throw new CommanderError(
         'ConfigurationError',

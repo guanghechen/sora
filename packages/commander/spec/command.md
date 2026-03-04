@@ -300,6 +300,13 @@ root.subcommand('deploy', deploy)
 - `usage` 是相对当前 command path 的片段，渲染时自动补齐前缀
 - examples 不继承，只显示当前 command 自己注册的条目
 
+`subcommand(name, cmd)` 规则：
+
+- `name='help'` 仍为保留名，禁止注册。
+- 同一父 command 下，子命令命名空间（`primary name + aliases`）必须全局唯一。
+- 若 `name` 已被其他子命令占用（无论 primary name 还是 alias），构建期抛 `ConfigurationError`。
+- 对同一 `cmd` 重复注册同一 `name` 视为幂等操作（不重复追加 alias）。
+
 ---
 
 ## 树形结构
@@ -383,6 +390,7 @@ interface ICommandArgumentConfig<T = unknown> {
 - `required` 必须在 `optional` / `variadic` / `some` 之前
 - `variadic` 与 `some` 只能出现一次（两者合计最多一个），且必须在最后
 - `required` 不能有 `default`
+- `kind` 为必填，且只能是 `required | optional | variadic | some`
 - `type` 为必填，不允许省略
 - `type='string'` 时，不允许提供 `choices`
 - `type='choice'` 时，`choices` 必填且必须为非空 `string[]`

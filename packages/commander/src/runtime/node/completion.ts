@@ -372,7 +372,7 @@ export class FishCompletion {
     return lines.join('\n')
   }
 
-  #generateCommandCompletions(cmd: ICompletionMeta, parentPath: string[]): string[] {
+  #generateCommandCompletions(cmd: ICompletionMeta, parentPath: string[][]): string[] {
     const lines: string[] = []
     const isRoot = parentPath.length === 0
 
@@ -464,16 +464,16 @@ export class FishCompletion {
       }
 
       // Recurse into subcommand
-      const newPath = [...parentPath, sub.name]
+      const newPath = [...parentPath, [sub.name, ...sub.aliases]]
       lines.push(...this.#generateCommandCompletions(sub, newPath))
     }
 
     return lines
   }
 
-  #buildCondition(path: string[]): string {
+  #buildCondition(path: string[][]): string {
     if (path.length === 0) return ''
-    return `__fish_seen_subcommand_from ${path[path.length - 1]}`
+    return path.map(level => `__fish_seen_subcommand_from ${level.join(' ')}`).join('; and ')
   }
 
   #getSubcommandNames(cmd: ICompletionMeta): string[] {
