@@ -1,5 +1,14 @@
 # Change Log
 
+## 4.7.4
+
+### Patch Changes
+
+- Fix commander completion metadata and negative option rules.
+  - Include built-in control options (help/version) in completion metadata.
+  - Prevent generating negative completions for reserved controls (--no-help/--no-version).
+  - Align completion option metadata with explicit type/args semantics.
+
 ## 4.7.3
 
 ### Patch Changes
