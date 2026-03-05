@@ -24,7 +24,7 @@ describe('BashCompletion', () => {
       name: 'testcli',
       desc: 'Test CLI',
       aliases: [],
-      options: [{ short: 'h', long: 'help', desc: 'Show help', takesValue: false }],
+      options: [{ short: 'h', long: 'help', desc: 'Show help', type: 'boolean', args: 'none' }],
       arguments: [],
       subcommands: [
         {
@@ -71,7 +71,7 @@ describe('BashCompletion', () => {
       name: 'testcli',
       desc: 'Test CLI',
       aliases: [],
-      options: [{ long: 'verbose', desc: 'Verbose mode', takesValue: false }],
+      options: [{ long: 'verbose', desc: 'Verbose mode', type: 'boolean', args: 'none' }],
       arguments: [],
       subcommands: [],
     }
@@ -83,14 +83,42 @@ describe('BashCompletion', () => {
     expect(script).toContain('--no-verbose')
   })
 
+  it('should not include --no-help/--no-version for built-in controls', () => {
+    const meta: ICompletionMeta = {
+      name: 'testcli',
+      desc: 'Test CLI',
+      aliases: [],
+      options: [
+        { long: 'help', desc: 'Show help information', type: 'boolean', args: 'none' },
+        { long: 'version', desc: 'Show version number', type: 'boolean', args: 'none' },
+      ],
+      arguments: [],
+      subcommands: [],
+    }
+
+    const script = new BashCompletion(meta, 'testcli').generate()
+
+    expect(script).toContain('--help')
+    expect(script).toContain('--version')
+    expect(script).not.toContain('--no-help')
+    expect(script).not.toContain('--no-version')
+  })
+
   it('should generate argument slot choices while skipping non-choice arguments', () => {
     const meta: ICompletionMeta = {
       name: 'testcli',
       desc: 'Test CLI',
       aliases: [],
       options: [
-        { long: 'config', desc: 'Config', takesValue: true },
-        { short: 'f', long: 'format', desc: 'Format', takesValue: true, choices: ['json', 'yaml'] },
+        { long: 'config', desc: 'Config', type: 'string', args: 'required' },
+        {
+          short: 'f',
+          long: 'format',
+          desc: 'Format',
+          type: 'string',
+          args: 'required',
+          choices: ['json', 'yaml'],
+        },
       ],
       arguments: [
         { name: 'input', kind: 'required', type: 'string' },
@@ -115,11 +143,12 @@ describe('FishCompletion', () => {
       desc: 'Test CLI',
       aliases: [],
       options: [
-        { short: 'v', long: 'verbose', desc: 'Verbose mode', takesValue: false },
+        { short: 'v', long: 'verbose', desc: 'Verbose mode', type: 'boolean', args: 'none' },
         {
           long: 'format',
           desc: 'Output format',
-          takesValue: true,
+          type: 'string',
+          args: 'required',
           choices: ['json', 'yaml'],
         },
       ],
@@ -142,7 +171,7 @@ describe('FishCompletion', () => {
       name: 'testcli',
       desc: "It's a test",
       aliases: [],
-      options: [{ long: 'opt', desc: "Option's description", takesValue: false }],
+      options: [{ long: 'opt', desc: "Option's description", type: 'boolean', args: 'none' }],
       arguments: [],
       subcommands: [],
     }
@@ -158,7 +187,7 @@ describe('FishCompletion', () => {
       name: 'testcli',
       desc: 'Test CLI',
       aliases: [],
-      options: [{ long: 'verbose', desc: 'Verbose mode', takesValue: false }],
+      options: [{ long: 'verbose', desc: 'Verbose mode', type: 'boolean', args: 'none' }],
       arguments: [],
       subcommands: [],
     }
@@ -168,6 +197,27 @@ describe('FishCompletion', () => {
 
     expect(script).toContain('-l verbose')
     expect(script).toContain('-l no-verbose')
+  })
+
+  it('should not include --no-help/--no-version for built-in controls', () => {
+    const meta: ICompletionMeta = {
+      name: 'testcli',
+      desc: 'Test CLI',
+      aliases: [],
+      options: [
+        { long: 'help', desc: 'Show help information', type: 'boolean', args: 'none' },
+        { long: 'version', desc: 'Show version number', type: 'boolean', args: 'none' },
+      ],
+      arguments: [],
+      subcommands: [],
+    }
+
+    const script = new FishCompletion(meta, 'testcli').generate()
+
+    expect(script).toContain('-l help')
+    expect(script).toContain('-l version')
+    expect(script).not.toContain('-l no-help')
+    expect(script).not.toContain('-l no-version')
   })
 
   it('should generate nested conditions for non-root subcommand completions', () => {
@@ -219,7 +269,9 @@ describe('FishCompletion', () => {
           name: 'repo',
           desc: 'Repo',
           aliases: ['r'],
-          options: [{ long: 'format', short: 'f', desc: 'Format', takesValue: true }],
+          options: [
+            { long: 'format', short: 'f', desc: 'Format', type: 'string', args: 'required' },
+          ],
           arguments: [
             { name: 'target', kind: 'required', type: 'string' },
             { name: 'mode', kind: 'optional', type: 'choice', choices: ['safe', 'force'] },
@@ -285,7 +337,7 @@ describe('PwshCompletion', () => {
       name: 'testcli',
       desc: 'Test CLI',
       aliases: [],
-      options: [{ short: 'h', long: 'help', desc: 'Show help', takesValue: false }],
+      options: [{ short: 'h', long: 'help', desc: 'Show help', type: 'boolean', args: 'none' }],
       arguments: [],
       subcommands: [
         {
@@ -325,12 +377,12 @@ describe('PwshCompletion', () => {
     expect(script).toContain("It''s a test")
   })
 
-  it('should include isBoolean flag for boolean options', () => {
+  it('should include explicit type/args metadata for options', () => {
     const meta: ICompletionMeta = {
       name: 'testcli',
       desc: 'Test CLI',
       aliases: [],
-      options: [{ long: 'verbose', desc: 'Verbose mode', takesValue: false }],
+      options: [{ long: 'verbose', desc: 'Verbose mode', type: 'boolean', args: 'none' }],
       arguments: [],
       subcommands: [],
     }
@@ -338,7 +390,34 @@ describe('PwshCompletion', () => {
     const completion = new PwshCompletion(meta, 'testcli')
     const script = completion.generate()
 
-    expect(script).toContain('isBoolean = $true')
+    expect(script).toContain("type = 'boolean'")
+    expect(script).toContain("args = 'none'")
+  })
+
+  it('should skip negative completion for built-in controls', () => {
+    const meta: ICompletionMeta = {
+      name: 'testcli',
+      desc: 'Test CLI',
+      aliases: [],
+      options: [
+        { long: 'help', desc: 'Show help information', type: 'boolean', args: 'none' },
+        { long: 'version', desc: 'Show version number', type: 'boolean', args: 'none' },
+        { long: 'verbose', desc: 'Verbose mode', type: 'boolean', args: 'none' },
+      ],
+      arguments: [],
+      subcommands: [],
+    }
+
+    const script = new PwshCompletion(meta, 'testcli').generate()
+
+    expect(script).toContain("long = 'help'")
+    expect(script).toContain("long = 'version'")
+    expect(script).toContain("long = 'verbose'")
+    expect(script).toContain('canNegate = $true')
+    expect(script).toContain('canNegate = $false')
+    expect(script).toContain('if ($opt.canNegate -and "--no-$($opt.long)" -like "$current*")')
+    expect(script).not.toContain('--no-help')
+    expect(script).not.toContain('--no-version')
   })
 
   it('should include argument metadata even when argument has no choices', () => {
@@ -382,12 +461,22 @@ describe('Integration with Command', () => {
     const bashScript = new BashCompletion(meta, 'mycli').generate()
     expect(bashScript).toContain('--config')
     expect(bashScript).toContain('init')
+    expect(bashScript).toContain('--help')
+    expect(bashScript).toContain('--version')
+    expect(bashScript).not.toContain('--no-help')
+    expect(bashScript).not.toContain('--no-version')
 
     const fishScript = new FishCompletion(meta, 'mycli').generate()
     expect(fishScript).toContain('-l config')
+    expect(fishScript).toContain('-l help')
+    expect(fishScript).toContain('-l version')
+    expect(fishScript).not.toContain('-l no-help')
+    expect(fishScript).not.toContain('-l no-version')
 
     const pwshScript = new PwshCompletion(meta, 'mycli').generate()
     expect(pwshScript).toContain("long = 'config'")
+    expect(pwshScript).toContain("long = 'help'")
+    expect(pwshScript).toContain("long = 'version'")
   })
 
   it('should expose argument choices in completion metadata and scripts', () => {
@@ -1120,7 +1209,7 @@ describe('Completion with aliases and nested subcommands', () => {
               name: 'set',
               desc: 'Set config value',
               aliases: [],
-              options: [{ long: 'key', desc: 'Key name', takesValue: true }],
+              options: [{ long: 'key', desc: 'Key name', type: 'string', args: 'required' }],
               arguments: [],
               subcommands: [],
             },
@@ -1184,7 +1273,8 @@ describe('Completion with aliases and nested subcommands', () => {
         {
           long: 'format',
           desc: 'Output format',
-          takesValue: true,
+          type: 'string',
+          args: 'required',
           choices: ['json', 'yaml', 'xml'],
         },
       ],
@@ -1208,7 +1298,8 @@ describe('Completion with aliases and nested subcommands', () => {
           short: 'v',
           long: 'verbose',
           desc: 'Verbose mode',
-          takesValue: false,
+          type: 'boolean',
+          args: 'none',
         },
       ],
       arguments: [],

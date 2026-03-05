@@ -12,6 +12,7 @@ import type {
   ICommandContext,
   ICompletionCommandConfig,
   ICompletionMeta,
+  ICompletionOptionMeta,
   ICompletionPaths,
 } from '../../types'
 
@@ -22,6 +23,16 @@ import type {
  */
 function camelToKebabCase(str: string): string {
   return str.replace(/[A-Z]/g, m => '-' + m.toLowerCase())
+}
+
+function canGenerateNegativeCompletion(opt: ICompletionOptionMeta): boolean {
+  return (
+    opt.type === 'boolean' && opt.args === 'none' && opt.long !== 'help' && opt.long !== 'version'
+  )
+}
+
+function optionTakesValue(opt: ICompletionOptionMeta): boolean {
+  return opt.args !== 'none'
 }
 
 const COMPLETION_SHELL_STATE = Symbol('completion-shell-state')
@@ -244,13 +255,13 @@ export class BashCompletion {
     const indent = '  '.repeat(depth)
     const lines: string[] = []
 
-    // Build options string (including --no-{kebab-long} for boolean options).
+    // Build options string.
     const optParts: string[] = []
     for (const opt of cmd.options) {
       const kebabLong = camelToKebabCase(opt.long)
       if (opt.short) optParts.push(this.#escapeWord(`-${opt.short}`))
       optParts.push(this.#escapeWord(`--${kebabLong}`))
-      if (!opt.takesValue) {
+      if (canGenerateNegativeCompletion(opt)) {
         optParts.push(this.#escapeWord(`--no-${kebabLong}`))
       }
     }
@@ -294,7 +305,7 @@ export class BashCompletion {
     cmd: ICompletionMeta,
     depth: number,
   ): void {
-    const valueOptions = cmd.options.filter(opt => opt.takesValue)
+    const valueOptions = cmd.options.filter(optionTakesValue)
     const valueOptionsWithChoices = valueOptions.filter(
       opt => opt.choices && opt.choices.length > 0,
     )
@@ -442,8 +453,8 @@ export class FishCompletion {
       }
       lines.push(line)
 
-      // Add --no-{kebab-long} for boolean options (reuse original description per spec)
-      if (!opt.takesValue) {
+      // Add --no-{kebab-long} for boolean options, excluding built-in controls.
+      if (canGenerateNegativeCompletion(opt)) {
         let noLine = `complete -c ${this.#programName}`
         if (condition) noLine += ` -n '${condition}'`
         noLine += ` -l no-${kebabLong}`
@@ -453,11 +464,11 @@ export class FishCompletion {
     }
 
     const valueOptionLongs = cmd.options
-      .filter(opt => opt.takesValue)
+      .filter(optionTakesValue)
       .map(opt => camelToKebabCase(opt.long))
       .join(',')
     const valueOptionShorts = cmd.options
-      .filter(opt => opt.takesValue && opt.short)
+      .filter(opt => optionTakesValue(opt) && opt.short)
       .map(opt => opt.short as string)
       .join(',')
     const argCount = cmd.arguments.length
@@ -676,7 +687,7 @@ export class PwshCompletion {
       '    if ($token.StartsWith("--")) {',
       '      if ($token.Contains("=")) { continue }',
       '      foreach ($opt in $cmd.options) {',
-      '        if ($token -eq "--$($opt.long)" -and $opt.takesValue) {',
+      '        if ($token -eq "--$($opt.long)" -and $opt.args -ne "none") {',
       '          $expectValue = $true',
       '          break',
       '        }',
@@ -686,7 +697,7 @@ export class PwshCompletion {
       '    if ($token.StartsWith("-") -and $token -ne "-") {',
       '      if ($token.Length -eq 2) {',
       '        foreach ($opt in $cmd.options) {',
-      '          if ($opt.short -and $token -eq "-$($opt.short)" -and $opt.takesValue) {',
+      '          if ($opt.short -and $token -eq "-$($opt.short)" -and $opt.args -ne "none") {',
       '            $expectValue = $true',
       '            break',
       '          }',
@@ -738,7 +749,7 @@ export class PwshCompletion {
       '          $opt.description',
       '        )',
       '      }',
-      '      if ($opt.isBoolean -and "--no-$($opt.long)" -like "$current*") {',
+      '      if ($opt.canNegate -and "--no-$($opt.long)" -like "$current*") {',
       '        $completions += [System.Management.Automation.CompletionResult]::new(',
       '          "--no-$($opt.long)",',
       '          "no-$($opt.long)",',
@@ -792,8 +803,9 @@ export class PwshCompletion {
       if (opt.short) lines.push(`${indent}    short = '${opt.short}'`)
       lines.push(`${indent}    long = '${kebabLong}'`)
       lines.push(`${indent}    description = '${this.#escape(opt.desc)}'`)
-      lines.push(`${indent}    isBoolean = $${!opt.takesValue}`)
-      lines.push(`${indent}    takesValue = $${opt.takesValue}`)
+      lines.push(`${indent}    type = '${opt.type}'`)
+      lines.push(`${indent}    args = '${opt.args}'`)
+      lines.push(`${indent}    canNegate = $${canGenerateNegativeCompletion(opt)}`)
       if (opt.choices) {
         lines.push(
           `${indent}    choices = @('${opt.choices

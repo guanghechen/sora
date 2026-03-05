@@ -1000,7 +1000,16 @@ export class Command implements ICommand {
   }
 
   public getCompletionMeta(): ICompletionMeta {
-    const allOptions = this.#resolveOptionPolicy().mergedOptions
+    const optionMap = new Map<string, ICommandOptionConfig>()
+    for (const option of this.#resolveOptionPolicy().mergedOptions) {
+      optionMap.set(option.long, option)
+    }
+    optionMap.set('help', BUILTIN_HELP_OPTION)
+    if (this.#supportsBuiltinVersion()) {
+      optionMap.set('version', BUILTIN_VERSION_OPTION)
+    }
+
+    const allOptions = Array.from(optionMap.values())
     const options: ICompletionOptionMeta[] = []
     const argumentsMeta: ICompletionArgumentMeta[] = []
 
@@ -1009,7 +1018,8 @@ export class Command implements ICommand {
         long: opt.long,
         short: opt.short,
         desc: opt.desc,
-        takesValue: opt.args !== 'none',
+        type: opt.type,
+        args: opt.args,
         choices: opt.choices?.map(choice => String(choice)),
       })
     }

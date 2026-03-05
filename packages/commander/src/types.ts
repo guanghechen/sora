@@ -447,8 +447,10 @@ export interface ICompletionOptionMeta {
   short?: string
   /** Description */
   desc: string
-  /** Whether option takes value (args !== 'none') */
-  takesValue: boolean
+  /** Option type */
+  type: ICommandOptionType
+  /** Option args mode */
+  args: ICommandOptionArgs
   /** Allowed values */
   choices?: string[]
 }

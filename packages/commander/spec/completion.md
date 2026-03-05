@@ -10,10 +10,11 @@
 type ICompletionShellType = 'bash' | 'fish' | 'pwsh'
 
 interface ICompletionOptionMeta {
-  long: string          // camelCase
+  long: string   // camelCase
   short?: string
   desc: string
-  takesValue: boolean   // args !== 'none'
+  type: 'boolean' | 'number' | 'string'
+  args: 'none' | 'required' | 'optional' | 'variadic'
   choices?: string[]
 }
 
@@ -125,6 +126,8 @@ const script = new BashCompletion(meta, 'pm').generate()
 
 - `--{kebab-long}`（如 `--verbose`）
 - `--no-{kebab-long}`（如 `--no-verbose`）
+
+例外：内建控制项 `help` / `version` 仅生成正向补全（`--help` / `--version`），不生成 `--no-help` / `--no-version`。
 
 `long`（camelCase）自动转换为 kebab-case 显示。
 

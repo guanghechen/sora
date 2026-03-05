@@ -1281,6 +1281,25 @@ describe('Command (spec aligned)', () => {
       expect(cmd.subcommands.size).toBe(0)
     })
 
+    it('should include built-in control options in completion metadata', () => {
+      const withVersion = new Command({ name: 'cli', desc: 'cli', version: '1.0.0' })
+      const withVersionOptions = withVersion.getCompletionMeta().options.map(option => option.long)
+      expect(withVersionOptions).toContain('help')
+      expect(withVersionOptions).toContain('version')
+
+      const withoutVersion = new Command({
+        name: 'cli',
+        desc: 'cli',
+        version: '1.0.0',
+        builtin: { option: { version: false } },
+      })
+      const withoutVersionOptions = withoutVersion
+        .getCompletionMeta()
+        .options.map(option => option.long)
+      expect(withoutVersionOptions).toContain('help')
+      expect(withoutVersionOptions).not.toContain('version')
+    })
+
     it('should reject subcommand parent conflict and keep aliases unique', () => {
       const root1 = new Command({ name: 'cli1', desc: 'cli1' })
       const root2 = new Command({ name: 'cli2', desc: 'cli2' })

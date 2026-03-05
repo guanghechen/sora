@@ -269,7 +269,7 @@ tokenize 阶段校验长选项格式：
 
 ### 4.3 Negative 选项
 
-为 `type: 'boolean', args: 'none'` 自动生成 `--no-{long}`：
+为 `type: 'boolean', args: 'none'` 自动生成 `--no-{long}`（`help/version` 除外）：
 
 - 仅 boolean、仅长选项
 - `long` 不能以 `no` 开头
@@ -454,6 +454,6 @@ Run "cli build --help" for usage.
 - 静态脚本生成（非动态补全）
 - 支持 Bash / Fish / PowerShell
 - `CompletionCommand` 需手动挂载
-- 补全列表包含 `--no-{kebab-long}`
+- 补全列表包含 `--no-{kebab-long}`（仅 `boolean + args:none`，且排除 `help/version`）
 
 详见 [completion.md](./completion.md)。

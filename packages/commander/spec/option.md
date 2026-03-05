@@ -483,7 +483,8 @@ preset 来源决议：
 - choices 校验
 - type 校验
 - boolean 值校验（仅 true/false）
-- `--no-xxx` 仅用于 boolean
+- `--no-xxx` 仅用于 `type: 'boolean', args: 'none'`
+- `--no-help` / `--no-version` 非法（`help/version` 为控制语义保留项，negative 形式按 unknown option 处理）
 - unknown option 报错
 
 ---
