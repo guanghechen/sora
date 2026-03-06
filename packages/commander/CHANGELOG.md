@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.7.5
+
+### Patch Changes
+
+- Fix help output ordering and remove duplicated negative options in help output.
+
 ## 4.7.4
 
 ### Patch Changes
