@@ -807,8 +807,31 @@ export class Command implements ICommand {
       argumentsLines.push({ sig, desc })
     }
 
+    const sortedOptions = [...allOptions].sort((a, b) => {
+      const optionRank = (option: ICommandOptionConfig): number => {
+        if (option.long === 'help') {
+          return 0
+        }
+        if (option.long === 'version') {
+          return 1
+        }
+        if (option.required === true) {
+          return 2
+        }
+        return 3
+      }
+
+      const rankA = optionRank(a)
+      const rankB = optionRank(b)
+      if (rankA !== rankB) {
+        return rankA - rankB
+      }
+
+      return camelToKebabCase(a.long).localeCompare(camelToKebabCase(b.long))
+    })
+
     const options: IHelpOptionLine[] = []
-    for (const opt of allOptions) {
+    for (const opt of sortedOptions) {
       const kebabLong = camelToKebabCase(opt.long)
       let sig = opt.short ? `-${opt.short}, ` : '    '
       sig += `--${kebabLong}`
@@ -827,25 +850,16 @@ export class Command implements ICommand {
       }
 
       options.push({ sig, desc })
-
-      if (
-        opt.type === 'boolean' &&
-        opt.args === 'none' &&
-        opt.long !== 'help' &&
-        opt.long !== 'version'
-      ) {
-        options.push({
-          sig: `    --no-${kebabLong}`,
-          desc: `Negate --${kebabLong}`,
-        })
-      }
     }
 
     const commands: IHelpCommandLine[] = []
     if (this.#subcommandsList.length > 0) {
       commands.push({ name: 'help', desc: 'Show help for a command' })
     }
-    for (const entry of this.#subcommandsList) {
+    const sortedSubcommands = [...this.#subcommandsList].sort((a, b) =>
+      a.name.localeCompare(b.name),
+    )
+    for (const entry of sortedSubcommands) {
       let name = entry.name
       if (entry.aliases.length > 0) {
         name += `, ${entry.aliases.join(', ')}`

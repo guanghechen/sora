@@ -782,6 +782,17 @@ cli repo help sync # 显示 repo sync 子命令帮助
 
 help 输出 section 顺序：`Usage` → `Arguments` → `Options` → `Commands` → `Examples`。
 
+`Options` section 渲染规则：
+
+1. 仅展示正向 option signature（例如 `--color`），不额外展示 `--no-*` 行。
+2. 排序规则为：`--help` 固定第一，`--version` 固定第二（若可用），随后 `required===true` 的 option，再是其他 option。
+3. `required` 与其他两组内部均按 long name（kebab-case）字母序升序。
+
+`Commands` section 渲染规则：
+
+1. 当存在子命令时，固定先展示 `help` 行。
+2. 其余子命令按名称字母序升序展示。
+
 `Arguments` section 渲染规则：
 
 1. 仅当当前 command 声明了至少一个位置参数时展示。
@@ -812,14 +823,13 @@ Arguments:
   <extras...>         Extra files [type: string]
 
 Options:
-      --color         Enable colored help output
-      --no-color      Negate --color
-  -v, --verbose       Verbose output
-      --no-verbose    Negate --verbose
       --help          Show help information
       --version       Show version number
+      --color         Enable colored help output
+  -v, --verbose       Verbose output
 
 Commands:
+  help                Show help for a command
   start, s            Start a process
   stop                Stop a process
 

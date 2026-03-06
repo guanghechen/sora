@@ -1764,6 +1764,72 @@ describe('Command (spec aligned)', () => {
       expect(helpText).toContain('    cli run')
     })
 
+    it('formatHelp should order options as help/version/required/others and hide negative option lines', () => {
+      const cmd = new Command({
+        name: 'cli',
+        desc: 'cli',
+        version: '1.0.0',
+        builtin: {
+          option: {
+            version: true,
+            color: false,
+            logLevel: false,
+            silent: false,
+            logDate: false,
+            logColorful: false,
+          },
+        },
+      })
+        .option({ long: 'zeta', type: 'boolean', args: 'none', desc: 'zeta' })
+        .option({
+          long: 'alpha',
+          type: 'string',
+          args: 'required',
+          required: true,
+          desc: 'alpha',
+        })
+        .option({ long: 'beta', type: 'boolean', args: 'none', desc: 'beta' })
+
+      const lines = cmd.formatHelp().split('\n')
+      const helpIdx = lines.findIndex(line => line.includes('--help'))
+      const versionIdx = lines.findIndex(line => line.includes('--version'))
+      const alphaIdx = lines.findIndex(line => line.includes('--alpha <value>'))
+      const betaIdx = lines.findIndex(line => line.includes('--beta'))
+      const zetaIdx = lines.findIndex(line => line.includes('--zeta'))
+
+      expect(helpIdx).toBeGreaterThan(-1)
+      expect(versionIdx).toBeGreaterThan(-1)
+      expect(alphaIdx).toBeGreaterThan(-1)
+      expect(betaIdx).toBeGreaterThan(-1)
+      expect(zetaIdx).toBeGreaterThan(-1)
+      expect(helpIdx).toBeLessThan(versionIdx)
+      expect(versionIdx).toBeLessThan(alphaIdx)
+      expect(alphaIdx).toBeLessThan(betaIdx)
+      expect(betaIdx).toBeLessThan(zetaIdx)
+      expect(lines.some(line => line.includes('--no-'))).toBe(false)
+    })
+
+    it('formatHelp should keep help command first and sort subcommands alphabetically', () => {
+      const cmd = new Command({ name: 'cli', desc: 'cli' })
+      cmd.subcommand('zeta', new Command({ desc: 'zeta command' }))
+      cmd.subcommand('alpha', new Command({ desc: 'alpha command' }))
+
+      const lines = cmd.formatHelp().split('\n')
+      const helpIdx = lines.findIndex(line => line.includes('help') && line.includes('Show help'))
+      const alphaIdx = lines.findIndex(
+        line => line.includes('alpha') && line.includes('alpha command'),
+      )
+      const zetaIdx = lines.findIndex(
+        line => line.includes('zeta') && line.includes('zeta command'),
+      )
+
+      expect(helpIdx).toBeGreaterThan(-1)
+      expect(alphaIdx).toBeGreaterThan(-1)
+      expect(zetaIdx).toBeGreaterThan(-1)
+      expect(helpIdx).toBeLessThan(alphaIdx)
+      expect(alphaIdx).toBeLessThan(zetaIdx)
+    })
+
     it('formatHelp should render Arguments section and keep columns aligned', () => {
       const cmd = new Command({ name: 'cli', desc: 'cli' })
         .argument({ name: 'target', kind: 'required', type: 'string', desc: 'Deploy target' })
