@@ -178,8 +178,6 @@ export interface ICommandPresetProfileItem {
   defaultVariant?: string
   /** Optional variants keyed by variant name */
   variants?: Record<string, ICommandPresetProfileVariantItem>
-  /** Routed command paths this profile can be applied to */
-  suitable: string[]
 }
 
 /** Profile manifest defaults */

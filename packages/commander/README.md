@@ -238,8 +238,7 @@ mycli run --preset-file=./preset.json --preset-profile=dev:staging
           "envs": { "NODE_ENV": "staging" },
           "opts": { "retry": 3 }
         }
-      },
-      "suitable": ["mycli run"]
+      }
     }
   }
 }
@@ -249,13 +248,12 @@ Behavior:
 
 1. Profile selector resolution order is `--preset-profile` > `command.preset.profile` > `defaults.profile`.
 2. Selector supports `<profile>` and `<profile>:<variant>`; when variant is omitted it falls back to `profile.defaultVariant`.
-3. Selected profile must be suitable for the routed command path (built from route-stage command name list).
-4. `envFile` is optional and resolved relative to the preset file directory when not absolute.
-5. Variant fields override base profile fields by `base + variant`.
-6. `opts` are converted into preset option fragments and merged before user CLI tokens.
-7. `envs` override keys loaded from `envFile`.
-8. Only `--preset-file` / `--preset-profile` are supported as preset directives.
-9. `--preset-root` is removed.
+3. `envFile` is optional and resolved relative to the preset file directory when not absolute.
+4. Variant fields override base profile fields by `base + variant`.
+5. `opts` are converted into preset option fragments and merged before user CLI tokens.
+6. `envs` override keys loaded from `envFile`.
+7. Only `--preset-file` / `--preset-profile` are supported as preset directives.
+8. `--preset-root` is removed.
 
 ### Built-in Coerce Factories
 

@@ -66,7 +66,6 @@ interface ICommandPresetProfileItem {
     envs?: Record<string, string>
     opts?: Record<string, ICommandPresetProfileOptionValue>
   }>
-  suitable: string[] // routed command path 列表（精确匹配）
 }
 
 interface ICommandPresetProfileManifest {
@@ -510,7 +509,6 @@ const cmd = new Command({ name: 'copy', desc: 'Copy files' })
 │  │    仅在 `--` 之前扫描 --preset-file/--preset-profile                  │  │
 │  │    若命中 --preset-file：解析 profile manifest（JSON）                 │  │
 │  │    profile 决议：CLI > command.preset > manifest.defaults              │  │
-│  │    校验 profile.suitable 命中当前 routed command path                  │  │
 │  │    注入 profile + variant 的 opts/envFile/envs                         │  │
 │  │    从 controlTailArgv 移除这些指令，写入 sources.user.argv（clean）    │  │
 │  │    effectiveTailArgv = [...sources.preset.argv, ...sources.user.argv]  │  │
@@ -609,21 +607,20 @@ interface ICommandParseResult {
 7. `--preset-profile` 不能脱离 `--preset-file` 单独使用；`command.preset.profile` 也不能脱离 `command.preset.file`（除非 CLI 提供了 `--preset-file`）。
 8. profile selector 决议顺序：`--preset-profile` > `command.preset.profile` > `manifest.defaults.profile`；若都缺失则报 `ConfigurationError`。
 9. selector 支持 `<profile>` 与 `<profile>:<variant>`；若未显式给出 variant，则回退 `profile.defaultVariant`。
-10. profile 命中后，必须通过 `profile.suitable` 对当前 routed command path 的精确匹配；不命中则报 `ConfigurationError`。
-11. 对选中的 profile/variant，`envFile`（若存在）按 UTF-8 读取并由 `@guanghechen/env.parse` 解析；相对路径按 `preset-file` 所在目录解析。
-12. `profile.opts` 与 `profile.envs` 在 variant 命中时按 `base + variant` 覆盖合并。
-13. `profile.envs` 覆盖 profile `envFile` 同名键；`variant.envFile/envs` 再覆盖 profile 侧结果。
-14. `profile.opts`（若存在）转为 option token 片段并拼接进 `ctx.sources.preset.argv`。
-15. 当被采用时，`--preset-file`、`command.preset.file` 与选中 profile/variant 的 `envFile` 必须指向存在且可读的文件路径。
-16. `<profile>` / `<variant>` 参数必须是合法名称（实现约束：`[A-Za-z0-9][A-Za-z0-9._-]*`）。
-17. 合并顺序固定：`effectiveTailArgv = [...ctx.sources.preset.argv, ...ctx.sources.user.argv]`。
-18. 合并顺序固定：`ctx.envs = { ...ctx.sources.user.envs, ...ctx.sources.preset.envs }`。
-19. 若 RUN CONTROL 阶段已命中 short-circuit，则 PRESET 阶段不会执行。
-20. profile 生成的 option token 中不允许出现 `--help` / `help` / `--version`；命中即报 `ConfigurationError` 并终止。
-21. profile 生成的 option token 中不允许出现 `--preset-file` / `--preset-profile`；命中即报 `ConfigurationError` 并终止。
-22. 显式声明且被采用的 preset 文件（`--preset-file` / `command.preset.file` / 选中 profile/variant 的 `envFile`）读取失败或内容解析失败，应立即报错并终止。
-23. `--preset-root` 已移除，不再属于预置指令。
-24. 约束细节见 [option.md](./option.md)“强制约束”与“错误语义”。
+10. 对选中的 profile/variant，`envFile`（若存在）按 UTF-8 读取并由 `@guanghechen/env.parse` 解析；相对路径按 `preset-file` 所在目录解析。
+11. `profile.opts` 与 `profile.envs` 在 variant 命中时按 `base + variant` 覆盖合并。
+12. `profile.envs` 覆盖 profile `envFile` 同名键；`variant.envFile/envs` 再覆盖 profile 侧结果。
+13. `profile.opts`（若存在）转为 option token 片段并拼接进 `ctx.sources.preset.argv`。
+14. 当被采用时，`--preset-file`、`command.preset.file` 与选中 profile/variant 的 `envFile` 必须指向存在且可读的文件路径。
+15. `<profile>` / `<variant>` 参数必须是合法名称（实现约束：`[A-Za-z0-9][A-Za-z0-9._-]*`）。
+16. 合并顺序固定：`effectiveTailArgv = [...ctx.sources.preset.argv, ...ctx.sources.user.argv]`。
+17. 合并顺序固定：`ctx.envs = { ...ctx.sources.user.envs, ...ctx.sources.preset.envs }`。
+18. 若 RUN CONTROL 阶段已命中 short-circuit，则 PRESET 阶段不会执行。
+19. profile 生成的 option token 中不允许出现 `--help` / `help` / `--version`；命中即报 `ConfigurationError` 并终止。
+20. profile 生成的 option token 中不允许出现 `--preset-file` / `--preset-profile`；命中即报 `ConfigurationError` 并终止。
+21. 显式声明且被采用的 preset 文件（`--preset-file` / `command.preset.file` / 选中 profile/variant 的 `envFile`）读取失败或内容解析失败，应立即报错并终止。
+22. `--preset-root` 已移除，不再属于预置指令。
+23. 约束细节见 [option.md](./option.md)“强制约束”与“错误语义”。
 
 ### CONTROL SCAN 规则
 

@@ -334,7 +334,6 @@ describe('Command (spec aligned)', () => {
               dev: {
                 envs: {},
                 opts: { mode: 'fast' },
-                suitable: ['cli run'],
               },
             },
           }),
@@ -370,12 +369,10 @@ describe('Command (spec aligned)', () => {
               dev: {
                 envs: {},
                 opts: { mode: 'fast' },
-                suitable: ['cli run'],
               },
               prod: {
                 envs: {},
                 opts: { mode: 'safe' },
-                suitable: ['cli run'],
               },
             },
           }),
@@ -411,7 +408,6 @@ describe('Command (spec aligned)', () => {
               dev: {
                 envs: {},
                 opts: { mode: 'fast' },
-                suitable: ['cli run'],
               },
             },
           }),
@@ -424,7 +420,6 @@ describe('Command (spec aligned)', () => {
               prod: {
                 envs: {},
                 opts: { mode: 'safe' },
-                suitable: ['cli run'],
               },
             },
           }),
@@ -463,7 +458,6 @@ describe('Command (spec aligned)', () => {
               prod: {
                 envs: {},
                 opts: { mode: 'safe' },
-                suitable: ['cli run'],
               },
             },
           }),
@@ -501,7 +495,6 @@ describe('Command (spec aligned)', () => {
               prod: {
                 envs: {},
                 opts: { mode: 'safe' },
-                suitable: ['cli run'],
               },
             },
           }),
@@ -568,13 +561,11 @@ describe('Command (spec aligned)', () => {
                 envFile: 'missing.env',
                 envs: {},
                 opts: {},
-                suitable: ['cli run'],
               },
               prod: {
                 envFile: 'prod.env',
                 envs: {},
                 opts: {},
-                suitable: ['cli run'],
               },
             },
           }),
@@ -602,7 +593,6 @@ describe('Command (spec aligned)', () => {
                 envFile: 'dev.env',
                 envs: { NAME: 'from-inline', NODE_ENV: 'development' },
                 opts: { mode: 'fast', retry: 2 },
-                suitable: ['cli run'],
               },
             },
           }),
@@ -640,12 +630,10 @@ describe('Command (spec aligned)', () => {
               dev: {
                 envs: {},
                 opts: { mode: 'fast' },
-                suitable: ['cli run'],
               },
               prod: {
                 envs: {},
                 opts: { mode: 'safe' },
-                suitable: ['cli run'],
               },
             },
           }),
@@ -696,7 +684,6 @@ describe('Command (spec aligned)', () => {
                     opts: { retry: 4, debug: true },
                   },
                 },
-                suitable: ['cli run'],
               },
             },
           }),
@@ -748,7 +735,6 @@ describe('Command (spec aligned)', () => {
                     opts: { mode: 'local' },
                   },
                 },
-                suitable: ['cli run'],
               },
             },
           }),
@@ -788,7 +774,6 @@ describe('Command (spec aligned)', () => {
                     opts: { mode: 'ci' },
                   },
                 },
-                suitable: ['cli run'],
               },
             },
           }),
@@ -829,7 +814,6 @@ describe('Command (spec aligned)', () => {
                 envFile: 'env/dev.env',
                 envs: {},
                 opts: {},
-                suitable: ['cli run'],
               },
             },
           }),
@@ -898,7 +882,7 @@ describe('Command (spec aligned)', () => {
       })
     })
 
-    it('should reject unknown or unsuitable profile', async () => {
+    it('should reject unknown profile and allow any routed command', async () => {
       await withTempDir(async tmpDir => {
         const presetFile = path.join(tmpDir, 'preset.json')
         await writeFile(
@@ -910,7 +894,6 @@ describe('Command (spec aligned)', () => {
               dev: {
                 envs: {},
                 opts: {},
-                suitable: ['cli run'],
               },
             },
           }),
@@ -919,9 +902,11 @@ describe('Command (spec aligned)', () => {
         const root = new Command({ name: 'cli', desc: 'cli' })
         root.subcommand('build', new Command({ desc: 'build' }))
 
-        await expect(
-          root.parse({ argv: ['build', `--preset-file=${presetFile}`], envs: {} }),
-        ).rejects.toThrow('is not suitable for command')
+        const result = await root.parse({
+          argv: ['build', `--preset-file=${presetFile}`],
+          envs: {},
+        })
+        expect(result.ctx.cmd.description).toBe('build')
 
         await expect(
           root.parse({
@@ -948,7 +933,6 @@ describe('Command (spec aligned)', () => {
                     opts: {},
                   },
                 },
-                suitable: ['cli run'],
               },
             },
           }),
@@ -966,6 +950,41 @@ describe('Command (spec aligned)', () => {
       })
     })
 
+    it('should reject invalid defaultVariant reference in profile manifest', async () => {
+      await withTempDir(async tmpDir => {
+        const presetFile = path.join(tmpDir, 'preset.json')
+        await writeFile(
+          presetFile,
+          JSON.stringify({
+            version: 1,
+            defaults: { profile: 'dev' },
+            profiles: {
+              dev: {
+                envs: {},
+                opts: {},
+                defaultVariant: 'local',
+                variants: {
+                  ci: {
+                    opts: {},
+                  },
+                },
+              },
+            },
+          }),
+        )
+
+        const root = new Command({ name: 'cli', desc: 'cli' })
+        root.subcommand('run', new Command({ desc: 'run' }))
+
+        await expect(
+          root.parse({
+            argv: ['run', `--preset-file=${presetFile}`],
+            envs: {},
+          }),
+        ).rejects.toThrow('defaultVariant "local" is not found in variants')
+      })
+    })
+
     it('should reject malformed preset profile selector', async () => {
       const cmd = new Command({ name: 'cli', desc: 'cli' })
       await expect(
@@ -973,7 +992,7 @@ describe('Command (spec aligned)', () => {
       ).rejects.toThrow('must be "<profile>" or "<profile>:<variant>"')
     })
 
-    it('should match suitable by routed command list (including alias)', async () => {
+    it('should apply profile on alias route without suitability restriction', async () => {
       await withTempDir(async tmpDir => {
         const presetFile = path.join(tmpDir, 'preset.json')
         await writeFile(
@@ -985,7 +1004,6 @@ describe('Command (spec aligned)', () => {
               alias: {
                 envs: {},
                 opts: { mode: 'fast' },
-                suitable: ['cli b'],
               },
             },
           }),
@@ -1031,7 +1049,6 @@ describe('Command (spec aligned)', () => {
                 envFile: 'broken.env',
                 envs: {},
                 opts: {},
-                suitable: ['cli'],
               },
             },
           }),
@@ -1056,7 +1073,6 @@ describe('Command (spec aligned)', () => {
               dev: {
                 opts: { mode: '--preset-file=./x.json' },
                 envs: {},
-                suitable: ['cli'],
               },
             },
           }),
@@ -1087,7 +1103,6 @@ describe('Command (spec aligned)', () => {
               dev: {
                 opts: { silent: ['orphan'] },
                 envs: {},
-                suitable: ['cli'],
               },
             },
           }),
@@ -2107,12 +2122,10 @@ describe('Command (spec aligned)', () => {
                 envFile: 'dev.env',
                 envs: {},
                 opts: { mode: 'fast' },
-                suitable: ['cli'],
               },
               prod: {
                 envs: {},
                 opts: { mode: 'safe' },
-                suitable: ['cli'],
               },
             },
           }),
@@ -2164,7 +2177,6 @@ describe('Command (spec aligned)', () => {
               dev: {
                 envs: {},
                 opts: { unknownOption: true },
-                suitable: ['cli'],
               },
             },
           }),

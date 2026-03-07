@@ -1227,7 +1227,6 @@ export class Command implements ICommand {
         ? profileScanResult.cleanArgv
         : [...profileScanResult.cleanArgv, '--', ...afterSeparator]
     const commandChain = ctx.chain as Command[]
-    const routedCommandPath = this.#resolveRoutedCommandPath(commandChain, ctx.sources.user.cmds)
     const commandPresetFile = this.#resolveCommandPresetFileFromChain(commandChain)
     const effectivePresetFile = profileScanResult.presetFile ?? commandPresetFile
 
@@ -1260,7 +1259,6 @@ export class Command implements ICommand {
       presetFile: effectivePresetFile,
       presetProfile: effectivePresetProfile,
       presetProfileSourceName: effectivePresetProfileSourceName,
-      routedCommandPath,
       commandPath,
     })
 
@@ -1357,17 +1355,6 @@ export class Command implements ICommand {
     return undefined
   }
 
-  #resolveRoutedCommandPath(chain: Command[], routedCmds: string[]): string {
-    const rootName = chain.length > 0 ? chain[0].#name : ''
-    const pathFromRoute = this.#normalizePresetSuitableCommand(
-      [rootName, ...routedCmds].filter(part => part.length > 0).join(' '),
-    )
-    if (pathFromRoute.length > 0) {
-      return pathFromRoute
-    }
-    return this.#normalizePresetSuitableCommand(chain[chain.length - 1].#getCommandPath())
-  }
-
   #resolvePresetFileAbsolutePath(filepath: string, baseDirectory?: string): string {
     if (this.#runtime.isAbsolute(filepath)) {
       return filepath
@@ -1379,11 +1366,9 @@ export class Command implements ICommand {
     presetFile: string | undefined
     presetProfile: string | undefined
     presetProfileSourceName: string | undefined
-    routedCommandPath: string
     commandPath: string
   }): Promise<IResolvedPresetProfile | undefined> {
-    const { presetFile, presetProfile, presetProfileSourceName, routedCommandPath, commandPath } =
-      params
+    const { presetFile, presetProfile, presetProfileSourceName, commandPath } = params
 
     if (presetFile === undefined) {
       if (presetProfile !== undefined) {
@@ -1452,7 +1437,6 @@ export class Command implements ICommand {
       selectedVariantName === undefined
         ? resolvedProfileName
         : `${resolvedProfileName}${PRESET_SELECTOR_DELIMITER}${selectedVariantName}`
-    this.#assertPresetProfileSuitable(profile, profileSelectorLabel, routedCommandPath, commandPath)
 
     const mergedOpts = { ...(profile.opts ?? {}), ...(selectedVariant?.opts ?? {}) }
 
@@ -1727,49 +1711,12 @@ export class Command implements ICommand {
       )
     }
 
-    const rawSuitable = profileValue.suitable
-    if (!Array.isArray(rawSuitable)) {
-      throw new CommanderError(
-        'ConfigurationError',
-        `${labelPrefix}.suitable must be an array`,
-        commandPath,
-      )
-    }
-    if (rawSuitable.length === 0) {
-      throw new CommanderError(
-        'ConfigurationError',
-        `${labelPrefix}.suitable must not be empty`,
-        commandPath,
-      )
-    }
-
-    const suitable: string[] = []
-    for (const item of rawSuitable) {
-      if (typeof item !== 'string') {
-        throw new CommanderError(
-          'ConfigurationError',
-          `${labelPrefix}.suitable contains a non-string value`,
-          commandPath,
-        )
-      }
-      const normalized = this.#normalizePresetSuitableCommand(item)
-      if (normalized.length === 0) {
-        throw new CommanderError(
-          'ConfigurationError',
-          `${labelPrefix}.suitable contains an empty command path`,
-          commandPath,
-        )
-      }
-      suitable.push(normalized)
-    }
-
     return {
       envFile,
       envs,
       opts,
       defaultVariant,
       variants,
-      suitable,
     }
   }
 
@@ -1886,31 +1833,6 @@ export class Command implements ICommand {
     _commandPath: string,
   ): Record<string, string> {
     return envs === undefined ? {} : { ...envs }
-  }
-
-  #assertPresetProfileSuitable(
-    profile: ICommandPresetProfileItem,
-    profileSelector: string,
-    routedCommandPath: string,
-    commandPath: string,
-  ): void {
-    const normalized = this.#normalizePresetSuitableCommand(routedCommandPath)
-    if (profile.suitable.some(name => this.#normalizePresetSuitableCommand(name) === normalized)) {
-      return
-    }
-    throw new CommanderError(
-      'ConfigurationError',
-      `preset profile "${profileSelector}" is not suitable for command "${routedCommandPath}"`,
-      commandPath,
-    )
-  }
-
-  #normalizePresetSuitableCommand(commandPath: string): string {
-    return commandPath
-      .trim()
-      .split(/\s+/)
-      .filter(token => token.length > 0)
-      .join(' ')
   }
 
   #normalizePresetOptionName(rawName: string, profileName: string, commandPath: string): string {

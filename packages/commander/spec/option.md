@@ -314,8 +314,7 @@ manifest 示例：
           "envs": { "NODE_ENV": "test" },
           "opts": { "retry": 5 }
         }
-      },
-      "suitable": ["mycli run", "mycli build"]
+      }
     }
   }
 }
@@ -347,16 +346,15 @@ manifest 示例：
 2. 若 CLI 未声明 `--preset-file` / `--preset-profile`，可回退 `command.preset.file` / `command.preset.profile`（二者独立决议，均按 `leaf -> ... -> root` 首命中）。
 3. CLI 显式优先级高于 command preset 默认：`--preset-file` 覆盖 `command.preset.file`，`--preset-profile` 覆盖 `command.preset.profile`。
 4. profile selector 决议顺序：`--preset-profile` > `command.preset.profile` > `manifest.defaults.profile`。
-5. 若 profile 缺失、未知或不适用于当前命令，立即报 `ConfigurationError`。
+5. 若 profile 缺失或未知，立即报 `ConfigurationError`。
 
 ### profile 字段语义
 
-1. `suitable: string[]`：必填，表示可应用该 profile 的 routed command path 列表（精确匹配）。
-2. `envFile?: string`：可选，若为相对路径则相对 `preset-file` 所在目录解析，再按 `@guanghechen/env.parse` 解析。
-3. `envs?: Record<string, string>`：可选，覆盖 `envFile` 同名键。
-4. `opts?: Record<string, boolean | string | number | (string | number)[]>`：可选，转为 option token 片段注入 preset argv。
-5. `defaultVariant?: string`：可选，未显式指定 variant 时使用。
-6. `variants?: Record<string, { envFile?: string; envs?: Record<string, string>; opts?: Record<string, boolean | string | number | (string | number)[]> }>`：可选，命中 variant 时以 `base + variant` 覆盖合并。
+1. `envFile?: string`：可选，若为相对路径则相对 `preset-file` 所在目录解析，再按 `@guanghechen/env.parse` 解析。
+2. `envs?: Record<string, string>`：可选，覆盖 `envFile` 同名键。
+3. `opts?: Record<string, boolean | string | number | (string | number)[]>`：可选，转为 option token 片段注入 preset argv。
+4. `defaultVariant?: string`：可选，未显式指定 variant 时使用。
+5. `variants?: Record<string, { envFile?: string; envs?: Record<string, string>; opts?: Record<string, boolean | string | number | (string | number)[]> }>`：可选，命中 variant 时以 `base + variant` 覆盖合并。
 
 ### 优先级
 
@@ -401,7 +399,6 @@ manifest 示例：
 | preset manifest 不是合法 JSON 或 schema 非法           | 立即报错并终止                                                               |
 | profile 未找到 / 无默认 profile                         | 立即报错并终止                                                               |
 | variant 未找到 / `defaultVariant` 未命中 `variants`    | 立即报错并终止                                                               |
-| profile 与当前 routed command path 不匹配（`suitable` 不命中） | 立即报错并终止                                                           |
 | 选中 profile/variant 的 `envFile` 不存在/不可读或解析失败 | 立即报错并终止                                                            |
 | profile `opts` 生成 token 中存在无法组成 option 片段的 token | 立即报错并终止（例如布尔选项后出现孤立 value）                            |
 | profile `opts` 生成 token 中出现 `--preset-file` / `--preset-profile` | 立即报错并终止（禁止递归与跨类型引用）                                  |
