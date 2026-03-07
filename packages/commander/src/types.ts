@@ -143,12 +143,59 @@ export interface ICommandExample {
 
 /** Command preset defaults */
 export interface ICommandPresetConfig {
-  /** Preset root directory (absolute path) */
-  root?: string
-  /** Default preset options file */
-  opt?: string
-  /** Default preset envs file */
-  env?: string
+  /** Default preset profile file */
+  file?: string
+  /** Default preset profile selector: <profile> or <profile>:<variant> */
+  profile?: string
+}
+
+/** Allowed inline profile option value */
+export type ICommandPresetProfileOptionValue =
+  | boolean
+  | string
+  | number
+  | ReadonlyArray<string | number>
+
+/** Variant item nested under a preset profile */
+export interface ICommandPresetProfileVariantItem {
+  /** Optional env file path to parse (relative to preset file directory when non-absolute) */
+  envFile?: string
+  /** Inline env overrides */
+  envs?: Record<string, string>
+  /** Inline option overrides */
+  opts?: Record<string, ICommandPresetProfileOptionValue>
+}
+
+/** Profile item in preset manifest */
+export interface ICommandPresetProfileItem {
+  /** Optional env file path to parse (relative to preset file directory when non-absolute) */
+  envFile?: string
+  /** Inline env overrides */
+  envs?: Record<string, string>
+  /** Inline option overrides */
+  opts?: Record<string, ICommandPresetProfileOptionValue>
+  /** Default selected variant name */
+  defaultVariant?: string
+  /** Optional variants keyed by variant name */
+  variants?: Record<string, ICommandPresetProfileVariantItem>
+  /** Routed command paths this profile can be applied to */
+  suitable: string[]
+}
+
+/** Profile manifest defaults */
+export interface ICommandPresetProfileDefaults {
+  /** Default selected profile selector: <profile> or <profile>:<variant> */
+  profile?: string
+}
+
+/** Profile manifest structure loaded from --preset-file */
+export interface ICommandPresetProfileManifest {
+  /** Schema version */
+  version: 1
+  /** Optional defaults */
+  defaults?: ICommandPresetProfileDefaults
+  /** Profiles keyed by profile name */
+  profiles: Record<string, ICommandPresetProfileItem>
 }
 
 /** Runtime file stats abstraction */

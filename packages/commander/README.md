@@ -209,52 +209,53 @@ new Command({ name: 'example', desc: 'Option types demo' })
   })
 ```
 
-### Preset Input Files
+### Preset Profiles
 
-`--preset-opts=<file>` and `--preset-envs=<file>` allow injecting preset argv and
-env inputs before normal CLI parsing.
+Use `--preset-file` with an optional `--preset-profile=<profile[:variant]>` to load profile-based presets.
 
 ```bash
-mycli --preset-opts=./options.argv --preset-envs=./preset.env --log-level debug --color
+mycli run --preset-file=./preset.json --preset-profile=dev:staging
+```
+
+`preset.json` example:
+
+```json
+{
+  "version": 1,
+  "defaults": { "profile": "dev" },
+  "profiles": {
+    "dev": {
+      "envFile": "dev.env",
+      "envs": { "NODE_ENV": "development" },
+      "opts": { "mode": "fast", "retry": 2 },
+      "defaultVariant": "local",
+      "variants": {
+        "local": {
+          "opts": { "retry": 1 }
+        },
+        "staging": {
+          "envFile": "staging.env",
+          "envs": { "NODE_ENV": "staging" },
+          "opts": { "retry": 3 }
+        }
+      },
+      "suitable": ["mycli run"]
+    }
+  }
+}
 ```
 
 Behavior:
 
-1. Route command chain from user argv (name/alias only, no argv rewrite), then store route tokens in `sources.user.cmds`.
-2. Run `control-scan` on user tail argv before preset merge: detect `--help` / `--version` by token scan (`--version` only when `supportsBuiltinVersion(leaf)`), detect `help` only when it is the first tail token, write `ctx.controls`, and strip control tokens from parse input.
-3. In `run()`, execute `run-control` before preset merge: short-circuit by `help > version`. If short-circuit hits, preset files are not loaded.
-4. Scan preset directives before `--`, remove them from control-tail argv, and store cleaned tokens in `sources.user.argv`.
-5. Read options preset file(s) and tokenize by whitespace to `sources.preset.argv`.
-6. Read env preset file(s) and parse via `@guanghechen/env.parse` to `sources.preset.envs`.
-7. Build `effectiveTailArgv = [...sources.preset.argv, ...sources.user.argv]`.
-8. Build `ctx.envs = { ...sources.user.envs, ...sources.preset.envs }`.
-9. Expose source snapshots through `ctx.sources` and reuse existing tokenize/resolve/parse pipeline.
-
-Precedence for same option key:
-
-1. User CLI tokens (highest)
-2. Tokens loaded from `--preset-opts`
-3. Option `default` / implicit defaults
-4. `NO_COLOR` fallback for color rendering only (applies only when no explicit `--color/--no-color` token appears)
-
-Precedence for same env key:
-
-1. Key-values loaded from `--preset-envs` (highest)
-2. User envs (e.g. `process.env`)
-
-Additional notes:
-
-1. `variadic` options append in appearance order.
-2. `NO_COLOR` is evaluated from `ctx.envs` and remains a fallback only when no color token is explicitly provided.
-3. The `--preset-opts` file is expected to contain option fragments (`-x`/`--xxx` and their values), not command-route tokens.
-4. The `--preset-envs` file must be parseable by `@guanghechen/env`.
-5. Only preset flags before `--` are processed; after `--` they are treated as normal args.
-6. Repeated preset flags are processed in appearance order.
-7. Built-in control semantics recognize `--help` / `help` / `--version` only (no short aliases).
-8. `long: 'help'` and `long: 'version'` are reserved and must not be user-defined in `.option()`.
-9. `--help` / `help` / `--version` are forbidden in `--preset-opts` files; loading should fail fast.
-10. `--` is forbidden inside `--preset-opts` files; loading should fail fast.
-11. `parse()` never executes control handlers; it only records control hits in `ctx.controls`.
+1. Profile selector resolution order is `--preset-profile` > `command.preset.profile` > `defaults.profile`.
+2. Selector supports `<profile>` and `<profile>:<variant>`; when variant is omitted it falls back to `profile.defaultVariant`.
+3. Selected profile must be suitable for the routed command path (built from route-stage command name list).
+4. `envFile` is optional and resolved relative to the preset file directory when not absolute.
+5. Variant fields override base profile fields by `base + variant`.
+6. `opts` are converted into preset option fragments and merged before user CLI tokens.
+7. `envs` override keys loaded from `envFile`.
+8. Only `--preset-file` / `--preset-profile` are supported as preset directives.
+9. `--preset-root` is removed.
 
 ### Built-in Coerce Factories
 

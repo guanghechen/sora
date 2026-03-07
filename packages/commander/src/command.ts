@@ -31,6 +31,10 @@ import type {
   ICommandParsedArgs,
   ICommandParsedOpts,
   ICommandPresetConfig,
+  ICommandPresetProfileItem,
+  ICommandPresetProfileManifest,
+  ICommandPresetProfileOptionValue,
+  ICommandPresetProfileVariantItem,
   ICommandPresetResult,
   ICommandResolveResult,
   ICommandRouteResult,
@@ -58,11 +62,9 @@ const LONG_OPTION_REGEX = /^--[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/
 /** Format validation regex for negative options (lowercase kebab-case) */
 const NEGATIVE_OPTION_REGEX = /^--no-[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/
 
-const PRESET_OPTS_FLAG = '--preset-opts'
-const PRESET_ENVS_FLAG = '--preset-envs'
-const PRESET_ROOT_FLAG = '--preset-root'
-const DEFAULT_PRESET_OPTS_FILENAME = '.opt.local'
-const DEFAULT_PRESET_ENVS_FILENAME = '.env.local'
+const PRESET_FILE_FLAG = '--preset-file'
+const PRESET_PROFILE_FLAG = '--preset-profile'
+const PRESET_SELECTOR_DELIMITER = ':'
 
 /** Convert kebab-case to camelCase. Input should be lowercase. */
 function kebabToCamelCase(str: string): string {
@@ -81,6 +83,8 @@ const DECIMAL_EXPONENT_REGEX = /^[eE][+-]?\d(?:_?\d)*$/
 const BINARY_LITERAL_REGEX = /^0[bB][01](?:_?[01])*$/
 const OCTAL_LITERAL_REGEX = /^0[oO][0-7](?:_?[0-7])*$/
 const HEX_LITERAL_REGEX = /^0[xX][0-9a-fA-F](?:_?[0-9a-fA-F])*$/
+const PRESET_PROFILE_NAME_REGEX = /^[A-Za-z0-9][A-Za-z0-9._-]*$/
+const PRESET_VARIANT_NAME_REGEX = /^[A-Za-z0-9][A-Za-z0-9._-]*$/
 
 function stripAnsi(value: string): string {
   return value.replace(ANSI_ESCAPE_REGEX, '')
@@ -412,6 +416,22 @@ interface IPresetFileSource {
   displayPath: string
   absolutePath: string
   explicit: boolean
+}
+
+interface IResolvedPresetProfile {
+  profileName: string
+  variantName: string | undefined
+  optsArgv: string[]
+  optsSourceLabel: string
+  profileInlineEnvs: Record<string, string>
+  variantInlineEnvs: Record<string, string>
+  profileEnvFileSource?: IPresetFileSource
+  variantEnvFileSource?: IPresetFileSource
+}
+
+interface IPresetProfileSelector {
+  profileName: string
+  variantName?: string
 }
 
 function createBuiltinOptionState(enabled: boolean): ICommandBuiltinOptionResolved {
@@ -1201,32 +1221,47 @@ export class Command implements ICommand {
       separatorIndex === -1 ? controlTailArgv : controlTailArgv.slice(0, separatorIndex)
     const afterSeparator = separatorIndex === -1 ? [] : controlTailArgv.slice(separatorIndex + 1)
 
-    const rootScanResult = this.#scanPresetRootDirectives(beforeSeparator, commandPath)
-
-    const commandPreset = this.#resolveCommandPresetFromChain(ctx.chain as Command[])
-    const presetRoot = await this.#resolveEffectivePresetRoot(
-      rootScanResult.cliPresetRoots,
-      commandPreset,
-      commandPath,
-    )
-
-    const fileScanResult = this.#scanPresetFileDirectives(rootScanResult.cleanArgv, commandPath)
+    const profileScanResult = this.#scanPresetProfileDirectives(beforeSeparator, commandPath)
     const cleanArgv =
       separatorIndex === -1
-        ? fileScanResult.cleanArgv
-        : [...fileScanResult.cleanArgv, '--', ...afterSeparator]
+        ? profileScanResult.cleanArgv
+        : [...profileScanResult.cleanArgv, '--', ...afterSeparator]
+    const commandChain = ctx.chain as Command[]
+    const routedCommandPath = this.#resolveRoutedCommandPath(commandChain, ctx.sources.user.cmds)
+    const commandPresetFile = this.#resolveCommandPresetFileFromChain(commandChain)
+    const effectivePresetFile = profileScanResult.presetFile ?? commandPresetFile
 
-    const presetOptsFiles = this.#resolvePresetFileSources({
-      cliFiles: fileScanResult.cliPresetOptsFiles,
-      commandPresetFile: this.#normalizeCommandPresetFile(commandPreset?.opt),
-      presetRoot,
-      defaultFilename: DEFAULT_PRESET_OPTS_FILENAME,
-    })
-    const presetEnvsFiles = this.#resolvePresetFileSources({
-      cliFiles: fileScanResult.cliPresetEnvsFiles,
-      commandPresetFile: this.#normalizeCommandPresetFile(commandPreset?.env),
-      presetRoot,
-      defaultFilename: DEFAULT_PRESET_ENVS_FILENAME,
+    const commandPresetProfile = this.#resolveCommandPresetProfileFromChain(commandChain)
+    const useCommandPresetProfile =
+      profileScanResult.presetProfile === undefined && commandPresetProfile !== undefined
+    if (useCommandPresetProfile) {
+      this.#assertPresetProfileSelectorValue(
+        commandPresetProfile,
+        'command.preset.profile',
+        commandPath,
+      )
+    }
+    const effectivePresetProfile = profileScanResult.presetProfile ?? commandPresetProfile
+    const effectivePresetProfileSourceName =
+      profileScanResult.presetProfile !== undefined
+        ? PRESET_PROFILE_FLAG
+        : commandPresetProfile !== undefined
+          ? 'command.preset.profile'
+          : undefined
+    if (effectivePresetFile === undefined && useCommandPresetProfile) {
+      throw new CommanderError(
+        'ConfigurationError',
+        'cannot use "command.preset.profile" without "command.preset.file" or "--preset-file"',
+        commandPath,
+      )
+    }
+
+    const resolvedProfile = await this.#resolvePresetProfile({
+      presetFile: effectivePresetFile,
+      presetProfile: effectivePresetProfile,
+      presetProfileSourceName: effectivePresetProfileSourceName,
+      routedCommandPath,
+      commandPath,
     })
 
     const userSources: ICommandInputSources['user'] = {
@@ -1236,39 +1271,54 @@ export class Command implements ICommand {
     }
 
     const presetArgv: string[] = []
-    for (const file of presetOptsFiles) {
-      const content = await this.#readPresetFile(file, commandPath)
-      if (content === undefined) {
-        continue
-      }
-      const tokens = this.#tokenizePresetOptions(content)
-      this.#validatePresetOptionTokens(tokens, file.displayPath, commandPath)
+    if (resolvedProfile !== undefined && resolvedProfile.optsArgv.length > 0) {
+      this.#validatePresetOptionTokens(
+        resolvedProfile.optsArgv,
+        resolvedProfile.optsSourceLabel,
+        commandPath,
+      )
       this.#assertPresetOptionFragments(
-        tokens,
-        file.displayPath,
-        ctx.chain as Command[],
+        resolvedProfile.optsArgv,
+        resolvedProfile.optsSourceLabel,
+        commandChain,
         optionPolicyMap,
       )
-      presetArgv.push(...tokens)
+      presetArgv.push(...resolvedProfile.optsArgv)
     }
 
     const presetEnvs: Record<string, string> = {}
-    for (const file of presetEnvsFiles) {
-      const content = await this.#readPresetFile(file, commandPath)
-      if (content === undefined) {
-        continue
-      }
-      let parsed: Record<string, string>
-      try {
-        parsed = parseEnv(content)
-      } catch (error) {
-        throw new CommanderError(
-          'ConfigurationError',
-          `failed to parse preset envs file "${file.displayPath}": ${(error as Error).message}`,
+    if (resolvedProfile !== undefined) {
+      if (resolvedProfile.profileEnvFileSource !== undefined) {
+        const content = await this.#readPresetFile(
+          resolvedProfile.profileEnvFileSource,
           commandPath,
         )
+        if (content !== undefined) {
+          const parsed = this.#parsePresetEnvsContent(
+            content,
+            resolvedProfile.profileEnvFileSource,
+            commandPath,
+          )
+          Object.assign(presetEnvs, parsed)
+        }
       }
-      Object.assign(presetEnvs, parsed)
+      Object.assign(presetEnvs, resolvedProfile.profileInlineEnvs)
+
+      if (resolvedProfile.variantEnvFileSource !== undefined) {
+        const content = await this.#readPresetFile(
+          resolvedProfile.variantEnvFileSource,
+          commandPath,
+        )
+        if (content !== undefined) {
+          const parsed = this.#parsePresetEnvsContent(
+            content,
+            resolvedProfile.variantEnvFileSource,
+            commandPath,
+          )
+          Object.assign(presetEnvs, parsed)
+        }
+      }
+      Object.assign(presetEnvs, resolvedProfile.variantInlineEnvs)
     }
 
     const sources: ICommandInputSources = {
@@ -1285,127 +1335,735 @@ export class Command implements ICommand {
     return { tailArgv, envs, sources }
   }
 
-  #resolveCommandPresetFromChain(chain: Command[]): ICommandPresetConfig | undefined {
+  #resolveCommandPresetFileFromChain(chain: Command[]): string | undefined {
     for (let index = chain.length - 1; index >= 0; index -= 1) {
       const preset = chain[index].#presetConfig
-      if (preset?.root !== undefined) {
-        return preset
+      if (preset?.file !== undefined) {
+        return preset.file
       }
     }
 
     return undefined
   }
 
-  async #resolveEffectivePresetRoot(
-    cliPresetRoots: string[],
-    commandPreset: ICommandPresetConfig | undefined,
-    commandPath: string,
-  ): Promise<string | undefined> {
-    if (cliPresetRoots.length > 0) {
-      const root = cliPresetRoots[cliPresetRoots.length - 1]
-      return await this.#assertPresetRoot(root, PRESET_ROOT_FLAG, commandPath)
+  #resolveCommandPresetProfileFromChain(chain: Command[]): string | undefined {
+    for (let index = chain.length - 1; index >= 0; index -= 1) {
+      const preset = chain[index].#presetConfig
+      if (preset?.profile !== undefined) {
+        return preset.profile
+      }
     }
 
-    if (commandPreset?.root === undefined) {
-      return undefined
-    }
-
-    return await this.#assertPresetRoot(commandPreset.root, 'command.preset.root', commandPath)
+    return undefined
   }
 
-  async #assertPresetRoot(root: string, sourceName: string, commandPath: string): Promise<string> {
-    if (!this.#runtime.isAbsolute(root)) {
-      throw new CommanderError(
-        'ConfigurationError',
-        `invalid preset root from "${sourceName}": "${root}" is not an absolute directory`,
-        commandPath,
-      )
+  #resolveRoutedCommandPath(chain: Command[], routedCmds: string[]): string {
+    const rootName = chain.length > 0 ? chain[0].#name : ''
+    const pathFromRoute = this.#normalizePresetSuitableCommand(
+      [rootName, ...routedCmds].filter(part => part.length > 0).join(' '),
+    )
+    if (pathFromRoute.length > 0) {
+      return pathFromRoute
     }
-
-    let stats
-    try {
-      stats = await this.#runtime.stat(root)
-    } catch (error) {
-      throw new CommanderError(
-        'ConfigurationError',
-        `invalid preset root from "${sourceName}": "${root}" cannot be accessed (${(error as Error).message})`,
-        commandPath,
-      )
-    }
-
-    if (!stats.isDirectory()) {
-      throw new CommanderError(
-        'ConfigurationError',
-        `invalid preset root from "${sourceName}": "${root}" is not a directory`,
-        commandPath,
-      )
-    }
-
-    return root
+    return this.#normalizePresetSuitableCommand(chain[chain.length - 1].#getCommandPath())
   }
 
-  #normalizeCommandPresetFile(filepath: string | undefined): string | undefined {
-    if (filepath === undefined) {
-      return undefined
-    }
-
-    if (!this.#isValidPresetFileValue(filepath)) {
-      return undefined
-    }
-
-    return filepath
-  }
-
-  #resolvePresetFileSources(params: {
-    cliFiles: string[]
-    commandPresetFile: string | undefined
-    presetRoot: string | undefined
-    defaultFilename: string
-  }): IPresetFileSource[] {
-    const { cliFiles, commandPresetFile, presetRoot, defaultFilename } = params
-
-    if (cliFiles.length > 0) {
-      return cliFiles.map(filepath => ({
-        displayPath: filepath,
-        absolutePath: this.#resolvePresetFileAbsolutePath(filepath, presetRoot),
-        explicit: true,
-      }))
-    }
-
-    if (presetRoot === undefined) {
-      return []
-    }
-
-    if (commandPresetFile !== undefined) {
-      return [
-        {
-          displayPath: commandPresetFile,
-          absolutePath: this.#resolvePresetFileAbsolutePath(commandPresetFile, presetRoot),
-          explicit: true,
-        },
-      ]
-    }
-
-    const absolutePath = this.#runtime.resolve(presetRoot, defaultFilename)
-    return [
-      {
-        displayPath: absolutePath,
-        absolutePath,
-        explicit: false,
-      },
-    ]
-  }
-
-  #resolvePresetFileAbsolutePath(filepath: string, presetRoot: string | undefined): string {
+  #resolvePresetFileAbsolutePath(filepath: string, baseDirectory?: string): string {
     if (this.#runtime.isAbsolute(filepath)) {
       return filepath
     }
+    return this.#runtime.resolve(baseDirectory ?? this.#runtime.cwd(), filepath)
+  }
 
-    if (presetRoot !== undefined) {
-      return this.#runtime.resolve(presetRoot, filepath)
+  async #resolvePresetProfile(params: {
+    presetFile: string | undefined
+    presetProfile: string | undefined
+    presetProfileSourceName: string | undefined
+    routedCommandPath: string
+    commandPath: string
+  }): Promise<IResolvedPresetProfile | undefined> {
+    const { presetFile, presetProfile, presetProfileSourceName, routedCommandPath, commandPath } =
+      params
+
+    if (presetFile === undefined) {
+      if (presetProfile !== undefined) {
+        throw new CommanderError(
+          'ConfigurationError',
+          `cannot use "${PRESET_PROFILE_FLAG}" without "${PRESET_FILE_FLAG}"`,
+          commandPath,
+        )
+      }
+      return undefined
     }
 
-    return this.#runtime.resolve(this.#runtime.cwd(), filepath)
+    const profileFile = {
+      displayPath: presetFile,
+      absolutePath: this.#resolvePresetFileAbsolutePath(presetFile),
+      explicit: true,
+    }
+
+    const content = await this.#readPresetFile(profileFile, commandPath)
+    if (content === undefined) {
+      return undefined
+    }
+    const manifest = this.#parsePresetProfileManifest(content, profileFile.displayPath, commandPath)
+
+    const resolvedProfileSelector = presetProfile ?? manifest.defaults?.profile
+    if (resolvedProfileSelector === undefined) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `missing profile for preset file "${profileFile.displayPath}": provide "${PRESET_PROFILE_FLAG}" or defaults.profile`,
+        commandPath,
+      )
+    }
+
+    const { profileName: resolvedProfileName, variantName: explicitVariantName } =
+      this.#parsePresetProfileSelector(
+        resolvedProfileSelector,
+        presetProfileSourceName ?? 'defaults.profile',
+        commandPath,
+      )
+    const profile = manifest.profiles[resolvedProfileName]
+    if (profile === undefined) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `unknown preset profile "${resolvedProfileName}" in "${profileFile.displayPath}"`,
+        commandPath,
+      )
+    }
+
+    const selectedVariantName = explicitVariantName ?? profile.defaultVariant
+    let selectedVariant: ICommandPresetProfileVariantItem | undefined
+    if (selectedVariantName !== undefined) {
+      const variants = profile.variants ?? {}
+      selectedVariant = variants[selectedVariantName]
+      if (selectedVariant === undefined) {
+        const availableVariants = Object.keys(variants)
+        const availableText = availableVariants.length > 0 ? availableVariants.join(', ') : '<none>'
+        throw new CommanderError(
+          'ConfigurationError',
+          `unknown preset variant "${selectedVariantName}" for profile "${resolvedProfileName}" in "${profileFile.displayPath}" (available: ${availableText})`,
+          commandPath,
+        )
+      }
+    }
+
+    const profileSelectorLabel =
+      selectedVariantName === undefined
+        ? resolvedProfileName
+        : `${resolvedProfileName}${PRESET_SELECTOR_DELIMITER}${selectedVariantName}`
+    this.#assertPresetProfileSuitable(profile, profileSelectorLabel, routedCommandPath, commandPath)
+
+    const mergedOpts = { ...(profile.opts ?? {}), ...(selectedVariant?.opts ?? {}) }
+
+    const optsArgv = this.#buildPresetArgvFromProfileOptions(
+      mergedOpts,
+      profileSelectorLabel,
+      commandPath,
+    )
+    const profileInlineEnvs = this.#normalizePresetProfileEnvs(
+      profile.envs,
+      profileSelectorLabel,
+      commandPath,
+    )
+    const variantInlineEnvs = this.#normalizePresetProfileEnvs(
+      selectedVariant?.envs,
+      profileSelectorLabel,
+      commandPath,
+    )
+
+    const profileDir = this.#runtime.resolve(profileFile.absolutePath, '..')
+    let profileEnvFileSource: IPresetFileSource | undefined
+    if (profile.envFile !== undefined) {
+      profileEnvFileSource = {
+        displayPath: profile.envFile,
+        absolutePath: this.#resolvePresetFileAbsolutePath(profile.envFile, profileDir),
+        explicit: true,
+      }
+    }
+    let variantEnvFileSource: IPresetFileSource | undefined
+    if (selectedVariant?.envFile !== undefined) {
+      variantEnvFileSource = {
+        displayPath: selectedVariant.envFile,
+        absolutePath: this.#resolvePresetFileAbsolutePath(selectedVariant.envFile, profileDir),
+        explicit: true,
+      }
+    }
+
+    return {
+      profileName: resolvedProfileName,
+      variantName: selectedVariantName,
+      optsArgv,
+      optsSourceLabel: `${profileFile.displayPath}#${profileSelectorLabel}.opts`,
+      profileInlineEnvs,
+      variantInlineEnvs,
+      profileEnvFileSource,
+      variantEnvFileSource,
+    }
+  }
+
+  #parsePresetProfileManifest(
+    content: string,
+    filepath: string,
+    commandPath: string,
+  ): ICommandPresetProfileManifest {
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(content)
+    } catch (error) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `failed to parse preset file "${filepath}": ${(error as Error).message}`,
+        commandPath,
+      )
+    }
+
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `invalid preset file "${filepath}": root must be an object`,
+        commandPath,
+      )
+    }
+
+    const root = parsed as Record<string, unknown>
+    if (root.version !== 1) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `invalid preset file "${filepath}": "version" must be 1`,
+        commandPath,
+      )
+    }
+
+    let defaults: ICommandPresetProfileManifest['defaults']
+    const rawDefaults = root.defaults
+    if (rawDefaults !== undefined) {
+      if (typeof rawDefaults !== 'object' || rawDefaults === null || Array.isArray(rawDefaults)) {
+        throw new CommanderError(
+          'ConfigurationError',
+          `invalid preset file "${filepath}": "defaults" must be an object`,
+          commandPath,
+        )
+      }
+      const defaultsRecord = rawDefaults as Record<string, unknown>
+      if (defaultsRecord.profile !== undefined) {
+        if (typeof defaultsRecord.profile !== 'string') {
+          throw new CommanderError(
+            'ConfigurationError',
+            `invalid preset file "${filepath}": "defaults.profile" must be a string`,
+            commandPath,
+          )
+        }
+        this.#assertPresetProfileSelectorValue(
+          defaultsRecord.profile,
+          'defaults.profile',
+          commandPath,
+        )
+      }
+      defaults = { profile: defaultsRecord.profile as string | undefined }
+    }
+
+    const rawProfiles = root.profiles
+    if (typeof rawProfiles !== 'object' || rawProfiles === null || Array.isArray(rawProfiles)) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `invalid preset file "${filepath}": "profiles" must be an object`,
+        commandPath,
+      )
+    }
+
+    const profilesRecord: Record<string, ICommandPresetProfileItem> = {}
+    for (const [profileName, profileValue] of Object.entries(rawProfiles)) {
+      this.#assertPresetProfileName(profileName, `profiles["${profileName}"]`, commandPath)
+      if (
+        typeof profileValue !== 'object' ||
+        profileValue === null ||
+        Array.isArray(profileValue)
+      ) {
+        throw new CommanderError(
+          'ConfigurationError',
+          `invalid preset file "${filepath}": profile "${profileName}" must be an object`,
+          commandPath,
+        )
+      }
+      profilesRecord[profileName] = this.#parsePresetProfileItem(
+        profileValue as Record<string, unknown>,
+        profileName,
+        filepath,
+        commandPath,
+      )
+    }
+
+    return {
+      version: 1,
+      defaults,
+      profiles: profilesRecord,
+    }
+  }
+
+  #parsePresetProfileItem(
+    profileValue: Record<string, unknown>,
+    profileName: string,
+    filepath: string,
+    commandPath: string,
+  ): ICommandPresetProfileItem {
+    const labelPrefix = `invalid preset file "${filepath}": profile "${profileName}"`
+
+    const envFile = profileValue.envFile
+    if (envFile !== undefined) {
+      if (typeof envFile !== 'string') {
+        throw new CommanderError(
+          'ConfigurationError',
+          `${labelPrefix}.envFile must be a string`,
+          commandPath,
+        )
+      }
+    }
+
+    const rawEnvs = profileValue.envs
+    let envs: Record<string, string> | undefined
+    if (rawEnvs !== undefined) {
+      if (typeof rawEnvs !== 'object' || rawEnvs === null || Array.isArray(rawEnvs)) {
+        throw new CommanderError(
+          'ConfigurationError',
+          `${labelPrefix}.envs must be an object`,
+          commandPath,
+        )
+      }
+      envs = {}
+      for (const [key, value] of Object.entries(rawEnvs as Record<string, unknown>)) {
+        if (typeof value !== 'string') {
+          throw new CommanderError(
+            'ConfigurationError',
+            `${labelPrefix}.envs["${key}"] must be a string`,
+            commandPath,
+          )
+        }
+        envs[key] = value
+      }
+    }
+
+    const rawOpts = profileValue.opts
+    let opts: Record<string, ICommandPresetProfileOptionValue> | undefined
+    if (rawOpts !== undefined) {
+      if (typeof rawOpts !== 'object' || rawOpts === null || Array.isArray(rawOpts)) {
+        throw new CommanderError(
+          'ConfigurationError',
+          `${labelPrefix}.opts must be an object`,
+          commandPath,
+        )
+      }
+      opts = {}
+      for (const [key, value] of Object.entries(rawOpts as Record<string, unknown>)) {
+        opts[key] = this.#parsePresetProfileOptionValue(
+          value,
+          `${labelPrefix}.opts["${key}"]`,
+          commandPath,
+        )
+      }
+    }
+
+    const rawDefaultVariant = profileValue.defaultVariant
+    let defaultVariant: string | undefined
+    if (rawDefaultVariant !== undefined) {
+      if (typeof rawDefaultVariant !== 'string') {
+        throw new CommanderError(
+          'ConfigurationError',
+          `${labelPrefix}.defaultVariant must be a string`,
+          commandPath,
+        )
+      }
+      this.#assertPresetVariantName(rawDefaultVariant, `${labelPrefix}.defaultVariant`, commandPath)
+      defaultVariant = rawDefaultVariant
+    }
+
+    const rawVariants = profileValue.variants
+    let variants: Record<string, ICommandPresetProfileVariantItem> | undefined
+    if (rawVariants !== undefined) {
+      if (typeof rawVariants !== 'object' || rawVariants === null || Array.isArray(rawVariants)) {
+        throw new CommanderError(
+          'ConfigurationError',
+          `${labelPrefix}.variants must be an object`,
+          commandPath,
+        )
+      }
+
+      variants = {}
+      for (const [variantName, variantValue] of Object.entries(
+        rawVariants as Record<string, unknown>,
+      )) {
+        this.#assertPresetVariantName(
+          variantName,
+          `${labelPrefix}.variants["${variantName}"]`,
+          commandPath,
+        )
+        if (
+          typeof variantValue !== 'object' ||
+          variantValue === null ||
+          Array.isArray(variantValue)
+        ) {
+          throw new CommanderError(
+            'ConfigurationError',
+            `${labelPrefix}.variants["${variantName}"] must be an object`,
+            commandPath,
+          )
+        }
+        variants[variantName] = this.#parsePresetProfileVariantItem(
+          variantValue as Record<string, unknown>,
+          `${labelPrefix}.variants["${variantName}"]`,
+          commandPath,
+        )
+      }
+    }
+
+    if (
+      defaultVariant !== undefined &&
+      (variants === undefined || variants[defaultVariant] === undefined)
+    ) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `${labelPrefix}.defaultVariant "${defaultVariant}" is not found in variants`,
+        commandPath,
+      )
+    }
+
+    const rawSuitable = profileValue.suitable
+    if (!Array.isArray(rawSuitable)) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `${labelPrefix}.suitable must be an array`,
+        commandPath,
+      )
+    }
+    if (rawSuitable.length === 0) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `${labelPrefix}.suitable must not be empty`,
+        commandPath,
+      )
+    }
+
+    const suitable: string[] = []
+    for (const item of rawSuitable) {
+      if (typeof item !== 'string') {
+        throw new CommanderError(
+          'ConfigurationError',
+          `${labelPrefix}.suitable contains a non-string value`,
+          commandPath,
+        )
+      }
+      const normalized = this.#normalizePresetSuitableCommand(item)
+      if (normalized.length === 0) {
+        throw new CommanderError(
+          'ConfigurationError',
+          `${labelPrefix}.suitable contains an empty command path`,
+          commandPath,
+        )
+      }
+      suitable.push(normalized)
+    }
+
+    return {
+      envFile,
+      envs,
+      opts,
+      defaultVariant,
+      variants,
+      suitable,
+    }
+  }
+
+  #parsePresetProfileVariantItem(
+    variantValue: Record<string, unknown>,
+    labelPrefix: string,
+    commandPath: string,
+  ): ICommandPresetProfileVariantItem {
+    const envFile = variantValue.envFile
+    if (envFile !== undefined) {
+      if (typeof envFile !== 'string') {
+        throw new CommanderError(
+          'ConfigurationError',
+          `${labelPrefix}.envFile must be a string`,
+          commandPath,
+        )
+      }
+    }
+
+    const rawEnvs = variantValue.envs
+    let envs: Record<string, string> | undefined
+    if (rawEnvs !== undefined) {
+      if (typeof rawEnvs !== 'object' || rawEnvs === null || Array.isArray(rawEnvs)) {
+        throw new CommanderError(
+          'ConfigurationError',
+          `${labelPrefix}.envs must be an object`,
+          commandPath,
+        )
+      }
+      envs = {}
+      for (const [key, value] of Object.entries(rawEnvs as Record<string, unknown>)) {
+        if (typeof value !== 'string') {
+          throw new CommanderError(
+            'ConfigurationError',
+            `${labelPrefix}.envs["${key}"] must be a string`,
+            commandPath,
+          )
+        }
+        envs[key] = value
+      }
+    }
+
+    const rawOpts = variantValue.opts
+    let opts: Record<string, ICommandPresetProfileOptionValue> | undefined
+    if (rawOpts !== undefined) {
+      if (typeof rawOpts !== 'object' || rawOpts === null || Array.isArray(rawOpts)) {
+        throw new CommanderError(
+          'ConfigurationError',
+          `${labelPrefix}.opts must be an object`,
+          commandPath,
+        )
+      }
+      opts = {}
+      for (const [key, value] of Object.entries(rawOpts as Record<string, unknown>)) {
+        opts[key] = this.#parsePresetProfileOptionValue(
+          value,
+          `${labelPrefix}.opts["${key}"]`,
+          commandPath,
+        )
+      }
+    }
+
+    return {
+      envFile,
+      envs,
+      opts,
+    }
+  }
+
+  #parsePresetProfileOptionValue(
+    value: unknown,
+    valueLabel: string,
+    commandPath: string,
+  ): ICommandPresetProfileOptionValue {
+    if (typeof value === 'boolean' || typeof value === 'string') {
+      return value
+    }
+    if (typeof value === 'number') {
+      if (!Number.isFinite(value)) {
+        throw new CommanderError(
+          'ConfigurationError',
+          `${valueLabel} must be a finite number`,
+          commandPath,
+        )
+      }
+      return value
+    }
+    if (Array.isArray(value)) {
+      return value.map((item, index) => {
+        if (typeof item === 'string') {
+          return item
+        }
+        if (typeof item === 'number' && Number.isFinite(item)) {
+          return item
+        }
+        throw new CommanderError(
+          'ConfigurationError',
+          `${valueLabel}[${index}] must be a string or finite number`,
+          commandPath,
+        )
+      })
+    }
+
+    throw new CommanderError(
+      'ConfigurationError',
+      `${valueLabel} must be boolean|string|number|(string|number)[]`,
+      commandPath,
+    )
+  }
+
+  #normalizePresetProfileEnvs(
+    envs: Record<string, string> | undefined,
+    _profileName: string,
+    _commandPath: string,
+  ): Record<string, string> {
+    return envs === undefined ? {} : { ...envs }
+  }
+
+  #assertPresetProfileSuitable(
+    profile: ICommandPresetProfileItem,
+    profileSelector: string,
+    routedCommandPath: string,
+    commandPath: string,
+  ): void {
+    const normalized = this.#normalizePresetSuitableCommand(routedCommandPath)
+    if (profile.suitable.some(name => this.#normalizePresetSuitableCommand(name) === normalized)) {
+      return
+    }
+    throw new CommanderError(
+      'ConfigurationError',
+      `preset profile "${profileSelector}" is not suitable for command "${routedCommandPath}"`,
+      commandPath,
+    )
+  }
+
+  #normalizePresetSuitableCommand(commandPath: string): string {
+    return commandPath
+      .trim()
+      .split(/\s+/)
+      .filter(token => token.length > 0)
+      .join(' ')
+  }
+
+  #normalizePresetOptionName(rawName: string, profileName: string, commandPath: string): string {
+    const value = rawName.trim()
+    if (value.length === 0) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `invalid option name "" in preset profile "${profileName}"`,
+        commandPath,
+      )
+    }
+
+    const stripped = value.startsWith('--') ? value.slice(2) : value
+    if (stripped.length === 0) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `invalid option name "${rawName}" in preset profile "${profileName}"`,
+        commandPath,
+      )
+    }
+
+    if (stripped.includes('-')) {
+      const lowered = stripped.toLowerCase()
+      if (!/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/.test(lowered)) {
+        throw new CommanderError(
+          'ConfigurationError',
+          `invalid option name "${rawName}" in preset profile "${profileName}"`,
+          commandPath,
+        )
+      }
+      return kebabToCamelCase(lowered)
+    }
+
+    if (!/^[a-z][a-zA-Z0-9]*$/.test(stripped)) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `invalid option name "${rawName}" in preset profile "${profileName}"`,
+        commandPath,
+      )
+    }
+
+    return stripped
+  }
+
+  #buildPresetArgvFromProfileOptions(
+    opts: Record<string, ICommandPresetProfileOptionValue>,
+    profileName: string,
+    commandPath: string,
+  ): string[] {
+    const argv: string[] = []
+
+    for (const [rawName, rawValue] of Object.entries(opts)) {
+      const optionName = this.#normalizePresetOptionName(rawName, profileName, commandPath)
+      const kebabName = camelToKebabCase(optionName)
+      const positiveFlag = `--${kebabName}`
+      const negativeFlag = `--no-${kebabName}`
+
+      if (typeof rawValue === 'boolean') {
+        argv.push(rawValue ? positiveFlag : negativeFlag)
+        continue
+      }
+
+      if (typeof rawValue === 'string') {
+        argv.push(positiveFlag, rawValue)
+        continue
+      }
+
+      if (typeof rawValue === 'number') {
+        argv.push(positiveFlag, String(rawValue))
+        continue
+      }
+
+      if (rawValue.length === 0) {
+        continue
+      }
+
+      argv.push(positiveFlag, ...rawValue.map(value => String(value)))
+    }
+
+    return argv
+  }
+
+  #scanPresetProfileDirectives(
+    argv: string[],
+    commandPath: string,
+  ): { cleanArgv: string[]; presetFile?: string; presetProfile?: string } {
+    const cleanArgv: string[] = []
+    let presetFile: string | undefined
+    let presetProfile: string | undefined
+
+    const assignDirective = (
+      flag: typeof PRESET_FILE_FLAG | typeof PRESET_PROFILE_FLAG,
+      value: string,
+    ): void => {
+      if (flag === PRESET_FILE_FLAG) {
+        presetFile = value
+      } else {
+        this.#assertPresetProfileSelectorValue(value, PRESET_PROFILE_FLAG, commandPath)
+        presetProfile = value
+      }
+    }
+
+    let index = 0
+    while (index < argv.length) {
+      const token = argv[index]
+
+      if (token === PRESET_FILE_FLAG || token === PRESET_PROFILE_FLAG) {
+        const value = argv[index + 1]
+        if (value === undefined || value.length === 0) {
+          throw new CommanderError(
+            'ConfigurationError',
+            `missing value for "${token}"`,
+            commandPath,
+          )
+        }
+        assignDirective(token, value)
+        index += 2
+        continue
+      }
+
+      if (token.startsWith(`${PRESET_FILE_FLAG}=`)) {
+        const value = token.slice(PRESET_FILE_FLAG.length + 1)
+        if (value.length === 0) {
+          throw new CommanderError(
+            'ConfigurationError',
+            `missing value for "${PRESET_FILE_FLAG}"`,
+            commandPath,
+          )
+        }
+        assignDirective(PRESET_FILE_FLAG, value)
+        index += 1
+        continue
+      }
+
+      if (token.startsWith(`${PRESET_PROFILE_FLAG}=`)) {
+        const value = token.slice(PRESET_PROFILE_FLAG.length + 1)
+        if (value.length === 0) {
+          throw new CommanderError(
+            'ConfigurationError',
+            `missing value for "${PRESET_PROFILE_FLAG}"`,
+            commandPath,
+          )
+        }
+        assignDirective(PRESET_PROFILE_FLAG, value)
+        index += 1
+        continue
+      }
+
+      cleanArgv.push(token)
+      index += 1
+    }
+
+    return { cleanArgv, presetFile, presetProfile }
   }
 
   #assertPresetOptionFragments(
@@ -1449,147 +2107,79 @@ export class Command implements ICommand {
     }
   }
 
-  #scanPresetRootDirectives(
-    argv: string[],
-    commandPath: string,
-  ): { cleanArgv: string[]; cliPresetRoots: string[] } {
-    const cleanArgv: string[] = []
-    const cliPresetRoots: string[] = []
-
-    let index = 0
-    while (index < argv.length) {
-      const token = argv[index]
-
-      if (token === PRESET_ROOT_FLAG) {
-        const value = argv[index + 1]
-        if (value === undefined || value.length === 0) {
-          throw new CommanderError(
-            'ConfigurationError',
-            `missing value for "${PRESET_ROOT_FLAG}"`,
-            commandPath,
-          )
-        }
-        cliPresetRoots.push(value)
-        index += 2
-        continue
-      }
-
-      if (token.startsWith(`${PRESET_ROOT_FLAG}=`)) {
-        const value = token.slice(PRESET_ROOT_FLAG.length + 1)
-        if (value.length === 0) {
-          throw new CommanderError(
-            'ConfigurationError',
-            `missing value for "${PRESET_ROOT_FLAG}"`,
-            commandPath,
-          )
-        }
-        cliPresetRoots.push(value)
-        index += 1
-        continue
-      }
-
-      cleanArgv.push(token)
-      index += 1
-    }
-
-    return { cleanArgv, cliPresetRoots }
-  }
-
-  #scanPresetFileDirectives(
-    argv: string[],
-    commandPath: string,
-  ): { cleanArgv: string[]; cliPresetOptsFiles: string[]; cliPresetEnvsFiles: string[] } {
-    const cleanArgv: string[] = []
-    const cliPresetOptsFiles: string[] = []
-    const cliPresetEnvsFiles: string[] = []
-
-    const assertAndPush = (
-      flag: typeof PRESET_OPTS_FLAG | typeof PRESET_ENVS_FLAG,
-      value: string,
-    ): void => {
-      this.#assertPresetFileValue(value, flag, commandPath)
-      if (flag === PRESET_OPTS_FLAG) {
-        cliPresetOptsFiles.push(value)
-      } else {
-        cliPresetEnvsFiles.push(value)
-      }
-    }
-
-    let index = 0
-    while (index < argv.length) {
-      const token = argv[index]
-
-      if (token === PRESET_OPTS_FLAG || token === PRESET_ENVS_FLAG) {
-        const value = argv[index + 1]
-        if (value === undefined || value.length === 0) {
-          throw new CommanderError(
-            'ConfigurationError',
-            `missing value for "${token}"`,
-            commandPath,
-          )
-        }
-        assertAndPush(token, value)
-        index += 2
-        continue
-      }
-
-      if (token.startsWith(`${PRESET_OPTS_FLAG}=`)) {
-        const value = token.slice(PRESET_OPTS_FLAG.length + 1)
-        if (value.length === 0) {
-          throw new CommanderError(
-            'ConfigurationError',
-            `missing value for "${PRESET_OPTS_FLAG}"`,
-            commandPath,
-          )
-        }
-        assertAndPush(PRESET_OPTS_FLAG, value)
-        index += 1
-        continue
-      }
-
-      if (token.startsWith(`${PRESET_ENVS_FLAG}=`)) {
-        const value = token.slice(PRESET_ENVS_FLAG.length + 1)
-        if (value.length === 0) {
-          throw new CommanderError(
-            'ConfigurationError',
-            `missing value for "${PRESET_ENVS_FLAG}"`,
-            commandPath,
-          )
-        }
-        assertAndPush(PRESET_ENVS_FLAG, value)
-        index += 1
-        continue
-      }
-
-      cleanArgv.push(token)
-      index += 1
-    }
-
-    return { cleanArgv, cliPresetOptsFiles, cliPresetEnvsFiles }
-  }
-
-  #isValidPresetFileValue(filepath: string): boolean {
-    return filepath.length > 0 && !filepath.startsWith('..')
-  }
-
-  #assertPresetFileValue(
-    filepath: string,
-    directive: typeof PRESET_OPTS_FLAG | typeof PRESET_ENVS_FLAG,
+  #assertPresetProfileSelectorValue(
+    selector: string,
+    sourceName: string,
     commandPath: string,
   ): void {
-    if (this.#isValidPresetFileValue(filepath)) {
+    void this.#parsePresetProfileSelector(selector, sourceName, commandPath)
+  }
+
+  #parsePresetProfileSelector(
+    selector: string,
+    sourceName: string,
+    commandPath: string,
+  ): IPresetProfileSelector {
+    const normalizedSelector = selector.trim()
+    const separatorIndex = normalizedSelector.indexOf(PRESET_SELECTOR_DELIMITER)
+    if (separatorIndex < 0) {
+      this.#assertPresetProfileName(normalizedSelector, sourceName, commandPath)
+      return { profileName: normalizedSelector }
+    }
+
+    if (normalizedSelector.indexOf(PRESET_SELECTOR_DELIMITER, separatorIndex + 1) >= 0) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `invalid value for "${sourceName}": "${selector}" (must be "<profile>" or "<profile>:<variant>")`,
+        commandPath,
+      )
+    }
+
+    const profileName = normalizedSelector.slice(0, separatorIndex)
+    const variantName = normalizedSelector.slice(separatorIndex + 1)
+    if (profileName.length === 0 || variantName.length === 0) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `invalid value for "${sourceName}": "${selector}" (must be "<profile>" or "<profile>:<variant>")`,
+        commandPath,
+      )
+    }
+
+    this.#assertPresetProfileName(profileName, sourceName, commandPath)
+    this.#assertPresetVariantName(variantName, sourceName, commandPath)
+    return { profileName, variantName }
+  }
+
+  #assertPresetProfileName(profileName: string, sourceName: string, commandPath: string): void {
+    if (PRESET_PROFILE_NAME_REGEX.test(profileName)) {
       return
     }
 
     throw new CommanderError(
       'ConfigurationError',
-      `invalid value for "${directive}": "${filepath}" (must be non-empty and must not start with "..")`,
+      `invalid profile name for "${sourceName}": "${profileName}" (must match ${PRESET_PROFILE_NAME_REGEX.source})`,
+      commandPath,
+    )
+  }
+
+  #assertPresetVariantName(variantName: string, sourceName: string, commandPath: string): void {
+    if (PRESET_VARIANT_NAME_REGEX.test(variantName)) {
+      return
+    }
+
+    throw new CommanderError(
+      'ConfigurationError',
+      `invalid variant name for "${sourceName}": "${variantName}" (must match ${PRESET_VARIANT_NAME_REGEX.source})`,
       commandPath,
     )
   }
 
   async #readPresetFile(file: IPresetFileSource, commandPath: string): Promise<string | undefined> {
     try {
+      const stats = await this.#runtime.stat(file.absolutePath)
+      if (stats.isDirectory()) {
+        throw new Error('target is a directory')
+      }
       return await this.#runtime.readFile(file.absolutePath)
     } catch (error) {
       const ioError = error as { code?: string; message?: string }
@@ -1605,11 +2195,20 @@ export class Command implements ICommand {
     }
   }
 
-  #tokenizePresetOptions(content: string): string[] {
-    return content
-      .split(/\s+/)
-      .map(token => token.trim())
-      .filter(token => token.length > 0)
+  #parsePresetEnvsContent(
+    content: string,
+    file: IPresetFileSource,
+    commandPath: string,
+  ): Record<string, string> {
+    try {
+      return parseEnv(content)
+    } catch (error) {
+      throw new CommanderError(
+        'ConfigurationError',
+        `failed to parse preset env file "${file.displayPath}": ${(error as Error).message}`,
+        commandPath,
+      )
+    }
   }
 
   #validatePresetOptionTokens(tokens: string[], filepath: string, commandPath: string): void {
@@ -1643,12 +2242,10 @@ export class Command implements ICommand {
       }
 
       if (
-        token === PRESET_ROOT_FLAG ||
-        token.startsWith(`${PRESET_ROOT_FLAG}=`) ||
-        token === PRESET_OPTS_FLAG ||
-        token.startsWith(`${PRESET_OPTS_FLAG}=`) ||
-        token === PRESET_ENVS_FLAG ||
-        token.startsWith(`${PRESET_ENVS_FLAG}=`)
+        token === PRESET_FILE_FLAG ||
+        token.startsWith(`${PRESET_FILE_FLAG}=`) ||
+        token === PRESET_PROFILE_FLAG ||
+        token.startsWith(`${PRESET_PROFILE_FLAG}=`)
       ) {
         throw new CommanderError(
           'ConfigurationError',

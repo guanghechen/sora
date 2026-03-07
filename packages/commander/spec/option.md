@@ -278,182 +278,140 @@ root.subcommand('build', sub)
 
 ---
 
-## 预置输入文件
+## 预置输入（Profile Manifest）
 
-为支持“从文件注入预置输入”，新增三个 preset 入口：
+为支持“在单文件中管理多命令 preset”，当前采用 profile manifest：
 
 ```bash
-mycli --preset-root=/abs/project --preset-opts=config/opt.ci --preset-envs=config/env.ci --log-level debug
+mycli run --preset-file=./preset.json --preset-profile=dev:ci
 ```
 
 入口语法：
 
-1. `--preset-root=<abs-dir>` 或 `--preset-root <abs-dir>`。
-2. `--preset-opts=<file>` 或 `--preset-opts <file>`。
-3. `--preset-envs=<file>` 或 `--preset-envs <file>`。
-4. `--preset-root` 可多次出现，按出现顺序覆盖（Last Write Wins）。
-5. `--preset-opts` / `--preset-envs` 可多次出现，按出现顺序收集（collect）。
-6. `--` 之后出现的 `--preset-*` 视为普通参数，不参与 preset 阶段。
-7. PRESET 阶段固定顺序：先决议唯一 `presetRoot`，再解析/collect `--preset-opts` 与 `--preset-envs`。
+1. `--preset-file=<file>` 或 `--preset-file <file>`。
+2. `--preset-profile=<profile[:variant]>` 或 `--preset-profile <profile[:variant]>`。
+3. `--` 之后出现的 `--preset-*` 视为普通参数，不参与 preset 阶段。
+4. `--preset-root` 已移除。
 
-`<file>` 值合法性（适用于显式声明的 preset file 参数：CLI + command.preset）：
+manifest 示例：
 
-1. 必须是非空字符串。
-2. 不能以 `..` 开头。
-3. 上述规则仅作用于显式 `<file>` 参数，不作用于默认文件名 `.opt.local/.env.local`。
-
-`command.preset.opt` / `command.preset.env` 使用同一 `<file>` 合法性判定；不合法视为“未设置”，并回退默认文件名。
-若其为相对路径，则按最终决议的 `presetRoot` 解析。
-
-### `--preset-root=<abs-dir>`
-
-语义：
-
-1. `<abs-dir>` 必须是有效绝对目录（`isAbsolute(root) && stat(root).isDirectory()`），否则立即报 `ConfigurationError`。
-2. 生效后作为 `--preset-opts` / `--preset-envs` 相对路径的 parent dir。
-3. 若 `--preset-root` 多次出现，后者覆盖前者。
-4. 当存在有效 preset root 且用户未显式提供对应 `--preset-opts` / `--preset-envs` 时，自动尝试默认文件：
-   - options: `${presetRoot}/.opt.local`
-   - envs: `${presetRoot}/.env.local`
-5. 若默认文件不存在，按“可选默认输入”处理并忽略；若显式声明了 `--preset-opts` / `--preset-envs` 且文件不存在，则报错。
-
-### Command preset 默认决议（强调）
-
-`Command` 构造参数可声明：
-
-```typescript
-interface ICommandPresetConfig {
-  root?: string
-  opt?: string
-  env?: string
+```json
+{
+  "version": 1,
+  "defaults": { "profile": "dev" },
+  "profiles": {
+    "dev": {
+      "envFile": "dev.env",
+      "envs": { "NODE_ENV": "development" },
+      "opts": { "mode": "fast", "retry": 2 },
+      "defaultVariant": "local",
+      "variants": {
+        "local": {
+          "opts": { "retry": 1 }
+        },
+        "ci": {
+          "envFile": "ci.env",
+          "envs": { "NODE_ENV": "test" },
+          "opts": { "retry": 5 }
+        }
+      },
+      "suitable": ["mycli run", "mycli build"]
+    }
+  }
 }
 ```
 
-决议规则（MUST）：
+`<file>` 值合法性（适用于 `--preset-file` / `command.preset.file` / 选中 profile/variant 的 `envFile`）：
 
-1. 在 `ctx.chain` 上按 `leaf -> ... -> root` 扫描，遇到第一个声明了 `command.preset.root` 的命令即停止。
-2. 该命中的 `command.preset.root` 必须是有效绝对目录；若无效，立即报 `ConfigurationError`，且不得继续向上回退。
-3. 命中后整份 `command.preset` 生效；即使 `opt/env` 未设置或无效，也直接回退默认文件名 `.opt.local/.env.local`。
-4. CLI 覆盖优先级高于 command preset：
-   - `--preset-root` 覆盖 `command.preset.root`
-   - `--preset-opts` 覆盖 `command.preset.opt`（或其默认 `.opt.local`）
-   - `--preset-envs` 覆盖 `command.preset.env`（或其默认 `.env.local`）
-5. 若既没有有效 `command.preset.root`，也没有 CLI `--preset-root`，则不会自动尝试 `.opt.local/.env.local`。
+1. 当该值被采用时，必须指向存在且可读的文件路径。
 
-### `--preset-opts=<file>`
+`<profile[:variant]>` 值合法性（实现约束）：
 
-语义：
+1. `<profile>` 必须匹配正则：`[A-Za-z0-9][A-Za-z0-9._-]*`。
+2. `<variant>`（若存在）必须匹配正则：`[A-Za-z0-9][A-Za-z0-9._-]*`。
+3. 仅允许 0 或 1 个 `:` 分隔符。
 
-1. 在 PRESET 阶段执行时读取 `<file>`，得到 `ctx.sources.preset.argv: string[]`。
-2. 若配置多个 options 文件，按出现顺序拼接为单一 `ctx.sources.preset.argv`（collect）。
-3. 从 `CONTROL SCAN` 阶段产出的 `controlTailArgv` 中移除 preset 指令，得到 `ctx.sources.user.argv`（clean argv）。
-4. 组装 `effectiveTailArgv = [...ctx.sources.preset.argv, ...ctx.sources.user.argv]`。
-5. 将来源快照挂载到 `ctx.sources`（`preset/user`）。
-6. 后续沿用 tokenize/resolve/parse 流程。
-7. 若 `run()` 在 RUN CONTROL 阶段命中 short-circuit，则不会读取 options preset 文件。
-8. 当存在有效 `presetRoot` 且 `<file>` 为相对路径时，按 `presetRoot` 解析；否则按 `cwd` 解析。
-
-文件内容语义：
-
-1. 按 whitespace 分词，换行与空格等价。
-2. 支持多行输入，空行会被忽略。
-3. 不做 shell quote/escape 语义解析（仅按 whitespace 切分）。
-4. 每个分词结果按顺序进入 `ctx.sources.preset.argv`。
-
-示例（与单行 `--log-level info --color` 等价）：
-
-```text
---log-level
-info
---color
-```
-
-### `--preset-envs=<file>`
+### `--preset-file=<file>`
 
 语义：
 
-1. 在 PRESET 阶段执行时读取 `<file>`。
-2. 使用 `@guanghechen/env` 的 `parse(content)` 解析为 env 记录。
-3. 若配置多个 env 文件，按出现顺序收集并合并，后者覆盖前者，得到 `ctx.sources.preset.envs`。
-4. 组装 `ctx.envs = { ...ctx.sources.user.envs, ...ctx.sources.preset.envs }`。
-5. 将来源快照挂载到 `ctx.sources`（`preset/user`）。
-6. 后续 parse/run 阶段统一使用 `ctx.envs`。
-7. 若 `run()` 在 RUN CONTROL 阶段命中 short-circuit，则不会读取 envs preset 文件。
-8. 当存在有效 `presetRoot` 且 `<file>` 为相对路径时，按 `presetRoot` 解析；否则按 `cwd` 解析。
+1. 读取并解析 JSON manifest（`version` 必须为 `1`）。
+2. `profiles` 必须是对象，profile key 必须是合法 profile 名。
+3. 若读取失败或 JSON 解析失败，立即报 `ConfigurationError`。
 
-文件格式约束：
+### `--preset-profile=<profile[:variant]>`
 
-1. `<file>` 必须符合 `packages/env`（`@guanghechen/env`）可解析语法。
-2. 解析失败直接报错，不做静默降级。
+语义：
+
+1. 不能脱离 `--preset-file` 单独使用。
+2. 若 CLI 未声明 `--preset-file` / `--preset-profile`，可回退 `command.preset.file` / `command.preset.profile`（二者独立决议，均按 `leaf -> ... -> root` 首命中）。
+3. CLI 显式优先级高于 command preset 默认：`--preset-file` 覆盖 `command.preset.file`，`--preset-profile` 覆盖 `command.preset.profile`。
+4. profile selector 决议顺序：`--preset-profile` > `command.preset.profile` > `manifest.defaults.profile`。
+5. 若 profile 缺失、未知或不适用于当前命令，立即报 `ConfigurationError`。
+
+### profile 字段语义
+
+1. `suitable: string[]`：必填，表示可应用该 profile 的 routed command path 列表（精确匹配）。
+2. `envFile?: string`：可选，若为相对路径则相对 `preset-file` 所在目录解析，再按 `@guanghechen/env.parse` 解析。
+3. `envs?: Record<string, string>`：可选，覆盖 `envFile` 同名键。
+4. `opts?: Record<string, boolean | string | number | (string | number)[]>`：可选，转为 option token 片段注入 preset argv。
+5. `defaultVariant?: string`：可选，未显式指定 variant 时使用。
+6. `variants?: Record<string, { envFile?: string; envs?: Record<string, string>; opts?: Record<string, boolean | string | number | (string | number)[]> }>`：可选，命中 variant 时以 `base + variant` 覆盖合并。
 
 ### 优先级
 
-为避免歧义，分两层描述：
-
-1. preset 来源决议（先确定读取哪些文件与根目录）。
-2. token/env 值覆盖（再确定最终值）。
-
-preset 来源决议：
-
-| 决议对象          | 规则                                                                                                                               |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `presetRoot`      | 先决议唯一 root：CLI `--preset-root` 后者覆盖前者；若未声明则回退 command preset root；若命中 root 无效则立即 `ConfigurationError` |
-| `presetOptsFiles` | 在 root 决议后再 collect：按顺序收集 CLI `--preset-opts`；为空且有有效 root 才尝试默认文件                                         |
-| `presetEnvsFiles` | 在 root 决议后再 collect：按顺序收集 CLI `--preset-envs`；为空且有有效 root 才尝试默认文件                                         |
-
 值覆盖优先级：
 
-| 维度           | 覆盖顺序（高 -> 低）                                             |
-| -------------- | ---------------------------------------------------------------- |
-| option 值      | user CLI token > preset-opts token > option `default` / 隐式默认 |
-| env 值         | `ctx.sources.preset.envs` > `ctx.sources.user.envs`              |
-| color fallback | 显式 `--color/--no-color` > `NO_COLOR` fallback                  |
+| 维度      | 覆盖顺序（高 -> 低）                                                      |
+| --------- | ------------------------------------------------------------------------- |
+| option 值 | user CLI token > profile `opts` 注入 token > option `default`            |
+| env 值    | variant `envs` > variant `envFile` > profile `envs` > profile `envFile` > `ctx.sources.user.envs` |
 
 注意：
 
-1. `preset-opts` 是“显式 token 注入”，不是 `default` 字段替代。
-2. `NO_COLOR` 判断基于 `ctx.envs`。
+1. `profile.opts` 会被转成 token 片段，因此其覆盖行为与普通 CLI token 一致。
+2. `NO_COLOR` 判断仍基于合并后的 `ctx.envs`。
 
 ### 强制约束
 
-| 约束                                                             | 目的                           |
-| ---------------------------------------------------------------- | ------------------------------ |
-| option 文件仅允许 option 片段（`-x`/`--xxx` 及其参数值）         | 避免污染命令路由和位置参数语义 |
-| 在 options preset 文件中禁止声明 `--preset-root`                 | 防止递归改写 preset 根目录     |
-| 在 options preset 文件中禁止声明 `--preset-opts`                 | 防止递归加载                   |
-| 在 options preset 文件中禁止声明 `--preset-envs`                 | 防止跨类型递归与来源混乱       |
-| 在 options preset 文件中禁止声明 `help` / `--help` / `--version` | 保持 run 控制项提前中断语义    |
-| 在 options preset 文件中禁止出现 `--` 分隔符                     | 避免污染位置参数分段语义       |
-| preset 文件统一使用 UTF-8 编码                                   | 降低跨平台解析歧义             |
-| 显式声明的 preset 文件读取失败或格式错误直接报错                 | 避免静默降级导致行为不可预测   |
+| 约束                                                                   | 目的                           |
+| ---------------------------------------------------------------------- | ------------------------------ |
+| profile `opts` 生成的 token 仅允许 option 片段（`-x`/`--xxx` 及其参数值） | 避免污染命令路由和位置参数语义 |
+| 在 profile `opts` 生成 token 中禁止 `--preset-file` / `--preset-profile` | 防止递归载入 profile manifest  |
+| 在 profile `opts` 生成 token 中禁止声明 `help` / `--help` / `--version`  | 保持 run 控制项提前中断语义    |
+| 在 profile `opts` 生成 token 中禁止出现 `--` 分隔符                      | 避免污染位置参数分段语义       |
+| preset 文件统一使用 UTF-8 编码                                         | 降低跨平台解析歧义             |
+| 显式声明的 preset 文件读取失败或格式错误直接报错                       | 避免静默降级导致行为不可预测   |
 
 ### 边界行为
 
 1. 对 `boolean` / `required` / `optional`：右侧 token 覆盖左侧 token（Last Write Wins）。
 2. 对 `variadic`：左侧和右侧按出现顺序累积。
-3. 若 `preset-opts` 或 CLI 显式给出 `--color/--no-color`，优先于 `NO_COLOR` fallback。
-4. `preset-envs` 同 key 多次定义时，以 `@guanghechen/env` 的解析结果为准（后写覆盖前写）。
+3. 显式 `--color/--no-color` 优先于 `NO_COLOR` fallback。
 
 ### 错误语义
 
-| 场景                                               | 行为约定                                                                             |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `--preset-root` 缺少值                             | 立即报错并终止                                                                       |
-| `--preset-root` 不是有效绝对目录                   | 立即报错并终止（`ConfigurationError`）                                               |
-| `--preset-opts` / `--preset-envs` 缺少值           | 立即报错并终止                                                                       |
-| `--preset-opts` / `--preset-envs` 的 `<file>` 非法 | 立即报错并终止（非空且不能以 `..` 开头）                                             |
-| `command.preset.opt` / `command.preset.env` 非法   | 视为未设置并回退默认文件名（不报错）                                                 |
-| 显式声明且路径合法的 preset 文件不存在或不可读     | 立即报错并终止（包括 CLI `--preset-opts/--preset-envs` 与 `command.preset.opt/env`） |
-| 默认 preset 文件（`.opt.local/.env.local`）不存在  | 忽略（不报错）                                                                       |
-| options 文件分词后存在无法组成 option 片段的 token | 立即报错并终止（例如文件开头裸 token）                                               |
-| options 文件中出现任意 `--preset-*`                | 立即报错并终止（禁止递归与跨类型引用）                                               |
-| options 文件中出现 `--help` / `help` / `--version` | 立即报错并终止（控制项仅允许来自 user tail 并提前中断）                              |
-| options 文件中出现 `--`                            | 立即报错并终止（不允许位置参数分隔符）                                               |
-| envs 文件不符合 `@guanghechen/env` 语法            | 立即报错并终止（包装为 `ConfigurationError`）                                        |
-| `--` 之后的 `--preset-*`                           | 不作为 preset 指令，按普通参数处理                                                   |
-| `run()` 命中控制项 short-circuit                   | 不读取任何 preset 文件，直接结束流程                                                 |
+| 场景                                                   | 行为约定                                                                     |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------- |
+| `--preset-file` / `--preset-profile` 缺少值            | 立即报错并终止                                                               |
+| 被采用的 `--preset-file` / `command.preset.file` / 选中 profile/variant 的 `envFile` 指向无效文件路径 | 立即报错并终止（不存在、不可读或为目录） |
+| `--preset-profile` 非法                               | 立即报错并终止（不匹配 `<profile>` / `<profile>:<variant>`）                 |
+| 仅提供 `--preset-profile` 未提供 `--preset-file`      | 立即报错并终止                                                               |
+| `command.preset.profile` 存在但无法决议出 preset file | 立即报错并终止                                                               |
+| preset manifest 不是合法 JSON 或 schema 非法           | 立即报错并终止                                                               |
+| profile 未找到 / 无默认 profile                         | 立即报错并终止                                                               |
+| variant 未找到 / `defaultVariant` 未命中 `variants`    | 立即报错并终止                                                               |
+| profile 与当前 routed command path 不匹配（`suitable` 不命中） | 立即报错并终止                                                           |
+| 选中 profile/variant 的 `envFile` 不存在/不可读或解析失败 | 立即报错并终止                                                            |
+| profile `opts` 生成 token 中存在无法组成 option 片段的 token | 立即报错并终止（例如布尔选项后出现孤立 value）                            |
+| profile `opts` 生成 token 中出现 `--preset-file` / `--preset-profile` | 立即报错并终止（禁止递归与跨类型引用）                                  |
+| profile `opts` 生成 token 中出现 `--help` / `help` / `--version` | 立即报错并终止（控制项仅允许来自 user tail 并提前中断）                 |
+| profile `opts` 生成 token 中出现 `--`                  | 立即报错并终止（不允许位置参数分隔符）                                       |
+| `--preset-opts` / `--preset-envs`                      | 非法指令，按未知选项处理（`UnknownOption`）                                  |
+| `--` 之后的 `--preset-*`                               | 不作为 preset 指令，按普通参数处理                                           |
+| `run()` 命中控制项 short-circuit                       | 不读取任何 preset 文件，直接结束流程                                         |
 
-其中“无法组成 option 片段”的判定规则为：
+其中“无法组成 option 片段”的判定规则为（针对 profile `opts` 生成 token）：
 
 1. 分词序列必须由若干 `option-token + value-token*` 片段组成。
 2. 每个片段必须以 `-`/`--` 开头 token 起始。

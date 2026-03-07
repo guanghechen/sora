@@ -46,9 +46,33 @@ interface ICommandExample {
 }
 
 interface ICommandPresetConfig {
-  root?: string  // 绝对目录；作为 preset 文件解析根（默认 undefined）
-  opt?: string   // options 预置文件名或路径（同 `<file>` 判定：非空且不以 `..` 开头；无效视为未设置并回退 .opt.local）
-  env?: string   // envs 预置文件名或路径（同 `<file>` 判定：非空且不以 `..` 开头；无效视为未设置并回退 .env.local）
+  file?: string     // 可选 preset profile 文件（同 `<file>` 判定）
+  profile?: string  // 可选 profile selector（同 `<profile[:variant]>` 判定）
+}
+
+type ICommandPresetProfileOptionValue =
+  | boolean
+  | string
+  | number
+  | ReadonlyArray<string | number>
+
+interface ICommandPresetProfileItem {
+  envFile?: string
+  envs?: Record<string, string>
+  opts?: Record<string, ICommandPresetProfileOptionValue>
+  defaultVariant?: string
+  variants?: Record<string, {
+    envFile?: string
+    envs?: Record<string, string>
+    opts?: Record<string, ICommandPresetProfileOptionValue>
+  }>
+  suitable: string[] // routed command path 列表（精确匹配）
+}
+
+interface ICommandPresetProfileManifest {
+  version: 1
+  defaults?: { profile?: string } // profile selector: <profile> or <profile>:<variant>
+  profiles: Record<string, ICommandPresetProfileItem>
 }
 
 interface ICommandRuntimeStats {
@@ -87,7 +111,7 @@ interface ICommandConfig {
 interface ICommandInputSources {
   preset: {
     argv: string[]
-    envs: Record<string, string> // 仅来自 preset-env 文件解析结果，不含 undefined
+    envs: Record<string, string> // 来自 preset profile（envFile + envs）合并结果，不含 undefined
   }
   user: {
     cmds: string[] // command chain（按用户输入记录，允许 name/alias）
@@ -483,13 +507,12 @@ const cmd = new Command({ name: 'copy', desc: 'Copy files' })
 │                                   ↓                                          │
 │  ┌────────────────────────────────────────────────────────────────────────┐  │
 │  │ 3. PRESET（输入预置）                                                  │  │
-│  │    仅在 `--` 之前扫描 --preset-root/--preset-opts/--preset-envs        │  │
-│  │    先决议唯一 presetRoot（CLI --preset-root LWW > command fallback）   │  │
-│  │    command fallback: leaf -> ... -> root 首命中即停止                  │  │
-│  │    再解析/collect opts 与 envs                                         │  │
+│  │    仅在 `--` 之前扫描 --preset-file/--preset-profile                  │  │
+│  │    若命中 --preset-file：解析 profile manifest（JSON）                 │  │
+│  │    profile 决议：CLI > command.preset > manifest.defaults              │  │
+│  │    校验 profile.suitable 命中当前 routed command path                  │  │
+│  │    注入 profile + variant 的 opts/envFile/envs                         │  │
 │  │    从 controlTailArgv 移除这些指令，写入 sources.user.argv（clean）    │  │
-│  │    options 文件按 whitespace 分词写入 sources.preset.argv              │  │
-│  │    envs 文件用 @guanghechen/env.parse 写入 sources.preset.envs         │  │
 │  │    effectiveTailArgv = [...sources.preset.argv, ...sources.user.argv]  │  │
 │  │    ctx.envs = { ...sources.user.envs, ...sources.preset.envs }         │  │
 │  │    挂载 sources 快照到 ctx.sources                                     │  │
@@ -577,29 +600,30 @@ interface ICommandParseResult {
 
 ### PRESET 规则
 
-1. `--preset-root=<abs-dir>` 与 `--preset-root <abs-dir>` 语义等价。
-2. `--preset-opts=<file>` 与 `--preset-opts <file>` 语义等价。
-3. `--preset-envs=<file>` 与 `--preset-envs <file>` 语义等价。
-4. 仅处理 `--` 之前的 preset 指令；`--` 之后的 `--preset-*` 按普通参数处理。
-5. route 阶段产物应先写入 `ctx.sources.user.cmds`（保留 name/alias）与 user tail argv。
-6. 扫描到的 preset 指令会从 `controlTailArgv` 中移除，移除后的数组写入 `ctx.sources.user.argv`。
-7. command 级 preset root 决议：在 `ctx.chain` 上按 `leaf -> ... -> root` 扫描，遇到第一个声明了 `command.preset.root` 的命令即停止。
-8. 若该命中的 `command.preset.root` 不是有效绝对目录（`isAbsolute(root) && stat(root).isDirectory()`），必须立即抛 `ConfigurationError`，且不得继续向上回退扫描。
-9. 命中有效 `command.preset.root` 后，整份 `command.preset` 生效；`opt/env` 未设置或无效值时分别回退到 `.opt.local` / `.env.local`。
-10. PRESET 阶段先决议唯一 `presetRoot`（先聚合 CLI `--preset-root`，后者覆盖前者；若未声明则回退 command preset root）。
-11. 仅在 `presetRoot` 决议完成后，才处理 `--preset-opts` / `--preset-envs` collect 与文件路径解析。
-12. CLI 指令优先级高于 command preset：`--preset-root` 覆盖 `command.preset.root`，`--preset-opts/--preset-envs` 覆盖默认文件决议。
-13. 若同一命令行出现多个 `--preset-opts`，按出现顺序 collect 并展开拼接到 `ctx.sources.preset.argv`。
-14. 若同一命令行出现多个 `--preset-envs`，按出现顺序 collect 并解析合并到 `ctx.sources.preset.envs`，后者覆盖前者。
-15. `--preset-opts` / `--preset-envs` 的显式 `<file>` 参数必须满足：非空字符串且不能以 `..` 开头。
-16. `command.preset.opt` / `command.preset.env` 采用同一 `<file>` 判定；不合法时按“未设置”处理并回退默认文件名。
-17. `command.preset.opt` / `command.preset.env` 若为相对路径，按最终决议的 `presetRoot` 解析。
-18. 合并顺序固定：`effectiveTailArgv = [...ctx.sources.preset.argv, ...ctx.sources.user.argv]`。
-19. 合并顺序固定：`ctx.envs = { ...ctx.sources.user.envs, ...ctx.sources.preset.envs }`。
-20. 若 RUN CONTROL 阶段已命中 short-circuit，则 PRESET 阶段不会执行。
-21. options preset 文件中不允许出现 `--help` / `help` / `--version`；命中即报 `ConfigurationError` 并终止。
-22. 显式声明且通过 `<file>` 合法性校验的 preset 文件（CLI `--preset-opts/--preset-envs` 或由 `command.preset.opt/env` 决议得到）若读取失败或内容解析失败，应立即报错并终止；默认文件缺失可忽略。
-23. 约束细节见 [option.md](./option.md)“强制约束”与“错误语义”。
+1. `--preset-file=<file>` / `--preset-file <file>` 与 `--preset-profile=<profile[:variant]>` / `--preset-profile <profile[:variant]>` 语义等价（分别支持两种 token 形式）。
+2. 仅处理 `--` 之前的 preset 指令；`--` 之后的 `--preset-*` 按普通参数处理。
+3. route 阶段产物应先写入 `ctx.sources.user.cmds`（保留 name/alias）与 user tail argv。
+4. 扫描到的 preset 指令会从 `controlTailArgv` 中移除，移除后的数组写入 `ctx.sources.user.argv`。
+5. 若 CLI 未声明 `--preset-file` / `--preset-profile`，可回退 `command.preset.file` / `command.preset.profile`（二者独立决议，均在 `ctx.chain` 上按 `leaf -> ... -> root` 首命中）。
+6. CLI 显式指令优先级高于 command preset 默认：`--preset-file` 覆盖 `command.preset.file`，`--preset-profile` 覆盖 `command.preset.profile`。
+7. `--preset-profile` 不能脱离 `--preset-file` 单独使用；`command.preset.profile` 也不能脱离 `command.preset.file`（除非 CLI 提供了 `--preset-file`）。
+8. profile selector 决议顺序：`--preset-profile` > `command.preset.profile` > `manifest.defaults.profile`；若都缺失则报 `ConfigurationError`。
+9. selector 支持 `<profile>` 与 `<profile>:<variant>`；若未显式给出 variant，则回退 `profile.defaultVariant`。
+10. profile 命中后，必须通过 `profile.suitable` 对当前 routed command path 的精确匹配；不命中则报 `ConfigurationError`。
+11. 对选中的 profile/variant，`envFile`（若存在）按 UTF-8 读取并由 `@guanghechen/env.parse` 解析；相对路径按 `preset-file` 所在目录解析。
+12. `profile.opts` 与 `profile.envs` 在 variant 命中时按 `base + variant` 覆盖合并。
+13. `profile.envs` 覆盖 profile `envFile` 同名键；`variant.envFile/envs` 再覆盖 profile 侧结果。
+14. `profile.opts`（若存在）转为 option token 片段并拼接进 `ctx.sources.preset.argv`。
+15. 当被采用时，`--preset-file`、`command.preset.file` 与选中 profile/variant 的 `envFile` 必须指向存在且可读的文件路径。
+16. `<profile>` / `<variant>` 参数必须是合法名称（实现约束：`[A-Za-z0-9][A-Za-z0-9._-]*`）。
+17. 合并顺序固定：`effectiveTailArgv = [...ctx.sources.preset.argv, ...ctx.sources.user.argv]`。
+18. 合并顺序固定：`ctx.envs = { ...ctx.sources.user.envs, ...ctx.sources.preset.envs }`。
+19. 若 RUN CONTROL 阶段已命中 short-circuit，则 PRESET 阶段不会执行。
+20. profile 生成的 option token 中不允许出现 `--help` / `help` / `--version`；命中即报 `ConfigurationError` 并终止。
+21. profile 生成的 option token 中不允许出现 `--preset-file` / `--preset-profile`；命中即报 `ConfigurationError` 并终止。
+22. 显式声明且被采用的 preset 文件（`--preset-file` / `command.preset.file` / 选中 profile/variant 的 `envFile`）读取失败或内容解析失败，应立即报错并终止。
+23. `--preset-root` 已移除，不再属于预置指令。
+24. 约束细节见 [option.md](./option.md)“强制约束”与“错误语义”。
 
 ### CONTROL SCAN 规则
 
