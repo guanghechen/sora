@@ -827,6 +827,36 @@ describe('Command (spec aligned)', () => {
       })
     })
 
+    it('should resolve dot envFile relative to absolute preset file path', async () => {
+      await withTempDir(async tmpDir => {
+        const configDir = path.join(tmpDir, 'home', 'alice', '.config', 'sora')
+        await mkdir(configDir, { recursive: true })
+
+        const presetFile = path.join(configDir, 'presets.json')
+        await writeFile(path.join(configDir, '.env.local'), 'MODE=local\n')
+        await writeFile(
+          presetFile,
+          JSON.stringify({
+            version: 1,
+            defaults: { profile: 'dev' },
+            profiles: {
+              dev: {
+                envFile: '.env.local',
+                envs: {},
+                opts: {},
+              },
+            },
+          }),
+        )
+
+        const root = new Command({ name: 'cli', desc: 'cli' })
+        root.subcommand('run', new Command({ desc: 'run' }))
+        const result = await root.parse({ argv: ['run', `--preset-file=${presetFile}`], envs: {} })
+
+        expect(result.ctx.envs.MODE).toBe('local')
+      })
+    })
+
     it('should treat removed preset directives as unknown options', async () => {
       const cmd = new Command({ name: 'cli', desc: 'cli' })
       await expect(cmd.parse({ argv: ['--preset-opts=./x.opt'], envs: {} })).rejects.toThrow(
