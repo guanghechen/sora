@@ -1,5 +1,12 @@
 # Change Log
 
+## 4.7.7
+
+### Patch Changes
+
+- Improve preset schema naming consistency and extend envFile preset-path resolution test coverage.
+  Stabilize commander test coverage thresholds.
+
 ## 4.7.6
 
 ### Patch Changes
