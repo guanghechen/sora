@@ -2,6 +2,7 @@ import commonjs from '@rollup/plugin-commonjs'
 import json from '@rollup/plugin-json'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import typescript from '@rollup/plugin-typescript'
+import fs from 'node:fs/promises'
 import { builtinModules } from 'node:module'
 import path from 'node:path'
 import { dts } from 'rollup-plugin-dts'
@@ -12,6 +13,7 @@ const removeComments = process.env.NODE_ENV === 'production'
 const { default: manifest } = await import(path.resolve('package.json'), {
   with: { type: 'json' },
 })
+const shouldCopySchemaForPackage = manifest.name === '@guanghechen/commander'
 
 const deps = new Set([
   ...builtinModules,
@@ -81,7 +83,54 @@ function createTsPlugins() {
   ]
 }
 
+function createCopySchemaPlugin() {
+  let copied = false
+  return {
+    name: 'copy-schema-assets',
+    async writeBundle() {
+      if (copied) {
+        return
+      }
+      copied = true
+
+      const sourceDir = path.resolve('schema')
+      const targetDir = path.resolve('lib/schema')
+
+      let entries
+      try {
+        entries = await fs.readdir(sourceDir, { withFileTypes: true })
+      } catch (error) {
+        const ioError = error
+        if (
+          typeof ioError === 'object' &&
+          ioError &&
+          'code' in ioError &&
+          ioError.code === 'ENOENT'
+        ) {
+          return
+        }
+        throw error
+      }
+
+      const schemaFiles = entries.filter(
+        entry => entry.isFile() && entry.name.endsWith('.schema.json'),
+      )
+      if (schemaFiles.length === 0) {
+        return
+      }
+
+      await fs.mkdir(targetDir, { recursive: true })
+      await Promise.all(
+        schemaFiles.map(entry =>
+          fs.copyFile(path.join(sourceDir, entry.name), path.join(targetDir, entry.name)),
+        ),
+      )
+    },
+  }
+}
+
 const configs = []
+let copySchemaPluginInstalled = false
 
 for (const entry of resolveBuildEntries()) {
   const input =
@@ -98,15 +147,25 @@ for (const entry of resolveBuildEntries()) {
     if (entry.cjs) {
       output.push({ file: entry.cjs, format: 'cjs', exports: 'named', sourcemap: shouldSourcemap })
     }
-    configs.push({ input, output, external, plugins: createTsPlugins() })
+    const plugins = createTsPlugins()
+    if (shouldCopySchemaForPackage && !copySchemaPluginInstalled) {
+      plugins.push(createCopySchemaPlugin())
+      copySchemaPluginInstalled = true
+    }
+    configs.push({ input, output, external, plugins })
   }
 
   if (entry.types) {
+    const plugins = [dts({ tsconfig: 'tsconfig.lib.json', respectExternal: true })]
+    if (shouldCopySchemaForPackage && !copySchemaPluginInstalled) {
+      plugins.push(createCopySchemaPlugin())
+      copySchemaPluginInstalled = true
+    }
     configs.push({
       input,
       output: { file: entry.types, format: 'esm' },
       external,
-      plugins: [dts({ tsconfig: 'tsconfig.lib.json', respectExternal: true })],
+      plugins,
     })
   }
 }

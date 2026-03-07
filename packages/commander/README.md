@@ -244,6 +244,14 @@ mycli run --preset-file=./preset.json --preset-profile=dev:staging
 }
 ```
 
+Schema:
+
+```json
+{
+  "$schema": "./node_modules/@guanghechen/commander/lib/schema/preset.config.schema.json"
+}
+```
+
 Behavior:
 
 1. Profile selector resolution order is `--preset-profile` > `command.preset.profile` > `defaults.profile`.

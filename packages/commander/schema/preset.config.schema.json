@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://guanghechen.github.io/sora/schemas/commander/preset.config.schema.json",
+  "title": "Commander Preset Config",
+  "description": "Preset profile manifest for @guanghechen/commander --preset-file.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "profiles"],
+  "examples": [
+    {
+      "version": 1,
+      "defaults": { "profile": "dev:local" },
+      "profiles": {
+        "dev": {
+          "envFile": "dev.env",
+          "envs": { "NODE_ENV": "development" },
+          "opts": { "logLevel": "debug", "retry": 2 },
+          "defaultVariant": "local",
+          "variants": {
+            "local": { "opts": { "retry": 1 } },
+            "ci": { "envFile": "ci.env", "envs": { "CI": "1" } }
+          }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Optional schema reference for editors (e.g. VSCode)."
+    },
+    "version": {
+      "type": "integer",
+      "const": 1,
+      "description": "Schema version."
+    },
+    "defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "$ref": "#/$defs/profileSelector"
+        }
+      },
+      "description": "Default selector when --preset-profile is not provided."
+    },
+    "profiles": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "$ref": "#/$defs/profileName"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/profileItem"
+      },
+      "description": "Profiles keyed by profile name."
+    }
+  },
+  "$defs": {
+    "profileName": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
+      "description": "Profile/variant name."
+    },
+    "profileSelector": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*(?::[A-Za-z0-9][A-Za-z0-9._-]*)?$",
+      "description": "Selector format: <profile> or <profile>:<variant>."
+    },
+    "optionName": {
+      "type": "string",
+      "pattern": "^(?:--)?(?:[a-z][a-zA-Z0-9]*|[A-Za-z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+)$",
+      "description": "Option key in opts map; aligned with runtime normalization."
+    },
+    "optionValue": {
+      "oneOf": [
+        { "type": "boolean" },
+        { "type": "string" },
+        { "type": "number" },
+        {
+          "type": "array",
+          "items": {
+            "oneOf": [{ "type": "string" }, { "type": "number" }]
+          }
+        }
+      ]
+    },
+    "envMap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "optsMap": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/optionName"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/optionValue"
+      }
+    },
+    "variantItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "envFile": {
+          "type": "string",
+          "minLength": 1
+        },
+        "envs": {
+          "$ref": "#/$defs/envMap"
+        },
+        "opts": {
+          "$ref": "#/$defs/optsMap"
+        }
+      }
+    },
+    "variantsMap": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/profileName"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/variantItem"
+      }
+    },
+    "profileItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "envFile": {
+          "type": "string",
+          "minLength": 1
+        },
+        "envs": {
+          "$ref": "#/$defs/envMap"
+        },
+        "opts": {
+          "$ref": "#/$defs/optsMap"
+        },
+        "defaultVariant": {
+          "$ref": "#/$defs/profileName"
+        },
+        "variants": {
+          "$ref": "#/$defs/variantsMap"
+        }
+      },
+      "description": "defaultVariant existence in variants must still be validated by runtime."
+    }
+  }
+}
