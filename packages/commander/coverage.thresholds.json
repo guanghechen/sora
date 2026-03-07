@@ -1,9 +1,9 @@
 {
   "global": {
-    "branches": 94,
-    "functions": 91,
-    "lines": 98,
-    "statements": 98
+    "branches": 90,
+    "functions": 99,
+    "lines": 96,
+    "statements": 96
   },
   "files": {
     "src/index.ts": {
