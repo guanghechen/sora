@@ -248,7 +248,7 @@ Schema:
 
 ```json
 {
-  "$schema": "./node_modules/@guanghechen/commander/lib/schema/preset.config.schema.json"
+  "$schema": "./node_modules/@guanghechen/commander/lib/schema/preset.schema.json"
 }
 ```
 

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://guanghechen.github.io/sora/schemas/commander/preset.config.schema.json",
+  "$id": "https://guanghechen.github.io/sora/schemas/commander/preset.schema.json",
   "title": "Commander Preset Config",
   "description": "Preset profile manifest for @guanghechen/commander --preset-file.",
   "type": "object",
