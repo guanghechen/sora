@@ -1214,7 +1214,7 @@ describe('Command (spec aligned)', () => {
   })
 
   describe('reserved names', () => {
-    it('should reject reserved option long names help/version/devmode', () => {
+    it('should reject reserved option long names help/version/devmode/logLevel', () => {
       const cmd = new Command({ name: 'cli', desc: 'cli' })
       expect(() =>
         cmd.option({ long: 'help', type: 'boolean', args: 'none', desc: 'invalid' }),
@@ -1224,6 +1224,9 @@ describe('Command (spec aligned)', () => {
       ).toThrow('reserved')
       expect(() =>
         cmd.option({ long: 'devmode', type: 'boolean', args: 'none', desc: 'invalid' }),
+      ).toThrow('reserved')
+      expect(() =>
+        cmd.option({ long: 'logLevel', type: 'string', args: 'required', desc: 'invalid' }),
       ).toThrow('reserved')
     })
 
@@ -1304,6 +1307,53 @@ describe('Command (spec aligned)', () => {
       expect(Object.isFrozen(result.ctx.sources.preset.argv)).toBe(true)
       expect(Object.isFrozen(result.ctx.sources.user.argv)).toBe(true)
       expect(Object.isFrozen(result.ctx.sources.user.envs)).toBe(true)
+    })
+
+    it('should normalize invalid issue kind/code bindings', async () => {
+      const cmd = new Command({ name: 'cli', desc: 'cli' }).option({
+        long: 'mode',
+        type: 'string',
+        args: 'required',
+        desc: 'mode',
+        coerce: () => {
+          const err = new CommanderError('InvalidType', 'invalid mode', 'cli').withIssues([
+            {
+              kind: 'error',
+              stage: 'parse',
+              scope: 'option',
+              reason: {
+                code: 'did_you_mean_subcommand',
+                message: 'invalid error issue code',
+              },
+            } as any,
+            {
+              kind: 'hint',
+              stage: 'parse',
+              scope: 'option',
+              reason: {
+                code: 'unknown_option',
+                message: 'invalid hint issue code',
+              },
+            } as any,
+          ])
+          throw err
+        },
+      })
+
+      try {
+        await cmd.parse({ argv: ['--mode', 'dev'], envs: {} })
+        throw new Error('expected parse to throw')
+      } catch (error) {
+        expect(error).toBeInstanceOf(CommanderError)
+        const commanderError = error as CommanderError
+        const issues = commanderError.meta?.issues ?? []
+
+        expect(issues[0]?.kind).toBe('error')
+        expect(issues[0]?.reason.code).toBe('configuration_error')
+        expect(
+          issues.some(issue => issue.kind === 'hint' && issue.reason.code === 'unknown_option'),
+        ).toBe(false)
+      }
     })
   })
 
@@ -2463,31 +2513,46 @@ describe('Command (spec aligned)', () => {
         const root = new Command({ name: 'cli', desc: 'cli' })
         root.subcommand('completion', new CompletionCommand(root))
 
-        await expect(
-          root.parse({ argv: ['completion', `--preset-file=${presetFile}`, '--fish'], envs: {} }),
-        ).rejects.toMatchObject({
-          kind: 'OptionConflict',
-          meta: {
-            issues: expect.arrayContaining([
-              expect.objectContaining({
-                kind: 'error',
-                reason: expect.objectContaining({ code: 'option_conflict' }),
-                source: { related: ['user', 'preset'] },
-                preset: expect.objectContaining({ profile: 'dev' }),
-              }),
-              expect.objectContaining({
-                kind: 'hint',
-                reason: expect.objectContaining({ code: 'mixed_source_conflict' }),
-                source: { related: ['user', 'preset'] },
-                preset: expect.objectContaining({ profile: 'dev' }),
-              }),
-              expect.objectContaining({
-                kind: 'hint',
-                reason: expect.objectContaining({ code: 'preset_token_injected' }),
-              }),
-            ]),
-          },
-        })
+        try {
+          await root.parse({
+            argv: ['completion', `--preset-file=${presetFile}`, '--fish'],
+            envs: {},
+          })
+          throw new Error('expected parse to throw')
+        } catch (error) {
+          expect(error).toBeInstanceOf(CommanderError)
+          const commanderError = error as CommanderError
+          expect(commanderError.kind).toBe('OptionConflict')
+          const issues = commanderError.meta?.issues ?? []
+
+          expect(
+            issues.some(
+              issue =>
+                issue.kind === 'error' &&
+                issue.reason.code === 'option_conflict' &&
+                issue.source?.related?.includes('user') &&
+                issue.source.related.includes('preset') &&
+                issue.preset?.profile === 'dev',
+            ),
+          ).toBe(true)
+
+          expect(
+            issues.some(
+              issue =>
+                issue.kind === 'hint' &&
+                issue.reason.code === 'mixed_source_conflict' &&
+                issue.source?.related?.includes('user') &&
+                issue.source.related.includes('preset') &&
+                issue.preset?.profile === 'dev',
+            ),
+          ).toBe(true)
+
+          expect(
+            issues.some(
+              issue => issue.kind === 'hint' && issue.reason.code === 'preset_token_injected',
+            ),
+          ).toBe(true)
+        }
       })
     })
 
@@ -2511,26 +2576,34 @@ describe('Command (spec aligned)', () => {
         const root = new Command({ name: 'cli', desc: 'cli' })
         root.subcommand('completion', new CompletionCommand(root))
 
-        await expect(
-          root.parse({ argv: ['completion', `--preset-file=${presetFile}`], envs: {} }),
-        ).rejects.toMatchObject({
-          kind: 'OptionConflict',
-          meta: {
-            issues: expect.arrayContaining([
-              expect.objectContaining({
-                kind: 'error',
-                reason: expect.objectContaining({ code: 'option_conflict' }),
-                source: { primary: 'preset' },
-                preset: expect.objectContaining({ profile: 'dev' }),
-              }),
-              expect.objectContaining({
-                kind: 'hint',
-                reason: expect.objectContaining({ code: 'preset_token_injected' }),
-                preset: expect.objectContaining({ profile: 'dev' }),
-              }),
-            ]),
-          },
-        })
+        try {
+          await root.parse({ argv: ['completion', `--preset-file=${presetFile}`], envs: {} })
+          throw new Error('expected parse to throw')
+        } catch (error) {
+          expect(error).toBeInstanceOf(CommanderError)
+          const commanderError = error as CommanderError
+          expect(commanderError.kind).toBe('OptionConflict')
+          const issues = commanderError.meta?.issues ?? []
+
+          expect(
+            issues.some(
+              issue =>
+                issue.kind === 'error' &&
+                issue.reason.code === 'option_conflict' &&
+                issue.source?.primary === 'preset' &&
+                issue.preset?.profile === 'dev',
+            ),
+          ).toBe(true)
+
+          expect(
+            issues.some(
+              issue =>
+                issue.kind === 'hint' &&
+                issue.reason.code === 'preset_token_injected' &&
+                issue.preset?.profile === 'dev',
+            ),
+          ).toBe(true)
+        }
       })
     })
 

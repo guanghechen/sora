@@ -243,10 +243,10 @@ parse 阶段将解析后的值应用到 context：
 
 ```typescript
 .option({
-  long: 'logLevel',
+  long: 'verbosity',
   type: 'string',
   args: 'required',
-  desc: 'Log level',
+  desc: 'Verbosity level',
   choices: ['debug', 'info', 'hint', 'warn', 'error'],
   default: 'info',
   apply: (value, ctx) => {
@@ -271,21 +271,21 @@ parse 阶段将解析后的值应用到 context：
 ```typescript
 const root = new Command({ name: 'cli', desc: 'CLI' })
   .option({ long: 'verbose', short: 'v', type: 'boolean', args: 'none', desc: 'Verbose' })
-  .option({ long: 'logLevel', type: 'string', args: 'required', desc: 'Log level' })
+  .option({ long: 'region', type: 'string', args: 'required', desc: 'Region' })
 
 const sub = new Command({ desc: 'Build' })
-  .option({ long: 'logLevel', type: 'string', args: 'required', desc: 'Build log' })  // 覆盖
+  .option({ long: 'region', type: 'string', args: 'required', desc: 'Build region' })  // 覆盖
   .option({ long: 'watch', short: 'w', type: 'boolean', args: 'none', desc: 'Watch' })
 
 root.subcommand('build', sub)
 ```
 
-`cli build --log-level debug` 合并后：
+`cli build --region ap-east-1` 合并后：
 
 | long     | 来源 |
 | -------- | ---- |
 | verbose  | root |
-| logLevel | sub  |
+| region   | sub  |
 | watch    | sub  |
 
 `long` 是唯一标识，`short` 仅是 alias。
@@ -437,7 +437,7 @@ manifest 示例：
 - `required` + `default` 互斥
 - `boolean` + `required` 互斥
 - `required` 仅允许搭配 `args: 'required'`
-- `long: 'help'` / `long: 'version'` / `long: 'devmode'` 属于保留名，不允许自定义
+- 保留名约束见 [command.md](./command.md)“内置选项”章节
 - `long` 必须 camelCase 且不能以 `no` 开头
 - `short` 若提供，必须是单字符
 - `short` 不能冲突
@@ -454,28 +454,23 @@ manifest 示例：
 
 ---
 
-## 预定义选项
+## 预定义选项（Public）
 
-Commander 提供了常用选项的预定义对象，减少模板代码：
+Commander 提供了常用选项的预定义对象。
+
+说明：`devmodeOption` 与 `logLevelOption` 对应保留名（`devmode/logLevel`），业务侧不得通过 `.option()` 手动注册，且不属于 public 导出面；下列示例只展示可由业务侧显式注册的预定义项。
 
 ```typescript
 import {
-  devmodeOption,
   logColorfulOption,
   logDateOption,
-  logLevelOption,
   silentOption,
 } from '@guanghechen/commander/browser'
 
 const cmd = new Command({ name: 'app', desc: 'Application' })
-  .option(devmodeOption)    // --devmode
-  .option(logLevelOption)   // --log-level
   .option(silentOption)     // --silent
   .option(logDateOption)    // --log-date
   .option(logColorfulOption) // --log-colorful
-
-// 使用展开语法覆盖属性
-.option({ ...logLevelOption, default: 'warn' })
 ```
 
 ## 预定义 Coerce 工厂
@@ -555,6 +550,10 @@ cmd
 | 输入     | `string`                              |
 | 输出     | `(raw: string) => number`             |
 | 校验规则 | `Number.isFinite(value) && value > 0` |
+
+## 内建保留项（Internal，仅框架实现）
+
+该小节中的 `devmodeOption` / `logLevelOption` 属于 internal 实现细节，不属于 `@guanghechen/commander/browser` 或 `@guanghechen/commander/node` 的 public 导出面。
 
 ### logLevelOption
 

@@ -1,4 +1,4 @@
-# Hint 设计（草案）
+# Hint 设计
 
 本文档定义 `@guanghechen/commander` 的诊断模型：将 `error` 与 `hint` 统一为结构化 `issue`，并提供可追踪的来源路径。
 
@@ -15,6 +15,11 @@
 
 1. 不改变现有解析语义与阶段顺序。
 2. 不在 v1 引入可插拔诊断插件机制。
+
+## 规范分层
+
+1. `MUST`：不满足即视为实现缺陷，必须由运行时执行点与测试共同保障。
+2. `SHOULD`：推荐约束，允许在具备明确理由时调整，但需在 spec 中记录决策。
 
 ---
 
@@ -119,16 +124,19 @@ export interface ICommandHintIssue extends ICommandIssueBase {
 export type ICommandIssue = ICommandErrorIssue | ICommandHintIssue
 ```
 
-约束：
+硬约束（MUST）：
 
-1. `source` 不允许为空对象（至少包含 `primary` 或 `related` 之一）。
-2. `source.related` 存在时必须去重，且长度至少为 2。
-3. `source.primary` 与 `source.related` 同时存在时，`source.primary` 必须属于 `source.related`。
-4. `source.primary !== 'preset'` 且 `source.related` 不包含 `'preset'` 时，`preset` 必须为空。
-5. `source.primary === 'preset'` 时，`preset` 必须存在，且 `file/profile/variant` 至少提供一项。
-6. `source.related` 包含 `'preset'` 且存在可定位 preset 来源时，`preset` 应提供定位信息。
-7. `kind='error'` 的 issue 必须唯一且位于 `issues[0]`。
-8. `kind='error'` 只能使用 `ICommandErrorIssueCode`；`kind='hint'` 只能使用 `ICommandHintIssueCode`。
+1. `kind='error'` 的 issue 必须唯一且位于 `issues[0]`。
+2. `kind='error'` 只能使用 `ICommandErrorIssueCode`；`kind='hint'` 只能使用 `ICommandHintIssueCode`。
+3. `source.primary==='preset'` 时，`preset` 必须存在，且 `file/profile/variant` 至少提供一项。
+4. 当 `source` 不包含 `preset` 来源时，`preset` 必须为空。
+
+建议约束（SHOULD）：
+
+1. `source` 不应是空对象（至少包含 `primary` 或 `related` 之一）。
+2. `source.related` 存在时应去重，且长度至少为 2。
+3. `source.primary` 与 `source.related` 同时存在时，`source.primary` 应属于 `source.related`。
+4. `source.related` 包含 `'preset'` 且存在可定位 preset 来源时，`preset` 应提供定位信息。
 
 ---
 
@@ -160,6 +168,23 @@ export class CommanderError extends Error {
 3. `format()` 根据 `meta.issues` 渲染多行提示；渲染函数不做推断，只做展示。
 
 `CommanderError.kind` 与 `ICommandErrorIssueCode` 必须保持 1:1 映射（转换为 snake_case）；hint code 不参与该映射。
+
+### 诊断构建器约束（MUST）
+
+最终设计中，所有 issue 必须经统一诊断构建器（Diagnostics Builder）归一化后进入 `CommanderError.meta.issues`。
+
+`finalize()` 必须至少执行以下动作：
+
+1. 保证主错误唯一并固定在 `issues[0]`。
+2. 保证 `kind/code` 绑定正确（error code / hint code 不混用）。
+3. 归一化 `source`（空对象移除、`related` 去重）。
+4. 保证 `source/preset` 一致性：不涉及 preset 时移除 `preset`；`source.primary='preset'` 时校验定位信息。
+
+`finalize()` 建议动作（SHOULD）：
+
+1. 在 mixed-source `option_conflict` 场景自动补齐 `mixed_source_conflict` hint（若未存在）。
+
+说明：渲染层只消费已归一化 issue，不承担语义修复职责。
 
 ---
 
@@ -265,7 +290,7 @@ export interface ICommandInputSources {
 3. 当 `source.primary='user'` 时，不附加 preset hint。
 4. 当可定位到冲突项分别来自 `user` 与 `preset` 时，可附加 1 条冲突来源 hint（`reason.code='mixed_source_conflict'`，`source.related=['user','preset']`）。
 5. 当错误为 `unknown_subcommand` 且当前 command 不接受位置参数时，应附加 `command_does_not_accept_positional_arguments` hint。
-6. 当错误为 `unknown_subcommand` 且存在唯一最近候选子命令时，应附加 `did_you_mean_subcommand` hint。
+6. 当错误为 `unknown_subcommand` 且存在唯一高置信候选子命令时，应附加 `did_you_mean_subcommand` hint。
 7. `preset profile` 采用事件不生成 hint issue；若需观测采用状态，读取 `ctx.sources.preset.state` 与 `ctx.sources.preset.meta`。
 
 设计决策备注（已评估）：
@@ -560,10 +585,12 @@ Run "cli --help" for usage.
 
 ---
 
-## 落地顺序
+## 实施顺序（非规范）
 
-1. 在 `types.ts` 增加 `ICommandIssue` / `ICommandErrorMeta` / `ICommandArgvSegment`。
-2. `preset` 合并阶段输出 `segments`，`tokenize` 继承 `source/preset`。
-3. `resolve/parse` 抛错时填充 `issue`，并由 `CommanderError` 承载。
-4. `format()` 改为 issue 驱动渲染。
-5. 为 `user/preset` 双来源错误补齐测试矩阵。
+1. 先冻结当前行为快照与 issue invariant 基线测试。
+2. 再收敛 Diagnostics Builder，统一 issue 生成与归一化。
+3. 随后收敛 Source Ledger，统一 `source/preset` 归因。
+4. 然后统一 Execution Kernel，收敛 `run/parse` 执行入口。
+5. 最后补齐测试矩阵，确保 code/spec 一一映射。
+
+详细实施清单见 [command.md](./command.md)“执行内核约束 / run/parse 契约 / control-run 规则”。

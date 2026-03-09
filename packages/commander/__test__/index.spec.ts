@@ -22,6 +22,10 @@ describe('index exports', () => {
     expect(source['BashCompletion']).toBeUndefined()
     expect(source['FishCompletion']).toBeUndefined()
     expect(source['PwshCompletion']).toBeUndefined()
+    expect(source['devmodeOption']).toBeUndefined()
+    expect(source['logLevelOption']).toBeUndefined()
+    expect(source['COMMAND_ERROR_ISSUE_CODES']).toBeUndefined()
+    expect(source['COMMAND_HINT_ISSUE_CODES']).toBeUndefined()
   })
 
   it('should export completion classes from node entry', () => {
@@ -30,6 +34,10 @@ describe('index exports', () => {
     expect(source['BashCompletion']).toBeDefined()
     expect(source['FishCompletion']).toBeDefined()
     expect(source['PwshCompletion']).toBeDefined()
+    expect(source['devmodeOption']).toBeUndefined()
+    expect(source['logLevelOption']).toBeUndefined()
+    expect(source['COMMAND_ERROR_ISSUE_CODES']).toBeUndefined()
+    expect(source['COMMAND_HINT_ISSUE_CODES']).toBeUndefined()
   })
 
   it('should export CommanderError class', () => {
@@ -50,5 +58,9 @@ describe('index exports', () => {
     expect(typeof source['Coerce']).toBe('function')
     expect(typeof source['getDefaultCommandRuntime']).toBe('function')
     expect(source['CompletionCommand']).toBeUndefined()
+    expect(source['devmodeOption']).toBeUndefined()
+    expect(source['logLevelOption']).toBeUndefined()
+    expect(source['COMMAND_ERROR_ISSUE_CODES']).toBeUndefined()
+    expect(source['COMMAND_HINT_ISSUE_CODES']).toBeUndefined()
   })
 })

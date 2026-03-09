@@ -1,10 +1,5 @@
-import {
-  devmodeOption,
-  logColorfulOption,
-  logDateOption,
-  logLevelOption,
-  silentOption,
-} from '../src'
+import { logColorfulOption, logDateOption, silentOption } from '../src'
+import { devmodeOption, logLevelOption } from '../src/options'
 
 describe('options', () => {
   describe('devmodeOption', () => {

@@ -15,6 +15,7 @@
 | Explicit Entry | 必须显式使用 `/browser` 或 `/node` 入口   |
 | Fluent API     | 链式调用构建命令                          |
 | Strict Mode    | 严格解析，unknown option 报错             |
+| Executable Spec | 关键规范约束必须可由运行时校验执行         |
 
 ### 1.1 执行流程
 
@@ -34,7 +35,7 @@ user argv → route → control-scan(run/parse) → control-run(run only) → pr
 | parse                     | 自顶向下 | tokens → opts，调用 apply 更新 ctx；对外暴露 leaf `builtin/opts/args`，其中 `opts/args` 仅包含 leaf 本地声明项                                                                 |
 | run                       | -        | 执行 leaf command 的 action                                                                                                                                                        |
 
-详见 [command.md](./command.md) 中“内建 version 支持判定”“CONTROL SCAN 规则”“`control-run` 规则”与“支持矩阵（代表性场景）”。
+详见 [command.md](./command.md) 中“内建 version 支持判定”“CONTROL SCAN 规则”“`control-run` 规则”与“代表性场景”。
 
 若 user tail（`--` 之前）同时包含 `--help` 与 `--version`，按 `help > version` 优先级处理。
 
@@ -49,6 +50,22 @@ user argv → route → control-scan(run/parse) → control-run(run only) → pr
 3. `effective tail argv`：PRESET 合并后的最终解析输入。
 
 入口约束：仅允许 `@guanghechen/commander/browser` 与 `@guanghechen/commander/node`，根入口不对外导出。详见 [command.md](./command.md)“运行时入口契约”。
+
+### 1.2 内核化约束
+
+1. 规范层将 `execute(params, mode)` 视为唯一执行语义来源。
+2. `run()` 与 `parse()` 是 `execute` 的模式化封装，不允许维护独立语义分支。
+3. 9 阶段顺序固定，不允许跳阶段重排。
+4. `control-run` 仅在 `mode='run'` 执行；`mode='parse'` 必须跳过该阶段。
+5. 任何 short-circuit 必须写入结构化终止状态，不使用分散副作用作为行为事实。
+6. 最终设计规范统一收敛在 `command.md` / `hint.md` / `charter.md`，不维护额外并行 spec。
+
+### 1.3 诊断与来源约束
+
+1. `error/hint` 只能通过统一诊断构建器生成并归一化。
+2. `source/preset` 归因必须来自来源账本（Source Ledger），禁止从原始字符串临时推断。
+3. issue 结构不变量（如 `issues[0]` 主错误）必须由运行时执行器强制保证。
+4. 规范中的 `MUST` 约束应可映射到明确的代码执行点与测试断言。
 
 ---
 
@@ -362,12 +379,12 @@ for token in argv:
 2. 若 route 停止后的 leaf 存在子命令，且 tail 首 token 为裸 token（非 `help` / 非 option），parse 阶段抛 `UnknownSubcommand`。
 3. `UnknownSubcommand` 与 `UnexpectedArgument` 冲突时，优先级固定为 `UnknownSubcommand > UnexpectedArgument`。
 4. 若抛 `UnknownSubcommand` 且 leaf 同时不接受位置参数，应追加 `hint issue`：`reason.code='command_does_not_accept_positional_arguments'`（默认渲染文本：`Hint: command "<path>" does not accept positional arguments.`）。
-5. 若抛 `UnknownSubcommand` 且存在唯一最接近候选子命令，应追加 `hint issue`：`reason.code='did_you_mean_subcommand'`（默认渲染文本：`Hint: did you mean "<candidate>"?`）。
-6. “最接近候选”判定规则：
+5. 若抛 `UnknownSubcommand` 且存在唯一高置信候选子命令，应追加 `hint issue`：`reason.code='did_you_mean_subcommand'`（默认渲染文本：`Hint: did you mean "<candidate>"?`）。
+6. 候选提示判定规则：
    - 候选集合仅包含当前 leaf 的直接子命令 `name`（不包含 aliases）；
-   - 使用小写后的 `kebab-case` 名称计算 Levenshtein distance；
-   - 仅当最小距离 `<= 2` 且最小值唯一时，输出 `did-you-mean` hint；
-   - 若并列最小值或最小距离 `> 2`，不输出该 hint。
+   - 候选排序策略由实现决定（可使用编辑距离、前缀匹配或其他等价方法）；
+   - 仅当可确定唯一且高置信候选时，输出 `did-you-mean` hint；
+   - 若无法确定唯一高置信候选，则不输出该 hint。
 
 ---
 
@@ -392,7 +409,7 @@ for token in argv:
 | `required` + `default`   | 互斥                                                  |
 | `boolean` + `required`   | 互斥                                                  |
 | `required` + `args`      | 仅允许 `args: 'required'`                             |
-| `long` 为 `help/version/devmode` | 保留名，不允许                                |
+| 保留名约束 | 见 [command.md](./command.md)“内置选项”章节 |
 | 子命令名/alias 为 `help` | 保留名，不允许                                        |
 | 子命令名/alias 冲突      | 不允许（同一 `cmd` 重复注册同一 `name` 视为幂等例外） |
 | `long` 非 camelCase      | 不允许                                                |
@@ -420,13 +437,18 @@ for token in argv:
 
 ### 9.1 Exit Code
 
-| Code | 说明            |
-| ---- | --------------- |
-| 0    | 成功            |
-| 1    | action 执行失败 |
-| 2    | 解析 / 校验失败 |
+固定映射（由 CLI adapter 按 `execute` outcome 执行）：
+
+| outcome 条件                                                     | Exit Code |
+| ---------------------------------------------------------------- | --------- |
+| `kind='parsed'`                                                  | `0`       |
+| `kind='terminated'`（`help` / `version`）                        | `0`       |
+| `kind='failed'` 且 `error.kind==='ActionFailed'`                 | `1`       |
+| `kind='failed'` 且 `error.kind!=='ActionFailed'`（其余全部失败） | `2`       |
 
 说明：Exit Code 仅适用于 `run()` 作为 CLI 入口执行时；`parse()` 仅返回解析结果或抛错，不定义进程退出码。
+
+适配层约束：Exit Code 映射由 CLI adapter 基于 `execute` outcome 执行（详见 [command.md](./command.md)“run/parse 契约”与“control-run 规则”）。
 
 ### 9.2 错误格式
 

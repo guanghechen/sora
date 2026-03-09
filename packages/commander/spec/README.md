@@ -49,6 +49,7 @@ pm completion --bash > ~/.local/share/bash-completion/completions/pm
 
 1. 必须显式导入 `@guanghechen/commander/browser` 或 `@guanghechen/commander/node`。
 2. `@guanghechen/commander` 根入口不对外导出。
+3. `devmodeOption` / `logLevelOption` 为 internal 保留项，不属于 `/browser` 或 `/node` 的 public 导出。
 
 ---
 

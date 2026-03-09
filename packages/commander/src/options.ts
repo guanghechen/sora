@@ -62,16 +62,8 @@ export const devmodeOption: ICommandOptionConfig<boolean> = {
  *
  * @example
  * ```typescript
- * import { logLevelOption } from '@guanghechen/commander'
- *
- * const cmd = new Command('app')
- *   .option(logLevelOption)
- *   .action(({ opts }) => {
- *     console.log(opts.logLevel) // 'debug' | 'info' | 'hint' | 'warn' | 'error'
- *   })
- *
- * // Override with spread syntax
- * .option({ ...logLevelOption, default: 'warn' })
+ * // Internal built-in option used by Command builtin-resolve stage.
+ * const option = { ...logLevelOption, default: 'warn' }
  * ```
  */
 export const logLevelOption: ICommandOptionConfig<string> = {
@@ -147,7 +139,7 @@ export const logColorfulOption: ICommandOptionConfig<boolean> = {
  *
  * @example
  * ```typescript
- * import { silentOption } from '@guanghechen/commander'
+ * import { silentOption } from '@guanghechen/commander/browser'
  *
  * const cmd = new Command('app')
  *   .option(silentOption)

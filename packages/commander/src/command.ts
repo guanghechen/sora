@@ -10,6 +10,7 @@ import { parse as parseEnv } from '@guanghechen/env'
 import type { IReporter } from '@guanghechen/reporter'
 import { Reporter } from '@guanghechen/reporter'
 import { TERMINAL_STYLE, styleText } from './chalk'
+import { isErrorIssueCode, isHintIssueCode } from './internal/issue-codes'
 import {
   devmodeOption,
   logColorfulOption,
@@ -18,6 +19,7 @@ import {
   silentOption,
 } from './options'
 import { getDefaultCommandRuntime } from './runtime'
+import { CommanderError } from './types'
 import type {
   ICommand,
   ICommandAction,
@@ -34,9 +36,11 @@ import type {
   ICommandControls,
   ICommandErrorIssue,
   ICommandErrorIssueCode,
+  ICommandErrorMeta,
   ICommandExample,
   ICommandHintIssue,
   ICommandInputSources,
+  ICommandIssueCode,
   ICommandIssueScope,
   ICommandOptionConfig,
   ICommandParseResult,
@@ -56,6 +60,7 @@ import type {
   ICommandRunParams,
   ICommandRuntime,
   ICommandShiftResult,
+  ICommandStage,
   ICommandToken,
   ICommandTokenizeResult,
   ICompletionArgumentMeta,
@@ -68,7 +73,6 @@ import type {
   IHelpOptionLine,
   ISubcommandEntry,
 } from './types'
-import { CommanderError } from './types'
 
 // ==================== Naming Convention Utilities ====================
 
@@ -528,6 +532,33 @@ interface IParseOptionsResult {
   explicitOptionLongs: Set<string>
 }
 
+type ICommandExecutionMode = 'run' | 'parse'
+
+type ICommandExecutionTermination =
+  | {
+      kind: 'help'
+      targetCommandPath: string
+    }
+  | {
+      kind: 'version'
+      targetCommandPath: string
+      version: string
+    }
+
+type IExecutionOutcome =
+  | {
+      kind: 'parsed'
+      parseResult: ICommandParseResult
+    }
+  | {
+      kind: 'terminated'
+      termination: ICommandExecutionTermination
+    }
+  | {
+      kind: 'failed'
+      error: CommanderError
+    }
+
 function createBuiltinOptionState(enabled: boolean): ICommandBuiltinOptionResolved {
   return {
     version: enabled,
@@ -740,6 +771,86 @@ export class Command implements ICommand {
   // ==================== Execution Methods ====================
 
   public async run(params: ICommandRunParams): Promise<void> {
+    const outcome = await this.#execute(params, 'run')
+
+    if (outcome.kind === 'parsed') {
+      return
+    }
+
+    if (outcome.kind === 'terminated') {
+      try {
+        const { termination } = outcome
+        if (termination.kind === 'version') {
+          console.log(termination.version)
+          return
+        }
+
+        const routeResult = this.#route(params.argv)
+        const leafCommand = routeResult.chain[routeResult.chain.length - 1]
+        const controlScanResult = this.#controlScan(routeResult.remaining, leafCommand)
+        const helpCommand =
+          this.#findCommandByPath(termination.targetCommandPath) ??
+          this.#resolveHelpCommand(leafCommand, controlScanResult.helpTarget)
+        const helpColor = helpCommand.#resolveHelpColorFromTailArgv(
+          controlScanResult.remaining,
+          params.envs,
+        )
+        console.log(helpCommand.#formatHelpForDisplay({ color: helpColor }))
+        return
+      } catch (err) {
+        if (err instanceof CommanderError) {
+          const enrichedError = this.#withErrorIssue(
+            err,
+            this.#buildErrorIssue({
+              error: err,
+              stage: 'control-run',
+              scope: 'control',
+            }),
+          )
+          const normalizedError = this.#normalizeCommanderError(enrichedError, {
+            fallbackStage: 'control-run',
+            fallbackScope: 'control',
+          })
+          console.error(normalizedError.format())
+          this.#exit(normalizedError.kind === 'ActionFailed' ? 1 : 2)
+          return
+        }
+        throw err
+      }
+    }
+
+    const exitCode = outcome.error.kind === 'ActionFailed' ? 1 : 2
+    console.error(outcome.error.format())
+    this.#exit(exitCode)
+  }
+
+  #exit(code: number): void {
+    ;(process.exit as (code?: number) => void)(code)
+  }
+
+  public async parse(params: ICommandRunParams): Promise<ICommandParseResult> {
+    const outcome = await this.#execute(params, 'parse')
+
+    if (outcome.kind === 'parsed') {
+      return outcome.parseResult
+    }
+
+    if (outcome.kind === 'terminated') {
+      const commandPath = this.#getCommandPath()
+      throw new CommanderError(
+        'ConfigurationError',
+        'internal invariant violation: parse mode must not produce termination',
+        commandPath,
+      )
+    }
+
+    throw outcome.error
+  }
+
+  async #execute(
+    params: ICommandRunParams,
+    mode: ICommandExecutionMode,
+  ): Promise<IExecutionOutcome> {
     const { argv, envs, reporter } = params
 
     try {
@@ -760,25 +871,35 @@ export class Command implements ICommand {
       ctx.controls = controlScanResult.controls
       ctx.sources.user.argv = [...controlScanResult.remaining]
 
-      // 2. control-run
-      if (ctx.controls.help) {
-        ctx.sources.preset.state = 'skipped'
-        const helpCommand = this.#resolveHelpCommand(leafCommand, controlScanResult.helpTarget)
-        const helpColor = helpCommand.#resolveHelpColorFromTailArgv(
-          controlScanResult.remaining,
-          ctx.envs,
-        )
-        console.log(helpCommand.#formatHelpForDisplay({ color: helpColor }))
-        return
-      }
-      if (ctx.controls.version) {
-        ctx.sources.preset.state = 'skipped'
-        console.log(leafCommand.#version)
-        return
+      // 2. control-run (run only)
+      if (mode === 'run') {
+        const termination = this.#controlRun(leafCommand, controlScanResult)
+        if (termination !== undefined) {
+          ctx.sources.preset.state = 'skipped'
+          return {
+            kind: 'terminated',
+            termination,
+          }
+        }
       }
 
       // 3. PRESET
-      const presetResult = await this.#preset(controlScanResult.remaining, ctx)
+      let presetResult: ICommandPresetResult & { sources: ICommandInputSources }
+      try {
+        presetResult = await this.#preset(controlScanResult.remaining, ctx)
+      } catch (err) {
+        if (err instanceof CommanderError) {
+          throw this.#withErrorIssue(
+            err,
+            this.#buildErrorIssue({
+              error: err,
+              stage: 'preset',
+              scope: errorKindToIssueScope(err.kind),
+            }),
+          )
+        }
+        throw err
+      }
       ctx.sources = presetResult.sources
       ctx.envs = presetResult.envs
       const sourceSegments = presetResult.segments
@@ -873,170 +994,118 @@ export class Command implements ICommand {
         throw err
       }
 
-      // 8. RUN
-      const actionParams: ICommandActionParams = {
-        ctx: parseResult.ctx,
-        builtin: parseResult.builtin,
-        opts: parseResult.opts,
-        args: parseResult.args,
-        rawArgs: parseResult.rawArgs,
+      // 8. RUN (run only)
+      if (mode === 'run') {
+        const actionParams: ICommandActionParams = {
+          ctx: parseResult.ctx,
+          builtin: parseResult.builtin,
+          opts: parseResult.opts,
+          args: parseResult.args,
+          rawArgs: parseResult.rawArgs,
+        }
+
+        if (leafCommand.#action) {
+          try {
+            await leafCommand.#runAction(actionParams)
+          } catch (err) {
+            if (err instanceof CommanderError) {
+              throw this.#withErrorIssue(
+                err,
+                this.#buildErrorIssue({
+                  error: err,
+                  stage: 'run',
+                  scope: errorKindToIssueScope(err.kind),
+                }),
+              )
+            }
+            throw err
+          }
+        } else if (leafCommand.#subcommandsList.length > 0) {
+          const helpColor = leafCommand.#resolveHelpColorFromTailArgv(
+            presetResult.tailArgv,
+            ctx.envs,
+          )
+          console.log(leafCommand.#formatHelpForDisplay({ color: helpColor }))
+        } else {
+          const noActionError = new CommanderError(
+            'ConfigurationError',
+            `no action defined for command "${leafCommand.#getCommandPath()}"`,
+            leafCommand.#getCommandPath(),
+          )
+          throw this.#withErrorIssue(
+            noActionError,
+            this.#buildErrorIssue({
+              error: noActionError,
+              stage: 'run',
+              scope: errorKindToIssueScope(noActionError.kind),
+            }),
+          )
+        }
       }
 
-      if (leafCommand.#action) {
-        try {
-          await leafCommand.#runAction(actionParams)
-        } catch (err) {
-          if (err instanceof CommanderError) {
-            throw this.#withErrorIssue(
-              err,
-              this.#buildErrorIssue({
-                error: err,
-                stage: 'run',
-                scope: errorKindToIssueScope(err.kind),
-              }),
-            )
-          }
-          throw err
-        }
-      } else if (leafCommand.#subcommandsList.length > 0) {
-        const helpColor = leafCommand.#resolveHelpColorFromTailArgv(presetResult.tailArgv, ctx.envs)
-        console.log(leafCommand.#formatHelpForDisplay({ color: helpColor }))
-      } else {
-        throw new CommanderError(
-          'ConfigurationError',
-          `no action defined for command "${leafCommand.#getCommandPath()}"`,
-          leafCommand.#getCommandPath(),
-        )
+      return {
+        kind: 'parsed',
+        parseResult,
       }
     } catch (err) {
       if (err instanceof CommanderError) {
-        if (err.kind === 'ActionFailed') {
-          console.error(err.format())
-          process.exit(1)
-          return
+        return {
+          kind: 'failed',
+          error: this.#normalizeCommanderError(err, {
+            fallbackStage: mode === 'run' ? 'run' : 'parse',
+            fallbackScope: errorKindToIssueScope(err.kind),
+          }),
         }
-        console.error(err.format())
-        process.exit(2)
-        return
       }
       throw err
     }
   }
 
-  public async parse(params: ICommandRunParams): Promise<ICommandParseResult> {
-    const { argv, envs, reporter } = params
-
-    // 0. ROUTE
-    const routeResult = this.#route(argv)
-    const { chain } = routeResult
-    const leafCommand = chain[chain.length - 1]
-
-    const ctx = this.#createContext({
-      chain,
-      cmds: routeResult.cmds,
-      envs,
-      reporter,
-    })
-
-    // 1. CONTROL SCAN
-    const controlScanResult = this.#controlScan(routeResult.remaining, leafCommand)
-    ctx.controls = controlScanResult.controls
-    ctx.sources.user.argv = [...controlScanResult.remaining]
-
-    // 2. PRESET
-    const presetResult = await this.#preset(controlScanResult.remaining, ctx)
-    ctx.sources = presetResult.sources
-    ctx.envs = presetResult.envs
-    const sourceSegments = presetResult.segments
-
-    // 3. TOKENIZE
-    let optionTokens: ICommandToken[]
-    let restArgs: string[]
-    try {
-      const tokenizeResult = tokenize(presetResult.segments, leafCommand.#getCommandPath())
-      optionTokens = tokenizeResult.optionTokens
-      restArgs = tokenizeResult.restArgs
-    } catch (err) {
-      if (err instanceof CommanderError) {
-        const enriched = this.#withErrorIssue(
-          err,
-          this.#buildErrorIssue({
-            error: err,
-            stage: 'tokenize',
-            scope: errorKindToIssueScope(err.kind),
-          }),
-        )
-        throw this.#withPresetInjectedHint(enriched, sourceSegments)
+  #controlRun(
+    leafCommand: Command,
+    controlScanResult: ICommandControlScanResult,
+  ): ICommandExecutionTermination | undefined {
+    if (controlScanResult.controls.help) {
+      const helpCommand = this.#resolveHelpCommand(leafCommand, controlScanResult.helpTarget)
+      return {
+        kind: 'help',
+        targetCommandPath: helpCommand.#getCommandPath(),
       }
-      throw err
     }
 
-    // 4. BUILTIN RESOLVE
-    let optionPolicyMap: Map<Command, ICommandOptionPolicy>
-    try {
-      optionPolicyMap = this.#buildOptionPolicyMap(chain)
-    } catch (err) {
-      if (err instanceof CommanderError) {
-        const enriched = this.#withErrorIssue(
-          err,
-          this.#buildErrorIssue({
-            error: err,
-            stage: 'builtin-resolve',
-            scope: errorKindToIssueScope(err.kind),
-          }),
-        )
-        throw this.#withPresetInjectedHint(enriched, sourceSegments)
+    if (controlScanResult.controls.version) {
+      return {
+        kind: 'version',
+        targetCommandPath: leafCommand.#getCommandPath(),
+        version: leafCommand.#version as string,
       }
-      throw err
     }
 
-    // 5. RESOLVE
-    let resolveResult: ICommandResolveResult
-    try {
-      resolveResult = this.#resolve(chain, optionTokens, optionPolicyMap)
-    } catch (err) {
-      if (err instanceof CommanderError) {
-        const enriched = this.#withErrorIssue(
-          err,
-          this.#buildErrorIssue({
-            error: err,
-            stage: 'resolve',
-            scope: errorKindToIssueScope(err.kind),
-          }),
-        )
-        throw this.#withPresetInjectedHint(enriched, sourceSegments)
-      }
-      throw err
+    return undefined
+  }
+
+  #findCommandByPath(commandPath: string): Command | undefined {
+    if (!commandPath) {
+      return this
     }
 
-    // 6. PARSE
-    try {
-      return this.#parse(chain, resolveResult, optionPolicyMap, ctx, restArgs)
-    } catch (err) {
-      if (err instanceof CommanderError) {
-        const optionConflictSource = this.#resolveOptionConflictSourceAttribution(
-          err,
-          sourceSegments,
-        )
-        const optionConflictPreset = this.#resolveOptionConflictPresetAttribution(
-          err,
-          sourceSegments,
-          optionConflictSource,
-        )
-        const enriched = this.#withErrorIssue(
-          err,
-          this.#buildErrorIssue({
-            error: err,
-            stage: 'parse',
-            scope: errorKindToIssueScope(err.kind),
-            source: optionConflictSource,
-            preset: optionConflictPreset,
-          }),
-        )
-        throw this.#withPresetInjectedHint(enriched, sourceSegments)
-      }
-      throw err
+    const segments = commandPath.split(' ').filter(Boolean)
+    if (segments.length === 0) {
+      return this
     }
+
+    let startIndex = 0
+
+    if (this.#name && segments[0] === this.#name) {
+      startIndex = 1
+    }
+
+    return segments.slice(startIndex).reduce<Command | undefined>((command, segment) => {
+      if (command === undefined) {
+        return undefined
+      }
+      return command.#findSubcommandEntry(segment)?.command
+    }, this)
   }
 
   #buildErrorIssue(params: {
@@ -1177,6 +1246,185 @@ export class Command implements ICommand {
     }
 
     return nextError.withIssue(hint)
+  }
+
+  #normalizeCommanderError(
+    error: CommanderError,
+    options: {
+      fallbackStage: ICommandStage
+      fallbackScope: ICommandIssueScope
+    } = {
+      fallbackStage: 'parse',
+      fallbackScope: errorKindToIssueScope(error.kind),
+    },
+  ): CommanderError {
+    const issues = error.meta?.issues ?? []
+    const normalizedIssues = this.#normalizeIssues(issues, {
+      error,
+      fallbackStage: options.fallbackStage,
+      fallbackScope: options.fallbackScope,
+    })
+
+    const nextMeta: ICommandErrorMeta = {
+      commandPath: error.meta?.commandPath ?? error.commandPath,
+      token: error.meta?.token,
+      option: error.meta?.option,
+      argument: error.meta?.argument,
+      issues: normalizedIssues,
+    }
+
+    return new CommanderError(error.kind, error.message, error.commandPath, nextMeta)
+  }
+
+  #normalizeIssues(
+    issues: Array<ICommandErrorIssue | ICommandHintIssue>,
+    options: {
+      error: CommanderError
+      fallbackStage: ICommandStage
+      fallbackScope: ICommandIssueScope
+    },
+  ): ICommandErrorMeta['issues'] {
+    const normalized = issues
+      .map(issue => this.#normalizeIssue(issue))
+      .filter((issue): issue is ICommandErrorIssue | ICommandHintIssue => issue !== undefined)
+    const primaryError = normalized.find(issue => issue.kind === 'error') as
+      | ICommandErrorIssue
+      | undefined
+    const hints = normalized.filter(issue => issue.kind === 'hint')
+
+    if (primaryError === undefined) {
+      const fallbackError = this.#buildErrorIssue({
+        error: options.error,
+        stage: options.fallbackStage,
+        scope: options.fallbackScope,
+      })
+      return [fallbackError, ...hints]
+    }
+
+    return [primaryError, ...hints]
+  }
+
+  #normalizeIssue(
+    issue: ICommandErrorIssue | ICommandHintIssue,
+  ): ICommandErrorIssue | ICommandHintIssue | undefined {
+    let source = this.#normalizeIssueSource(issue.source)
+    let preset = this.#normalizePresetIssueMeta(issue.preset)
+    const reasonCode = issue.reason.code as ICommandIssueCode
+
+    if (!this.#hasPresetSource(source)) {
+      preset = undefined
+    }
+
+    if (source?.primary === 'preset' && !this.#hasPresetLocator(preset)) {
+      source = this.#dropPresetPrimarySource(source)
+      if (!this.#hasPresetSource(source)) {
+        preset = undefined
+      }
+    }
+
+    if (issue.kind === 'error') {
+      const normalizedCode: ICommandErrorIssueCode = isErrorIssueCode(reasonCode)
+        ? reasonCode
+        : 'configuration_error'
+      const normalizedReason =
+        normalizedCode === reasonCode
+          ? issue.reason
+          : {
+              code: normalizedCode,
+              message: `invalid error issue code "${reasonCode}"`,
+              details: {
+                ...(issue.reason.details ?? {}),
+                invalidIssueCode: reasonCode,
+              },
+            }
+
+      return {
+        ...issue,
+        source,
+        preset,
+        reason: normalizedReason,
+      }
+    }
+
+    if (!isHintIssueCode(reasonCode)) {
+      return undefined
+    }
+
+    return {
+      ...issue,
+      source,
+      preset,
+    }
+  }
+
+  #normalizeIssueSource(
+    source: ICommandErrorIssue['source'] | undefined,
+  ): ICommandErrorIssue['source'] | undefined {
+    if (source === undefined) {
+      return undefined
+    }
+
+    const related = source.related === undefined ? undefined : Array.from(new Set(source.related))
+    const primary = source.primary
+
+    if (primary !== undefined && related !== undefined && !related.includes(primary)) {
+      related.push(primary)
+    }
+
+    if (primary === undefined && (related === undefined || related.length === 0)) {
+      return undefined
+    }
+
+    return {
+      primary,
+      related,
+    }
+  }
+
+  #dropPresetPrimarySource(
+    source: NonNullable<ICommandErrorIssue['source']>,
+  ): ICommandErrorIssue['source'] | undefined {
+    const related = source.related?.filter(item => item !== 'preset')
+    if (related === undefined || related.length === 0) {
+      return undefined
+    }
+
+    return {
+      related,
+    }
+  }
+
+  #normalizePresetIssueMeta(
+    preset: ICommandPresetIssueMeta | undefined,
+  ): ICommandPresetIssueMeta | undefined {
+    if (preset === undefined) {
+      return undefined
+    }
+
+    const nextPreset: ICommandPresetIssueMeta = {
+      file: preset.file,
+      profile: preset.profile,
+      variant: preset.variant,
+      optionKey: preset.optionKey,
+    }
+
+    const hasAnyValue =
+      nextPreset.file !== undefined ||
+      nextPreset.profile !== undefined ||
+      nextPreset.variant !== undefined ||
+      nextPreset.optionKey !== undefined
+
+    return hasAnyValue ? nextPreset : undefined
+  }
+
+  #hasPresetLocator(preset: ICommandPresetIssueMeta | undefined): boolean {
+    return (
+      preset?.file !== undefined || preset?.profile !== undefined || preset?.variant !== undefined
+    )
+  }
+
+  #hasPresetSource(source: ICommandErrorIssue['source'] | undefined): boolean {
+    return source?.primary === 'preset' || source?.related?.includes('preset') === true
   }
 
   #resolveOptionConflictSourceAttribution(
@@ -3512,7 +3760,12 @@ export class Command implements ICommand {
   // ==================== Private: Validation ====================
 
   #validateOptionConfig<T>(opt: ICommandOptionConfig<T>): void {
-    if (opt.long === 'help' || opt.long === 'version' || opt.long === 'devmode') {
+    if (
+      opt.long === 'help' ||
+      opt.long === 'version' ||
+      opt.long === 'devmode' ||
+      opt.long === 'logLevel'
+    ) {
       throw new CommanderError(
         'ConfigurationError',
         `option long name "${opt.long}" is reserved`,
