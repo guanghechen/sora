@@ -376,9 +376,9 @@ await cli.run({ argv: ['--help'], envs: process.env })
 当环境变量 `NO_COLOR` 存在时，help 渲染默认视为 `--no-color`；显式传入 `--color`
 可以覆盖这个默认值。
 
-`--devmode` 是内建 boolean 选项（默认 `false`）。当其为 `true` 且未显式提供
-`--log-level` 时，默认日志级别会提升为 `debug`。若显式传入 `--log-level`（包括 preset
-`opts` 注入），则显式值优先。
+`--devmode` 是内建 boolean 选项（默认 `false`）。仅当内建 `--log-level` 启用时：当其为
+`true` 且未显式提供 `--log-level`，默认日志级别会提升为 `debug`。若显式传入
+`--log-level`（包括 preset `opts` 注入），则显式值优先。
 
 `devmode` 为保留 option 名，不允许通过 `.option({ long: 'devmode', ... })` 自定义。
 在 `action` 中可通过 `params.builtin.devmode` 读取该内建选项的最终值（始终为 `boolean`）。

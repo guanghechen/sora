@@ -59,4 +59,5 @@ pm completion --bash > ~/.local/share/bash-completion/completions/pm
 | [charter.md](./charter.md)       | 设计规范       |
 | [command.md](./command.md)       | Command API    |
 | [option.md](./option.md)         | 选项系统       |
+| [hint.md](./hint.md)             | 诊断模型设计   |
 | [completion.md](./completion.md) | Shell 补全     |

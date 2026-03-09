@@ -42,16 +42,30 @@ interface ICommandOptionConfig<T = unknown> {
 /** token 类型 */
 type ICommandTokenType = 'long' | 'short' | 'none'
 
+/** token 来源 */
+type ICommandTokenSource = 'user' | 'preset'
+
+/** preset 来源元信息 */
+interface ICommandPresetIssueMeta {
+  file?: string
+  profile?: string
+  variant?: string
+  optionKey?: string
+}
+
 /** 命令 token */
 interface ICommandToken {
   original: string        // 原始输入：--LOG-LEVEL=info, -v
   resolved: string        // 规范化后：--logLevel=info, -v
   name: string            // 选项名：logLevel, v, ''
   type: ICommandTokenType
+  source: ICommandTokenSource
+  preset?: ICommandPresetIssueMeta
 }
 
 // 注意：`args: 'none'` 与 `token.type: 'none'` 语义不同。
 // 前者表示选项不接参数，后者表示该 token 不是选项。
+// 另：token 来源由 PRESET 阶段输入段继承，source='preset' 时可携带 preset 元信息。
 ```
 
 ---
@@ -387,7 +401,7 @@ manifest 示例：
 1. 对 `boolean` / `required` / `optional`：右侧 token 覆盖左侧 token（Last Write Wins）。
 2. 对 `variadic`：左侧和右侧按出现顺序累积。
 3. 显式 `--color/--no-color` 优先于 `NO_COLOR` fallback。
-4. 当 `--devmode` 为 `true` 且未显式提供 `logLevel` token（含 CLI 与 preset `opts` 注入）时，内建 `logLevel` 采用 `debug`；显式 `logLevel` 仍然优先。
+4. 仅当内建 `logLevel` 已启用时：`--devmode` 为 `true` 且未显式提供 `logLevel` token（含 CLI 与 preset `opts` 注入）时，内建 `logLevel` 采用 `debug`；显式 `logLevel` 仍然优先。
 
 ### 错误语义
 

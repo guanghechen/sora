@@ -110,8 +110,15 @@ interface ICommandConfig {
 /** 预置输入来源快照（用于调试/追踪） */
 interface ICommandInputSources {
   preset: {
+    state: 'skipped' | 'none' | 'applied'
     argv: string[]
     envs: Record<string, string> // 来自 preset profile（envFile + envs）合并结果，不含 undefined
+    meta?: {
+      applied: boolean
+      file?: string
+      profile?: string
+      variant?: string
+    }
   }
   user: {
     cmds: string[] // command chain（按用户输入记录，允许 name/alias）
@@ -174,11 +181,20 @@ interface ICommandRunParams {
 8. `ctx.sources.user.envs` 是 `run/parse` 入参 `envs` 的快照。
 9. `ctx.sources.preset.argv` 是分词后的 token 序列，不是原始文件文本。
 10. `ctx.sources.preset.envs` 是 `@guanghechen/env.parse` 的结果。
-11. `ctx.sources` 是 PRESET 阶段的来源快照，同时也是构建 effective 输入的来源。
-12. 若 `run()` 在 RUN CONTROL 命中 short-circuit，则 PRESET 不执行：`ctx.sources.preset` 保持空快照（`argv=[]`, `envs={}`），`ctx.sources.user.argv` 固定为 CONTROL SCAN 产出的 `controlTailArgv`（不做 preset 指令剥离）。
-13. effective 输入一旦生成（`effectiveTailArgv` / `ctx.envs`），后续阶段只消费 effective 输入，不再回写 `ctx.sources`。
-14. `ctx.sources` 应作为只读快照暴露给 `action`，避免运行期被意外改写。
-15. `params.builtin.devmode` 始终暴露为 `boolean`（默认 `false`）。
+11. `ctx.sources.preset.state` 表示 PRESET 路径状态：`skipped`（run/control-run 提前中断，未执行 PRESET）、`none`（执行 PRESET 但未采用 profile）、`applied`（执行 PRESET 且采用 profile）。
+12. 仅当 `ctx.sources.preset.state==='applied'` 时，`ctx.sources.preset.meta?.applied===true`。
+13. `ctx.sources.preset.meta?.file/profile/variant`（若存在）与 PRESET 决议结果一致。
+14. `ctx.sources` 是 PRESET 阶段的来源快照，同时也是构建 effective 输入的来源。
+15. 若 `run()` 在 `control-run` 命中 short-circuit，则 PRESET 不执行：`ctx.sources.preset.state='skipped'`，`ctx.sources.preset` 保持空快照（`argv=[]`, `envs={}`, `meta` 为空），`ctx.sources.user.argv` 固定为 CONTROL SCAN 产出的 `controlTailArgv`（不做 preset 指令剥离）。
+16. effective 输入一旦生成（`effectiveTailArgv` / `ctx.envs`），后续阶段只消费 effective 输入，不再回写 `ctx.sources`。
+17. `ctx.sources` 应作为只读快照暴露给 `action`，避免运行期被意外改写。
+18. `params.builtin.devmode` 始终暴露为 `boolean`（默认 `false`）。
+
+设计决策备注（已评估）：
+
+1. `state='skipped'` 主要用于内部流程语义与可测试性约束；`run()` 保持 `Promise<void>`，不额外返回执行结果对象。
+2. 原因：`run()` 是 CLI 入口，short-circuit（help/version）路径应优先保持最小 API 与最小心智负担，不引入额外返回协议。
+3. 因此外部若需结构化观测 PRESET 状态，应使用 `parse()` 路径读取 `ctx.sources.preset.state`，而不是改变 `run()` 返回契约。
 
 ## 内置功能配置
 
@@ -261,7 +277,7 @@ function supportsBuiltinVersion(cmd: ICommand): boolean {
 
 1. CONTROL SCAN 在 `run()` 与 `parse()` 都执行。
 2. `--help` / `help` 始终可识别；`--version` 仅在 `supportsBuiltinVersion(leaf)===true` 时可识别，否则按普通 token 流入后续解析。
-3. RUN CONTROL 仅在 `run()` 中执行，并按 `help > version` 优先级 short-circuit。
+3. `control-run` 仅在 `run()` 中执行，并按 `help > version` 优先级 short-circuit。
 4. `--version` 是否可用仅由当前 leaf 的配置决定（与是否 root 无关）。
 5. 以上判定与 route/preset 无关，只依赖 command 自身配置与节点位置。
 
@@ -513,7 +529,7 @@ const cmd = new Command({ name: 'copy', desc: 'Copy files' })
 │  └────────────────────────────────────────────────────────────────────────┘  │
 │                                   ↓                                          │
 │  ┌────────────────────────────────────────────────────────────────────────┐  │
-│  │ 2. RUN CONTROL（仅 run）                                               │  │
+│  │ 2. control-run（仅 run）                                               │  │
 │  │    若 ctx.controls.help / ctx.controls.version 命中则 short-circuit    │  │
 │  │    命中即直接输出并退出，不进入 PRESET/校验/action                     │  │
 │  └────────────────────────────────────────────────────────────────────────┘  │
@@ -567,7 +583,7 @@ const cmd = new Command({ name: 'copy', desc: 'Copy files' })
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
-`parse()` 执行阶段为：`ROUTE -> CONTROL SCAN -> PRESET -> TOKENIZE -> BUILTIN RESOLVE -> RESOLVE -> PARSE`（不执行 `RUN CONTROL` 与 `RUN`，命中控制项也不会提前中断）。
+`parse()` 执行阶段为：`ROUTE -> CONTROL SCAN -> PRESET -> TOKENIZE -> BUILTIN RESOLVE -> RESOLVE -> PARSE`（不执行 `control-run` 与 `RUN`，命中控制项也不会提前中断）。
 
 ---
 
@@ -643,7 +659,7 @@ interface ICommandParseResult {
 15. `<profile>` / `<variant>` 参数必须是合法名称（实现约束：`[A-Za-z0-9][A-Za-z0-9._-]*`）。
 16. 合并顺序固定：`effectiveTailArgv = [...ctx.sources.preset.argv, ...ctx.sources.user.argv]`。
 17. 合并顺序固定：`ctx.envs = { ...ctx.sources.user.envs, ...ctx.sources.preset.envs }`。
-18. 若 RUN CONTROL 阶段已命中 short-circuit，则 PRESET 阶段不会执行。
+18. 若 `control-run` 阶段已命中 short-circuit，则 PRESET 阶段不会执行。
 19. profile 生成的 option token 中不允许出现 `--help` / `help` / `--version`；命中即报 `ConfigurationError` 并终止。
 20. profile 生成的 option token 中不允许出现 `--preset-file` / `--preset-profile`；命中即报 `ConfigurationError` 并终止。
 21. 显式声明且被采用的 preset 文件（`--preset-file` / `command.preset.file` / 选中 profile/variant 的 `envFile`）读取失败或内容解析失败，应立即报错并终止。
@@ -651,6 +667,7 @@ interface ICommandParseResult {
 23. PRESET 阶段仅执行词法约束（如 `--`、控制项、preset 指令与裸 token 起始校验），不执行 option 语义判定。
 24. profile `opts` 的 option 语义合法性在 `BUILTIN RESOLVE -> RESOLVE -> PARSE` 阶段统一校验。
 25. 约束细节见 [option.md](./option.md)“强制约束”与“错误语义”。
+26. PRESET 阶段执行后，`ctx.sources.preset.state` 必须为 `none` 或 `applied`；`run()` 的 `control-run` short-circuit 路径必须写入 `state='skipped'`。
 
 ### CONTROL SCAN 规则
 
@@ -667,7 +684,7 @@ interface ICommandParseResult {
 11. 控制语义不属于 `opts` 输出字段。
 12. 在 `parse()` 中，CONTROL SCAN 之后的剩余 token 仍按常规进入后续阶段并执行校验（可能正常返回，也可能抛错）。
 
-### RUN CONTROL 规则
+### `control-run` 规则
 
 1. 仅在 `run()` 中执行，且发生在 PRESET 之前。
 2. 若 `ctx.controls.help === true`，则触发 help handler 并 short-circuit。
@@ -739,8 +756,8 @@ for token in user.argv:
 3. `UnknownSubcommand` 与 `UnexpectedArgument` 冲突时，优先级固定为 `UnknownSubcommand > UnexpectedArgument`。
 4. `UnexpectedArgument` 仅在未命中 `UnknownSubcommand` 且 leaf 未声明任何位置参数时触发。
 5. `TooManyArguments` 仅用于“已声明位置参数但传入数量超上限”的场景。
-6. 当抛出 `UnknownSubcommand` 且当前 leaf 同时不接受位置参数时，应追加提示行：`Hint: command "<path>" does not accept positional arguments.`。
-7. 当抛出 `UnknownSubcommand` 且存在唯一最接近候选子命令时，可追加提示行：`Hint: did you mean "<candidate>"?`。
+6. 当抛出 `UnknownSubcommand` 且当前 leaf 同时不接受位置参数时，应追加 `hint issue`：`reason.code='command_does_not_accept_positional_arguments'`；默认渲染文本可为 `Hint: command "<path>" does not accept positional arguments.`。
+7. 当抛出 `UnknownSubcommand` 且存在唯一最接近候选子命令时，应追加 `hint issue`：`reason.code='did_you_mean_subcommand'`；默认渲染文本可为 `Hint: did you mean "<candidate>"?`。
 8. “最接近候选”判定规则：
    - 候选集合仅包含当前 leaf 的直接子命令 `name`（不包含 aliases）；
    - 使用小写后的 `kebab-case` 名称计算 Levenshtein distance；
@@ -755,7 +772,7 @@ cli test foo       # => UnexpectedArgument（test 无子命令且不接收位置
 cli build foo      # => UnknownSubcommand（即使 build 不接收位置参数，仍优先 UnknownSubcommand）
 ```
 
-`help` 子命令语义（CONTROL SCAN / RUN CONTROL 阶段处理）：
+`help` 子命令语义（CONTROL SCAN / `control-run` 阶段处理）：
 
 1. route 仅负责产出 `ctx.sources.user.cmds` 与 user tail argv；不处理 help 语义。
 2. `help` 语法在所有 command 节点均可用（自动内建）。

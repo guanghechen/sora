@@ -19,14 +19,14 @@
 ### 1.1 执行流程
 
 ```
-user argv → route → control-scan(run/parse) → run-control(run only) → preset → tokenize → builtin-resolve → resolve → parse → run
+user argv → route → control-scan(run/parse) → control-run(run only) → preset → tokenize → builtin-resolve → resolve → parse → run
 ```
 
 | 阶段                      | 方向     | 说明                                                                                                                                                                               |
 | ------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | route                     | 自顶向下 | 基于 user argv 匹配 subcommand（name/alias），不改写 argv                                                                                                                          |
 | control-scan（run/parse） | -        | 在 user tail（`--` 之前）识别控制语义：`--help` 按 token 扫描，`--version` 需 `supportsBuiltinVersion(leaf)`，`help` 仅 tail 首 token 生效，并写入 `ctx.controls` 后剥离控制 token |
-| run-control（仅 run）     | -        | 依据 `ctx.controls` 执行 short-circuit，优先级 `help > version`                                                                                                                    |
+| control-run（仅 run）     | -        | 依据 `ctx.controls` 执行 short-circuit，优先级 `help > version`                                                                                                                    |
 | preset                    | -        | 加载 `--preset-file` / `--preset-profile` 并合并输入；preset file 来自 CLI 或 `command.preset.file`，profile selector（`<profile>` 或 `<profile>:<variant>`）来自 CLI、`command.preset.profile` 或 `defaults.profile` |
 | tokenize                  | -        | effective tail argv → `ICommandToken[]`（格式校验）                                                                                                                                |
 | builtin-resolve           | -        | 解析当前 chain 的内建 option 注入策略，产出 `optionPolicyMap`                                                                                                                      |
@@ -34,7 +34,7 @@ user argv → route → control-scan(run/parse) → run-control(run only) → pr
 | parse                     | 自顶向下 | tokens → opts，调用 apply 更新 ctx；对外暴露 leaf `builtin/opts/args`，其中 `opts/args` 仅包含 leaf 本地声明项                                                                 |
 | run                       | -        | 执行 leaf command 的 action                                                                                                                                                        |
 
-详见 [command.md](./command.md) 中“内建 version 支持判定”“CONTROL SCAN 规则”“RUN CONTROL 规则”与“支持矩阵（代表性场景）”。
+详见 [command.md](./command.md) 中“内建 version 支持判定”“CONTROL SCAN 规则”“`control-run` 规则”与“支持矩阵（代表性场景）”。
 
 若 user tail（`--` 之前）同时包含 `--help` 与 `--version`，按 `help > version` 优先级处理。
 
@@ -159,11 +159,22 @@ resolve 阶段按 `args` 贪婪消费后续 tokens：
 ```typescript
 type ICommandTokenType = 'long' | 'short' | 'none'
 
+type ICommandTokenSource = 'user' | 'preset'
+
+interface ICommandPresetIssueMeta {
+  file?: string
+  profile?: string
+  variant?: string
+  optionKey?: string
+}
+
 interface ICommandToken {
   original: string        // 原始输入：--LOG-LEVEL=info, -v, foo.txt
   resolved: string        // 规范化后：--logLevel=info, -v, foo.txt
   name: string            // 选项名：logLevel, v, ''
   type: ICommandTokenType // token 类型
+  source: ICommandTokenSource // token 来源：user / preset
+  preset?: ICommandPresetIssueMeta // source='preset' 时的来源细节
 }
 ```
 
@@ -172,6 +183,12 @@ interface ICommandToken {
 | `long`  | 长选项 | camelCase | `ICommandOptionConfig.long`  |
 | `short` | 短选项 | 单字符    | `ICommandOptionConfig.short` |
 | `none`  | 非选项 | `''`      | 位置参数 / `--` 之后         |
+
+来源约束：
+
+1. `source='user'` 时，`preset` 必须为空。
+2. `source='preset'` 时，`preset` 应提供可定位信息（至少 `file/profile/variant` 之一）。
+3. PRESET 阶段合并输入后，tokenize 必须继承 segment 来源并写入 token `source/preset`。
 
 注：`args: 'none'` 与 `token.type: 'none'` 语义不同，前者表示选项不接参数，后者表示该 token 不是选项。
 
@@ -344,8 +361,8 @@ for token in argv:
 1. route 保持“遇到不命中子命令 token 即停止”的行为，不在 route 阶段抛错。
 2. 若 route 停止后的 leaf 存在子命令，且 tail 首 token 为裸 token（非 `help` / 非 option），parse 阶段抛 `UnknownSubcommand`。
 3. `UnknownSubcommand` 与 `UnexpectedArgument` 冲突时，优先级固定为 `UnknownSubcommand > UnexpectedArgument`。
-4. 若抛 `UnknownSubcommand` 且 leaf 同时不接受位置参数，应追加 hint：`Hint: command "<path>" does not accept positional arguments.`。
-5. 若抛 `UnknownSubcommand` 且存在唯一最接近候选子命令，可追加 hint：`Hint: did you mean "<candidate>"?`。
+4. 若抛 `UnknownSubcommand` 且 leaf 同时不接受位置参数，应追加 `hint issue`：`reason.code='command_does_not_accept_positional_arguments'`（默认渲染文本：`Hint: command "<path>" does not accept positional arguments.`）。
+5. 若抛 `UnknownSubcommand` 且存在唯一最接近候选子命令，应追加 `hint issue`：`reason.code='did_you_mean_subcommand'`（默认渲染文本：`Hint: did you mean "<candidate>"?`）。
 6. “最接近候选”判定规则：
    - 候选集合仅包含当前 leaf 的直接子命令 `name`（不包含 aliases）；
    - 使用小写后的 `kebab-case` 名称计算 Levenshtein distance；
@@ -447,6 +464,9 @@ Run "cli build --help" for usage.
 | `MissingRequiredArgument` | 缺少必需位置参数                   |
 | `TooManyArguments`        | 位置参数过多                       |
 | `ConfigurationError`      | 配置错误                           |
+| `ActionFailed`            | action 执行失败                    |
+
+补充：`CommanderError.kind` 与 error issue code 保持 1:1 映射（snake_case），例如 `ActionFailed -> action_failed`。
 
 ---
 

@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Command } from '../src/runtime/node'
+import { Command, CompletionCommand } from '../src/runtime/node'
 import { CommanderError } from '../src/types'
 
 afterEach(() => {
@@ -118,14 +118,21 @@ describe('Command (spec aligned)', () => {
       await expect(root.parse({ argv: ['build', 'watc'], envs: {} })).rejects.toMatchObject({
         name: 'CommanderError',
         kind: 'UnknownSubcommand',
+        meta: {
+          issues: expect.arrayContaining([
+            expect.objectContaining({
+              kind: 'hint',
+              reason: expect.objectContaining({ code: 'did_you_mean_subcommand' }),
+            }),
+            expect.objectContaining({
+              kind: 'hint',
+              reason: expect.objectContaining({
+                code: 'command_does_not_accept_positional_arguments',
+              }),
+            }),
+          ]),
+        },
       })
-
-      await expect(root.parse({ argv: ['build', 'watc'], envs: {} })).rejects.toThrow(
-        'did you mean "watch"?',
-      )
-      await expect(root.parse({ argv: ['build', 'watc'], envs: {} })).rejects.toThrow(
-        'does not accept positional arguments',
-      )
     })
 
     it('should not throw UnknownSubcommand when first tail token matches known subcommand', async () => {
@@ -157,9 +164,16 @@ describe('Command (spec aligned)', () => {
         name: 'CommanderError',
         kind: 'UnknownSubcommand',
       })
-      await expect(root.parse({ argv: ['build', 'ww'], envs: {} })).rejects.not.toThrow(
-        'did you mean',
-      )
+      await expect(root.parse({ argv: ['build', 'ww'], envs: {} })).rejects.toMatchObject({
+        meta: {
+          issues: expect.not.arrayContaining([
+            expect.objectContaining({
+              kind: 'hint',
+              reason: expect.objectContaining({ code: 'did_you_mean_subcommand' }),
+            }),
+          ]),
+        },
+      })
     })
 
     it('should not show did-you-mean when nearest distance is tied', async () => {
@@ -173,9 +187,16 @@ describe('Command (spec aligned)', () => {
         name: 'CommanderError',
         kind: 'UnknownSubcommand',
       })
-      await expect(root.parse({ argv: ['build', 'cot'], envs: {} })).rejects.not.toThrow(
-        'did you mean',
-      )
+      await expect(root.parse({ argv: ['build', 'cot'], envs: {} })).rejects.toMatchObject({
+        meta: {
+          issues: expect.not.arrayContaining([
+            expect.objectContaining({
+              kind: 'hint',
+              reason: expect.objectContaining({ code: 'did_you_mean_subcommand' }),
+            }),
+          ]),
+        },
+      })
     })
 
     it('should prefer UnknownSubcommand over UnexpectedArgument', async () => {
@@ -355,7 +376,22 @@ describe('Command (spec aligned)', () => {
 
         const result = await root.parse({ argv: ['run'], envs: {} })
         expect(result.opts).toEqual({ mode: 'fast' })
+        expect(result.ctx.sources.preset.state).toBe('applied')
+        expect(result.ctx.sources.preset.meta).toMatchObject({
+          applied: true,
+          file: presetFile,
+          profile: 'dev',
+        })
       })
+    })
+
+    it('should expose preset state none when PRESET runs without selected profile', async () => {
+      const root = new Command({ name: 'cli', desc: 'cli' })
+      root.subcommand('run', new Command({ desc: 'run' }))
+
+      const result = await root.parse({ argv: ['run'], envs: {} })
+      expect(result.ctx.sources.preset.state).toBe('none')
+      expect(result.ctx.sources.preset.meta).toBeUndefined()
     })
 
     it('should resolve command preset file/profile independently across command chain', async () => {
@@ -2358,6 +2394,146 @@ describe('Command (spec aligned)', () => {
       })
     })
 
+    it('should not emit preset_token_injected when primary source is user', async () => {
+      await withTempDir(async tmpDir => {
+        const presetFile = path.join(tmpDir, 'preset.json')
+        await writeFile(
+          presetFile,
+          JSON.stringify({
+            version: 1,
+            defaults: { profile: 'dev' },
+            profiles: {
+              dev: {
+                envs: {},
+                opts: { mode: 'fast' },
+              },
+            },
+          }),
+        )
+
+        const cmd = new Command({ name: 'cli', desc: 'cli' }).option({
+          long: 'mode',
+          type: 'string',
+          args: 'required',
+          desc: 'mode',
+        })
+
+        try {
+          await cmd.parse({ argv: [`--preset-file=${presetFile}`, '--bad-opt'], envs: {} })
+          throw new Error('expected parse to throw')
+        } catch (error) {
+          expect(error).toBeInstanceOf(CommanderError)
+          const commanderError = error as CommanderError
+          expect(commanderError.kind).toBe('UnknownOption')
+          const issues = commanderError.meta?.issues ?? []
+          expect(
+            issues.some(
+              issue =>
+                issue.kind === 'error' &&
+                issue.reason.code === 'unknown_option' &&
+                issue.source?.primary === 'user',
+            ),
+          ).toBe(true)
+          expect(
+            issues.some(
+              issue => issue.kind === 'hint' && issue.reason.code === 'preset_token_injected',
+            ),
+          ).toBe(false)
+        }
+      })
+    })
+
+    it('should emit mixed_source_conflict hint when option conflict involves user and preset', async () => {
+      await withTempDir(async tmpDir => {
+        const presetFile = path.join(tmpDir, 'preset.json')
+        await writeFile(
+          presetFile,
+          JSON.stringify({
+            version: 1,
+            defaults: { profile: 'dev' },
+            profiles: {
+              dev: {
+                envs: {},
+                opts: { bash: true },
+              },
+            },
+          }),
+        )
+
+        const root = new Command({ name: 'cli', desc: 'cli' })
+        root.subcommand('completion', new CompletionCommand(root))
+
+        await expect(
+          root.parse({ argv: ['completion', `--preset-file=${presetFile}`, '--fish'], envs: {} }),
+        ).rejects.toMatchObject({
+          kind: 'OptionConflict',
+          meta: {
+            issues: expect.arrayContaining([
+              expect.objectContaining({
+                kind: 'error',
+                reason: expect.objectContaining({ code: 'option_conflict' }),
+                source: { related: ['user', 'preset'] },
+                preset: expect.objectContaining({ profile: 'dev' }),
+              }),
+              expect.objectContaining({
+                kind: 'hint',
+                reason: expect.objectContaining({ code: 'mixed_source_conflict' }),
+                source: { related: ['user', 'preset'] },
+                preset: expect.objectContaining({ profile: 'dev' }),
+              }),
+              expect.objectContaining({
+                kind: 'hint',
+                reason: expect.objectContaining({ code: 'preset_token_injected' }),
+              }),
+            ]),
+          },
+        })
+      })
+    })
+
+    it('should attach preset attribution for preset-only option conflict error issue', async () => {
+      await withTempDir(async tmpDir => {
+        const presetFile = path.join(tmpDir, 'preset.json')
+        await writeFile(
+          presetFile,
+          JSON.stringify({
+            version: 1,
+            defaults: { profile: 'dev' },
+            profiles: {
+              dev: {
+                envs: {},
+                opts: { bash: true, fish: true },
+              },
+            },
+          }),
+        )
+
+        const root = new Command({ name: 'cli', desc: 'cli' })
+        root.subcommand('completion', new CompletionCommand(root))
+
+        await expect(
+          root.parse({ argv: ['completion', `--preset-file=${presetFile}`], envs: {} }),
+        ).rejects.toMatchObject({
+          kind: 'OptionConflict',
+          meta: {
+            issues: expect.arrayContaining([
+              expect.objectContaining({
+                kind: 'error',
+                reason: expect.objectContaining({ code: 'option_conflict' }),
+                source: { primary: 'preset' },
+                preset: expect.objectContaining({ profile: 'dev' }),
+              }),
+              expect.objectContaining({
+                kind: 'hint',
+                reason: expect.objectContaining({ code: 'preset_token_injected' }),
+                preset: expect.objectContaining({ profile: 'dev' }),
+              }),
+            ]),
+          },
+        })
+      })
+    })
+
     it('formatHelp should render plain examples section', () => {
       const cmd = new Command({ name: 'cli', desc: 'cli' }).example('Quick Start', 'run', 'desc')
       const helpText = cmd.formatHelp()
@@ -2514,7 +2690,7 @@ describe('Command (spec aligned)', () => {
         throw new Error('boom')
       })
       await errCmd.run({ argv: [], envs: {} })
-      expect(errorSpy).toHaveBeenCalledWith('Error: boom')
+      expect(errorSpy).toHaveBeenCalledWith('Error: boom\nRun "cli --help" for usage.')
       expect(process.exit).toHaveBeenCalledWith(1)
 
       errorSpy.mockClear()
@@ -2523,7 +2699,7 @@ describe('Command (spec aligned)', () => {
         throw 'boom'
       })
       await rawErrCmd.run({ argv: [], envs: {} })
-      expect(errorSpy).toHaveBeenCalledWith('Error: action failed')
+      expect(errorSpy).toHaveBeenCalledWith('Error: action failed\nRun "cli --help" for usage.')
       expect(process.exit).toHaveBeenCalledWith(1)
     })
   })
