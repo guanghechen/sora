@@ -1,5 +1,5 @@
 import { logColorfulOption, logDateOption, silentOption } from '../src'
-import { devmodeOption, logLevelOption } from '../src/options'
+import { devmodeOption, logLevelOption } from '../src/command/options'
 
 describe('options', () => {
   describe('devmodeOption', () => {

@@ -1,4 +1,8 @@
-import type { ICommandErrorIssueCode, ICommandHintIssueCode, ICommandIssueCode } from '../types'
+import type {
+  ICommandErrorIssueCode,
+  ICommandHintIssueCode,
+  ICommandIssueCode,
+} from '../command/types'
 
 export const COMMAND_ERROR_ISSUE_CODES: ReadonlyArray<ICommandErrorIssueCode> = [
   'invalid_option_format',

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
+import { CommanderError } from '../src/command/types'
 import { CommandHintAttributor } from '../src/internal/diagnostics/hint-attributor'
 import { CommandIssueNormalizer } from '../src/internal/diagnostics/issue-normalizer'
 import { Command } from '../src/runtime/node'
-import { CommanderError } from '../src/types'
 
 describe('diagnostics internals coverage', () => {
   it('should keep preset getter immutable and format camelCase option name in errors', async () => {

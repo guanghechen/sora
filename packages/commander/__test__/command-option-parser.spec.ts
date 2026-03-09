@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import type { ICommandOptionConfig, ICommandToken } from '../src/command/types'
 import { CommandOptionParser } from '../src/internal/parse/command-option-parser'
-import type { ICommandOptionConfig, ICommandToken } from '../src/types'
 
 function longToken(original: string, resolved: string, name: string): ICommandToken {
   return {

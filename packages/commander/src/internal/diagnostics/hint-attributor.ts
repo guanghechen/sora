@@ -4,7 +4,7 @@ import type {
   ICommandErrorIssue,
   ICommandHintIssue,
   ICommandPresetIssueMeta,
-} from '../../types'
+} from '../../command/types'
 
 export class CommandHintAttributor {
   public withPresetInjectedHint(

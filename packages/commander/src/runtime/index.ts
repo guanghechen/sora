@@ -4,7 +4,7 @@
  * @module @guanghechen/commander
  */
 
-import type { ICommandRuntime } from '../types'
+import type { ICommandRuntime } from '../command/types'
 import { createBrowserCommandRuntime } from './browser'
 
 let defaultRuntime: ICommandRuntime = createBrowserCommandRuntime()

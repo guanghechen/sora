@@ -1,11 +1,11 @@
-import { CommanderError } from '../../types'
+import { CommanderError } from '../../command/types'
 import type {
   ICommandBuiltinOptionResolved,
   ICommandBuiltinParsedOptions,
   ICommandOptionConfig,
   ICommandParsedOpts,
   ICommandToken,
-} from '../../types'
+} from '../../command/types'
 
 const DECIMAL_INTEGER_REGEX = /^\d(?:_?\d)*$/
 const DECIMAL_FRACTION_REGEX = /^\d(?:_?\d)*$/

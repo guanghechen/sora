@@ -6,7 +6,7 @@ import type {
   ICommandPresetIssueMeta,
   ICommandStage,
   ICommandToken,
-} from '../../types'
+} from '../../command/types'
 
 export interface IWithErrorIssueParams {
   stage: ICommandErrorIssue['stage']

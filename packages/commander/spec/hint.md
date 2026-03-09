@@ -271,14 +271,15 @@ export interface ICommandInputSources {
 1. 冲突类错误（如 `option_conflict`）允许同时涉及 user/preset。
 2. 此时 `source.related` 标记参与来源，例如 `['user', 'preset']`。
 3. 若能确定主来源，可额外设置 `source.primary`；否则仅保留 `source.related`。
+4. 归因优先级：先使用结构化来源账本（token/segment）；仅在缺少结构化冲突定位信息时，允许基于冲突消息中的 option literal 做受限回退匹配。
 
 ### 6) RUN/ACTION 错误归因
 
 规则：
 
 1. `action` 回调抛错时，统一映射为 `stage='run'`、`scope='action'`。
-2. `reason.code` 使用 `action_failed`，`reason.message` 为统一可读摘要。
-3. 原始异常内容放入 `reason.details`（需做安全裁剪，避免泄露敏感信息）。
+2. `reason.code` 使用 `action_failed`，`reason.message` 使用可读摘要（优先保留原始异常 message，缺失时回退 `action failed`）。
+3. 原始异常内容放入 `reason.details`；实现可按安全策略裁剪敏感字段。
 4. 若异常可归因到输入来源，可填写 `source.primary`；否则 `source` 留空。
 
 ---

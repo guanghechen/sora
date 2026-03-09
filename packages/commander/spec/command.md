@@ -61,12 +61,14 @@ type IExecutionOutcome =
 
 以下分层仅作当前实现参考，不构成规范约束；在外部语义不变时可重组文件布局。
 
-1. `command-kernel`：编排 9 阶段执行骨架与 mode 分流（`run/parse`）。
+1. `command-kernel`：编排 9 阶段执行骨架与 mode 分流（`run/parse`，当前实现文件为 `internal/command-kernel.ts`）。
 2. `diagnostics-engine`：统一生成 `error/hint` 结构，保证 issue 不变量。
 3. `context-adapter`：负责 kernel 产物与 `ICommandContext` 的对齐与冻结。
 4. `help renderer`：负责 `help data` 组装与 plain/terminal 渲染（含 display-width 对齐与 `--color` 决议）。
 5. `preset profile parser`：负责 preset manifest/profile/variant 解析与 preset option token 约束校验。
 6. `option parser`：负责 option token 消费、值转换、NO_COLOR 回退与 builtin 选项快照决议。
+7. `stages/*`：按执行流程收敛阶段语义入口（如 `route/control/preset/resolve/parse/run`）；必要的 I/O 可通过 helper 承担；`command/command.ts` 以 orchestrator 与私有能力注入为主，同时承载 Command API 与配置校验。
+8. `internal/command/*`：承载 command orchestrator 相关但非 stage 的内部辅助（如 action 包装、run/parse outcome 处理、preset I/O 与 definition 校验等），用于保持 `command/command.ts` 的编排可读性。
 
 边界说明：规范只要求阶段行为与错误语义一致，不要求保留上述模块命名或目录层级。
 
@@ -792,9 +794,12 @@ cli sub -- --like-option        # --like-option 作为位置参数
 | `--log-date` / `--no-log-date`         | -      | 控制日志时间戳                                                   |
 | `--log-colorful` / `--no-log-colorful` | -      | 控制彩色输出                                                     |
 
-除 `help/version/devmode/logLevel` 保留项外，用户可通过 `.option()` 显式声明同名选项覆盖框架自动注入项；覆盖范围包括解析、默认值、help 展示与 `apply` 行为。
+`builtin` 开关仅控制框架“自动注入”的内建选项。
 
-`builtin` 开关仅控制框架“自动注入”的内建选项；`devmode` 与 `logLevel` 为保留名，不支持用户同名覆盖。
+覆盖约束：
+
+1. `help/version/devmode/logLevel` 为保留项，不支持用户同名覆盖。
+2. `color/silent/logDate/logColorful` 允许用户通过 `.option()` 声明同名选项覆盖自动注入项；覆盖范围包括解析、默认值、help 展示与 `apply` 行为。
 
 `help/version/devmode/logLevel` 保留项约束：
 

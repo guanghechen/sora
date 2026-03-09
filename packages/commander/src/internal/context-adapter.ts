@@ -5,7 +5,7 @@ import type {
   ICommandInputSources,
   ICommandParseResult,
   ICommandPresetResult,
-} from '../types'
+} from '../command/types'
 
 export interface IKernelPresetResult extends ICommandPresetResult {
   sources: ICommandInputSources

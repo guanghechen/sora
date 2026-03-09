@@ -6,15 +6,15 @@
 
 import fs from 'node:fs'
 import path from 'node:path'
-import { Command } from '../../command'
-import { CommanderError } from '../../types'
+import { Command } from '../../command/command'
+import { CommanderError } from '../../command/types'
 import type {
   ICommandContext,
   ICompletionCommandConfig,
   ICompletionMeta,
   ICompletionOptionMeta,
   ICompletionPaths,
-} from '../../types'
+} from '../../command/types'
 
 // ==================== Naming Utilities ====================
 

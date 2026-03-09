@@ -1,11 +1,11 @@
-import { CommanderError } from '../../types'
+import { CommanderError } from '../../command/types'
 import type {
   ICommandPresetIssueMeta,
   ICommandPresetProfileItem,
   ICommandPresetProfileManifest,
   ICommandPresetProfileOptionValue,
   ICommandPresetProfileVariantItem,
-} from '../../types'
+} from '../../command/types'
 
 export const PRESET_FILE_FLAG = '--preset-file'
 export const PRESET_PROFILE_FLAG = '--preset-profile'

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import type { ICommandOptionConfig, IHelpData } from '../src/command/types'
 import { CommandHelpRenderer } from '../src/internal/help/command-help-renderer'
-import type { ICommandOptionConfig, IHelpData } from '../src/types'
 
 const ANSI_ESCAPE_REGEX = new RegExp(String.raw`\x1B\[[0-?]*[ -/]*[@-~]`, 'g')
 

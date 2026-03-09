@@ -6,7 +6,7 @@
 
 import { readFile, stat } from 'node:fs/promises'
 import path from 'node:path'
-import type { ICommandRuntime } from '../../types'
+import type { ICommandRuntime } from '../../command/types'
 
 export function createNodeCommandRuntime(): ICommandRuntime {
   return {

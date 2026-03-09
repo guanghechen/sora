@@ -4,7 +4,7 @@
  * @module @guanghechen/commander
  */
 
-import type { ICommandRuntime } from '../../types'
+import type { ICommandRuntime } from '../../command/types'
 
 const WINDOWS_DRIVE_ABSOLUTE_REGEX = /^[a-zA-Z]:[\\/]/
 

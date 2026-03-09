@@ -1,5 +1,5 @@
 import type { IReporter } from '@guanghechen/reporter'
-import { CommanderError } from '../types'
+import { CommanderError } from '../command/types'
 import type {
   ICommandArgvSegment,
   ICommandContext,
@@ -11,7 +11,7 @@ import type {
   ICommandRunParams,
   ICommandToken,
   ICommandTokenizeResult,
-} from '../types'
+} from '../command/types'
 import type { ICommandContextAdapter, IKernelPresetResult } from './context-adapter'
 import type { ICommandDiagnosticsEngine } from './diagnostics-engine'
 

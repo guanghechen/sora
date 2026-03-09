@@ -1,5 +1,5 @@
-import { TERMINAL_STYLE, styleText } from '../../chalk'
-import { CommanderError } from '../../types'
+import { TERMINAL_STYLE, styleText } from '../../command/chalk'
+import { CommanderError } from '../../command/types'
 import type {
   ICommandArgumentConfig,
   ICommandExample,
@@ -9,7 +9,7 @@ import type {
   IHelpData,
   IHelpExampleLine,
   IHelpOptionLine,
-} from '../../types'
+} from '../../command/types'
 
 const ANSI_ESCAPE_REGEX = new RegExp(String.raw`\x1B\[[0-?]*[ -/]*[@-~]`, 'g')
 

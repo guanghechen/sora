@@ -1,4 +1,4 @@
-import { TERMINAL_STYLE, styleText } from '../src/chalk'
+import { TERMINAL_STYLE, styleText } from '../src/command/chalk'
 
 describe('chalk', () => {
   it('should wrap text with terminal styles and reset token', () => {

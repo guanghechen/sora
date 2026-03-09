@@ -1,4 +1,4 @@
-import { CommanderError } from '../../types'
+import { CommanderError } from '../../command/types'
 import type {
   ICommandErrorIssue,
   ICommandErrorIssueCode,
@@ -7,7 +7,7 @@ import type {
   ICommandIssueCode,
   ICommandIssueScope,
   ICommandPresetIssueMeta,
-} from '../../types'
+} from '../../command/types'
 import { isErrorIssueCode, isHintIssueCode } from '../issue-codes'
 import type { INormalizeCommanderErrorOptions, IWithErrorIssueParams } from './contracts'
 

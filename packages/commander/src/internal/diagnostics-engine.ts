@@ -3,7 +3,7 @@ import type {
   ICommandArgvSegment,
   ICommandErrorIssue,
   ICommandPresetIssueMeta,
-} from '../types'
+} from '../command/types'
 import type {
   ICommandDiagnosticsEngine,
   INormalizeCommanderErrorOptions,

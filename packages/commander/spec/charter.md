@@ -62,17 +62,19 @@ user argv → route → control-scan(run/parse) → control-run(run only) → pr
 
 实现提示（non-normative，非规范）：
 
-1. 执行骨架建议由 `command-kernel` 承担。
+1. 执行骨架建议由 `command-kernel` 承担（当前实现文件为 `internal/command-kernel.ts`）。
 2. 诊断归一化建议由 `diagnostics-engine` 承担。
 3. help 输出组装与渲染建议由独立 `help renderer` 承担。
 4. preset manifest/profile/variant 解析与 token 约束建议由独立 `preset profile parser` 承担。
 5. option token 消费、值转换与 builtin 快照决议建议由独立 `option parser` 承担。
-6. 上述建议仅用于保持实现清晰度，不构成内部文件布局约束。
+6. 阶段语义入口建议收敛到 `internal/stages/*`；必要 I/O 可通过 helper 承担；`command/command.ts` 以阶段 wiring/私有上下文注入为主，同时承载 Command 对外 API 与配置校验。
+7. command orchestrator 的内部辅助建议收敛到 `internal/command/*`（如 action 包装、outcome 处理、preset I/O、definition 校验）；阶段语义统一收敛到 `internal/stages/*`，避免双层 stage 入口。
+8. 上述建议仅用于保持实现清晰度，不构成内部文件布局约束。
 
 ### 1.3 诊断与来源约束
 
 1. `error/hint` 只能通过统一诊断构建器生成并归一化。
-2. `source/preset` 归因必须来自来源账本（Source Ledger），禁止从原始字符串临时推断。
+2. `source/preset` 归因应优先来自来源账本（Source Ledger）；当缺少结构化冲突定位信息时，可使用受限回退（例如基于冲突消息与 token 片段匹配）补齐来源归因。
 3. issue 结构不变量（如 `issues[0]` 主错误）必须由运行时执行器强制保证。
 4. 规范中的 `MUST` 约束应可映射到明确的代码执行点与测试断言。
 
