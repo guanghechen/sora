@@ -35,13 +35,13 @@ user argv → route → control-scan(run/parse) → control-run(run only) → pr
 | parse                     | 自顶向下 | tokens → opts，调用 apply 更新 ctx；对外暴露 leaf `builtin/opts/args`，其中 `opts/args` 仅包含 leaf 本地声明项                                                                 |
 | run                       | -        | 执行 leaf command 的 action                                                                                                                                                        |
 
-详见 [command.md](./command.md) 中“内建 version 支持判定”“CONTROL SCAN 规则”“`control-run` 规则”与“代表性场景”。
+详见 [command.md](./command.md) 的“内建 version 支持判定”“CONTROL SCAN 规则”“`control-run` 规则”与“代表性场景”。
 
-若 user tail（`--` 之前）同时包含 `--help` 与 `--version`，按 `help > version` 优先级处理。
+若 user tail（`--` 之前）同时包含 `--help` 与 `--version`，按 `help > version` 处理。
 
-`preset` profile selector 决议为强约束：优先级为 `--preset-profile` > `command.preset.profile` > `defaults.profile`；selector 支持 `<profile>` 或 `<profile>:<variant>`，未显式 variant 时回退 `profile.defaultVariant`；`--preset-profile` 不可脱离 `--preset-file` 单独使用。
+`preset` profile selector 决议为强约束：优先级为 `--preset-profile` > `command.preset.profile` > `defaults.profile`；selector 支持 `<profile>` 或 `<profile>:<variant>`；未显式 variant 时回退 `profile.defaultVariant`；`--preset-profile` 不可脱离 `--preset-file` 单独使用。
 
-说明：`preset` 阶段属于当前规范与实现的一部分。
+注：`preset` 阶段属于当前规范范围。
 
 术语约定：
 
@@ -59,6 +59,14 @@ user argv → route → control-scan(run/parse) → control-run(run only) → pr
 4. `control-run` 仅在 `mode='run'` 执行；`mode='parse'` 必须跳过该阶段。
 5. 任何 short-circuit 必须写入结构化终止状态，不使用分散副作用作为行为事实。
 6. 最终设计规范统一收敛在 `command.md` / `hint.md` / `charter.md`，不维护额外并行 spec。
+
+实现提示（non-normative，非规范）：
+
+1. 执行骨架建议由 `command-kernel` 承担。
+2. 诊断归一化建议由 `diagnostics-engine` 承担。
+3. help 输出组装与渲染建议由独立 `help renderer` 承担。
+4. preset manifest/profile/variant 解析与 token 约束建议由独立 `preset profile parser` 承担。
+5. 上述建议仅用于保持实现清晰度，不构成内部文件布局约束。
 
 ### 1.3 诊断与来源约束
 

@@ -55,7 +55,19 @@ type IExecutionOutcome =
     }
 ```
 
-说明：执行帧、阶段中间产物、诊断构建器与来源账本属于实现细节；规范仅约束其外部可观测语义（阶段顺序、输入输出与错误语义），不约束内部类型形状。
+说明：执行帧、阶段中间产物、诊断构建器与来源账本均属实现细节；规范仅约束外部可观测语义（阶段顺序、输入输出、错误语义），不约束内部类型形状。
+
+### 实现分层（non-normative，非规范）
+
+以下分层仅作当前实现参考，不构成规范约束；在外部语义不变时可重组文件布局。
+
+1. `command-kernel`：编排 9 阶段执行骨架与 mode 分流（`run/parse`）。
+2. `diagnostics-engine`：统一生成 `error/hint` 结构，保证 issue 不变量。
+3. `context-adapter`：负责 kernel 产物与 `ICommandContext` 的对齐与冻结。
+4. `help renderer`：负责 `help data` 组装与 plain/terminal 渲染（含 display-width 对齐与 `--color` 决议）。
+5. `preset profile parser`：负责 preset manifest/profile/variant 解析与 preset option token 约束校验。
+
+边界说明：规范只要求阶段行为与错误语义一致，不要求保留上述模块命名或目录层级。
 
 ---
 
