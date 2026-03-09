@@ -1,5 +1,12 @@
 # Change Log
 
+## 4.7.8
+
+### Patch Changes
+
+- Refine commander parsing and diagnostics flows by modularizing command stages and internal
+  orchestration, while aligning specs and tests with the new structure.
+
 ## 4.7.7
 
 ### Patch Changes
