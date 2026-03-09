@@ -1,7 +1,7 @@
 /**
  * Command class - CLI command builder with fluent API
  *
- * Execution flow: route → control-scan → run-control(run) → preset → tokenize → resolve → parse → run
+ * Execution flow: route → control-scan → run-control(run) → preset → tokenize → builtin-resolve → resolve → parse → run
  *
  * @module @guanghechen/commander
  */
@@ -10,7 +10,13 @@ import { parse as parseEnv } from '@guanghechen/env'
 import type { IReporter } from '@guanghechen/reporter'
 import { Reporter } from '@guanghechen/reporter'
 import { TERMINAL_STYLE, styleText } from './chalk'
-import { logColorfulOption, logDateOption, logLevelOption, silentOption } from './options'
+import {
+  devmodeOption,
+  logColorfulOption,
+  logDateOption,
+  logLevelOption,
+  silentOption,
+} from './options'
 import { getDefaultCommandRuntime } from './runtime'
 import type {
   ICommand,
@@ -19,6 +25,7 @@ import type {
   ICommandArgumentConfig,
   ICommandBuiltinConfig,
   ICommandBuiltinOptionResolved,
+  ICommandBuiltinParsedOptions,
   ICommandBuiltinResolved,
   ICommandConfig,
   ICommandContext,
@@ -434,10 +441,16 @@ interface IPresetProfileSelector {
   variantName?: string
 }
 
+interface IParseOptionsResult {
+  opts: ICommandParsedOpts
+  explicitOptionLongs: Set<string>
+}
+
 function createBuiltinOptionState(enabled: boolean): ICommandBuiltinOptionResolved {
   return {
     version: enabled,
     color: enabled,
+    devmode: enabled,
     logLevel: enabled,
     silent: enabled,
     logDate: enabled,
@@ -480,6 +493,7 @@ function normalizeBuiltinConfig(
     } else {
       if (builtin.option.version !== undefined) resolved.option.version = builtin.option.version
       if (builtin.option.color !== undefined) resolved.option.color = builtin.option.color
+      if (builtin.option.devmode !== undefined) resolved.option.devmode = builtin.option.devmode
       if (builtin.option.logLevel !== undefined) {
         resolved.option.logLevel = builtin.option.logLevel
       }
@@ -679,26 +693,37 @@ export class Command implements ICommand {
         return
       }
 
-      const optionPolicyMap = this.#buildOptionPolicyMap(chain)
-
       // 3. PRESET
-      const presetResult = await this.#preset(controlScanResult.remaining, ctx, optionPolicyMap)
+      const presetResult = await this.#preset(controlScanResult.remaining, ctx)
       ctx.sources = presetResult.sources
       ctx.envs = presetResult.envs
+      const presetOptionTokens = [...presetResult.sources.preset.argv]
 
-      // 4. TOKENIZE
-      const tokenizeResult = tokenize(presetResult.tailArgv, leafCommand.#getCommandPath())
-      const { optionTokens, restArgs } = tokenizeResult
+      let parseResult: ICommandParseResult
+      try {
+        // 4. TOKENIZE
+        const tokenizeResult = tokenize(presetResult.tailArgv, leafCommand.#getCommandPath())
+        const { optionTokens, restArgs } = tokenizeResult
 
-      // 5. RESOLVE
-      const resolveResult = this.#resolve(chain, optionTokens, optionPolicyMap)
+        // 5. BUILTIN RESOLVE
+        const optionPolicyMap = this.#buildOptionPolicyMap(chain)
 
-      // 6. PARSE
-      const parseResult = this.#parse(chain, resolveResult, optionPolicyMap, ctx, restArgs)
+        // 6. RESOLVE
+        const resolveResult = this.#resolve(chain, optionTokens, optionPolicyMap)
 
-      // 7. RUN
+        // 7. PARSE
+        parseResult = this.#parse(chain, resolveResult, optionPolicyMap, ctx, restArgs)
+      } catch (err) {
+        if (err instanceof CommanderError) {
+          throw this.#withPresetInjectedOptionHint(err, presetOptionTokens)
+        }
+        throw err
+      }
+
+      // 8. RUN
       const actionParams: ICommandActionParams = {
         ctx: parseResult.ctx,
+        builtin: parseResult.builtin,
         opts: parseResult.opts,
         args: parseResult.args,
         rawArgs: parseResult.rawArgs,
@@ -746,22 +771,54 @@ export class Command implements ICommand {
     ctx.controls = controlScanResult.controls
     ctx.sources.user.argv = [...controlScanResult.remaining]
 
-    const optionPolicyMap = this.#buildOptionPolicyMap(chain)
-
     // 2. PRESET
-    const presetResult = await this.#preset(controlScanResult.remaining, ctx, optionPolicyMap)
+    const presetResult = await this.#preset(controlScanResult.remaining, ctx)
     ctx.sources = presetResult.sources
     ctx.envs = presetResult.envs
+    const presetOptionTokens = [...presetResult.sources.preset.argv]
 
-    // 3. TOKENIZE
-    const tokenizeResult = tokenize(presetResult.tailArgv, leafCommand.#getCommandPath())
-    const { optionTokens, restArgs } = tokenizeResult
+    try {
+      // 3. TOKENIZE
+      const tokenizeResult = tokenize(presetResult.tailArgv, leafCommand.#getCommandPath())
+      const { optionTokens, restArgs } = tokenizeResult
 
-    // 4. RESOLVE
-    const resolveResult = this.#resolve(chain, optionTokens, optionPolicyMap)
+      // 4. BUILTIN RESOLVE
+      const optionPolicyMap = this.#buildOptionPolicyMap(chain)
 
-    // 5. PARSE
-    return this.#parse(chain, resolveResult, optionPolicyMap, ctx, restArgs)
+      // 5. RESOLVE
+      const resolveResult = this.#resolve(chain, optionTokens, optionPolicyMap)
+
+      // 6. PARSE
+      return this.#parse(chain, resolveResult, optionPolicyMap, ctx, restArgs)
+    } catch (err) {
+      if (err instanceof CommanderError) {
+        throw this.#withPresetInjectedOptionHint(err, presetOptionTokens)
+      }
+      throw err
+    }
+  }
+
+  #withPresetInjectedOptionHint(
+    error: CommanderError,
+    presetOptionTokens: string[],
+  ): CommanderError {
+    if (presetOptionTokens.length === 0) {
+      return error
+    }
+    if (error.kind === 'ConfigurationError') {
+      return error
+    }
+
+    const firstToken = JSON.stringify(presetOptionTokens[0])
+    const moreCount = presetOptionTokens.length - 1
+    const moreText = moreCount > 0 ? ` (+${moreCount} more)` : ''
+    const hint = `Hint: preset options were injected (first token: ${firstToken}${moreText}). Check preset profile opts.`
+
+    if (error.message.includes(hint)) {
+      return error
+    }
+
+    return new CommanderError(error.kind, `${error.message}\n${hint}`, error.commandPath)
   }
 
   public formatHelp(): string {
@@ -1084,7 +1141,7 @@ export class Command implements ICommand {
     }
   }
 
-  // ==================== Stage 1: ROUTE ====================
+  // ==================== Stage 0: ROUTE ====================
 
   #findSubcommandEntry(token: string): ISubcommandEntry<Command> | undefined {
     return this.#subcommandsList.find(e => e.name === token || e.aliases.includes(token))
@@ -1213,7 +1270,6 @@ export class Command implements ICommand {
   async #preset(
     controlTailArgv: string[],
     ctx: ICommandContext,
-    optionPolicyMap: Map<Command, ICommandOptionPolicy>,
   ): Promise<ICommandPresetResult & { sources: ICommandInputSources }> {
     const commandPath = (ctx.chain[ctx.chain.length - 1] as Command).#getCommandPath()
     const separatorIndex = controlTailArgv.indexOf('--')
@@ -1274,12 +1330,6 @@ export class Command implements ICommand {
         resolvedProfile.optsArgv,
         resolvedProfile.optsSourceLabel,
         commandPath,
-      )
-      this.#assertPresetOptionFragments(
-        resolvedProfile.optsArgv,
-        resolvedProfile.optsSourceLabel,
-        commandChain,
-        optionPolicyMap,
       )
       presetArgv.push(...resolvedProfile.optsArgv)
     }
@@ -1988,47 +2038,6 @@ export class Command implements ICommand {
     return { cleanArgv, presetFile, presetProfile }
   }
 
-  #assertPresetOptionFragments(
-    tokens: string[],
-    filepath: string,
-    chain: Command[],
-    optionPolicyMap: Map<Command, ICommandOptionPolicy>,
-  ): void {
-    if (tokens.length === 0) {
-      return
-    }
-
-    const commandPath = chain[chain.length - 1].#getCommandPath()
-
-    try {
-      const { optionTokens, restArgs } = tokenize(tokens, commandPath)
-      void restArgs
-
-      const { argTokens } = this.#resolve(chain, optionTokens, optionPolicyMap)
-      if (argTokens.length > 0) {
-        throw new CommanderError(
-          'ConfigurationError',
-          `invalid preset options in "${filepath}": token "${argTokens[0].original}" cannot be resolved as an option fragment`,
-          commandPath,
-        )
-      }
-    } catch (error) {
-      if (error instanceof CommanderError) {
-        if (error.kind === 'ConfigurationError') {
-          throw error
-        }
-
-        throw new CommanderError(
-          'ConfigurationError',
-          `invalid preset options in "${filepath}": ${error.message}`,
-          commandPath,
-        )
-      }
-
-      throw error
-    }
-  }
-
   #assertPresetProfileSelectorValue(
     selector: string,
     sourceName: string,
@@ -2178,7 +2187,7 @@ export class Command implements ICommand {
     }
   }
 
-  // ==================== Stage 3: RESOLVE ====================
+  // ==================== Stage 6: RESOLVE ====================
 
   /**
    * Resolve: bottom-up option consumption through command chain.
@@ -2334,7 +2343,7 @@ export class Command implements ICommand {
     return { consumed, remaining }
   }
 
-  // ==================== Stage 4: PARSE ====================
+  // ==================== Stage 7: PARSE ====================
 
   /**
    * Parse: top-down tokens → opts, call apply callbacks.
@@ -2354,12 +2363,16 @@ export class Command implements ICommand {
 
     // Parse options for each command in chain (top-down)
     const optsMap = new Map<Command, ICommandParsedOpts>()
+    const builtinMap = new Map<Command, ICommandBuiltinParsedOptions>()
 
     for (const cmd of chain) {
       const policy = this.#mustGetOptionPolicy(optionPolicyMap, cmd)
       const tokens = consumedTokens.get(cmd) ?? []
-      const opts = cmd.#parseOptions(tokens, policy.mergedOptions, ctx.envs)
+      const parseOptionsResult = cmd.#parseOptions(tokens, policy.mergedOptions, ctx.envs)
+      const opts = parseOptionsResult.opts
+      cmd.#applyBuiltinDevmodeLogLevel(opts, parseOptionsResult.explicitOptionLongs)
       optsMap.set(cmd, opts)
+      builtinMap.set(cmd, cmd.#resolveBuiltinParsedOptions(opts))
 
       // Call apply callbacks
       for (const opt of policy.mergedOptions) {
@@ -2388,7 +2401,13 @@ export class Command implements ICommand {
       sources: this.#freezeInputSources(ctx.sources),
     }
 
-    return { ctx: parseCtx, opts: leafLocalOpts, args, rawArgs }
+    return {
+      ctx: parseCtx,
+      builtin: builtinMap.get(leafCommand) ?? { devmode: false },
+      opts: leafLocalOpts,
+      args,
+      rawArgs,
+    }
   }
 
   /**
@@ -2398,8 +2417,9 @@ export class Command implements ICommand {
     tokens: ICommandToken[],
     allOptions: ICommandOptionConfig[],
     envs: Record<string, string | undefined>,
-  ): ICommandParsedOpts {
+  ): IParseOptionsResult {
     const opts: ICommandParsedOpts = {}
+    const explicitOptionLongs = new Set<string>()
     let sawColorToken = false
 
     // Initialize defaults
@@ -2435,6 +2455,8 @@ export class Command implements ICommand {
         i += 1
         continue
       }
+
+      explicitOptionLongs.add(opt.long)
 
       if (opt.long === 'color') {
         sawColorToken = true
@@ -2578,7 +2600,55 @@ export class Command implements ICommand {
       opts['color'] = false
     }
 
-    return opts
+    return {
+      opts,
+      explicitOptionLongs,
+    }
+  }
+
+  #applyBuiltinDevmodeLogLevel(opts: ICommandParsedOpts, explicitOptionLongs: Set<string>): void {
+    const hasBuiltinDevmode = this.#builtin.option.devmode
+    const hasBuiltinLogLevel = this.#builtin.option.logLevel && !this.#hasUserOption('logLevel')
+
+    if (!hasBuiltinDevmode || !hasBuiltinLogLevel) {
+      return
+    }
+    if (opts['devmode'] !== true) {
+      return
+    }
+    if (explicitOptionLongs.has('logLevel')) {
+      return
+    }
+
+    /* eslint-disable-next-line no-param-reassign */
+    opts['logLevel'] = 'debug'
+  }
+
+  #resolveBuiltinParsedOptions(opts: ICommandParsedOpts): ICommandBuiltinParsedOptions {
+    const builtin: ICommandBuiltinParsedOptions = {
+      devmode: this.#builtin.option.devmode ? Boolean(opts['devmode']) : false,
+    }
+
+    if (this.#builtin.option.color && !this.#hasUserOption('color')) {
+      builtin.color = Boolean(opts['color'])
+    }
+    if (this.#builtin.option.logLevel && !this.#hasUserOption('logLevel')) {
+      const logLevel = opts['logLevel']
+      if (typeof logLevel === 'string') {
+        builtin.logLevel = logLevel
+      }
+    }
+    if (this.#builtin.option.silent && !this.#hasUserOption('silent')) {
+      builtin.silent = Boolean(opts['silent'])
+    }
+    if (this.#builtin.option.logDate && !this.#hasUserOption('logDate')) {
+      builtin.logDate = Boolean(opts['logDate'])
+    }
+    if (this.#builtin.option.logColorful && !this.#hasUserOption('logColorful')) {
+      builtin.logColorful = Boolean(opts['logColorful'])
+    }
+
+    return builtin
   }
 
   /**
@@ -2831,6 +2901,9 @@ export class Command implements ICommand {
     if (this.#builtin.option.color && !hasUserColor) {
       optionMap.set('color', BUILTIN_COLOR_OPTION)
     }
+    if (this.#builtin.option.devmode) {
+      optionMap.set('devmode', devmodeOption as ICommandOptionConfig)
+    }
     if (this.#builtin.option.logLevel && !hasUserLogLevel) {
       optionMap.set('logLevel', logLevelOption as ICommandOptionConfig)
     }
@@ -2905,7 +2978,7 @@ export class Command implements ICommand {
   // ==================== Private: Validation ====================
 
   #validateOptionConfig<T>(opt: ICommandOptionConfig<T>): void {
-    if (opt.long === 'help' || opt.long === 'version') {
+    if (opt.long === 'help' || opt.long === 'version' || opt.long === 'devmode') {
       throw new CommanderError(
         'ConfigurationError',
         `option long name "${opt.long}" is reserved`,

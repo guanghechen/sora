@@ -1,6 +1,23 @@
-import { logColorfulOption, logDateOption, logLevelOption, silentOption } from '../src'
+import {
+  devmodeOption,
+  logColorfulOption,
+  logDateOption,
+  logLevelOption,
+  silentOption,
+} from '../src'
 
 describe('options', () => {
+  describe('devmodeOption', () => {
+    it('should have correct properties', () => {
+      expect(devmodeOption.long).toBe('devmode')
+      expect(devmodeOption.short).toBeUndefined()
+      expect(devmodeOption.type).toBe('boolean')
+      expect(devmodeOption.args).toBe('none')
+      expect(devmodeOption.default).toBe(false)
+      expect(devmodeOption.apply).toBeUndefined()
+    })
+  })
+
   describe('logLevelOption', () => {
     it('should have correct properties', () => {
       expect(logLevelOption.long).toBe('logLevel')

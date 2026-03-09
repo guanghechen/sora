@@ -95,6 +95,7 @@ interface ICommandConfig {
     option?: boolean | {
       version?: boolean
       color?: boolean
+      devmode?: boolean
       logLevel?: boolean
       silent?: boolean
       logDate?: boolean
@@ -137,6 +138,14 @@ interface ICommandContext {
 /** action 回调参数 */
 interface ICommandActionParams {
   ctx: ICommandContext              // 执行上下文
+  builtin: {                        // 当前 leaf 的内建选项快照
+    devmode: boolean
+    color?: boolean
+    logLevel?: string
+    silent?: boolean
+    logDate?: boolean
+    logColorful?: boolean
+  }
   opts: Record<string, unknown>     // 解析后的选项（仅 leaf 本地声明项）
   args: Record<string, unknown>     // 解析后的位置参数（仅 leaf 本地声明项）
   rawArgs: string[]                 // 原始位置参数
@@ -157,7 +166,7 @@ interface ICommandRunParams {
 
 1. 在 PRESET 阶段执行后，`ctx.envs` 为 effective 输入（`preset + user` 合并）。
 2. `ctx` 顶层不暴露 `ctx.argv/ctx.rawArgs`；调试输入请使用 `ctx.sources.*.argv` 快照；位置参数通过 `action` 参数 `args/rawArgs` 暴露。
-3. `action` 的 `opts/args` 当前为运行时对象（`Record<string, unknown>`）；字段集合由 leaf 本地声明决定。
+3. `action` 的 `builtin/opts/args` 当前为运行时对象（`Record<string, unknown>`）；其中 `opts/args` 字段集合由 leaf 本地声明决定，`builtin` 仅暴露内建选项快照。
 4. `ctx.controls` 仅记录是否命中控制语义（`help/version`），默认 `{ help:false, version:false }`。
 5. `ctx.chain` 是 route 阶段得到的命令链（`root → leaf`）。
 6. `ctx.sources.user.cmds` 是 route 结果的命令 token 快照（保留用户输入的 name/alias）。
@@ -169,6 +178,7 @@ interface ICommandRunParams {
 12. 若 `run()` 在 RUN CONTROL 命中 short-circuit，则 PRESET 不执行：`ctx.sources.preset` 保持空快照（`argv=[]`, `envs={}`），`ctx.sources.user.argv` 固定为 CONTROL SCAN 产出的 `controlTailArgv`（不做 preset 指令剥离）。
 13. effective 输入一旦生成（`effectiveTailArgv` / `ctx.envs`），后续阶段只消费 effective 输入，不再回写 `ctx.sources`。
 14. `ctx.sources` 应作为只读快照暴露给 `action`，避免运行期被意外改写。
+15. `params.builtin.devmode` 始终暴露为 `boolean`（默认 `false`）。
 
 ## 内置功能配置
 
@@ -188,6 +198,7 @@ interface ICommandRunParams {
 | `builtin.option`     | 开启全部可配置内置 option | 关闭全部可配置内置 option |
 | `option.version`     | 开启内置 `--version`      | 关闭内置 `--version`      |
 | `option.color`       | 开启内置 `--color`        | 关闭内置 `--color`        |
+| `option.devmode`     | 开启内置 `--devmode`      | 关闭内置 `--devmode`      |
 | `option.logLevel`    | 开启内置 `--log-level`    | 关闭内置 `--log-level`    |
 | `option.silent`      | 开启内置 `--silent`       | 关闭内置 `--silent`       |
 | `option.logDate`     | 开启内置 `--log-date`     | 关闭内置 `--log-date`     |
@@ -201,6 +212,7 @@ const cmd = new Command({
   desc: 'CLI',
   builtin: {
     option: {
+      devmode: true,
       logLevel: true,
       silent: true,
       logDate: false,
@@ -300,8 +312,9 @@ function supportsBuiltinVersion(cmd: ICommand): boolean {
 5. 仅 `.run()` 执行控制项 short-circuit；`.parse()` 不触发 handler。
 6. `--help` / `help` / `--version` 属于控制语义，不属于 `opts` 输出字段。
 7. `opts/args` 仅描述当前 command 本地声明项（不包含祖先继承项）。
-8. Exit Code 语义仅适用于 CLI 入口层（`run()`）；`parse()` 仅返回结果或抛错，不定义进程退出码。
-9. `parse()` 中即使命中控制语义，仍继续执行 PRESET/TOKENIZE/RESOLVE/PARSE 与校验流程（不 short-circuit）。
+8. `builtin` 表示当前 leaf 的内建选项快照，不属于用户 option 声明集合。
+9. Exit Code 语义仅适用于 CLI 入口层（`run()`）；`parse()` 仅返回结果或抛错，不定义进程退出码。
+10. `parse()` 中即使命中控制语义，仍继续执行 PRESET/TOKENIZE/BUILTIN RESOLVE/RESOLVE/PARSE 与校验流程（不 short-circuit）。
 
 运行时字段语义（仅 leaf 本地声明）示例：
 
@@ -312,7 +325,8 @@ const root = new Command({ name: 'app', desc: 'App' })
 const deploy = new Command({ desc: 'Deploy' })
   .option({ long: 'force', type: 'boolean', args: 'none', desc: 'Force deploy' })
   .argument({ name: 'target', desc: 'Deploy target', kind: 'required', type: 'string' })
-  .action(({ opts, args }) => {
+  .action(({ builtin, opts, args }) => {
+    builtin['devmode'] // 始终存在，boolean
     opts['force']      // 运行时存在（本地声明）
     args['target']     // 运行时存在（本地声明）
     // opts['verbose'] 不会出现在 leaf 对外 opts 中
@@ -506,7 +520,7 @@ const cmd = new Command({ name: 'copy', desc: 'Copy files' })
 │                                   ↓                                          │
 │  ┌────────────────────────────────────────────────────────────────────────┐  │
 │  │ 3. PRESET（输入预置）                                                  │  │
-│  │    仅在 `--` 之前扫描 --preset-file/--preset-profile                  │  │
+│  │    仅在 `--` 之前扫描 --preset-file/--preset-profile                   │  │
 │  │    若命中 --preset-file：解析 profile manifest（JSON）                 │  │
 │  │    profile 决议：CLI > command.preset > manifest.defaults              │  │
 │  │    注入 profile + variant 的 opts/envFile/envs                         │  │
@@ -525,29 +539,35 @@ const cmd = new Command({ name: 'copy', desc: 'Copy files' })
 │  └────────────────────────────────────────────────────────────────────────┘  │
 │                                   ↓                                          │
 │  ┌────────────────────────────────────────────────────────────────────────┐  │
-│  │ 5. RESOLVE（自底向上，两轮）                                           │  │
+│  │ 5. BUILTIN RESOLVE                                                     │  │
+│  │    解析当前 chain 的内建 option 注入策略                               │  │
+│  │    产物：optionPolicyMap                                               │  │
+│  └────────────────────────────────────────────────────────────────────────┘  │
+│                                   ↓                                          │
+│  ┌────────────────────────────────────────────────────────────────────────┐  │
+│  │ 6. RESOLVE（自底向上，两轮）                                           │  │
 │  │    第一轮：每个 Command 消费自己的 option tokens                       │  │
 │  │    第二轮：remaining → argTokens（非 `-` 开头）                        │  │
 │  │    → consumedTokens, argTokens                                         │  │
 │  └────────────────────────────────────────────────────────────────────────┘  │
 │                                   ↓                                          │
 │  ┌────────────────────────────────────────────────────────────────────────┐  │
-│  │ 6. PARSE（自顶向下）                                                   │  │
+│  │ 7. PARSE（自顶向下）                                                   │  │
 │  │    对 chain 中每个 Command：                                           │  │
 │  │      tokens → opts（类型转换 / coerce / 校验）                         │  │
 │  │      调用 option.apply(value, ctx)                                     │  │
-│  │    生成 leaf 本地 opts/args（不包含祖先声明项）                        │  │
-│  │    → ctx, opts, args, rawArgs                                          │  │
+│  │    生成 leaf builtin/opts/args（opts/args 不包含祖先声明项）           │  │
+│  │    → ctx, builtin, opts, args, rawArgs                                 │  │
 │  └────────────────────────────────────────────────────────────────────────┘  │
 │                                   ↓                                          │
 │  ┌────────────────────────────────────────────────────────────────────────┐  │
-│  │ 7. RUN（仅 run）                                                       │  │
-│  │    leaf.action({ ctx, opts, args, rawArgs })                           │  │
+│  │ 8. RUN（仅 run）                                                       │  │
+│  │    leaf.action({ ctx, builtin, opts, args, rawArgs })                  │  │
 │  └────────────────────────────────────────────────────────────────────────┘  │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
-`parse()` 执行阶段为：`ROUTE -> CONTROL SCAN -> PRESET -> TOKENIZE -> RESOLVE -> PARSE`（不执行 `RUN CONTROL` 与 `RUN`，命中控制项也不会提前中断）。
+`parse()` 执行阶段为：`ROUTE -> CONTROL SCAN -> PRESET -> TOKENIZE -> BUILTIN RESOLVE -> RESOLVE -> PARSE`（不执行 `RUN CONTROL` 与 `RUN`，命中控制项也不会提前中断）。
 
 ---
 
@@ -590,6 +610,14 @@ interface ICommandResolveResult {
 /** Parse 阶段结果 */
 interface ICommandParseResult {
   ctx: ICommandContext
+  builtin: {
+    devmode: boolean
+    color?: boolean
+    logLevel?: string
+    silent?: boolean
+    logDate?: boolean
+    logColorful?: boolean
+  }
   opts: Record<string, unknown>
   args: Record<string, unknown>
   rawArgs: string[]
@@ -620,7 +648,9 @@ interface ICommandParseResult {
 20. profile 生成的 option token 中不允许出现 `--preset-file` / `--preset-profile`；命中即报 `ConfigurationError` 并终止。
 21. 显式声明且被采用的 preset 文件（`--preset-file` / `command.preset.file` / 选中 profile/variant 的 `envFile`）读取失败或内容解析失败，应立即报错并终止。
 22. `--preset-root` 已移除，不再属于预置指令。
-23. 约束细节见 [option.md](./option.md)“强制约束”与“错误语义”。
+23. PRESET 阶段仅执行词法约束（如 `--`、控制项、preset 指令与裸 token 起始校验），不执行 option 语义判定。
+24. profile `opts` 的 option 语义合法性在 `BUILTIN RESOLVE -> RESOLVE -> PARSE` 阶段统一校验。
+25. 约束细节见 [option.md](./option.md)“强制约束”与“错误语义”。
 
 ### CONTROL SCAN 规则
 
@@ -630,10 +660,10 @@ interface ICommandParseResult {
 4. `help` / `help <child>` 仅在 tail 首 token 为 `help` 时识别，命中时设置 `ctx.controls.help = true`。
 5. `--version` 在 tail（`--` 之前）中按 token 扫描；仅当 `supportsBuiltinVersion(leaf)===true` 时可识别，命中时设置 `ctx.controls.version = true`。
 6. 当 `supportsBuiltinVersion(leaf)===false` 时，`--version` 不作为控制语义处理并保留在 tail；后续按普通 option 解析（若无匹配则报 `UnknownOption`）。
-7. 命中控制语义的 token 会从 tail 输入中移除，不再进入 PRESET/TOKENIZE/RESOLVE/PARSE。
+7. 命中控制语义的 token 会从 tail 输入中移除，不再进入 PRESET/TOKENIZE/BUILTIN RESOLVE/RESOLVE/PARSE。
 8. `help <child>` 为单跳语法：最多只消费 `help` 与紧随其后的一个 `<child>` token；`<child>` 记录为内部 `helpTarget`（不暴露到 `ctx`）。
 9. `--` 之后出现的 `help` / `--help` / `--version` 不属于控制语义，按普通参数处理。
-10. `long: 'help'` / `long: 'version'` 是保留名，不允许用户在 `.option()` 中自定义（构建期报错）。
+10. `long: 'help'` / `long: 'version'` / `long: 'devmode'` 是保留名，不允许用户在 `.option()` 中自定义（构建期报错）。
 11. 控制语义不属于 `opts` 输出字段。
 12. 在 `parse()` 中，CONTROL SCAN 之后的剩余 token 仍按常规进入后续阶段并执行校验（可能正常返回，也可能抛错）。
 
@@ -751,20 +781,22 @@ cli sub -- --like-option        # --like-option 作为位置参数
 | `--color` / `--no-color`               | -      | 控制 help 彩色渲染                                               |
 | `--help`                               | -      | 显示帮助并退出                                                   |
 | `--version`                            | -      | 显示版本（当前 leaf 的 `version` 已配置且 builtin version 启用） |
+| `--devmode`                            | -      | 开发模式；未显式传入 `--log-level` 时默认提升为 `debug`         |
 | `--log-level`                          | -      | 设置日志级别                                                     |
 | `--silent`                             | -      | 静默模式（仅 error）                                             |
 | `--log-date` / `--no-log-date`         | -      | 控制日志时间戳                                                   |
 | `--log-colorful` / `--no-log-colorful` | -      | 控制彩色输出                                                     |
 
-除 `help/version` 保留项外，用户可通过 `.option()` 显式声明同名选项覆盖框架自动注入项；覆盖范围包括解析、默认值、help 展示与 `apply` 行为。
+除 `help/version/devmode` 保留项外，用户可通过 `.option()` 显式声明同名选项覆盖框架自动注入项；覆盖范围包括解析、默认值、help 展示与 `apply` 行为。
 
-`builtin` 开关仅控制框架“自动注入”的内建选项，不影响用户通过 `.option()` 显式声明的同名选项。
+`builtin` 开关仅控制框架“自动注入”的内建选项；`devmode` 为保留名，不支持用户同名覆盖。
 
-`help/version` 保留项约束：
+`help/version/devmode` 保留项约束：
 
 1. CONTROL SCAN 仅识别内建 `--help` / `help` / `--version`（不提供 short alias）。
-2. 用户在 `.option()` 中自定义 `long: 'help'` / `long: 'version'` 属于非法配置，构建期报错 `ConfigurationError`。
+2. 用户在 `.option()` 中自定义 `long: 'help'` / `long: 'version'` / `long: 'devmode'` 属于非法配置，构建期报错 `ConfigurationError`。
 3. `-h/-v/-V` 在框架内不具备内建语义；是否生效完全取决于用户自定义 short 选项。
+4. `params.builtin.devmode` 始终存在，值域固定为 `true | false`。
 
 `--color` 仅影响 help 的终端渲染；
 `--log-colorful` 影响 `Reporter` 的日志输出。

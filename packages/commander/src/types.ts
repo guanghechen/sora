@@ -116,6 +116,8 @@ export interface ICommandBuiltinOptionConfig {
   version?: boolean
   /** Enable built-in --color/--no-color option for help rendering (defaults respect NO_COLOR) */
   color?: boolean
+  /** Enable built-in --devmode option */
+  devmode?: boolean
   /** Enable built-in --log-level option */
   logLevel?: boolean
   /** Enable built-in --silent option */
@@ -267,6 +269,8 @@ export interface ICommandContext {
 export interface ICommandActionParams {
   /** Execution context */
   ctx: ICommandContext
+  /** Effective built-in options for current leaf command */
+  builtin: ICommandBuiltinParsedOptions
   /** Parsed options (keyed by long name) */
   opts: ICommandParsedOpts
   /** Parsed positional arguments (keyed by argument name) */
@@ -352,6 +356,8 @@ export interface ICommandShiftResult {
 export interface ICommandParseResult {
   /** Execution context */
   ctx: ICommandContext
+  /** Effective built-in options for current leaf command */
+  builtin: ICommandBuiltinParsedOptions
   /** Parsed options */
   opts: ICommandParsedOpts
   /** Parsed arguments */
@@ -386,6 +392,7 @@ export interface ICommandControls {
 export interface ICommandBuiltinOptionResolved {
   version: boolean
   color: boolean
+  devmode: boolean
   logLevel: boolean
   silent: boolean
   logDate: boolean
@@ -395,6 +402,16 @@ export interface ICommandBuiltinOptionResolved {
 /** Built-in config resolution result (internal) */
 export interface ICommandBuiltinResolved {
   option: ICommandBuiltinOptionResolved
+}
+
+/** Effective built-in options exposed to action/parse result */
+export interface ICommandBuiltinParsedOptions {
+  devmode: boolean
+  color?: boolean
+  logLevel?: string
+  silent?: boolean
+  logDate?: boolean
+  logColorful?: boolean
 }
 
 /** Subcommand registry entry (internal) */

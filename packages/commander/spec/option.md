@@ -369,12 +369,13 @@ manifest 示例：
 
 1. `profile.opts` 会被转成 token 片段，因此其覆盖行为与普通 CLI token 一致。
 2. `NO_COLOR` 判断仍基于合并后的 `ctx.envs`。
+3. PRESET 阶段只做 token 词法约束；option 语义合法性（如 unknown option / 参数归属）在 `RESOLVE/PARSE` 阶段统一判定。
 
 ### 强制约束
 
 | 约束                                                                   | 目的                           |
 | ---------------------------------------------------------------------- | ------------------------------ |
-| profile `opts` 生成的 token 仅允许 option 片段（`-x`/`--xxx` 及其参数值） | 避免污染命令路由和位置参数语义 |
+| profile `opts` 生成的 token 在词法上必须以 option token 起始（`-x`/`--xxx`） | 避免污染命令路由和位置参数语义 |
 | 在 profile `opts` 生成 token 中禁止 `--preset-file` / `--preset-profile` | 防止递归载入 profile manifest  |
 | 在 profile `opts` 生成 token 中禁止声明 `help` / `--help` / `--version`  | 保持 run 控制项提前中断语义    |
 | 在 profile `opts` 生成 token 中禁止出现 `--` 分隔符                      | 避免污染位置参数分段语义       |
@@ -386,6 +387,7 @@ manifest 示例：
 1. 对 `boolean` / `required` / `optional`：右侧 token 覆盖左侧 token（Last Write Wins）。
 2. 对 `variadic`：左侧和右侧按出现顺序累积。
 3. 显式 `--color/--no-color` 优先于 `NO_COLOR` fallback。
+4. 当 `--devmode` 为 `true` 且未显式提供 `logLevel` token（含 CLI 与 preset `opts` 注入）时，内建 `logLevel` 采用 `debug`；显式 `logLevel` 仍然优先。
 
 ### 错误语义
 
@@ -400,20 +402,14 @@ manifest 示例：
 | profile 未找到 / 无默认 profile                         | 立即报错并终止                                                               |
 | variant 未找到 / `defaultVariant` 未命中 `variants`    | 立即报错并终止                                                               |
 | 选中 profile/variant 的 `envFile` 不存在/不可读或解析失败 | 立即报错并终止                                                            |
-| profile `opts` 生成 token 中存在无法组成 option 片段的 token | 立即报错并终止（例如布尔选项后出现孤立 value）                            |
+| profile `opts` 生成 token 首 token 不是 option token | 立即报错并终止（裸 token 不能先于 option token 出现）                           |
 | profile `opts` 生成 token 中出现 `--preset-file` / `--preset-profile` | 立即报错并终止（禁止递归与跨类型引用）                                  |
 | profile `opts` 生成 token 中出现 `--help` / `help` / `--version` | 立即报错并终止（控制项仅允许来自 user tail 并提前中断）                 |
 | profile `opts` 生成 token 中出现 `--`                  | 立即报错并终止（不允许位置参数分隔符）                                       |
+| profile `opts` 的 option 语义非法（如 unknown option、布尔选项后孤立 value） | 在 `RESOLVE/PARSE` 阶段报错并终止（如 `UnknownOption` / `UnexpectedArgument`） |
 | `--preset-opts` / `--preset-envs`                      | 非法指令，按未知选项处理（`UnknownOption`）                                  |
 | `--` 之后的 `--preset-*`                               | 不作为 preset 指令，按普通参数处理                                           |
 | `run()` 命中控制项 short-circuit                       | 不读取任何 preset 文件，直接结束流程                                         |
-
-其中“无法组成 option 片段”的判定规则为（针对 profile `opts` 生成 token）：
-
-1. 分词序列必须由若干 `option-token + value-token*` 片段组成。
-2. 每个片段必须以 `-`/`--` 开头 token 起始。
-3. 任一不以 `-`/`--` 开头且无法归属到前一 option 的 token，视为非法裸 token。
-4. value-token 的归属由目标 option 的 `args` 在 resolve 阶段判定。
 
 ---
 
@@ -427,7 +423,7 @@ manifest 示例：
 - `required` + `default` 互斥
 - `boolean` + `required` 互斥
 - `required` 仅允许搭配 `args: 'required'`
-- `long: 'help'` / `long: 'version'` 属于保留名，不允许自定义
+- `long: 'help'` / `long: 'version'` / `long: 'devmode'` 属于保留名，不允许自定义
 - `long` 必须 camelCase 且不能以 `no` 开头
 - `short` 若提供，必须是单字符
 - `short` 不能冲突
@@ -450,6 +446,7 @@ Commander 提供了常用选项的预定义对象，减少模板代码：
 
 ```typescript
 import {
+  devmodeOption,
   logColorfulOption,
   logDateOption,
   logLevelOption,
@@ -457,6 +454,7 @@ import {
 } from '@guanghechen/commander/browser'
 
 const cmd = new Command({ name: 'app', desc: 'Application' })
+  .option(devmodeOption)    // --devmode
   .option(logLevelOption)   // --log-level
   .option(silentOption)     // --silent
   .option(logDateOption)    // --log-date
@@ -557,6 +555,19 @@ cmd
 | `choices` | 所有日志级别                 |
 | `coerce`  | 大小写不敏感                 |
 | `apply`   | `ctx.reporter.setLevel(val)` |
+
+### devmodeOption
+
+开发模式选项：
+
+| 属性      | 值          |
+| --------- | ----------- |
+| `long`    | `'devmode'` |
+| `type`    | `'boolean'` |
+| `args`    | `'none'`    |
+| `default` | `false`     |
+
+语义：`devmode=true` 且未显式传入 `logLevel` 时，内建 `logLevel` 取 `debug`。
 
 ### silentOption
 

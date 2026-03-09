@@ -19,7 +19,7 @@
 ### 1.1 执行流程
 
 ```
-user argv → route → control-scan(run/parse) → run-control(run only) → preset → tokenize → resolve → parse → run
+user argv → route → control-scan(run/parse) → run-control(run only) → preset → tokenize → builtin-resolve → resolve → parse → run
 ```
 
 | 阶段                      | 方向     | 说明                                                                                                                                                                               |
@@ -29,8 +29,9 @@ user argv → route → control-scan(run/parse) → run-control(run only) → pr
 | run-control（仅 run）     | -        | 依据 `ctx.controls` 执行 short-circuit，优先级 `help > version`                                                                                                                    |
 | preset                    | -        | 加载 `--preset-file` / `--preset-profile` 并合并输入；preset file 来自 CLI 或 `command.preset.file`，profile selector（`<profile>` 或 `<profile>:<variant>`）来自 CLI、`command.preset.profile` 或 `defaults.profile` |
 | tokenize                  | -        | effective tail argv → `ICommandToken[]`（格式校验）                                                                                                                                |
+| builtin-resolve           | -        | 解析当前 chain 的内建 option 注入策略，产出 `optionPolicyMap`                                                                                                                      |
 | resolve                   | 自底向上 | 每个 Command 消费自己的 tokens                                                                                                                                                     |
-| parse                     | 自顶向下 | tokens → opts，调用 apply 更新 ctx；对外仅暴露 leaf 本地声明的 `opts/args`                                                                                                         |
+| parse                     | 自顶向下 | tokens → opts，调用 apply 更新 ctx；对外暴露 leaf `builtin/opts/args`，其中 `opts/args` 仅包含 leaf 本地声明项                                                                 |
 | run                       | -        | 执行 leaf command 的 action                                                                                                                                                        |
 
 详见 [command.md](./command.md) 中“内建 version 支持判定”“CONTROL SCAN 规则”“RUN CONTROL 规则”与“支持矩阵（代表性场景）”。
@@ -374,7 +375,7 @@ for token in argv:
 | `required` + `default`   | 互斥                                                  |
 | `boolean` + `required`   | 互斥                                                  |
 | `required` + `args`      | 仅允许 `args: 'required'`                             |
-| `long` 为 `help/version` | 保留名，不允许                                        |
+| `long` 为 `help/version/devmode` | 保留名，不允许                                |
 | 子命令名/alias 为 `help` | 保留名，不允许                                        |
 | 子命令名/alias 冲突      | 不允许（同一 `cmd` 重复注册同一 `name` 视为幂等例外） |
 | `long` 非 camelCase      | 不允许                                                |

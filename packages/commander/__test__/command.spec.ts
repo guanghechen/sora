@@ -1121,7 +1121,7 @@ describe('Command (spec aligned)', () => {
       })
     })
 
-    it('should reject preset token that cannot be resolved as option fragment', async () => {
+    it('should report parse-stage error for invalid preset option fragment payload', async () => {
       await withTempDir(async tmpDir => {
         const presetFile = path.join(tmpDir, 'preset.json')
         await writeFile(
@@ -1147,7 +1147,7 @@ describe('Command (spec aligned)', () => {
 
         await expect(
           cmd.parse({ argv: [`--preset-file=${presetFile}`], envs: {} }),
-        ).rejects.toThrow('cannot be resolved as an option fragment')
+        ).rejects.toThrow('unexpected argument')
       })
     })
 
@@ -1178,13 +1178,16 @@ describe('Command (spec aligned)', () => {
   })
 
   describe('reserved names', () => {
-    it('should reject reserved option long names help/version', () => {
+    it('should reject reserved option long names help/version/devmode', () => {
       const cmd = new Command({ name: 'cli', desc: 'cli' })
       expect(() =>
         cmd.option({ long: 'help', type: 'boolean', args: 'none', desc: 'invalid' }),
       ).toThrow('reserved')
       expect(() =>
         cmd.option({ long: 'version', type: 'boolean', args: 'none', desc: 'invalid' }),
+      ).toThrow('reserved')
+      expect(() =>
+        cmd.option({ long: 'devmode', type: 'boolean', args: 'none', desc: 'invalid' }),
       ).toThrow('reserved')
     })
 
@@ -1719,6 +1722,7 @@ describe('Command (spec aligned)', () => {
           option: {
             version: false,
             color: false,
+            devmode: false,
             logLevel: false,
             silent: false,
             logDate: false,
@@ -1729,6 +1733,141 @@ describe('Command (spec aligned)', () => {
       await expect(partialBuiltin.parse({ argv: ['--color'], envs: {} })).rejects.toThrow(
         'unknown option',
       )
+    })
+
+    it('should set builtin log level to debug when devmode is enabled without explicit log level', async () => {
+      const reporter = {
+        setLevel: vi.fn(),
+        setFlight: vi.fn(),
+      }
+      const cmd = new Command({ name: 'cli', desc: 'cli' })
+
+      await cmd.parse({ argv: ['--devmode'], envs: {}, reporter: reporter as any })
+
+      expect(reporter.setLevel).toHaveBeenCalledTimes(1)
+      expect(reporter.setLevel).toHaveBeenCalledWith('debug')
+    })
+
+    it('should keep explicit log level when devmode is enabled', async () => {
+      const reporter = {
+        setLevel: vi.fn(),
+        setFlight: vi.fn(),
+      }
+      const cmd = new Command({ name: 'cli', desc: 'cli' })
+
+      await cmd.parse({
+        argv: ['--devmode', '--log-level', 'warn'],
+        envs: {},
+        reporter: reporter as any,
+      })
+
+      expect(reporter.setLevel).toHaveBeenCalledTimes(1)
+      expect(reporter.setLevel).toHaveBeenCalledWith('warn')
+    })
+
+    it('should support preset opts enabling devmode default log level', async () => {
+      await withTempDir(async tmpDir => {
+        const presetFile = path.join(tmpDir, 'preset.json')
+        await writeFile(
+          presetFile,
+          JSON.stringify({
+            version: 1,
+            defaults: { profile: 'dev' },
+            profiles: {
+              dev: {
+                envs: {},
+                opts: { devmode: true },
+              },
+            },
+          }),
+        )
+
+        const reporter = {
+          setLevel: vi.fn(),
+          setFlight: vi.fn(),
+        }
+        const cmd = new Command({ name: 'cli', desc: 'cli' })
+
+        await cmd.parse({
+          argv: [`--preset-file=${presetFile}`],
+          envs: {},
+          reporter: reporter as any,
+        })
+
+        expect(reporter.setLevel).toHaveBeenCalledTimes(1)
+        expect(reporter.setLevel).toHaveBeenCalledWith('debug')
+      })
+    })
+
+    it('should keep explicit preset logLevel when preset devmode is enabled', async () => {
+      await withTempDir(async tmpDir => {
+        const presetFile = path.join(tmpDir, 'preset.json')
+        await writeFile(
+          presetFile,
+          JSON.stringify({
+            version: 1,
+            defaults: { profile: 'dev' },
+            profiles: {
+              dev: {
+                envs: {},
+                opts: { devmode: true, logLevel: 'error' },
+              },
+            },
+          }),
+        )
+
+        const reporter = {
+          setLevel: vi.fn(),
+          setFlight: vi.fn(),
+        }
+        const cmd = new Command({ name: 'cli', desc: 'cli' })
+
+        await cmd.parse({
+          argv: [`--preset-file=${presetFile}`],
+          envs: {},
+          reporter: reporter as any,
+        })
+
+        expect(reporter.setLevel).toHaveBeenCalledTimes(1)
+        expect(reporter.setLevel).toHaveBeenCalledWith('error')
+      })
+    })
+
+    it('parse result should expose builtin.devmode and keep opts contract unchanged', async () => {
+      const cmd = new Command({ name: 'cli', desc: 'cli' })
+      const result = await cmd.parse({ argv: ['--devmode'], envs: {} })
+
+      expect(result.builtin.devmode).toBe(true)
+      expect(result.opts['devmode']).toBeUndefined()
+    })
+
+    it('parse result should always expose builtin.devmode with default false', async () => {
+      const cmd = new Command({ name: 'cli', desc: 'cli' })
+      const result = await cmd.parse({ argv: [], envs: {} })
+
+      expect(result.builtin.devmode).toBe(false)
+    })
+
+    it('parse result should expose builtin.devmode=false when builtin option is disabled', async () => {
+      const cmd = new Command({
+        name: 'cli',
+        desc: 'cli',
+        builtin: { option: { devmode: false } },
+      })
+      const result = await cmd.parse({ argv: [], envs: {} })
+
+      expect(result.builtin.devmode).toBe(false)
+    })
+
+    it('action params should expose builtin.devmode as params.builtin.devmode', async () => {
+      let seen: boolean | undefined
+      const cmd = new Command({ name: 'cli', desc: 'cli' }).action(({ builtin }) => {
+        seen = builtin.devmode
+      })
+
+      await cmd.run({ argv: ['--devmode'], envs: {} })
+
+      expect(seen).toBe(true)
     })
 
     it('should expose defensive getters', () => {
@@ -2195,7 +2334,7 @@ describe('Command (spec aligned)', () => {
       )
     })
 
-    it('should reject unknown option from preset file with configuration error', async () => {
+    it('should reject unknown option from preset file at parse stage', async () => {
       await withTempDir(async tmpDir => {
         const presetFile = path.join(tmpDir, 'preset.json')
         await writeFile(
@@ -2215,7 +2354,7 @@ describe('Command (spec aligned)', () => {
         const cmd = new Command({ name: 'cli', desc: 'cli' })
         await expect(
           cmd.parse({ argv: [`--preset-file=${presetFile}`], envs: {} }),
-        ).rejects.toThrow('invalid preset options')
+        ).rejects.toThrow('unknown option')
       })
     })
 
@@ -2237,6 +2376,7 @@ describe('Command (spec aligned)', () => {
           option: {
             version: true,
             color: false,
+            devmode: false,
             logLevel: false,
             silent: false,
             logDate: false,

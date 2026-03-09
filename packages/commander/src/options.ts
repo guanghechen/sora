@@ -28,6 +28,24 @@ function setReporterFlight(ctx: unknown, flight: { date?: boolean; color?: boole
 }
 
 /**
+ * Pre-defined --devmode option for enabling development mode.
+ *
+ * | Property  | Value     |
+ * | --------- | --------- |
+ * | long      | 'devmode' |
+ * | type      | 'boolean' |
+ * | args      | 'none'    |
+ * | default   | false     |
+ */
+export const devmodeOption: ICommandOptionConfig<boolean> = {
+  long: 'devmode',
+  type: 'boolean',
+  args: 'none',
+  desc: 'Enable development mode',
+  default: false,
+}
+
+/**
  * Pre-defined --log-level option for setting log verbosity.
  *
  * Supports: debug | info | hint | warn | error (case-insensitive)
