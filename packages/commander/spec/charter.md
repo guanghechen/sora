@@ -66,7 +66,8 @@ user argv → route → control-scan(run/parse) → control-run(run only) → pr
 2. 诊断归一化建议由 `diagnostics-engine` 承担。
 3. help 输出组装与渲染建议由独立 `help renderer` 承担。
 4. preset manifest/profile/variant 解析与 token 约束建议由独立 `preset profile parser` 承担。
-5. 上述建议仅用于保持实现清晰度，不构成内部文件布局约束。
+5. option token 消费、值转换与 builtin 快照决议建议由独立 `option parser` 承担。
+6. 上述建议仅用于保持实现清晰度，不构成内部文件布局约束。
 
 ### 1.3 诊断与来源约束
 

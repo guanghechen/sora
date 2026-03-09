@@ -22,6 +22,7 @@ import {
   CommandHelpRenderer,
   type IHelpRendererSubcommand,
 } from './internal/help/command-help-renderer'
+import { CommandOptionParser } from './internal/parse/command-option-parser'
 import {
   CommandPresetProfileParser,
   type IPresetFileSource,
@@ -94,81 +95,6 @@ function kebabToCamelCase(str: string): string {
 /** Convert camelCase to kebab-case. */
 function camelToKebabCase(str: string): string {
   return str.replace(/[A-Z]/g, m => '-' + m.toLowerCase())
-}
-
-const DECIMAL_INTEGER_REGEX = /^\d(?:_?\d)*$/
-const DECIMAL_FRACTION_REGEX = /^\d(?:_?\d)*$/
-const DECIMAL_EXPONENT_REGEX = /^[eE][+-]?\d(?:_?\d)*$/
-const BINARY_LITERAL_REGEX = /^0[bB][01](?:_?[01])*$/
-const OCTAL_LITERAL_REGEX = /^0[oO][0-7](?:_?[0-7])*$/
-const HEX_LITERAL_REGEX = /^0[xX][0-9a-fA-F](?:_?[0-9a-fA-F])*$/
-
-function isValidPrimitiveNumberLiteral(rawValue: string): boolean {
-  if (rawValue.trim() !== rawValue || rawValue.length === 0) {
-    return false
-  }
-
-  if (rawValue === 'NaN' || rawValue === 'Infinity' || rawValue === '-Infinity') {
-    return false
-  }
-
-  if (BINARY_LITERAL_REGEX.test(rawValue)) {
-    return true
-  }
-  if (OCTAL_LITERAL_REGEX.test(rawValue)) {
-    return true
-  }
-  if (HEX_LITERAL_REGEX.test(rawValue)) {
-    return true
-  }
-
-  const sign = rawValue[0] === '+' || rawValue[0] === '-' ? rawValue[0] : ''
-  const body = sign ? rawValue.slice(1) : rawValue
-
-  if (body.length === 0) {
-    return false
-  }
-
-  const expIndex = body.search(/[eE]/)
-  const basePart = expIndex === -1 ? body : body.slice(0, expIndex)
-  const expPart = expIndex === -1 ? '' : body.slice(expIndex)
-
-  if (expPart && !DECIMAL_EXPONENT_REGEX.test(expPart)) {
-    return false
-  }
-
-  if (basePart.includes('.')) {
-    const decimalParts = basePart.split('.')
-    if (decimalParts.length !== 2) {
-      return false
-    }
-
-    const [intPart, fracPart] = decimalParts
-    const intOk = intPart.length === 0 || DECIMAL_INTEGER_REGEX.test(intPart)
-    const fracOk = fracPart.length === 0 || DECIMAL_FRACTION_REGEX.test(fracPart)
-
-    if (!intOk || !fracOk) {
-      return false
-    }
-
-    return intPart.length > 0 || fracPart.length > 0
-  }
-
-  return DECIMAL_INTEGER_REGEX.test(basePart)
-}
-
-function parsePrimitiveNumber(rawValue: string): number | undefined {
-  if (!isValidPrimitiveNumberLiteral(rawValue)) {
-    return undefined
-  }
-
-  const normalized = rawValue.replaceAll('_', '')
-  const value = Number(normalized)
-  if (!Number.isFinite(value)) {
-    return undefined
-  }
-
-  return value
 }
 
 function normalizeSubcommandNameForDistance(name: string): string {
@@ -392,11 +318,6 @@ interface ICommandOptionPolicy {
   readonly mergedOptions: ICommandOptionConfig[]
 }
 
-interface IParseOptionsResult {
-  opts: ICommandParsedOpts
-  explicitOptionLongs: Set<string>
-}
-
 function createBuiltinOptionState(enabled: boolean): ICommandBuiltinOptionResolved {
   return {
     version: enabled,
@@ -407,10 +328,6 @@ function createBuiltinOptionState(enabled: boolean): ICommandBuiltinOptionResolv
     logDate: enabled,
     logColorful: enabled,
   }
-}
-
-function isNoColorEnabled(envs: Record<string, string | undefined>): boolean {
-  return envs['NO_COLOR'] !== undefined
 }
 
 function normalizeBuiltinConfig(
@@ -473,6 +390,7 @@ export class Command implements ICommand {
   readonly #contextAdapter = new CommandContextAdapter()
   readonly #diagnostics = new CommandDiagnosticsEngine()
   readonly #helpRenderer = new CommandHelpRenderer()
+  readonly #optionParser = new CommandOptionParser()
   readonly #presetProfileParser: CommandPresetProfileParser
   readonly #kernel: CommandKernel<Command, ICommandOptionPolicy>
   #parent: Command | undefined
@@ -1488,11 +1406,28 @@ export class Command implements ICommand {
     for (const cmd of chain) {
       const policy = this.#mustGetOptionPolicy(optionPolicyMap, cmd)
       const tokens = consumedTokens.get(cmd) ?? []
-      const parseOptionsResult = cmd.#parseOptions(tokens, policy.mergedOptions, ctx.envs)
+      const parseOptionsResult = cmd.#optionParser.parseOptions({
+        tokens,
+        allOptions: policy.mergedOptions,
+        envs: ctx.envs,
+        commandPath: cmd.#getCommandPath(),
+      })
       const opts = parseOptionsResult.opts
-      cmd.#applyBuiltinDevmodeLogLevel(opts, parseOptionsResult.explicitOptionLongs)
+      cmd.#optionParser.applyBuiltinDevmodeLogLevel({
+        opts,
+        explicitOptionLongs: parseOptionsResult.explicitOptionLongs,
+        builtinOption: cmd.#builtin.option,
+        hasUserOption: long => cmd.#hasUserOption(long),
+      })
       optsMap.set(cmd, opts)
-      builtinMap.set(cmd, cmd.#resolveBuiltinParsedOptions(opts))
+      builtinMap.set(
+        cmd,
+        cmd.#optionParser.resolveBuiltinParsedOptions({
+          opts,
+          builtinOption: cmd.#builtin.option,
+          hasUserOption: long => cmd.#hasUserOption(long),
+        }),
+      )
 
       // Call apply callbacks
       for (const opt of policy.mergedOptions) {
@@ -1528,272 +1463,6 @@ export class Command implements ICommand {
       args,
       rawArgs,
     }
-  }
-
-  /**
-   * Parse tokens into options for this command.
-   */
-  #parseOptions(
-    tokens: ICommandToken[],
-    allOptions: ICommandOptionConfig[],
-    envs: Record<string, string | undefined>,
-  ): IParseOptionsResult {
-    const opts: ICommandParsedOpts = {}
-    const explicitOptionLongs = new Set<string>()
-    let sawColorToken = false
-
-    // Initialize defaults
-    for (const opt of allOptions) {
-      if (opt.default !== undefined) {
-        opts[opt.long] = opt.default
-      } else if (opt.type === 'boolean' && opt.args === 'none') {
-        opts[opt.long] = false
-      } else if (opt.args === 'variadic') {
-        opts[opt.long] = []
-      }
-    }
-
-    // Build lookup maps
-    const optionByLong = new Map<string, ICommandOptionConfig>()
-    const optionByShort = new Map<string, ICommandOptionConfig>()
-    for (const opt of allOptions) {
-      optionByLong.set(opt.long, opt)
-      if (opt.short) {
-        optionByShort.set(opt.short, opt)
-      }
-    }
-
-    // Process tokens
-    let i = 0
-    while (i < tokens.length) {
-      const token = tokens[i]
-      const opt =
-        token.type === 'long' ? optionByLong.get(token.name) : optionByShort.get(token.name)
-
-      if (!opt) {
-        // This shouldn't happen as shift() should have filtered unknown options
-        i += 1
-        continue
-      }
-
-      explicitOptionLongs.add(opt.long)
-
-      if (opt.long === 'color') {
-        sawColorToken = true
-      }
-
-      // Check for negative option used on non-boolean
-      const isNegativeToken = token.original.toLowerCase().startsWith('--no-')
-      if (isNegativeToken && !(opt.type === 'boolean' && opt.args === 'none')) {
-        throw new CommanderError(
-          'NegativeOptionType',
-          `"--no-${camelToKebabCase(opt.long)}" can only be used with boolean options`,
-          this.#getCommandPath(),
-        )
-      }
-
-      // Boolean option
-      if (opt.type === 'boolean' && opt.args === 'none') {
-        // Check for inline value in resolved (--foo=true/false)
-        const eqIdx = token.resolved.indexOf('=')
-        if (eqIdx !== -1) {
-          const value = token.resolved.slice(eqIdx + 1)
-          if (value === 'true') {
-            opts[opt.long] = true
-          } else if (value === 'false') {
-            opts[opt.long] = false
-          } else {
-            throw new CommanderError(
-              'InvalidBooleanValue',
-              `invalid value "${value}" for boolean option "--${camelToKebabCase(opt.long)}". Use "true" or "false"`,
-              this.#getCommandPath(),
-            )
-          }
-        } else {
-          opts[opt.long] = true
-        }
-        i += 1
-        continue
-      }
-
-      // Required option
-      if (opt.args === 'required') {
-        const eqIdx = token.resolved.indexOf('=')
-        let rawValue: string
-
-        if (eqIdx !== -1) {
-          rawValue = token.resolved.slice(eqIdx + 1)
-        } else if (i + 1 < tokens.length && tokens[i + 1].type === 'none') {
-          rawValue = tokens[i + 1].original
-          i += 1
-        } else {
-          throw new CommanderError(
-            'MissingValue',
-            `option "--${camelToKebabCase(opt.long)}" requires a value`,
-            this.#getCommandPath(),
-          )
-        }
-
-        opts[opt.long] = this.#convertValue(opt, rawValue)
-        i += 1
-        continue
-      }
-
-      // Optional option
-      if (opt.args === 'optional') {
-        const eqIdx = token.resolved.indexOf('=')
-
-        if (eqIdx !== -1) {
-          // --long= and --long=<value>
-          opts[opt.long] = this.#convertValue(opt, token.resolved.slice(eqIdx + 1))
-          i += 1
-          continue
-        }
-
-        // Bare --long / -s
-        if (i + 1 < tokens.length && tokens[i + 1].type === 'none') {
-          opts[opt.long] = this.#convertValue(opt, tokens[i + 1].original)
-          i += 1
-        } else {
-          opts[opt.long] = undefined
-        }
-
-        i += 1
-        continue
-      }
-
-      // Variadic option
-      if (opt.args === 'variadic') {
-        const values: unknown[] = Array.isArray(opts[opt.long]) ? (opts[opt.long] as unknown[]) : []
-        const eqIdx = token.resolved.indexOf('=')
-
-        if (eqIdx !== -1) {
-          // Inline value - only take this one
-          values.push(this.#convertValue(opt, token.resolved.slice(eqIdx + 1)))
-        } else {
-          // Greedy consume following none tokens
-          while (i + 1 < tokens.length && tokens[i + 1].type === 'none') {
-            i += 1
-            values.push(this.#convertValue(opt, tokens[i].original))
-          }
-        }
-
-        opts[opt.long] = values
-        i += 1
-        continue
-      }
-
-      /* c8 ignore next 2 -- option() validation guarantees args are exhausted above */
-      i += 1
-    }
-
-    // Validate required options
-    for (const opt of allOptions) {
-      if (opt.required && !Object.prototype.hasOwnProperty.call(opts, opt.long)) {
-        throw new CommanderError(
-          'MissingRequired',
-          `missing required option "--${camelToKebabCase(opt.long)}"`,
-          this.#getCommandPath(),
-        )
-      }
-    }
-
-    // Validate choices
-    for (const opt of allOptions) {
-      if (opt.choices && opts[opt.long] !== undefined) {
-        const value = opts[opt.long]
-        const values = Array.isArray(value) ? value : [value]
-        const choices = opt.choices as unknown[]
-        for (const v of values) {
-          if (!choices.includes(v)) {
-            throw new CommanderError(
-              'InvalidChoice',
-              `invalid value "${v}" for option "--${camelToKebabCase(opt.long)}". Allowed: ${opt.choices.join(', ')}`,
-              this.#getCommandPath(),
-            )
-          }
-        }
-      }
-    }
-
-    if (isNoColorEnabled(envs) && !sawColorToken && opts['color'] === true) {
-      opts['color'] = false
-    }
-
-    return {
-      opts,
-      explicitOptionLongs,
-    }
-  }
-
-  #applyBuiltinDevmodeLogLevel(opts: ICommandParsedOpts, explicitOptionLongs: Set<string>): void {
-    const hasBuiltinDevmode = this.#builtin.option.devmode
-    const hasBuiltinLogLevel = this.#builtin.option.logLevel && !this.#hasUserOption('logLevel')
-
-    if (!hasBuiltinDevmode || !hasBuiltinLogLevel) {
-      return
-    }
-    if (opts['devmode'] !== true) {
-      return
-    }
-    if (explicitOptionLongs.has('logLevel')) {
-      return
-    }
-
-    /* eslint-disable-next-line no-param-reassign */
-    opts['logLevel'] = 'debug'
-  }
-
-  #resolveBuiltinParsedOptions(opts: ICommandParsedOpts): ICommandBuiltinParsedOptions {
-    const builtin: ICommandBuiltinParsedOptions = {
-      devmode: this.#builtin.option.devmode ? Boolean(opts['devmode']) : false,
-    }
-
-    if (this.#builtin.option.color && !this.#hasUserOption('color')) {
-      builtin.color = Boolean(opts['color'])
-    }
-    if (this.#builtin.option.logLevel && !this.#hasUserOption('logLevel')) {
-      const logLevel = opts['logLevel']
-      if (typeof logLevel === 'string') {
-        builtin.logLevel = logLevel
-      }
-    }
-    if (this.#builtin.option.silent && !this.#hasUserOption('silent')) {
-      builtin.silent = Boolean(opts['silent'])
-    }
-    if (this.#builtin.option.logDate && !this.#hasUserOption('logDate')) {
-      builtin.logDate = Boolean(opts['logDate'])
-    }
-    if (this.#builtin.option.logColorful && !this.#hasUserOption('logColorful')) {
-      builtin.logColorful = Boolean(opts['logColorful'])
-    }
-
-    return builtin
-  }
-
-  /**
-   * Convert a raw string value to the appropriate type.
-   */
-  #convertValue(opt: ICommandOptionConfig, rawValue: string): unknown {
-    // Apply coerce if present
-    if (opt.coerce) {
-      return opt.coerce(rawValue)
-    }
-
-    // Built-in type conversion
-    if (opt.type === 'number') {
-      const num = parsePrimitiveNumber(rawValue)
-      if (num === undefined) {
-        throw new CommanderError(
-          'InvalidType',
-          `invalid number "${rawValue}" for option "--${camelToKebabCase(opt.long)}"`,
-          this.#getCommandPath(),
-        )
-      }
-      return num
-    }
-
-    return rawValue
   }
 
   /**

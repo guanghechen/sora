@@ -66,6 +66,7 @@ type IExecutionOutcome =
 3. `context-adapter`：负责 kernel 产物与 `ICommandContext` 的对齐与冻结。
 4. `help renderer`：负责 `help data` 组装与 plain/terminal 渲染（含 display-width 对齐与 `--color` 决议）。
 5. `preset profile parser`：负责 preset manifest/profile/variant 解析与 preset option token 约束校验。
+6. `option parser`：负责 option token 消费、值转换、NO_COLOR 回退与 builtin 选项快照决议。
 
 边界说明：规范只要求阶段行为与错误语义一致，不要求保留上述模块命名或目录层级。
 
