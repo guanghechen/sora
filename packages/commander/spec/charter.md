@@ -28,7 +28,7 @@ user argv → route → control-scan(run/parse) → control-run(run only) → pr
 | route                     | 自顶向下 | 基于 user argv 匹配 subcommand（name/alias），不改写 argv                                                                                                                          |
 | control-scan（run/parse） | -        | 在 user tail（`--` 之前）识别控制语义：`--help` 按 token 扫描，`--version` 需 `supportsBuiltinVersion(leaf)`，`help` 仅 tail 首 token 生效，并写入 `ctx.controls` 后剥离控制 token |
 | control-run（仅 run）     | -        | 依据 `ctx.controls` 执行 short-circuit，优先级 `help > version`                                                                                                                    |
-| preset                    | -        | 加载 `--preset-file` / `--preset-profile` 并合并输入；preset file 来自 CLI 或 `command.preset.file`，profile selector（`<profile>` 或 `<profile>:<variant>`）来自 CLI、`command.preset.profile` 或 `defaults.profile` |
+| preset                    | -        | 加载 `--preset-file` / `--preset-profile` 并合并输入；preset file 来自 CLI 或 `command.preset.file`，profile selector（`<profile>` 或 `<profile>:<variant>`）优先来自 CLI / `command.preset.profile`，未显式指定时按 command-path suffix（`.`）→ `defaults.profile` → `default` 回退 |
 | tokenize                  | -        | effective tail argv → `ICommandToken[]`（格式校验）                                                                                                                                |
 | builtin-resolve           | -        | 解析当前 chain 的内建 option 注入策略，产出 `optionPolicyMap`                                                                                                                      |
 | resolve                   | 自底向上 | 每个 Command 消费自己的 tokens                                                                                                                                                     |
@@ -39,7 +39,7 @@ user argv → route → control-scan(run/parse) → control-run(run only) → pr
 
 若 user tail（`--` 之前）同时包含 `--help` 与 `--version`，按 `help > version` 处理。
 
-`preset` profile selector 决议为强约束：优先级为 `--preset-profile` > `command.preset.profile` > `defaults.profile`；selector 支持 `<profile>` 或 `<profile>:<variant>`；未显式 variant 时回退 `profile.defaultVariant`；`--preset-profile` 不可脱离 `--preset-file` 单独使用。
+`preset` profile selector 决议为强约束：优先级为 `--preset-profile` > `command.preset.profile` > command-path suffix profile（按 `.` 连接、从长到短）> `defaults.profile` > `default`；selector 支持 `<profile>` 或 `<profile>:<variant>`；未显式 variant 时回退 `profile.defaultVariant`；`--preset-profile` 不可脱离 `--preset-file` 单独使用。
 
 注：`preset` 阶段属于当前规范范围。
 

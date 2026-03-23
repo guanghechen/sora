@@ -96,13 +96,14 @@ describe('CommandPresetProfileParser', () => {
     ])
   })
 
-  it('should prefer explicit preset selector over defaults.profile', async () => {
+  it('should prefer explicit preset selector over command-path suffix and defaults.profile', async () => {
     const presetFilePath = path.resolve('/workspace', 'preset.json')
     const parser = createPresetProfileParser({
       [presetFilePath]: JSON.stringify({
         version: 1,
         defaults: { profile: 'dev' },
         profiles: {
+          'cli.run': { opts: { mode: 'suffix' } },
           dev: { opts: { mode: 'dev' } },
           prod: {
             variants: {
@@ -127,6 +128,78 @@ describe('CommandPresetProfileParser', () => {
       optsSourceLabel: './preset.json#prod:ci.opts',
     })
     expect(result?.optsArgv).toEqual(['--mode', 'prod-ci'])
+  })
+
+  it('should resolve profile by command-path suffix when selector is not provided', async () => {
+    const presetFilePath = path.resolve('/workspace', 'preset.json')
+    const parser = createPresetProfileParser({
+      [presetFilePath]: JSON.stringify({
+        version: 1,
+        defaults: { profile: 'dev' },
+        profiles: {
+          'cli.run': { opts: { mode: 'full' } },
+          run: { opts: { mode: 'leaf' } },
+          dev: { opts: { mode: 'defaults' } },
+          default: { opts: { mode: 'fallback' } },
+        },
+      }),
+    })
+
+    const result = await parser.resolvePresetProfile({
+      presetFile: './preset.json',
+      presetProfile: undefined,
+      presetProfileSourceName: undefined,
+      commandPath: 'cli run',
+    })
+
+    expect(result).toBeDefined()
+    expect(result?.profileName).toBe('cli.run')
+    expect(result?.optsArgv).toEqual(['--mode', 'full'])
+  })
+
+  it('should fallback to profile "default" when no selector/defaults/suffix profile is matched', async () => {
+    const presetFilePath = path.resolve('/workspace', 'preset.json')
+    const parser = createPresetProfileParser({
+      [presetFilePath]: JSON.stringify({
+        version: 1,
+        profiles: {
+          default: { opts: { mode: 'fallback' } },
+        },
+      }),
+    })
+
+    const result = await parser.resolvePresetProfile({
+      presetFile: './preset.json',
+      presetProfile: undefined,
+      presetProfileSourceName: undefined,
+      commandPath: 'cli run',
+    })
+
+    expect(result).toBeDefined()
+    expect(result?.profileName).toBe('default')
+    expect(result?.optsArgv).toEqual(['--mode', 'fallback'])
+  })
+
+  it('should fail when defaults.profile points to an unknown profile', async () => {
+    const presetFilePath = path.resolve('/workspace', 'preset.json')
+    const parser = createPresetProfileParser({
+      [presetFilePath]: JSON.stringify({
+        version: 1,
+        defaults: { profile: 'ops' },
+        profiles: {
+          default: { opts: { mode: 'fallback' } },
+        },
+      }),
+    })
+
+    await expect(
+      parser.resolvePresetProfile({
+        presetFile: './preset.json',
+        presetProfile: undefined,
+        presetProfileSourceName: undefined,
+        commandPath: 'cli run',
+      }),
+    ).rejects.toThrow('unknown preset profile "ops"')
   })
 
   it('should reject using preset profile without preset file', async () => {

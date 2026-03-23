@@ -661,7 +661,7 @@ const cmd = new Command({ name: 'copy', desc: 'Copy files' })
 5. 若 CLI 未声明 `--preset-file` / `--preset-profile`，可回退 `command.preset.file` / `command.preset.profile`（二者独立决议，均在 `ctx.chain` 上按 `leaf -> ... -> root` 首命中）。
 6. CLI 显式指令优先级高于 command preset 默认：`--preset-file` 覆盖 `command.preset.file`，`--preset-profile` 覆盖 `command.preset.profile`。
 7. `--preset-profile` 不能脱离 `--preset-file` 单独使用；`command.preset.profile` 也不能脱离 `command.preset.file`（除非 CLI 提供了 `--preset-file`）。
-8. profile selector 决议顺序：`--preset-profile` > `command.preset.profile` > `manifest.defaults.profile`；若都缺失则报 `ConfigurationError`。
+8. profile selector 决议顺序：`--preset-profile` > `command.preset.profile` > command-path suffix profile（按 `.` 连接、从长到短）> `manifest.defaults.profile` > `default`；若都缺失则报 `ConfigurationError`。
 9. selector 支持 `<profile>` 与 `<profile>:<variant>`；若未显式给出 variant，则回退 `profile.defaultVariant`。
 10. 对选中的 profile/variant，`envFile`（若存在）按 UTF-8 读取并由 `@guanghechen/env.parse` 解析；相对路径按 `preset-file` 所在目录解析。
 11. `profile.opts` 与 `profile.envs` 在 variant 命中时按 `base + variant` 覆盖合并。

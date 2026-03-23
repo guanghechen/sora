@@ -757,6 +757,79 @@ describe('Command (spec aligned)', () => {
       })
     })
 
+    it('should infer preset profile by command-path suffix with dot notation', async () => {
+      await withTempDir(async tmpDir => {
+        const presetFile = path.join(tmpDir, 'preset.json')
+        await writeFile(
+          presetFile,
+          JSON.stringify({
+            version: 1,
+            defaults: { profile: 'dev' },
+            profiles: {
+              'kit.copilot.start': { opts: { mode: 'chain-full' } },
+              'copilot.start': { opts: { mode: 'chain-mid' } },
+              start: { opts: { mode: 'chain-leaf' } },
+              dev: { opts: { mode: 'defaults' } },
+              default: { opts: { mode: 'fallback' } },
+            },
+          }),
+        )
+
+        const root = new Command({ name: 'kit', desc: 'kit' })
+        const copilot = new Command({ name: 'copilot', desc: 'copilot' })
+        const start = new Command({ desc: 'start' }).option({
+          long: 'mode',
+          type: 'string',
+          args: 'required',
+          desc: 'mode',
+        })
+        copilot.subcommand('start', start)
+        root.subcommand('copilot', copilot)
+
+        const result = await root.parse({
+          argv: ['copilot', 'start', `--preset-file=${presetFile}`],
+          envs: {},
+        })
+
+        expect(result.opts).toEqual({ mode: 'chain-full' })
+        expect(result.ctx.sources.preset.meta?.profile).toBe('kit.copilot.start')
+      })
+    })
+
+    it('should infer suffix profile from canonical command names even when invoked by alias', async () => {
+      await withTempDir(async tmpDir => {
+        const presetFile = path.join(tmpDir, 'preset.json')
+        await writeFile(
+          presetFile,
+          JSON.stringify({
+            version: 1,
+            profiles: {
+              'cli.build': { opts: { mode: 'canonical-full' } },
+              'cli.b': { opts: { mode: 'alias-full' } },
+              build: { opts: { mode: 'canonical-leaf' } },
+              b: { opts: { mode: 'alias-leaf' } },
+              default: { opts: { mode: 'fallback' } },
+            },
+          }),
+        )
+
+        const root = new Command({ name: 'cli', desc: 'cli' })
+        const build = new Command({ desc: 'build' }).option({
+          long: 'mode',
+          type: 'string',
+          args: 'required',
+          desc: 'mode',
+        })
+        root.subcommand('build', build)
+        root.subcommand('b', build)
+
+        const result = await root.parse({ argv: ['b', `--preset-file=${presetFile}`], envs: {} })
+
+        expect(result.opts).toEqual({ mode: 'canonical-full' })
+        expect(result.ctx.sources.preset.meta?.profile).toBe('cli.build')
+      })
+    })
+
     it('should apply defaultVariant when selector has no variant segment', async () => {
       await withTempDir(async tmpDir => {
         const presetFile = path.join(tmpDir, 'preset.json')

@@ -359,7 +359,7 @@ manifest 示例：
 1. 不能脱离 `--preset-file` 单独使用。
 2. 若 CLI 未声明 `--preset-file` / `--preset-profile`，可回退 `command.preset.file` / `command.preset.profile`（二者独立决议，均按 `leaf -> ... -> root` 首命中）。
 3. CLI 显式优先级高于 command preset 默认：`--preset-file` 覆盖 `command.preset.file`，`--preset-profile` 覆盖 `command.preset.profile`。
-4. profile selector 决议顺序：`--preset-profile` > `command.preset.profile` > `manifest.defaults.profile`。
+4. profile selector 决议顺序：`--preset-profile` > `command.preset.profile` > command-path suffix profile（按 `.` 连接、从长到短）> `manifest.defaults.profile` > `default`。
 5. 若 profile 缺失或未知，立即报 `ConfigurationError`。
 
 ### profile 字段语义

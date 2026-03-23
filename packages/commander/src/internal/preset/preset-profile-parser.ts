@@ -18,6 +18,11 @@ interface IPresetProfileSelector {
   variantName?: string
 }
 
+interface IResolvedPresetProfileSelector {
+  selector: string
+  sourceName: string
+}
+
 export interface IPresetFileSource {
   displayPath: string
   absolutePath: string
@@ -97,19 +102,18 @@ export class CommandPresetProfileParser {
     }
     const manifest = this.#parsePresetProfileManifest(content, profileFile.displayPath, commandPath)
 
-    const resolvedProfileSelector = presetProfile ?? manifest.defaults?.profile
-    if (resolvedProfileSelector === undefined) {
-      throw new CommanderError(
-        'ConfigurationError',
-        `missing profile for preset file "${profileFile.displayPath}": provide "${PRESET_PROFILE_FLAG}" or defaults.profile`,
-        commandPath,
-      )
-    }
+    const resolvedProfileSelector = this.#resolvePresetProfileSelector({
+      presetProfile,
+      presetProfileSourceName,
+      manifest,
+      commandPath,
+      presetFileDisplayPath: profileFile.displayPath,
+    })
 
     const { profileName: resolvedProfileName, variantName: explicitVariantName } =
       this.#parsePresetProfileSelector(
-        resolvedProfileSelector,
-        presetProfileSourceName ?? 'defaults.profile',
+        resolvedProfileSelector.selector,
+        resolvedProfileSelector.sourceName,
         commandPath,
       )
     const profile = manifest.profiles[resolvedProfileName]
@@ -238,6 +242,75 @@ export class CommandPresetProfileParser {
         )
       }
     }
+  }
+
+  #resolvePresetProfileSelector(params: {
+    presetProfile: string | undefined
+    presetProfileSourceName: string | undefined
+    manifest: ICommandPresetProfileManifest
+    commandPath: string
+    presetFileDisplayPath: string
+  }): IResolvedPresetProfileSelector {
+    const { presetProfile, presetProfileSourceName, manifest, commandPath, presetFileDisplayPath } =
+      params
+
+    if (presetProfile !== undefined) {
+      return {
+        selector: presetProfile,
+        sourceName: presetProfileSourceName ?? PRESET_PROFILE_FLAG,
+      }
+    }
+
+    const commandPathSuffixProfile = this.#resolveProfileNameByCommandPathSuffix({
+      commandPath,
+      profiles: manifest.profiles,
+    })
+    if (commandPathSuffixProfile !== undefined) {
+      return {
+        selector: commandPathSuffixProfile,
+        sourceName: 'commandPath.suffix',
+      }
+    }
+
+    if (manifest.defaults?.profile !== undefined) {
+      return {
+        selector: manifest.defaults.profile,
+        sourceName: 'defaults.profile',
+      }
+    }
+
+    if (manifest.profiles.default !== undefined) {
+      return {
+        selector: 'default',
+        sourceName: 'profiles["default"]',
+      }
+    }
+
+    throw new CommanderError(
+      'ConfigurationError',
+      `missing profile for preset file "${presetFileDisplayPath}": provide "${PRESET_PROFILE_FLAG}", define command-path suffix profile, defaults.profile, or profile "default"`,
+      commandPath,
+    )
+  }
+
+  #resolveProfileNameByCommandPathSuffix(params: {
+    commandPath: string
+    profiles: Record<string, ICommandPresetProfileItem>
+  }): string | undefined {
+    const { commandPath, profiles } = params
+
+    const commandNames = commandPath
+      .split(' ')
+      .map(value => value.trim())
+      .filter(Boolean)
+    for (let index = 0; index < commandNames.length; index += 1) {
+      const profileName = commandNames.slice(index).join('.')
+      if (profiles[profileName] !== undefined) {
+        return profileName
+      }
+    }
+
+    return undefined
   }
 
   #parsePresetProfileManifest(
