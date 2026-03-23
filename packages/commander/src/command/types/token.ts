@@ -18,6 +18,7 @@ export interface ICommandPresetSourceMeta {
   file?: string
   profile?: string
   variant?: string
+  resolvedEnvFile?: string
 }
 
 /** Preset execution state in input source snapshot */

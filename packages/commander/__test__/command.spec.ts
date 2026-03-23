@@ -751,6 +751,9 @@ describe('Command (spec aligned)', () => {
           D: 'variant-file',
           E: 'variant-inline',
         })
+        expect(result.ctx.sources.preset.meta?.resolvedEnvFile).toBe(
+          path.join(tmpDir, 'staging.env'),
+        )
       })
     })
 
@@ -790,6 +793,43 @@ describe('Command (spec aligned)', () => {
           envs: {},
         })
         expect(result.opts).toEqual({ mode: 'local' })
+      })
+    })
+
+    it('should not expose resolvedEnvFile when applied profile has no envFile', async () => {
+      await withTempDir(async tmpDir => {
+        const presetFile = path.join(tmpDir, 'preset.json')
+        await writeFile(
+          presetFile,
+          JSON.stringify({
+            version: 1,
+            defaults: { profile: 'dev' },
+            profiles: {
+              dev: {
+                opts: { mode: 'local' },
+                envs: { API_ENV: 'dev' },
+              },
+            },
+          }),
+        )
+
+        const root = new Command({ name: 'cli', desc: 'cli' })
+        const run = new Command({ desc: 'run' }).option({
+          long: 'mode',
+          type: 'string',
+          args: 'required',
+          desc: 'mode',
+        })
+        root.subcommand('run', run)
+
+        const result = await root.parse({ argv: ['run', `--preset-file=${presetFile}`], envs: {} })
+
+        expect(result.opts).toEqual({ mode: 'local' })
+        expect(result.ctx.envs.API_ENV).toBe('dev')
+        expect(result.ctx.sources.preset.state).toBe('applied')
+        expect(result.ctx.sources.preset.meta).toBeDefined()
+        expect(result.ctx.sources.preset.meta?.resolvedEnvFile).toBeUndefined()
+        expect('resolvedEnvFile' in (result.ctx.sources.preset.meta ?? {})).toBe(false)
       })
     })
 
@@ -860,6 +900,7 @@ describe('Command (spec aligned)', () => {
         const result = await root.parse({ argv: ['run', `--preset-file=${presetFile}`], envs: {} })
 
         expect(result.ctx.envs.API_URL).toBe('https://dev.example.com')
+        expect(result.ctx.sources.preset.meta?.resolvedEnvFile).toBe(path.join(envDir, 'dev.env'))
       })
     })
 
@@ -890,6 +931,9 @@ describe('Command (spec aligned)', () => {
         const result = await root.parse({ argv: ['run', `--preset-file=${presetFile}`], envs: {} })
 
         expect(result.ctx.envs.MODE).toBe('local')
+        expect(result.ctx.sources.preset.meta?.resolvedEnvFile).toBe(
+          path.join(configDir, '.env.local'),
+        )
       })
     })
 

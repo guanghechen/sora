@@ -179,6 +179,7 @@ interface ICommandInputSources {
       file?: string
       profile?: string
       variant?: string
+      resolvedEnvFile?: string
     }
   }
   user: {
@@ -254,11 +255,12 @@ interface ICommandRunParams {
 11. `ctx.sources.preset.state` 表示 PRESET 路径状态：`skipped`（run/control-run 提前中断，未执行 PRESET）、`none`（执行 PRESET 但未采用 profile）、`applied`（执行 PRESET 且采用 profile）。
 12. 仅当 `ctx.sources.preset.state==='applied'` 时，`ctx.sources.preset.meta?.applied===true`。
 13. `ctx.sources.preset.meta?.file/profile/variant`（若存在）与 PRESET 决议结果一致。
-14. `ctx.sources` 是 PRESET 阶段的来源快照，同时也是构建 effective 输入的来源。
-15. 若 `run()` 在 `control-run` 命中 short-circuit，则 PRESET 不执行：`ctx.sources.preset.state='skipped'`，`ctx.sources.preset` 保持空快照（`argv=[]`, `envs={}`, `meta` 为空），`ctx.sources.user.argv` 固定为 CONTROL SCAN 产出的 `controlTailArgv`（不做 preset 指令剥离）。
-16. effective 输入一旦生成（`effectiveTailArgv` / `ctx.envs`），后续阶段只消费 effective 输入，不再回写 `ctx.sources`。
-17. `ctx.sources` 应作为只读快照暴露给 `action`，避免运行期被意外改写。
-18. `params.builtin.devmode` 始终暴露为 `boolean`（默认 `false`）。
+14. `ctx.sources.preset.meta?.resolvedEnvFile`（若存在）应等于已选中 envFile 的绝对路径（`variant.envFile` > `profile.envFile`）。
+15. `ctx.sources` 是 PRESET 阶段的来源快照，同时也是构建 effective 输入的来源。
+16. 若 `run()` 在 `control-run` 命中 short-circuit，则 PRESET 不执行：`ctx.sources.preset.state='skipped'`，`ctx.sources.preset` 保持空快照（`argv=[]`, `envs={}`, `meta` 为空），`ctx.sources.user.argv` 固定为 CONTROL SCAN 产出的 `controlTailArgv`（不做 preset 指令剥离）。
+17. effective 输入一旦生成（`effectiveTailArgv` / `ctx.envs`），后续阶段只消费 effective 输入，不再回写 `ctx.sources`。
+18. `ctx.sources` 应作为只读快照暴露给 `action`，避免运行期被意外改写。
+19. `params.builtin.devmode` 始终暴露为 `boolean`（默认 `false`）。
 
 补充：`state='skipped'` 主要服务于流程可观测性与测试断言；`run()` 仍保持 `Promise<void>`，不引入额外返回协议。
 

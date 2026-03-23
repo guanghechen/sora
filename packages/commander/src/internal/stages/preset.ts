@@ -118,13 +118,22 @@ export function buildPresetSources(params: {
   presetArgv: string[]
   presetEnvs: Record<string, string>
   presetMeta: ICommandPresetIssueMeta | undefined
+  presetResolvedEnvFile: string | undefined
 }): {
   sources: ICommandInputSources
   tailArgv: string[]
   envs: Record<string, string | undefined>
   segments: ICommandArgvSegment[]
 } {
-  const { userCmds, userArgv, userEnvs, presetArgv, presetEnvs, presetMeta } = params
+  const {
+    userCmds,
+    userArgv,
+    userEnvs,
+    presetArgv,
+    presetEnvs,
+    presetMeta,
+    presetResolvedEnvFile,
+  } = params
 
   const presetSourceMeta: ICommandPresetSourceMeta | undefined =
     presetMeta === undefined
@@ -134,6 +143,11 @@ export function buildPresetSources(params: {
           file: presetMeta.file,
           profile: presetMeta.profile,
           variant: presetMeta.variant,
+          ...(presetResolvedEnvFile === undefined
+            ? {}
+            : {
+                resolvedEnvFile: presetResolvedEnvFile,
+              }),
         }
   const presetState: ICommandPresetSourceState = presetSourceMeta === undefined ? 'none' : 'applied'
 
@@ -326,7 +340,21 @@ export async function runPresetStage<TCommand>(params: {
     presetArgv,
     presetEnvs,
     presetMeta: resolvedProfile?.issueMeta,
+    presetResolvedEnvFile: resolvePresetEnvFilePath(resolvedProfile),
   })
 
   return { tailArgv, envs, segments, sources }
+}
+
+function resolvePresetEnvFilePath(
+  resolvedProfile: IResolvedPresetProfile | undefined,
+): string | undefined {
+  if (!resolvedProfile) {
+    return undefined
+  }
+
+  return (
+    resolvedProfile.variantEnvFileSource?.absolutePath ??
+    resolvedProfile.profileEnvFileSource?.absolutePath
+  )
 }

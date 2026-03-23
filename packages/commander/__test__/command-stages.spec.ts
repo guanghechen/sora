@@ -180,12 +180,31 @@ describe('stage: preset', () => {
       presetArgv: ['--log-level=debug'],
       presetEnvs: { LOG_LEVEL: 'debug' },
       presetMeta: { file: 'preset.yml', profile: 'dev', variant: 'cn' },
+      presetResolvedEnvFile: '/tmp/preset/dev.env',
     })
 
     expect(result.sources.preset.state).toBe('applied')
+    expect(result.sources.preset.meta?.resolvedEnvFile).toBe('/tmp/preset/dev.env')
     expect(result.tailArgv).toEqual(['--log-level=debug', '--force'])
     expect(result.segments[0].source).toBe('preset')
     expect(result.segments[1].source).toBe('user')
+  })
+
+  it('should not expose resolvedEnvFile when no envFile is selected', () => {
+    const result = buildPresetSources({
+      userCmds: ['deploy'],
+      userArgv: ['--force'],
+      userEnvs: { NODE_ENV: 'test' },
+      presetArgv: ['--log-level=debug'],
+      presetEnvs: { LOG_LEVEL: 'debug' },
+      presetMeta: { file: 'preset.yml', profile: 'dev' },
+      presetResolvedEnvFile: undefined,
+    })
+
+    expect(result.sources.preset.state).toBe('applied')
+    expect(result.sources.preset.meta).toBeDefined()
+    expect(result.sources.preset.meta?.resolvedEnvFile).toBeUndefined()
+    expect('resolvedEnvFile' in (result.sources.preset.meta ?? {})).toBe(false)
   })
 })
 

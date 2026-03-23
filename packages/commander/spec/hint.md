@@ -223,6 +223,7 @@ export interface ICommandPresetSourceMeta {
   file?: string
   profile?: string
   variant?: string
+  resolvedEnvFile?: string
 }
 
 export interface ICommandInputSources {
@@ -246,7 +247,8 @@ export interface ICommandInputSources {
 2. PRESET 状态统一通过 `ctx.sources.preset.state` 暴露：`skipped | none | applied`。
 3. `ctx.sources.preset.state==='applied'` 时，`ctx.sources.preset.meta?.applied` 必须为 `true`。
 4. `ctx.sources.preset.meta?.file/profile/variant`（若存在）应与 PRESET 决议结果一致。
-5. short-circuit（`control-run`）路径不进入 PRESET，因此 `ctx.sources.preset.state='skipped'` 且 `ctx.sources.preset.meta` 为空。
+5. `ctx.sources.preset.meta?.resolvedEnvFile`（若存在）应等于已选中 envFile 的绝对路径（`variant.envFile` > `profile.envFile`）。
+6. short-circuit（`control-run`）路径不进入 PRESET，因此 `ctx.sources.preset.state='skipped'` 且 `ctx.sources.preset.meta` 为空。
 
 ### 3) 抛错时写入 issue
 
