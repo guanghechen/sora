@@ -53,8 +53,7 @@ export function consumeStream(
   if (transformers.length === 0) {
     return pipeline(reader, writer)
   }
-  // pipeline accepts a variadic list of streams
-  return pipeline(reader, ...transformers, writer)
+  return pipeline([reader, ...transformers, writer])
 }
 
 /**
