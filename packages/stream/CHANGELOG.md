@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.0.3
+
+### Patch Changes
+
+- Fix stream pipeline compatibility with Node 24 type definitions.
+
 ## 2.0.2
 
 ### Patch Changes
