@@ -9,6 +9,7 @@ import type {
   IHelpData,
   IHelpExampleLine,
   IHelpOptionLine,
+  IHelpPresetDirectiveLine,
 } from '../../command/types'
 
 const ANSI_ESCAPE_REGEX = new RegExp(String.raw`\x1B\[[0-?]*[ -/]*[@-~]`, 'g')
@@ -97,6 +98,7 @@ export interface IBuildHelpDataParams {
   commandPath: string
   arguments: ICommandArgumentConfig[]
   options: ICommandOptionConfig[]
+  presetDirectives?: IHelpPresetDirectiveLine[]
   supportsBuiltinVersion: boolean
   subcommands: IHelpRendererSubcommand[]
   examples: ICommandExample[]
@@ -225,6 +227,7 @@ export class CommandHelpRenderer {
       usage,
       arguments: argumentsLines,
       options,
+      presetDirectives: params.presetDirectives ?? [],
       commands,
       examples,
     }
@@ -315,6 +318,15 @@ export class CommandHelpRenderer {
       lines.push('')
     }
 
+    const presetDirectives = helpData.presetDirectives ?? []
+    if (presetDirectives.length > 0) {
+      lines.push('Preset Directives:')
+      for (const { sig, desc } of presetDirectives) {
+        lines.push(this.#renderAlignedHelpLine(sig, desc, labelWidth))
+      }
+      lines.push('')
+    }
+
     if (helpData.commands.length > 0) {
       lines.push('Commands:')
       for (const { name, desc } of helpData.commands) {
@@ -370,6 +382,19 @@ export class CommandHelpRenderer {
       lines.push('')
     }
 
+    const presetDirectives = helpData.presetDirectives ?? []
+    if (presetDirectives.length > 0) {
+      lines.push(styleText('Preset Directives:', TERMINAL_STYLE.bold, TERMINAL_STYLE.underline))
+      for (const { sig, desc } of presetDirectives) {
+        lines.push(
+          this.#renderAlignedHelpLine(sig, desc, labelWidth, value =>
+            styleText(value, TERMINAL_STYLE.cyan),
+          ),
+        )
+      }
+      lines.push('')
+    }
+
     if (helpData.commands.length > 0) {
       lines.push(styleText('Commands:', TERMINAL_STYLE.bold, TERMINAL_STYLE.underline))
       for (const { name, desc } of helpData.commands) {
@@ -399,6 +424,7 @@ export class CommandHelpRenderer {
     const labels = [
       ...helpData.arguments.map(line => line.sig),
       ...helpData.options.map(line => line.sig),
+      ...(helpData.presetDirectives ?? []).map(line => line.sig),
       ...helpData.commands.map(line => line.name),
     ]
     if (labels.length === 0) {

@@ -209,6 +209,38 @@ describe('CommandHelpRenderer', () => {
     expect(helpData.options.map(item => item.sig)).toContain('    --output [value]')
   })
 
+  it('should render preset directives in a separate aligned section', () => {
+    const renderer = new CommandHelpRenderer()
+    const helpData = renderer.buildHelpData({
+      desc: 'cli',
+      commandPath: 'cli',
+      arguments: [],
+      options: [{ long: 'output', type: 'string', args: 'required', desc: 'output path' }],
+      presetDirectives: [
+        { sig: '--preset-file <value>', desc: 'Load preset manifest file' },
+        {
+          sig: '--preset-profile <value>',
+          desc: 'Select preset profile: <profile> or <profile>:<variant>; requires --preset-file or command preset.file',
+        },
+      ],
+      supportsBuiltinVersion: false,
+      subcommands: [{ name: 'run', aliases: [], desc: 'run command' }],
+      examples: [{ title: 'Run', usage: 'run', desc: 'Run command' }],
+      builtinHelpOption: BUILTIN_HELP_OPTION,
+      builtinVersionOption: BUILTIN_VERSION_OPTION,
+    })
+
+    const output = renderer.formatHelp(helpData)
+    expect(output).toContain('Options:\n')
+    expect(output).toContain('Preset Directives:\n')
+    expect(output.indexOf('Options:')).toBeLessThan(output.indexOf('Preset Directives:'))
+    expect(output.indexOf('Preset Directives:')).toBeLessThan(output.indexOf('Commands:'))
+    expect(output.indexOf('Commands:')).toBeLessThan(output.indexOf('Examples:'))
+    expect(output).toContain('--preset-file <value>')
+    expect(output).toContain('--preset-profile <value>')
+    expect(helpData.options.map(item => item.sig)).not.toContain('--preset-file <value>')
+  })
+
   it('should render plain help when labels are empty and terminal help when tty is enabled', () => {
     const renderer = new CommandHelpRenderer()
     const helpData: IHelpData = {

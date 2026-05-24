@@ -397,6 +397,16 @@ export class Command implements ICommand {
       commandPath: this.#getCommandPath(),
       arguments: this.#arguments,
       options: this.#resolveOptionPolicy().mergedOptions,
+      presetDirectives: [
+        {
+          sig: `${PRESET_FILE_FLAG} <value>`,
+          desc: 'Load preset manifest file',
+        },
+        {
+          sig: `${PRESET_PROFILE_FLAG} <value>`,
+          desc: 'Select preset profile: <profile> or <profile>:<variant>; requires --preset-file or command preset.file',
+        },
+      ],
       supportsBuiltinVersion: this.#supportsBuiltinVersion(),
       subcommands,
       examples: this.#examples,

@@ -75,6 +75,12 @@ export interface IHelpOptionLine {
   desc: string
 }
 
+/** Help preset directive line (internal) */
+export interface IHelpPresetDirectiveLine {
+  sig: string
+  desc: string
+}
+
 /** Help argument line (internal) */
 export interface IHelpArgumentLine {
   sig: string
@@ -100,6 +106,7 @@ export interface IHelpData {
   usage: string
   arguments: IHelpArgumentLine[]
   options: IHelpOptionLine[]
+  presetDirectives?: IHelpPresetDirectiveLine[]
   commands: IHelpCommandLine[]
   examples: IHelpExampleLine[]
 }

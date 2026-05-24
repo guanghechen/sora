@@ -1386,6 +1386,9 @@ describe('Command (spec aligned)', () => {
       const text = root.formatHelp()
       expect(text).toContain('--help')
       expect(text).toContain('--version')
+      expect(text).toContain('Preset Directives:')
+      expect(text).toContain('--preset-file <value>')
+      expect(text).toContain('--preset-profile <value>')
       expect(text).not.toContain('--no-help')
       expect(text).not.toContain('--no-version')
     })
@@ -2100,6 +2103,8 @@ describe('Command (spec aligned)', () => {
       const withVersionOptions = withVersion.getCompletionMeta().options.map(option => option.long)
       expect(withVersionOptions).toContain('help')
       expect(withVersionOptions).toContain('version')
+      expect(withVersionOptions).not.toContain('presetFile')
+      expect(withVersionOptions).not.toContain('presetProfile')
 
       const withoutVersion = new Command({
         name: 'cli',

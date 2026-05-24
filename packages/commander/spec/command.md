@@ -415,6 +415,14 @@ root.subcommand('deploy', deploy)
 - `usage` 是相对当前 command path 的片段，渲染时自动补齐前缀
 - examples 不继承，只显示当前 command 自己注册的条目
 
+`formatHelp()` 渲染规则：
+
+- help 输出必须包含 `Preset Directives:` 独立分组。
+- preset directives 不属于普通 option，不进入 action `opts`，也不进入 shell completion 的 option 集合。
+- `Preset Directives:` 固定展示 `--preset-file <value>` 与 `--preset-profile <value>`。
+- `--preset-profile <value>` 的描述必须说明 selector 形态为 `<profile>` 或 `<profile>:<variant>`，且需要 `--preset-file` 或 command 默认 `preset.file`。
+- `IHelpData.presetDirectives` 必须保持可选字段，避免破坏外部直接构造 help data 的 TypeScript 用户。
+
 `subcommand(name, cmd)` 规则：
 
 - `name='help'` 仍为保留名，禁止注册。
@@ -680,6 +688,7 @@ const cmd = new Command({ name: 'copy', desc: 'Copy files' })
 24. profile `opts` 的 option 语义合法性在 `BUILTIN RESOLVE -> RESOLVE -> PARSE` 阶段统一校验。
 25. 约束细节见 [option.md](./option.md)“强制约束”与“错误语义”。
 26. PRESET 阶段执行后，`ctx.sources.preset.state` 必须为 `none` 或 `applied`；`run()` 的 `control-run` short-circuit 路径必须写入 `state='skipped'`。
+27. help 输出必须将 `--preset-file` / `--preset-profile` 作为 preset directives 展示，不得混入普通 `Options:` 分组。
 
 ### CONTROL SCAN 规则
 
@@ -845,7 +854,7 @@ cli repo help sync # 显示 repo sync 子命令帮助
 
 ## 帮助输出格式
 
-help 输出 section 顺序：`Usage` → `Arguments` → `Options` → `Commands` → `Examples`。
+help 输出 section 顺序：`Usage` → `Arguments` → `Options` → `Preset Directives` → `Commands` → `Examples`。
 
 `Options` section 渲染规则：
 
@@ -870,8 +879,8 @@ help 输出 section 顺序：`Usage` → `Arguments` → `Options` → `Commands
 5. `default` 与 `choices` 的值展示使用 `JSON.stringify`：
    - `[default: {JSON.stringify(value)}]`
    - `[choices: {choices.map(JSON.stringify).join(', ')}]`
-6. `Arguments` / `Options` / `Commands` 三个 section 的描述列起始位置必须全局对齐：
-   - 先收集三者所有签名列（`signature/name`），计算统一 `labelWidth`（按显示宽度计算，ASCII=1，CJK=2）。
+6. `Arguments` / `Options` / `Preset Directives` / `Commands` 四个 section 的描述列起始位置必须全局对齐：
+   - 先收集四者所有签名列（`signature/name`），计算统一 `labelWidth`（按显示宽度计算，ASCII=1，CJK=2）。
    - 每行渲染为：`  {label.padEnd(labelWidth)}  {desc}`。
    - plain/terminal 渲染必须复用同一套 display-width helper，禁止各自实现不同宽度算法。
    - 显示宽度计算必须忽略 ANSI 转义序列；combining mark 记为宽度 0。
