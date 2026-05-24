@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.8.0
+
+### Minor Changes
+
+- Expose preset directives in command help output under a dedicated `Preset Directives:` section.
+
 ## 4.7.9
 
 ### Patch Changes
