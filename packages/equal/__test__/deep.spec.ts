@@ -139,6 +139,61 @@ describe('isEqual', () => {
     expect(isEqual(new Float64Array([0]), new Float64Array([-0]))).toBe(false)
   })
 
+  it('should compare DataView byte-wise', () => {
+    const mk = (bytes: number[]): DataView => {
+      const dv = new DataView(new ArrayBuffer(bytes.length))
+      bytes.forEach((b, i) => dv.setUint8(i, b))
+      return dv
+    }
+    expect(isEqual(mk([1, 2, 3]), mk([1, 2, 3]))).toBe(true)
+    expect(isEqual(mk([1, 2, 3]), mk([1, 2, 4]))).toBe(false)
+    expect(isEqual(mk([1, 2, 3]), mk([1, 2]))).toBe(false)
+  })
+
+  it('should compare DataView relative to its byteOffset', () => {
+    // dv1/dv2 view bytes [1,2,3] starting at offset 1; the byte at offset 0 differs but is
+    // outside the view, so getUint8 (offset-relative) must treat them as equal.
+    const dv1 = new DataView(new Uint8Array([0, 1, 2, 3]).buffer, 1)
+    const dv2 = new DataView(new Uint8Array([9, 1, 2, 3]).buffer, 1)
+    expect(isEqual(dv1, dv2)).toBe(true)
+    const dv3 = new DataView(new Uint8Array([0, 1, 2, 9]).buffer, 1)
+    expect(isEqual(dv1, dv3)).toBe(false)
+  })
+
+  it('should compare raw ArrayBuffer by bytes', () => {
+    expect(isEqual(new Uint8Array([1, 2, 3]).buffer, new Uint8Array([1, 2, 3]).buffer)).toBe(true)
+    expect(isEqual(new Uint8Array([1, 2, 3]).buffer, new Uint8Array([1, 2, 4]).buffer)).toBe(false)
+    expect(isEqual(new Uint8Array([1, 2, 3]).buffer, new Uint8Array([1, 2]).buffer)).toBe(false)
+  })
+
+  it('should not throw on a detached ArrayBuffer', () => {
+    const a = new Uint8Array([1, 2, 3]).buffer
+    const b = new Uint8Array([1, 2, 3]).buffer
+    structuredClone(a, { transfer: [a] }) // detaches a (byteLength -> 0)
+    structuredClone(b, { transfer: [b] }) // detaches b
+    expect(() => isEqual(a, b)).not.toThrow()
+    expect(isEqual(a, b)).toBe(true)
+  })
+
+  it('should compare null-prototype objects without throwing', () => {
+    const a = Object.create(null)
+    a.x = 1
+    a.y = { z: [1, 2] }
+    const b = Object.create(null)
+    b.x = 1
+    b.y = { z: [1, 2] }
+    expect(isEqual(a, b)).toBe(true)
+
+    const c = Object.create(null)
+    c.x = 2
+    expect(isEqual(a, c)).toBe(false)
+  })
+
+  it('should not throw when only one side has a callable valueOf/toString', () => {
+    expect(isEqual({ valueOf: () => 1 }, { valueOf: 1 })).toBe(false)
+    expect(isEqual({ toString: () => 'a' }, { toString: 'a' })).toBe(false)
+  })
+
   it('should compare Date by timestamp', () => {
     expect(isEqual(new Date('2024-01-01'), new Date('2024-01-01'))).toBe(true)
     expect(isEqual(new Date('2024-01-01'), new Date('2024-01-02'))).toBe(false)
