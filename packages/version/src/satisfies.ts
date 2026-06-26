@@ -60,7 +60,10 @@ function parseHyphenRange(range: string): IComparatorWithPrerelease[] | undefine
 
   if (start.prerelease.length > 0) prereleaseVersions.push(startFull)
 
-  if (isFullVersion(end)) {
+  if (end.isWildcard) {
+    // A wildcard upper bound (`1.0.0 - *`, `1.0.0 - x`, `1.0.0 - X`) imposes no upper limit,
+    // matching node-semver, which drops the upper comparator entirely.
+  } else if (isFullVersion(end)) {
     comparators.push(createComparator(end, 'lte'))
     if (end.prerelease.length > 0) prereleaseVersions.push(end)
   } else {

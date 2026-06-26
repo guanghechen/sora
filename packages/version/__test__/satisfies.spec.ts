@@ -294,6 +294,33 @@ describe('satisfies', () => {
         expect(satisfies('0.9.9', '1.0 - 2.0')).toBe(false)
       })
     })
+
+    describe('wildcard bounds', () => {
+      it('should treat 1.0.0 - * as >=1.0.0 (no upper bound)', () => {
+        expect(satisfies('1.0.0', '1.0.0 - *')).toBe(true)
+        expect(satisfies('2.0.0', '1.0.0 - *')).toBe(true)
+        expect(satisfies('999.999.999', '1.0.0 - *')).toBe(true)
+        expect(satisfies('0.9.9', '1.0.0 - *')).toBe(false)
+      })
+
+      it('should treat x/X upper bound the same as *', () => {
+        expect(satisfies('2.0.0', '1.0.0 - x')).toBe(true)
+        expect(satisfies('2.0.0', '1.0.0 - X')).toBe(true)
+        expect(satisfies('0.9.9', '1.0.0 - x')).toBe(false)
+      })
+
+      it('should treat * - 2.0.0 as <=2.0.0 (no lower bound)', () => {
+        expect(satisfies('0.0.0', '* - 2.0.0')).toBe(true)
+        expect(satisfies('1.0.0', '* - 2.0.0')).toBe(true)
+        expect(satisfies('2.0.0', '* - 2.0.0')).toBe(true)
+        expect(satisfies('2.0.1', '* - 2.0.0')).toBe(false)
+      })
+
+      it('should treat * - * as matching any version', () => {
+        expect(satisfies('0.0.0', '* - *')).toBe(true)
+        expect(satisfies('5.0.0', '* - *')).toBe(true)
+      })
+    })
   })
 
   describe('AND operator (space-separated)', () => {
