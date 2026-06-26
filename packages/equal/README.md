@@ -114,6 +114,18 @@ isEqual(/abc/g, /abc/i)    // false
 // Date
 isEqual(new Date('2024-01-01'), new Date('2024-01-01'))  // true
 
+// Map (keys matched by identity, values compared deeply)
+isEqual(new Map([['a', 1]]), new Map([['a', 1]]))  // true
+isEqual(new Map([['a', 1]]), new Map([['a', 2]]))  // false
+
+// Set (elements matched by identity)
+isEqual(new Set([1, 2, 3]), new Set([3, 2, 1]))  // true
+isEqual(new Set([1, 2]), new Set([1, 2, 3]))     // false
+
+// Typed arrays (element-wise)
+isEqual(new Uint8Array([1, 2, 3]), new Uint8Array([1, 2, 3]))  // true
+isEqual(new Uint8Array([1, 2, 3]), new Uint8Array([1, 2, 4]))  // false
+
 // Custom valueOf/toString
 class Point {
   constructor(public x: number, public y: number) {}

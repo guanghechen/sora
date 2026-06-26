@@ -102,4 +102,45 @@ describe('isEqual', () => {
     expect(isEqual(new F(11), new F(11))).toEqual(true)
     expect(isEqual(new F(11), new F(12))).toEqual(true)
   })
+
+  it('should compare Map by entries (keys by identity, values deeply)', () => {
+    expect(isEqual(new Map(), new Map())).toBe(true)
+    expect(isEqual(new Map([['a', 1]]), new Map([['a', 1]]))).toBe(true)
+    // values are compared deeply
+    expect(isEqual(new Map([['a', { b: [1, 2] }]]), new Map([['a', { b: [1, 2] }]]))).toBe(true)
+    expect(isEqual(new Map([['a', { b: [1, 2] }]]), new Map([['a', { b: [1, 3] }]]))).toBe(false)
+    // size mismatch
+    expect(isEqual(new Map([['a', 1]]), new Map())).toBe(false)
+    // same size, different key
+    expect(isEqual(new Map([['a', 1]]), new Map([['b', 1]]))).toBe(false)
+    // same key, different value
+    expect(isEqual(new Map([['a', 1]]), new Map([['a', 2]]))).toBe(false)
+  })
+
+  it('should compare Set by elements (matched by identity)', () => {
+    expect(isEqual(new Set(), new Set())).toBe(true)
+    expect(isEqual(new Set([1, 2, 3]), new Set([3, 2, 1]))).toBe(true)
+    // size mismatch
+    expect(isEqual(new Set([1, 2]), new Set([1, 2, 3]))).toBe(false)
+    // same size, different element
+    expect(isEqual(new Set([1, 2, 3]), new Set([1, 2, 4]))).toBe(false)
+    // elements are matched by identity, not deeply
+    expect(isEqual(new Set([{ a: 1 }]), new Set([{ a: 1 }]))).toBe(false)
+  })
+
+  it('should compare typed arrays element-wise', () => {
+    expect(isEqual(new Uint8Array([1, 2, 3]), new Uint8Array([1, 2, 3]))).toBe(true)
+    expect(isEqual(new Uint8Array([1, 2, 3]), new Uint8Array([1, 2, 4]))).toBe(false)
+    expect(isEqual(new Uint8Array([1, 2, 3]), new Uint8Array([1, 2]))).toBe(false)
+    // different typed array constructors are not equal
+    expect(isEqual(new Uint8Array([1, 2, 3]), new Int8Array([1, 2, 3]))).toBe(false)
+    // Object.is semantics for float elements: NaN equals NaN, +0 differs from -0
+    expect(isEqual(new Float64Array([NaN]), new Float64Array([NaN]))).toBe(true)
+    expect(isEqual(new Float64Array([0]), new Float64Array([-0]))).toBe(false)
+  })
+
+  it('should compare Date by timestamp', () => {
+    expect(isEqual(new Date('2024-01-01'), new Date('2024-01-01'))).toBe(true)
+    expect(isEqual(new Date('2024-01-01'), new Date('2024-01-02'))).toBe(false)
+  })
 })
