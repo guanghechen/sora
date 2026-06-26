@@ -56,7 +56,14 @@ function internalFindNearestFilepath(
   currentDir: string,
   predicate: (filepath: string) => boolean,
 ): string | null {
-  const filenames = readdirSync(currentDir)
+  let filenames: string[]
+  try {
+    filenames = readdirSync(currentDir)
+  } catch {
+    // The directory may not exist or be unreadable; treat it as empty and keep walking up,
+    // mirroring locateNearestFilepath which never throws on a missing directory.
+    filenames = []
+  }
   for (const filename of filenames) {
     const filepath = join(currentDir, filename)
     if (predicate(filepath)) return filepath

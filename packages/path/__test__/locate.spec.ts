@@ -60,4 +60,16 @@ describe('findNearestFilepath', function () {
   it('not found', function () {
     expect(findNearestFilepath(__dirname, () => false)).toBeNull()
   })
+
+  it('returns null without throwing for a non-existent directory', function () {
+    const ghost = path.join(__dirname, 'no-such-dir-' + Math.random())
+    expect(findNearestFilepath(ghost, () => false)).toBeNull()
+  })
+
+  it('walks up from a non-existent directory to a matching ancestor', function () {
+    const ghost = path.join(__dirname, 'no-such-dir-' + Math.random())
+    expect(findNearestFilepath(ghost, p => path.basename(p) === 'package.json')).toBe(
+      path.join(__dirname, '../package.json'),
+    )
+  })
 })
