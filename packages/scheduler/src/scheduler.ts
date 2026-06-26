@@ -29,6 +29,7 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
   protected readonly _reporter: Reporter | undefined
   protected _task: ITask | undefined
   protected _lastScheduledMaterialCode: number
+  protected _completing: boolean
 
   constructor(props: IProps<D, T>) {
     const { name, pipeline, reporter, strategy } = props
@@ -46,6 +47,7 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
     this._reporter = reporter
     this._task = undefined
     this._lastScheduledMaterialCode = -1
+    this._completing = false
 
     const schedulerStatusSubscriber: ISubscriber<TaskStatusEnum> = new Subscriber({
       onNext: nextStatus => {
@@ -82,7 +84,7 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
   }
 
   public async schedule(data: D): Promise<number> {
-    if (this.status.terminated) return -1
+    if (this._completing || this.status.terminated) return -1
     const code = await this._pipeline.push(data)
     if (code > this._lastScheduledMaterialCode) this._lastScheduledMaterialCode = code
     return code
@@ -97,8 +99,13 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
   }
 
   public override async complete(): Promise<void> {
-    this.status.next(TaskStatusEnum.COMPLETED, { strict: false })
-    await this.waitAllScheduledTasksTerminated()
+    // Reject further scheduling, then defer to the inherited lifecycle: ResumableTask.complete()
+    // starts a PENDING scheduler, returns early when already terminated, drives run() to the end,
+    // and settles to FAILED/COMPLETED based on _errors. run() leaves its loop once `_completing`
+    // is set and the pipeline is drained, so the inherited drive terminates cleanly. The injected
+    // pipeline is intentionally left untouched -- the scheduler does not own its lifecycle.
+    this._completing = true
+    await super.complete()
   }
 
   protected override *run(): IterableIterator<Promise<void>> {
@@ -109,29 +116,48 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
         yield this._pullAndRun()
       }
 
-      // Waiting the pipeline to be idle.
-      let resolved = false
-      let subscriber: ISubscriber<PipelineStatusEnum> | undefined
-      let unsubscribable: IUnsubscribable | undefined
-      yield new Promise<void>(resolve => {
-        subscriber = new Subscriber<PipelineStatusEnum>({
-          onNext: nextStatus => {
-            if (resolved) return
-            if (nextStatus !== PipelineStatusEnum.DRIED) resolve()
-          },
-        })
-        unsubscribable = pipeline.status.subscribe(subscriber)
-      }).finally(() => {
-        resolved = true
-        unsubscribable?.unsubscribe()
-        subscriber?.dispose()
-      })
+      // Drained while completing: end the generator so the inherited complete() can finalize.
+      if (this._completing) return
+
+      // Wait until the pipeline has work again, or the scheduler leaves RUNNING (e.g. completing).
+      yield this._waitPipelineActive()
     }
 
     while (pipeline.size > 0) {
       if (this.status.terminated) return
       yield this._pullAndRun()
     }
+  }
+
+  private _waitPipelineActive(): Promise<void> {
+    let resolved = false
+    let pipelineSubscriber: ISubscriber<PipelineStatusEnum> | undefined
+    let statusSubscriber: ISubscriber<TaskStatusEnum> | undefined
+    let pipelineUnsubscribable: IUnsubscribable | undefined
+    let statusUnsubscribable: IUnsubscribable | undefined
+    return new Promise<void>(resolve => {
+      pipelineSubscriber = new Subscriber<PipelineStatusEnum>({
+        onNext: nextStatus => {
+          if (resolved) return
+          if (nextStatus !== PipelineStatusEnum.DRIED) resolve()
+        },
+      })
+      statusSubscriber = new Subscriber<TaskStatusEnum>({
+        onNext: nextStatus => {
+          if (resolved) return
+          // Wake when the scheduler starts completing/terminating so run() can finish draining.
+          if (nextStatus !== TaskStatusEnum.RUNNING) resolve()
+        },
+      })
+      pipelineUnsubscribable = this._pipeline.status.subscribe(pipelineSubscriber)
+      statusUnsubscribable = this.status.subscribe(statusSubscriber)
+    }).finally(() => {
+      resolved = true
+      pipelineUnsubscribable?.unsubscribe()
+      statusUnsubscribable?.unsubscribe()
+      pipelineSubscriber?.dispose()
+      statusSubscriber?.dispose()
+    })
   }
 
   private async _pullAndRun(): Promise<void> {
@@ -159,6 +185,11 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
 
     this._task = task
     void task.start()
+    // A child created while the scheduler is completing is not seen by the status subscriber
+    // (that only fires task.complete() for the task present at the ATTEMPT_COMPLETING transition),
+    // so drive it to completion here -- otherwise a task that only terminates via complete()
+    // would hang the drain.
+    if (this._completing) void task.complete()
 
     let resolved = false
     let subscriber: ISubscriber<TaskStatusEnum> | undefined

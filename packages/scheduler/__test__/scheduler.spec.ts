@@ -165,6 +165,52 @@ describe('scheduler', () => {
     await scheduler.complete()
   })
 
+  it('complete drains materials still pending in the pipeline', async () => {
+    // Schedule several materials and call complete() immediately, without draining first.
+    const codes: number[] = []
+    for (const filepath of ['a', 'b', 'c']) {
+      codes.push(await scheduler.schedule({ type: FileChangeTypeEnum.CREATE, filepath }))
+    }
+
+    // complete() must process every already-scheduled material before terminating;
+    // otherwise this would hang waiting for materials that run() abandoned.
+    await scheduler.complete()
+    for (const code of codes) await scheduler.waitTaskTerminated(code)
+
+    // The scheduler is now terminated, so further scheduling is rejected.
+    expect(scheduler.status.terminated).toBe(true)
+    expect(await scheduler.schedule({ type: FileChangeTypeEnum.CREATE, filepath: 'd' })).toBe(-1)
+  })
+
+  it('rejects materials scheduled while completing instead of dropping them', async () => {
+    await scheduler.schedule({ type: FileChangeTypeEnum.CREATE, filepath: 'a' })
+
+    // complete() sets the _completing latch before its first await, so work scheduled during
+    // the drain is rejected with -1 rather than silently accepted and then abandoned.
+    const completing: Promise<void> = scheduler.complete()
+    const late: number = await scheduler.schedule({
+      type: FileChangeTypeEnum.CREATE,
+      filepath: 'late',
+    })
+    await completing
+
+    expect(late).toBe(-1)
+  })
+
+  it('complete() is idempotent when already terminated', async () => {
+    await scheduler.complete()
+    expect(scheduler.status.terminated).toBe(true)
+    await expect(scheduler.complete()).resolves.toBeUndefined()
+    expect(scheduler.status.terminated).toBe(true)
+  })
+
+  it('completes as FAILED when a task errors during drain (CONTINUE_ON_ERROR)', async () => {
+    await scheduler.schedule({ type: FileChangeTypeEnum.DELETE, filepath: 'non-exist' })
+    await scheduler.complete()
+    expect(scheduler.status.getSnapshot()).toBe(TaskStatusEnum.FAILED)
+    expect(scheduler.errors.length).toBeGreaterThan(0)
+  })
+
   it('should be able to schedule and wait', async () => {
     const code1: number = await scheduler.schedule({
       type: FileChangeTypeEnum.CREATE,
@@ -545,5 +591,125 @@ describe('scheduler (task token)', () => {
 
     expect(task.status.terminated).toBe(true)
     expect(scheduler.status.getSnapshot()).not.toBe(TaskStatusEnum.FAILED)
+  })
+})
+
+describe('scheduler (complete from PENDING)', () => {
+  let reporter: Reporter
+  let pipeline: IPipeline<IFileMaterialData, IFIleProductData>
+  let scheduler: IScheduler<IFileMaterialData, IFIleProductData>
+
+  beforeEach(() => {
+    reporter = new Reporter({
+      prefix: 'sora-scheduler',
+      level: 'debug',
+      flight: { color: false },
+    })
+
+    pipeline = new Pipeline<IFileMaterialData, IFIleProductData>('sora-pipeline')
+    pipeline.use(new FileMaterialCooker('sora-cooker'))
+
+    scheduler = new Scheduler<IFileMaterialData, IFIleProductData>({
+      name: 'sora-scheduler',
+      pipeline,
+      strategy: TaskStrategyEnum.CONTINUE_ON_ERROR,
+      reporter,
+      pollInterval: 50,
+      idleInterval: 300,
+    })
+    scheduler.use(new FileProductConsumer('sora-consumer'))
+    // NOTE: intentionally NOT started, to exercise complete() from the PENDING state.
+  })
+
+  afterEach(async () => {
+    await pipeline.close()
+  })
+
+  it('terminates a never-started scheduler with no materials', async () => {
+    await scheduler.complete()
+    expect(scheduler.status.terminated).toBe(true)
+    expect(await scheduler.schedule({ type: FileChangeTypeEnum.CREATE, filepath: 'a' })).toBe(-1)
+  })
+
+  it('starts and drains queued materials when completing a never-started scheduler', async () => {
+    const code: number = await scheduler.schedule({
+      type: FileChangeTypeEnum.CREATE,
+      filepath: 'a',
+    })
+    await scheduler.complete()
+    await scheduler.waitTaskTerminated(code)
+    expect(scheduler.status.terminated).toBe(true)
+  })
+})
+
+class CompleteRequiredTask implements ITask {
+  public readonly name: string
+  public readonly status: TaskStatus
+  public readonly strategy: TaskStrategyEnum
+
+  constructor(name: string) {
+    this.name = name
+    this.status = new TaskStatus()
+    this.strategy = TaskStrategyEnum.CONTINUE_ON_ERROR
+  }
+
+  public get errors(): ReadonlyArray<unknown> {
+    return []
+  }
+
+  // start() only brings the task to RUNNING; it never terminates on its own.
+  public async start(): Promise<void> {
+    if (this.status.getSnapshot() === TaskStatusEnum.PENDING) {
+      this.status.next(TaskStatusEnum.RUNNING)
+    }
+  }
+
+  public async pause(): Promise<void> {}
+
+  public async resume(): Promise<void> {}
+
+  public async cancel(): Promise<void> {
+    if (!this.status.terminated) this.status.next(TaskStatusEnum.CANCELLED, { strict: false })
+  }
+
+  // Only complete() drives the task to a terminal state.
+  public async complete(): Promise<void> {
+    if (this.status.getSnapshot() === TaskStatusEnum.PENDING) await this.start()
+    if (this.status.terminated) return
+    this.status.next(TaskStatusEnum.COMPLETED, { strict: false })
+  }
+}
+
+describe('scheduler (child task needs complete() to terminate)', () => {
+  it('drains children created during completion without hanging', async () => {
+    const pipeline = new Pipeline<number, number>('child-pipeline')
+    pipeline.use(new NumberCooker('number-cooker'))
+    const scheduler = new Scheduler<number, number>({
+      name: 'child-scheduler',
+      pipeline,
+      strategy: TaskStrategyEnum.CONTINUE_ON_ERROR,
+      pollInterval: 10,
+      idleInterval: 20,
+    })
+    const task1 = new CompleteRequiredTask('crt-1')
+    const task2 = new CompleteRequiredTask('crt-2')
+    scheduler.use(new QueueConsumer('queue-consumer', [task1, task2]))
+
+    await scheduler.start()
+    await scheduler.schedule(1)
+    // Make task1 the active child at the ATTEMPT_COMPLETING transition, so task2 is the one
+    // created during the drain -- the case that previously hung.
+    await vi.waitFor(() => expect(task1.status.getSnapshot()).toBe(TaskStatusEnum.RUNNING), {
+      timeout: 1000,
+    })
+    await scheduler.schedule(2)
+
+    // Must not hang: the child created during the drain has to be driven to completion too.
+    await scheduler.complete()
+
+    expect(task1.status.terminated).toBe(true)
+    expect(task2.status.terminated).toBe(true)
+    expect(scheduler.status.terminated).toBe(true)
+    await pipeline.close()
   })
 })
