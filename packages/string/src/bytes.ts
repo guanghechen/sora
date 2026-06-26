@@ -6,7 +6,7 @@ const bytesUnit = {
   P: 1024 ** 5,
 }
 const unitKeys: string = Object.keys(bytesUnit).join('')
-const bytesRegex = new RegExp(`^\\s*(\\d+(?:\\.\\d+)?)([${unitKeys}]B?)?\\s*$`)
+const bytesRegex = new RegExp(`^\\s*(\\d+(?:\\.\\d+)?)([${unitKeys}])?[Bb]?\\s*$`)
 
 /**
  * Parse texts like 1M, 1Mb, 1G to the number of bytes.

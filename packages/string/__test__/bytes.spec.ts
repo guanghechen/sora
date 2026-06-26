@@ -28,4 +28,14 @@ describe('parseBytesString', () => {
     expect(parseBytesString('2.1P')).toEqual(Math.floor(2.1 * 1024 * 1024 * 1024 * 1024 * 1024))
     expect(parseBytesString('3P')).toEqual(Math.floor(3 * 1024 * 1024 * 1024 * 1024 * 1024))
   })
+
+  it('with byte suffix (B/b)', () => {
+    expect(parseBytesString('1KB')).toEqual(1024)
+    expect(parseBytesString('1MB')).toEqual(1024 * 1024)
+    expect(parseBytesString('1Mb')).toEqual(1024 * 1024)
+    expect(parseBytesString('1.5GB')).toEqual(Math.floor(1.5 * 1024 * 1024 * 1024))
+    expect(parseBytesString('2TB')).toEqual(2 * 1024 * 1024 * 1024 * 1024)
+    expect(parseBytesString('3PB')).toEqual(3 * 1024 * 1024 * 1024 * 1024 * 1024)
+    expect(parseBytesString('100B')).toEqual(100)
+  })
 })
