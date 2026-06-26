@@ -375,6 +375,14 @@ describe('scheduler (no consumer)', () => {
 
     await pipeline.close()
   })
+
+  it('marks materials handled when no task is produced so waitTaskTerminated resolves', async () => {
+    await scheduler.start()
+    const code = await scheduler.schedule({ type: FileChangeTypeEnum.CREATE, filepath: 'a' })
+    // No consumer -> the cooked product is dropped; the code must still be marked handled.
+    await expect(scheduler.waitTaskTerminated(code)).resolves.toBeUndefined()
+    await pipeline.close()
+  })
 })
 
 describe('scheduler (pipeline closed with remaining materials)', () => {
@@ -710,6 +718,34 @@ describe('scheduler (child task needs complete() to terminate)', () => {
     expect(task1.status.terminated).toBe(true)
     expect(task2.status.terminated).toBe(true)
     expect(scheduler.status.terminated).toBe(true)
+    await pipeline.close()
+  })
+})
+
+class NullCooker implements IMaterialCooker<number, number> {
+  public readonly name = 'null-cooker'
+
+  public async cook(): Promise<number | null> {
+    return null
+  }
+}
+
+describe('scheduler (cooker drops materials)', () => {
+  it('marks dropped materials handled when the cooker yields null', async () => {
+    const pipeline = new Pipeline<number, number>('null-pipeline')
+    pipeline.use(new NullCooker())
+    const scheduler = new Scheduler<number, number>({
+      name: 'null-scheduler',
+      pipeline,
+      strategy: TaskStrategyEnum.CONTINUE_ON_ERROR,
+      pollInterval: 10,
+      idleInterval: 10,
+    })
+
+    await scheduler.start()
+    const code: number = await scheduler.schedule(1)
+    // The cooker produces no product; the code must still be marked handled so the wait resolves.
+    await expect(scheduler.waitTaskTerminated(code)).resolves.toBeUndefined()
     await pipeline.close()
   })
 })

@@ -168,7 +168,12 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
 
     const pipeline: IPipeline<D, T> = this._pipeline
     const { codes, data } = await pipeline.pull()
-    if (data === null || codes.length <= 0) return delay(this._idleInterval)
+    if (data === null || codes.length <= 0) {
+      // Materials may have been pulled but produced no product (e.g. all invalidated); still mark
+      // them handled, otherwise waitTaskTerminated/waitAllScheduledTasksTerminated hang on them.
+      if (codes.length > 0) pipeline.notifyMaterialHandled(codes)
+      return delay(this._idleInterval)
+    }
 
     const api: IProductConsumerApi = this._consumerApi
     const reducer: IProductConsumerNext<ITask> = this._consumers.reduceRight<
@@ -178,7 +183,15 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
       async embryo => embryo,
     )
     const task: ITask | null = await reducer(null)
-    if (task === null) return delay(this._idleInterval)
+    if (task === null) {
+      // No consumer produced a task: the product is dropped. Mark the codes handled so waiters
+      // do not hang, and surface the drop for observability.
+      this._reporter?.debug(
+        `[${this.name}] no task produced; dropping codes: [${codes.join(', ')}]`,
+      )
+      pipeline.notifyMaterialHandled(codes)
+      return delay(this._idleInterval)
+    }
 
     const reporter: Reporter | undefined = this._reporter
     reporter?.debug(`[${this.name}] task(${task.name}) starting. codes: [${codes.join(', ')}]`)
