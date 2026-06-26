@@ -1,11 +1,11 @@
+import { randomFillSync } from 'node:crypto'
+
 /**
- * Fill the bytes with random numbers.
+ * Overwrite the bytes in place with cryptographically strong random data.
  * @param bytes
  */
 export function destroyBytes(bytes: Uint8Array): void {
-  bytes.fill(0)
-  bytes.fill(1)
-  bytes.fill(Math.random() * 127)
+  randomFillSync(bytes)
 }
 
 /**
