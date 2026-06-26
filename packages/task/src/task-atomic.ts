@@ -54,7 +54,7 @@ export abstract class AtomicTask implements ITask {
 
   public async cancel(): Promise<void> {
     if (this.status.terminated) return
-    this.status.next(TaskStatusEnum.ATTEMPT_CANCELING)
+    this.status.next(TaskStatusEnum.ATTEMPT_CANCELING, { strict: false })
     await this._promise
     this.status.next(TaskStatusEnum.CANCELLED, { strict: false })
   }
@@ -64,7 +64,7 @@ export abstract class AtomicTask implements ITask {
     if (status.getSnapshot() === TaskStatusEnum.PENDING) await this.start()
     if (status.terminated) return
 
-    status.next(TaskStatusEnum.ATTEMPT_COMPLETING)
+    status.next(TaskStatusEnum.ATTEMPT_COMPLETING, { strict: false })
     await this._promise
     status.next(TaskStatusEnum.COMPLETED, { strict: false })
   }

@@ -138,4 +138,42 @@ describe('AtomicTask', () => {
     expect(task.errors).toEqual([])
     expect(processor.process).toHaveBeenCalledTimes(1)
   })
+
+  it('should not throw when cancel() races with complete()', async () => {
+    const processor: ITaskProcessor = {
+      process: vi.fn(() => delay(20)),
+    }
+    const task = new AtomicTaskForTest(processor, TaskStrategyEnum.ABORT_ON_ERROR)
+
+    void task.start()
+    expect(task.status.getSnapshot()).toEqual(TaskStatusEnum.RUNNING)
+
+    // cancel() enters ATTEMPT_CANCELING; a complete() racing in must not throw on the
+    // forbidden ATTEMPT_CANCELING -> ATTEMPT_COMPLETING transition.
+    const cancelPromise = task.cancel()
+    expect(task.status.getSnapshot()).toEqual(TaskStatusEnum.ATTEMPT_CANCELING)
+    const completePromise = task.complete()
+
+    await expect(Promise.all([cancelPromise, completePromise])).resolves.toBeInstanceOf(Array)
+    expect(task.status.terminated).toBe(true)
+  })
+
+  it('should not throw when complete() races with cancel()', async () => {
+    const processor: ITaskProcessor = {
+      process: vi.fn(() => delay(20)),
+    }
+    const task = new AtomicTaskForTest(processor, TaskStrategyEnum.ABORT_ON_ERROR)
+
+    void task.start()
+    expect(task.status.getSnapshot()).toEqual(TaskStatusEnum.RUNNING)
+
+    // complete() enters ATTEMPT_COMPLETING; a cancel() racing in must not throw on the
+    // forbidden ATTEMPT_COMPLETING -> ATTEMPT_CANCELING transition.
+    const completePromise = task.complete()
+    expect(task.status.getSnapshot()).toEqual(TaskStatusEnum.ATTEMPT_COMPLETING)
+    const cancelPromise = task.cancel()
+
+    await expect(Promise.all([completePromise, cancelPromise])).resolves.toBeInstanceOf(Array)
+    expect(task.status.terminated).toBe(true)
+  })
 })

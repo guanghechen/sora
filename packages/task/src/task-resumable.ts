@@ -56,7 +56,7 @@ export abstract class ResumableTask implements ITask {
 
   public async cancel(): Promise<void> {
     if (this.status.terminated) return
-    this.status.next(TaskStatusEnum.ATTEMPT_CANCELING)
+    this.status.next(TaskStatusEnum.ATTEMPT_CANCELING, { strict: false })
     await this._step
     this.status.next(TaskStatusEnum.CANCELLED, { strict: false })
   }
@@ -66,7 +66,7 @@ export abstract class ResumableTask implements ITask {
     if (status.getSnapshot() === TaskStatusEnum.PENDING) await this.start()
     if (status.terminated) return
 
-    status.next(TaskStatusEnum.ATTEMPT_COMPLETING)
+    status.next(TaskStatusEnum.ATTEMPT_COMPLETING, { strict: false })
 
     // Waiting current step to complete.
     await this._step
