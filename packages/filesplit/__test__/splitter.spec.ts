@@ -191,4 +191,14 @@ describe('splitter', () => {
     await fileHelper.merge(partPathsG, filepath2G)
     expect(readFileSync(filepath2G, encoding)).toEqual(contentG)
   })
+
+  it('merge rejects (without crashing) when an input part is missing', async () => {
+    const missing = path.join(workspaceDir, '__missing__.part')
+    expect(existsSync(filepathB)).toEqual(true)
+    expect(existsSync(missing)).toEqual(false)
+
+    // A missing part must surface as a catchable rejection, not an unheard 'error' event that
+    // crashes the process.
+    await expect(fileHelper.merge([filepathB, missing], filepath2B)).rejects.toThrow()
+  })
 })

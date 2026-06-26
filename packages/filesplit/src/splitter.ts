@@ -1,8 +1,9 @@
 import type { IFilePartItem } from '@guanghechen/filepart'
 import { DEFAULT_FILEPART_CODE_PREFIX, calcFilePartNames } from '@guanghechen/filepart'
 import { invariant } from '@guanghechen/invariant'
-import { consumeStream, consumeStreams } from '@guanghechen/stream'
+import { consumeStream } from '@guanghechen/stream'
 import { createReadStream, createWriteStream } from 'node:fs'
+import { pipeline } from 'node:stream/promises'
 import type { IFileSplitter } from './types'
 
 interface IProps {
@@ -73,15 +74,25 @@ export class FileSplitter implements IFileSplitter {
   public async merge(inputFilepaths: string[], outputFilepath: string): Promise<void> {
     invariant(inputFilepaths.length > 0, 'Input file list is empty!')
 
-    const readers: NodeJS.ReadableStream[] = inputFilepaths.map(filepath =>
-      createReadStream(filepath, { encoding: this.#encoding }),
-    )
-    const writer: NodeJS.WritableStream = createWriteStream(outputFilepath, {
-      encoding: this.#encoding,
-    })
+    const encoding = this.#encoding
+    const filepaths = [...inputFilepaths]
 
-    // The operation of merging files could not be processed in parallel.
-    await consumeStreams(readers, writer)
+    // Open each part only when the merged stream reaches it. Creating every read stream up-front
+    // lets later missing parts emit errors before a consumer is attached, which can crash Node as
+    // an unhandled 'error' event.
+    const readParts = async function* (): AsyncIterable<string | Buffer> {
+      for (const filepath of filepaths) {
+        const reader: NodeJS.ReadableStream = createReadStream(filepath, { encoding })
+        for await (const chunk of reader) yield chunk
+      }
+    }
+
+    await pipeline(
+      readParts(),
+      createWriteStream(outputFilepath, {
+        encoding,
+      }),
+    )
   }
 }
 
