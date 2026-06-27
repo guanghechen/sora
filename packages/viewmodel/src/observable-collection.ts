@@ -98,6 +98,7 @@ export class ObservableCollection<K, V, C extends IImmutableCollection<K, V>>
       if (strict) {
         throw new RangeError(`Don't update a disposed observable. value: ${String(value)}.`)
       }
+      return
     }
 
     const force: boolean = options?.force ?? false

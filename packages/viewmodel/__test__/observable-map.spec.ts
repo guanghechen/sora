@@ -221,6 +221,13 @@ describe('ObservableMap', () => {
       expect(() => observableMap.set('A', 'v', { strict: false })).not.toThrow()
     })
 
+    it('should not mutate state on set after disposal in non-strict mode', () => {
+      observableMap.set('A', 'v1')
+      observableMap.dispose()
+      observableMap.set('A', 'v2', { strict: false })
+      expect(observableMap.get('A')).toBe('v1')
+    })
+
     it('should return disposed observable when observeKey is called after dispose', () => {
       observableMap.set('A', 'value')
       observableMap.dispose()
