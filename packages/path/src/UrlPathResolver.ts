@@ -92,8 +92,12 @@ export class UrlPathResolver implements IPathResolver {
   protected _internalRelative(from_: string, to_: string): string {
     const from: string = this.normalize(from_)
     const to: string = this.normalize(to_)
-    const fromPieces: string[] = from.split('/')
-    const toPieces: string[] = to.split('/')
+    // Represent the root as [''] -- a single leading-empty anchor, i.e. zero real segments.
+    // Splitting it would yield ['', ''], whose extra trailing empty inflates the depth and
+    // prepends a spurious '..'. The leading '' must stay (not []): the common-prefix scan below
+    // consumes it, otherwise the shared root slash leaks into the result as a '/' prefix.
+    const fromPieces: string[] = from === '/' ? [''] : from.split('/')
+    const toPieces: string[] = to === '/' ? [''] : to.split('/')
 
     let ci = 0
     const L: number = fromPieces.length < toPieces.length ? fromPieces.length : toPieces.length

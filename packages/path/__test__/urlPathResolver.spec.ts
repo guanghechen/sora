@@ -55,5 +55,18 @@ describe('UrlPathResolver', () => {
     expect(pathResolver.relative('/a/b/d', '/a/b/c')).toEqual('../c')
     expect(pathResolver.relative('/a/b/d', '/b')).toEqual('../../../b')
     expect(pathResolver.relative('/a/b/d', '/a/b/d/e')).toEqual('e')
+    // From the URL root, a descendant must not be prefixed with a spurious '..'.
+    expect(pathResolver.relative('/', '/a')).toEqual('a')
+    expect(pathResolver.relative('/', '/a/b')).toEqual('a/b')
+    // To the URL root: keeps the existing ancestor-target convention (a trailing slash).
+    expect(pathResolver.relative('/a', '/')).toEqual('../')
+    expect(pathResolver.relative('/a/b', '/')).toEqual('../../')
+  })
+
+  it('safe relative under root "/"', () => {
+    expect(pathResolver.isSafeRelative('/', '/a')).toEqual(true)
+    expect(pathResolver.isSafeRelative('/', '/a/b')).toEqual(true)
+    expect(pathResolver.safeRelative('/', '/a/b')).toEqual('a/b')
+    expect(pathResolver.safeResolve('/', '/a/b')).toEqual('/a/b')
   })
 })
