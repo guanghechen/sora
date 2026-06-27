@@ -1,5 +1,12 @@
 # Change Log
 
+## 2.1.2
+
+### Patch Changes
+
+- Fix URL relative resolution against root and guard nearest-file lookup against unreadable
+  directories.
+
 ## 2.1.1
 
 ### Patch Changes

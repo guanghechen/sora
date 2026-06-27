@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.0.3
+
+### Patch Changes
+
+- Overwrite buffers with cryptographically strong random data.
+
 ## 2.0.2
 
 ### Patch Changes

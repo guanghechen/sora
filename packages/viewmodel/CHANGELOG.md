@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.1.3
+
+### Patch Changes
+
+- Prevent ObservableCollection.next from mutating after disposal.
+
 ## 2.1.2
 
 ### Patch Changes

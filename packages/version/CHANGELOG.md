@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.0.3
+
+### Patch Changes
+
+- Treat wildcard upper bounds of hyphen ranges as unbounded.
+
 ## 1.0.2
 
 ### Patch Changes

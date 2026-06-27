@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.0.3
+
+### Patch Changes
+
+- Merge inputs lazily to prevent file descriptor leaks and missing-part crashes.
+
 ## 2.0.2
 
 ### Patch Changes

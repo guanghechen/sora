@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.0.3
+
+### Patch Changes
+
+- Parse byte-size suffixes such as KB, MB, and GB correctly.
+
 ## 2.0.2
 
 ### Patch Changes

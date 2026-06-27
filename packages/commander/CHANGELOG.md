@@ -1,5 +1,12 @@
 # Change Log
 
+## 4.8.1
+
+### Patch Changes
+
+- Fix negative-number preset option serialization, reject empty coerce input, and avoid long-name
+  conflicts with no- negation options.
+
 ## 4.8.0
 
 ### Minor Changes

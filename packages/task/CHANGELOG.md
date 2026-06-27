@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.1.3
+
+### Patch Changes
+
+- Avoid RangeError when cancel() and complete() race.
+
 ## 2.1.2
 
 ### Patch Changes

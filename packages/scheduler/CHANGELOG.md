@@ -1,5 +1,13 @@
 # Change Log
 
+## 7.1.3
+
+### Patch Changes
+
+- Fix dropped-material handling and complete() termination via the base task lifecycle.
+- Updated dependencies:
+  - @guanghechen/task@2.1.3
+
 ## 7.1.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.0.3
+
+### Patch Changes
+
+- Fix deep equality for Map, Set, typed arrays, DataView/ArrayBuffer, and null-prototype objects.
+
 ## 2.0.2
 
 ### Patch Changes
