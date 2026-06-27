@@ -10,7 +10,7 @@ import { isDomain, isIp } from './is'
 export class Coerce {
   private constructor() {}
 
-  private static create(
+  private static createNumberCoerce(
     name: string,
     expectedType: string,
     validator: (value: number) => boolean,
@@ -69,7 +69,12 @@ export class Coerce {
   }
 
   public static integer(name: string, errorMessage?: string): (rawValue: string) => number {
-    return this.create(name, 'an integer', value => Number.isInteger(value), errorMessage)
+    return this.createNumberCoerce(
+      name,
+      'an integer',
+      value => Number.isInteger(value),
+      errorMessage,
+    )
   }
 
   public static ip(name: string, errorMessage?: string): (rawValue: string) => string {
@@ -85,11 +90,16 @@ export class Coerce {
   }
 
   public static number(name: string, errorMessage?: string): (rawValue: string) => number {
-    return this.create(name, 'a finite number', value => Number.isFinite(value), errorMessage)
+    return this.createNumberCoerce(
+      name,
+      'a finite number',
+      value => Number.isFinite(value),
+      errorMessage,
+    )
   }
 
   public static port(name: string, errorMessage?: string): (rawValue: string) => number {
-    return this.create(
+    return this.createNumberCoerce(
       name,
       'a valid port number (0-65535)',
       value => Number.isInteger(value) && value >= 0 && value <= 65535,
@@ -98,7 +108,7 @@ export class Coerce {
   }
 
   public static positiveInteger(name: string, errorMessage?: string): (rawValue: string) => number {
-    return this.create(
+    return this.createNumberCoerce(
       name,
       'a positive integer',
       value => Number.isInteger(value) && value > 0,
@@ -107,7 +117,7 @@ export class Coerce {
   }
 
   public static positiveNumber(name: string, errorMessage?: string): (rawValue: string) => number {
-    return this.create(
+    return this.createNumberCoerce(
       name,
       'a positive number',
       value => Number.isFinite(value) && value > 0,
