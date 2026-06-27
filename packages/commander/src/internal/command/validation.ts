@@ -46,7 +46,7 @@ export function validateOptionConfig<T>(params: {
     )
   }
 
-  if (opt.long.startsWith('no')) {
+  if (/^no[A-Z]/.test(opt.long)) {
     throw new CommanderError(
       'ConfigurationError',
       `option long name cannot start with "no": "${opt.long}"`,

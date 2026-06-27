@@ -2154,6 +2154,16 @@ describe('Command (spec aligned)', () => {
       expect(() =>
         cmd.option({ long: 'noOutput', type: 'boolean', args: 'none', desc: 'bad' }),
       ).toThrow('cannot start with "no"')
+      // A long name that merely begins with the letters "no" (not the negation prefix) is valid.
+      expect(() =>
+        cmd.option({ long: 'node', type: 'boolean', args: 'none', desc: 'node' }),
+      ).not.toThrow()
+      expect(() =>
+        cmd.option({ long: 'noop', type: 'boolean', args: 'none', desc: 'noop' }),
+      ).not.toThrow()
+      expect(() =>
+        cmd.option({ long: 'normalize', type: 'boolean', args: 'none', desc: 'normalize' }),
+      ).not.toThrow()
       expect(() =>
         cmd.option({ long: 'Output', type: 'boolean', args: 'none', desc: 'bad' }),
       ).toThrow('must be camelCase')
