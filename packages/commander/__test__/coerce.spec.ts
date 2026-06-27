@@ -33,6 +33,13 @@ describe('coerce', () => {
 
       expect(() => coerce('abc')).toThrow('scale must be finite')
     })
+
+    it('should reject empty or whitespace-only input instead of coercing to 0', () => {
+      const coerce = Coerce.number('--scale')
+
+      expect(() => coerce('')).toThrow('--scale is expected as a finite number')
+      expect(() => coerce('   ')).toThrow('--scale is expected as a finite number')
+    })
   })
 
   describe('Coerce.integer', () => {

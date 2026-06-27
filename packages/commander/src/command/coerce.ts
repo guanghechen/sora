@@ -18,7 +18,9 @@ export class Coerce {
   ): (rawValue: string) => number {
     return (rawValue: string): number => {
       const value = Number(rawValue)
-      if (!validator(value)) {
+      // `Number('')` and `Number('   ')` are 0, so guard empty/whitespace-only input explicitly;
+      // otherwise validators that accept 0 (integer/number/port) would silently coerce it to 0.
+      if (rawValue.trim() === '' || !validator(value)) {
         throw new Error(
           errorMessage ?? `${name} is expected as ${expectedType}, but got ${rawValue}`,
         )
