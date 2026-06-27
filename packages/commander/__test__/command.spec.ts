@@ -1274,6 +1274,28 @@ describe('Command (spec aligned)', () => {
       })
     })
 
+    it('should apply negative-number preset option values', async () => {
+      await withTempDir(async tmpDir => {
+        const presetFile = path.join(tmpDir, 'preset.json')
+        await writeFile(
+          presetFile,
+          JSON.stringify({
+            version: 1,
+            defaults: { profile: 'dev' },
+            profiles: { dev: { opts: { offset: -5, sizes: [-1, 2] } } },
+          }),
+        )
+
+        const cmd = new Command({ name: 'cli', desc: 'cli' })
+          .option({ long: 'offset', type: 'number', args: 'required', desc: 'offset' })
+          .option({ long: 'sizes', type: 'number', args: 'variadic', desc: 'sizes' })
+
+        const result = await cmd.parse({ argv: [`--preset-file=${presetFile}`], envs: {} })
+        expect(result.opts.offset).toBe(-5)
+        expect(result.opts.sizes).toEqual([-1, 2])
+      })
+    })
+
     it('should report parse-stage error for invalid preset option fragment payload', async () => {
       await withTempDir(async tmpDir => {
         const presetFile = path.join(tmpDir, 'preset.json')

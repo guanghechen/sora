@@ -723,8 +723,12 @@ export class CommandPresetProfileParser {
         continue
       }
 
+      // A negative number must be attached to its flag with '=' (e.g. `--offset=-5`); pushed as a
+      // separate token, `-5` is re-tokenized as an option and never consumed as the value.
       if (typeof rawValue === 'number') {
-        argv.push(positiveFlag, String(rawValue))
+        const value = String(rawValue)
+        if (value.startsWith('-')) argv.push(`${positiveFlag}=${value}`)
+        else argv.push(positiveFlag, value)
         continue
       }
 
@@ -732,7 +736,13 @@ export class CommandPresetProfileParser {
         continue
       }
 
-      argv.push(positiveFlag, ...rawValue.map(value => String(value)))
+      // Same '=' rule when the list holds a negative number; switch the whole list to '=' form so a
+      // bare run after the negative element is not mis-grouped by the variadic parser.
+      if (rawValue.some(value => typeof value === 'number' && String(value).startsWith('-'))) {
+        for (const value of rawValue) argv.push(`${positiveFlag}=${String(value)}`)
+      } else {
+        argv.push(positiveFlag, ...rawValue.map(value => String(value)))
+      }
     }
 
     return argv
