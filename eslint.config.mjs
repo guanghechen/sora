@@ -10,6 +10,7 @@ export default [
   {
     ignores: [
       '.vscode/',
+      '**/*.d.ts',
       '**/__tmp__/',
       '**/__test__/fixtures/',
       '**/coverage/',
@@ -129,11 +130,12 @@ export default [
     },
   },
   {
-    files: ['**/__test__/**/*.ts', 'vitest.helper.mts'],
+    files: ['**/__test__/**/*.{ts,mjs}', 'vitest.helper.mts'],
     languageOptions: {
       globals: { ...globals.node },
     },
     rules: {
+      '@typescript-eslint/no-empty-function': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       'import-x/no-extraneous-dependencies': 'off',

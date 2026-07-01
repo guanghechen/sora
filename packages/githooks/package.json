@@ -1,0 +1,44 @@
+{
+  "name": "@guanghechen/githooks",
+  "version": "1.0.0",
+  "description": "A tiny zero-dependency git hooks installer driven by a package.json config",
+  "author": {
+    "name": "guanghechen",
+    "url": "https://github.com/guanghechen/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guanghechen/sora/tree/release-2.x.x",
+    "directory": "packages/githooks"
+  },
+  "homepage": "https://github.com/guanghechen/sora/tree/release-2.x.x/packages/githooks#readme",
+  "type": "module",
+  "bin": {
+    "githooks": "./cli.mjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.mjs"
+    }
+  },
+  "types": "./index.d.ts",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "test": "vitest run --config ../../vitest.config.ts",
+    "test:coverage": "vitest run --config ../../vitest.config.ts --coverage",
+    "test:update": "vitest run --config ../../vitest.config.ts -u"
+  },
+  "files": [
+    "cli.mjs",
+    "index.mjs",
+    "index.d.ts",
+    "package.json",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ]
+}

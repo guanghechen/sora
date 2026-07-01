@@ -98,11 +98,13 @@ function getOtherPackageExcludes(): string[] {
 export default defineConfig({
   test: {
     environment: 'node',
-    include: ['__test__/**/*.spec.ts'],
+    include: ['__test__/**/*.spec.{ts,mjs}'],
     globals: true,
+    // Force vite to transform this flat .mjs source so v8 coverage can remap + enforce it.
+    server: { deps: { inline: [/[\\/]packages[\\/]githooks[\\/]index\.mjs$/] } },
     coverage: {
       provider: 'v8',
-      include: ['src/**/*.ts'],
+      include: ['src/**/*.ts', 'index.mjs'],
       exclude: ['**/node_modules/**', '**/__test__/**', ...getOtherPackageExcludes()],
       thresholds: loadCoverageThresholds(),
     },
