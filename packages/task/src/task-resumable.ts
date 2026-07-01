@@ -74,7 +74,7 @@ export abstract class ResumableTask implements ITask {
     // Execute until the task is terminated.
     const execution: IterableIterator<Promise<void>> = this._execution!
 
-    for (let alive = true; alive; ) {
+    for (let alive = true; alive;) {
       const step = execution.next()
       if (step.done) {
         const nextStatus: TaskStatusEnum =

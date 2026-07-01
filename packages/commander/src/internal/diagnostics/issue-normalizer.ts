@@ -131,8 +131,7 @@ export class CommandIssueNormalizer {
       .map(issue => this.#normalizeIssue(issue))
       .filter((issue): issue is ICommandErrorIssue | ICommandHintIssue => issue !== undefined)
     const primaryError = normalized.find(issue => issue.kind === 'error') as
-      | ICommandErrorIssue
-      | undefined
+      ICommandErrorIssue | undefined
     const hints = normalized.filter(issue => issue.kind === 'hint')
 
     if (primaryError === undefined) {

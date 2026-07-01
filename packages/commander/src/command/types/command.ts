@@ -44,10 +44,7 @@ export interface ICommandPresetConfig {
 
 /** Allowed inline profile option value */
 export type ICommandPresetProfileOptionValue =
-  | boolean
-  | string
-  | number
-  | ReadonlyArray<string | number>
+  boolean | string | number | ReadonlyArray<string | number>
 
 /** Variant item nested under a preset profile */
 export interface ICommandPresetProfileVariantItem {

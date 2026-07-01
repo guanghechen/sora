@@ -19,13 +19,7 @@ export interface ICommandIssueSourceAttribution {
 }
 
 export type ICommandIssueScope =
-  | 'control'
-  | 'preset'
-  | 'option'
-  | 'argument'
-  | 'command'
-  | 'runtime'
-  | 'action'
+  'control' | 'preset' | 'option' | 'argument' | 'command' | 'runtime' | 'action'
 
 export type ICommandErrorIssueCode =
   | 'invalid_option_format'
