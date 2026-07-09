@@ -65,18 +65,6 @@ const neverBundle = externalDeps.map(
   name => new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:/|$)`),
 )
 
-// Rolldown injects `//#region <src path>` / `//#endregion` module markers into both the JS
-// and dts output, leaking the internal source tree. Strip those whole lines in renderChunk.
-// We return `map: null` to keep the existing sourcemap without a SOURCEMAP_BROKEN warning;
-// the slight line drift only affects dev maps, which are never published (files "!lib/**/*.map").
-const stripRegionComments = {
-  name: 'strip-region-comments',
-  renderChunk(code: string): null | { code: string; map: null } {
-    const stripped = code.replace(/^[ \t]*\/\/#(?:region|endregion)\b.*\r?\n?/gm, '')
-    return stripped === code ? null : { code: stripped, map: null }
-  },
-}
-
 // One config per entry: single-entry builds are self-contained (no cross-entry shared
 // chunk), keeping browser/node isolated. `clean` is off so these sibling configs don't
 // wipe each other's shared lib/{esm,cjs} dirs; the up-front rmSync handles cleaning.
@@ -89,7 +77,9 @@ for (const [name, input] of Object.entries(resolveEntries(manifest))) {
     clean: false,
     tsconfig,
     deps: { neverBundle },
-    plugins: [stripRegionComments],
+    // Disable rolldown's `//#region <src path>` module markers (default 'simple'); they
+    // otherwise leak the internal source tree into both the JS and .d.ts output.
+    inputOptions: { experimental: { attachDebugInfo: 'none' as const } },
   }
 
   // ESM -> lib/esm/<name>.mjs
