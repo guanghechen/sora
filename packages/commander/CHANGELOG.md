@@ -1,5 +1,15 @@
 # Change Log
 
+## 4.8.2
+
+### Patch Changes
+
+- Rebuild with tsdown (Rolldown + Oxc) in place of Rollup. No API or output-shape changes; the
+  bundled artifacts are functionally equivalent.
+- Updated dependencies:
+  - @guanghechen/env@2.0.3
+  - @guanghechen/reporter@3.3.1
+
 ## 4.8.1
 
 ### Patch Changes

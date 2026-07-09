@@ -1,5 +1,19 @@
 # Change Log
 
+## 7.1.4
+
+### Patch Changes
+
+- Rebuild with tsdown (Rolldown + Oxc) in place of Rollup. No API or output-shape changes; the
+  bundled artifacts are functionally equivalent.
+- Updated dependencies:
+  - @guanghechen/middleware@2.0.3
+  - @guanghechen/observable@7.1.3
+  - @guanghechen/reporter@3.3.1
+  - @guanghechen/subscriber@2.1.2
+  - @guanghechen/task@2.1.4
+  - @guanghechen/types@2.2.1
+
 ## 7.1.3
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # Change Log
 
+## 3.3.1
+
+### Patch Changes
+
+- Rebuild with tsdown (Rolldown + Oxc) in place of Rollup. No API or output-shape changes; the
+  bundled artifacts are functionally equivalent.
+
 ## 3.3.0
 
 ### Minor Changes

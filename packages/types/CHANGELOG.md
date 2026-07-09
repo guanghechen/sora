@@ -1,5 +1,12 @@
 # Change Log
 
+## 2.2.1
+
+### Patch Changes
+
+- Rebuild with tsdown (Rolldown + Oxc) in place of Rollup. No API or output-shape changes; the
+  bundled artifacts are functionally equivalent.
+
 ## 2.2.0
 
 ### Minor Changes

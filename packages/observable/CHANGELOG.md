@@ -1,5 +1,16 @@
 # Change Log
 
+## 7.1.3
+
+### Patch Changes
+
+- Rebuild with tsdown (Rolldown + Oxc) in place of Rollup. No API or output-shape changes; the
+  bundled artifacts are functionally equivalent.
+- Updated dependencies:
+  - @guanghechen/disposable@2.1.2
+  - @guanghechen/subscriber@2.1.2
+  - @guanghechen/types@2.2.1
+
 ## 7.1.2
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # Change Log
 
+## 2.0.4
+
+### Patch Changes
+
+- Rebuild with tsdown (Rolldown + Oxc) in place of Rollup. No API or output-shape changes; the
+  bundled artifacts are functionally equivalent.
+- Updated dependencies:
+  - @guanghechen/filepart@2.0.3
+  - @guanghechen/invariant@7.0.3
+  - @guanghechen/stream@2.0.4
+
 ## 2.0.3
 
 ### Patch Changes
