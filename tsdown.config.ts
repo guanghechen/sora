@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, rmSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { type UserConfig, defineConfig } from 'tsdown'
@@ -7,6 +7,11 @@ import { type UserConfig, defineConfig } from 'tsdown'
 // rolldown anchors relative entry/outDir/copy to the config file's dir (repo root),
 // so those must be absolute (based on cwd); manifest/tsconfig resolve against cwd.
 const manifest = JSON.parse(readFileSync(path.resolve('package.json'), 'utf8'))
+
+// Wipe lib/ once up front (tsdown's per-config clean is off below to keep multi-entry
+// builds from clearing each other's shared lib/{esm,cjs}). Without this, stale artifacts
+// from a previous build linger — e.g. sourcemaps from a dev build survive a production one.
+rmSync(path.resolve('lib'), { recursive: true, force: true })
 
 const shouldSourcemap = process.env.SOURCEMAP === 'true'
 const tsconfig = 'tsconfig.lib.json'
@@ -61,8 +66,8 @@ const neverBundle = externalDeps.map(
 )
 
 // One config per entry: single-entry builds are self-contained (no cross-entry shared
-// chunk), keeping browser/node isolated. `clean` is off (like the old rollup setup) to
-// avoid siblings wiping the shared lib/{esm,cjs} dirs; use `rimraf lib` to clean.
+// chunk), keeping browser/node isolated. `clean` is off so these sibling configs don't
+// wipe each other's shared lib/{esm,cjs} dirs; the up-front rmSync handles cleaning.
 const configs: UserConfig[] = []
 let copyAttached = false
 for (const [name, input] of Object.entries(resolveEntries(manifest))) {
