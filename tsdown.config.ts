@@ -16,6 +16,12 @@ rmSync(path.resolve('lib'), { recursive: true, force: true })
 const shouldSourcemap = process.env.SOURCEMAP === 'true'
 const tsconfig = 'tsconfig.lib.json'
 
+// Match the old rollup build's `removeComments` (both build scripts set NODE_ENV=production).
+// Strip JSDoc from the JS bundles, but keep legal (licenses) and annotation (`@__PURE__`,
+// tree-shaking hints) comments. The dts build is left untouched so declarations keep JSDoc.
+const jsComments =
+  process.env.NODE_ENV === 'production' ? { legal: true, annotation: true, jsdoc: false } : true
+
 // Derive build entries from the package `exports`: output basename -> source (absolute).
 // Single entry uses `.`; multi-entry iterates subpaths, skipping `null`.
 function resolveEntries(pkg: Record<string, any>): Record<string, string> {
@@ -90,7 +96,7 @@ for (const [name, input] of Object.entries(resolveEntries(manifest))) {
     fixedExtension: true,
     dts: false,
     sourcemap: shouldSourcemap,
-    outputOptions: { exports: 'named' },
+    outputOptions: { exports: 'named', comments: jsComments },
     copy: copyAttached ? undefined : copy,
   })
   copyAttached = true
@@ -103,7 +109,7 @@ for (const [name, input] of Object.entries(resolveEntries(manifest))) {
     fixedExtension: true,
     dts: false,
     sourcemap: shouldSourcemap,
-    outputOptions: { exports: 'named' },
+    outputOptions: { exports: 'named', comments: jsComments },
   })
 
   // Types -> lib/types/<name>.d.ts (bundled dts only, no JS).
