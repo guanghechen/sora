@@ -51,11 +51,11 @@ Each package in `packages/` follows:
 
 - `src/` - TypeScript source
 - `lib/` - Build output (esm, cjs, types)
-- Dual ESM/CJS exports via rollup
+- Dual ESM/CJS exports via tsdown
 
 ## Tech Stack
 
-- **Build**: Rollup + TypeScript
+- **Build**: tsdown (Rolldown + Oxc)
 - **Test**: Vitest
 - **Lint**: ESLint + Prettier
 - **Versioning**: Changesets (independent mode)

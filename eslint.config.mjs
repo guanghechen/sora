@@ -150,7 +150,7 @@ export default [
     },
   },
   {
-    files: ['eslint.config.mjs', 'rollup.config.mjs'],
+    files: ['eslint.config.mjs', 'tsdown.config.ts'],
     rules: {
       'import-x/no-anonymous-default-export': 'off',
     },

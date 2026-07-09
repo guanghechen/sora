@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "ignoreDeprecations": "6.0",
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "include": ["packages/*/src"]
+}
