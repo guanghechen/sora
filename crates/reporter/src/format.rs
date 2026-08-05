@@ -1,16 +1,10 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use guanghechen_chalk::{AnsiColor, Color, ColorLevel, Renderer, Style};
+
 use crate::LogLevel;
 
-pub mod ansi {
-    pub const DEBUG: &str = "\x1b[90m";
-    pub const INFO: &str = "\x1b[36m";
-    pub const HINT: &str = "\x1b[35m";
-    pub const WARN: &str = "\x1b[33m";
-    pub const ERROR: &str = "\x1b[31m";
-    pub const DIM: &str = "\x1b[90m";
-    pub const RESET: &str = "\x1b[0m";
-}
+const DIM_STYLE: Style = Style::new().with_foreground(Color::Ansi(AnsiColor::BrightBlack));
 
 pub fn format_tag(level: LogLevel, prefixes: &[String], color: bool) -> String {
     let fallback;
@@ -20,42 +14,39 @@ pub fn format_tag(level: LogLevel, prefixes: &[String], color: bool) -> String {
     } else {
         prefixes
     };
-    if !color {
-        return format!("[{}]", prefixes.join(":"));
-    }
-    let color = level_color(level);
+    let renderer = renderer(color);
+    let level_style = level_style(level);
     let values = prefixes
         .iter()
-        .map(|prefix| format!("{color}{prefix}{}", ansi::RESET))
+        .map(|prefix| renderer.paint(level_style, prefix))
         .collect::<Vec<_>>()
-        .join(&format!("{}:{}", ansi::DIM, ansi::RESET));
-    format!(
-        "{}[{}{}{}]{}",
-        ansi::DIM,
-        ansi::RESET,
-        values,
-        ansi::DIM,
-        ansi::RESET
-    )
+        .join(":");
+    renderer.paint(DIM_STYLE, &format!("[{values}]"))
 }
 
 pub(crate) fn format_timestamp(timestamp: SystemTime, color: bool) -> String {
     let timestamp = iso_timestamp(timestamp);
-    if color {
-        format!("{}{timestamp}{}", ansi::DIM, ansi::RESET)
-    } else {
-        timestamp
-    }
+    renderer(color).paint(DIM_STYLE, &timestamp)
 }
 
-const fn level_color(level: LogLevel) -> &'static str {
-    match level {
-        LogLevel::Debug => ansi::DEBUG,
-        LogLevel::Info => ansi::INFO,
-        LogLevel::Hint => ansi::HINT,
-        LogLevel::Warn => ansi::WARN,
-        LogLevel::Error => ansi::ERROR,
-    }
+const fn renderer(color: bool) -> Renderer {
+    let level = if color {
+        ColorLevel::Ansi16
+    } else {
+        ColorLevel::None
+    };
+    Renderer::new(level)
+}
+
+const fn level_style(level: LogLevel) -> Style {
+    let color = match level {
+        LogLevel::Debug => AnsiColor::BrightBlack,
+        LogLevel::Info => AnsiColor::Cyan,
+        LogLevel::Hint => AnsiColor::Magenta,
+        LogLevel::Warn => AnsiColor::Yellow,
+        LogLevel::Error => AnsiColor::Red,
+    };
+    Style::new().with_foreground(Color::Ansi(color))
 }
 
 fn iso_timestamp(timestamp: SystemTime) -> String {
@@ -112,7 +103,7 @@ mod tests {
     use std::time::{Duration, UNIX_EPOCH};
 
     use super::{format_tag, format_timestamp, iso_timestamp};
-    use crate::{LogLevel, ansi};
+    use crate::LogLevel;
 
     #[test]
     fn formats_plain_and_colored_tags() {
@@ -125,10 +116,30 @@ mod tests {
             ),
             "[app:worker]"
         );
-        let colored = format_tag(LogLevel::Error, &["app".to_owned()], true);
-        assert!(colored.starts_with(ansi::DIM));
-        assert!(colored.contains(ansi::ERROR));
-        assert!(colored.ends_with(ansi::RESET));
+        assert_eq!(
+            format_tag(
+                LogLevel::Info,
+                &["app".to_owned(), "worker".to_owned()],
+                true
+            ),
+            concat!(
+                "\x1b[90m[\x1b[36mapp\x1b[39m\x1b[90m:",
+                "\x1b[36mworker\x1b[39m\x1b[90m]\x1b[39m"
+            )
+        );
+
+        for (level, open) in [
+            (LogLevel::Debug, "\x1b[90m"),
+            (LogLevel::Info, "\x1b[36m"),
+            (LogLevel::Hint, "\x1b[35m"),
+            (LogLevel::Warn, "\x1b[33m"),
+            (LogLevel::Error, "\x1b[31m"),
+        ] {
+            assert_eq!(
+                format_tag(level, &[], true),
+                format!("\x1b[90m[{open}{}\x1b[39m\x1b[90m]\x1b[39m", level.as_str())
+            );
+        }
     }
 
     #[test]
@@ -159,10 +170,7 @@ mod tests {
     #[test]
     fn color_wraps_only_the_timestamp() {
         let colored = format_timestamp(UNIX_EPOCH, true);
-        assert_eq!(
-            colored,
-            format!("{}1970-01-01T00:00:00.000Z{}", ansi::DIM, ansi::RESET)
-        );
+        assert_eq!(colored, "\x1b[90m1970-01-01T00:00:00.000Z\x1b[39m");
         assert_eq!(
             format_timestamp(UNIX_EPOCH, false),
             "1970-01-01T00:00:00.000Z"

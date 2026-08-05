@@ -2,9 +2,12 @@
 
 ## Scope
 
-`guanghechen-reporter` is the zero-dependency, thread-safe reporting foundation for runtime level,
+`guanghechen-reporter` is the thread-safe reporting foundation for runtime level,
 immutable prefix contexts, date, color, output, and generation-scoped test capture. File lifecycle,
 rotation, remote transport, JSON output, and custom formatter pipelines are caller concerns.
+
+Reporter depends on Chalk for ANSI rendering. The dependency is one-way: Reporter owns logging and
+color policy, while Chalk remains unaware of Reporter and process state.
 
 ## Public Contract
 
@@ -16,8 +19,10 @@ rotation, remote transport, JSON output, and custom formatter pipelines are call
 cloned reporter owns its prefix chain and shares the runtime core with its source reporter. Level,
 flight, capture, and output are therefore shared by every related reporter, while prefix chains remain
 isolated. `ReporterFlight` updates date/color only when present and retains omitted
-values; both default to enabled. Prefix components cannot contain `:`. Lazy messages run only after
-filtering.
+values; both default to enabled. Color-disabled formatting selects `ColorLevel::None`; color-enabled
+formatting explicitly selects `ColorLevel::Ansi16`. Reporter does not ask Chalk to detect terminal
+capability. Reporter exposes semantic formatting operations rather than raw ANSI escape constants.
+Prefix components cannot contain `:`. Lazy messages run only after filtering.
 
 Without a custom sink, debug/info/hint use stdout and warn/error use stderr. Every record ends with one
 newline; embedded message newlines are preserved. Output errors propagate unchanged. Capture bypasses
@@ -36,7 +41,8 @@ the tag.
 ```
 
 Color affects only timestamp/tag bytes; message bytes are untouched. Colors are gray debug, cyan info,
-magenta hint, yellow warn, red error, with gray delimiters and timestamps.
+magenta hint, yellow warn, red error, with gray delimiters and timestamps. Chalk renders nested tag
+colors with property-specific close and reopen sequences rather than blanket resets.
 
 ## Concurrency and Failure
 
