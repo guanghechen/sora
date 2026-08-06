@@ -7,6 +7,13 @@ name = "guanghechen-chalk"
 version = "0.1.0"
 
 [[package]]
+name = "guanghechen-commander"
+version = "0.1.0"
+dependencies = [
+ "guanghechen-chalk",
+]
+
+[[package]]
 name = "guanghechen-reporter"
 version = "0.1.0"
 dependencies = [
