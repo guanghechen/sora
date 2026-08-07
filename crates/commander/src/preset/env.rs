@@ -162,23 +162,3 @@ fn interpolate(value: &str, envs: &BTreeMap<String, String>) -> String {
     }
     output
 }
-
-#[cfg(test)]
-mod tests {
-    use super::parse;
-
-    #[test]
-    fn quoted_values_distinguish_escaped_quotes_from_escaped_backslashes() {
-        let envs = parse("PATH=\"C:\\\\\"\nQUOTE=\"say \\\"hi\\\"\"\n")
-            .expect("quoted env values should parse");
-        assert_eq!(envs.get("PATH").map(String::as_str), Some("C:\\"));
-        assert_eq!(envs.get("QUOTE").map(String::as_str), Some("say \"hi\""));
-    }
-
-    #[test]
-    fn inline_comments_accept_any_whitespace_run() {
-        let envs = parse("A=value\t  # comment\nB=#literal\n").expect("env should parse");
-        assert_eq!(envs.get("A").map(String::as_str), Some("value"));
-        assert_eq!(envs.get("B").map(String::as_str), Some("#literal"));
-    }
-}

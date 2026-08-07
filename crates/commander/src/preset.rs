@@ -1,11 +1,13 @@
 mod env;
 mod json;
+mod path;
 
 use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::Read;
-use std::path::{Component, Path, PathBuf};
+use std::path::{Path, PathBuf};
 
+use self::path::normalize_path;
 use crate::Command;
 use crate::error::{ParseError, ParseErrorKind};
 
@@ -454,30 +456,6 @@ fn resolve_path(
         ));
     }
     Ok(normalize_path(&base.join(path)))
-}
-
-fn normalize_path(path: &Path) -> PathBuf {
-    let mut normalized = PathBuf::new();
-    for component in path.components() {
-        match component {
-            Component::CurDir => {}
-            Component::ParentDir => {
-                let can_pop = matches!(
-                    normalized.components().next_back(),
-                    Some(Component::Normal(_))
-                );
-                if can_pop {
-                    normalized.pop();
-                } else if !path.is_absolute() {
-                    normalized.push(component.as_os_str());
-                }
-            }
-            Component::Prefix(_) | Component::RootDir | Component::Normal(_) => {
-                normalized.push(component.as_os_str());
-            }
-        }
-    }
-    normalized
 }
 
 fn read_file(
@@ -1215,23 +1193,4 @@ fn is_directive_token(token: &str) -> bool {
 
 fn is_control(token: &str) -> bool {
     matches!(token, "help" | "--help" | "-h" | "--version" | "-V")
-}
-
-#[cfg(test)]
-mod tests {
-    use std::path::{Path, PathBuf};
-
-    use super::normalize_path;
-
-    #[test]
-    fn lexical_normalization_preserves_unresolved_parent_components() {
-        assert_eq!(
-            normalize_path(Path::new("../../config/../preset.json")),
-            PathBuf::from("../../preset.json")
-        );
-        assert_eq!(
-            normalize_path(Path::new("base/../../preset.json")),
-            PathBuf::from("../preset.json")
-        );
-    }
 }
