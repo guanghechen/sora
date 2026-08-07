@@ -10,3 +10,10 @@ Before every commit:
 - Check the repository and staged changes for sensitive data, including credentials, API keys,
   tokens, passwords, private keys, and secret-bearing configuration files. Do not commit real
   sensitive values; use explicit placeholders in examples and fixtures.
+
+## Release Tags
+
+- Tag every published Rust crate separately.
+- Format each tag as `<crate-name>@v<crate-version>`, for example
+  `guanghechen-chalk@v0.1.0`.
+- Point each tag to the exact commit used to publish that crate.
