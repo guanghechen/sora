@@ -1,0 +1,47 @@
+name: Build
+
+on:
+  push:
+    branches: [rust]
+  pull_request:
+    branches: [rust]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      CARGO_TERM_COLOR: always
+      RUSTUP_TOOLCHAIN: 1.96.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+
+      - name: Install Rust toolchain
+        run: rustup toolchain install "$RUSTUP_TOOLCHAIN" --profile minimal --component clippy,rustfmt
+
+      - name: Audit repository
+        run: make audit
+
+      - name: Check formatting
+        run: make fmt
+
+      - name: Lint
+        run: make clippy
+
+      - name: Test
+        run: make test
+
+      - name: Build release artifacts
+        run: make build
