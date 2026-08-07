@@ -528,31 +528,33 @@ fn generated_shells_forward_cursor_scoped_words_at_runtime() {
         "{}\nprefix='{bash_prefix}'\nCOMP_LINE=\"$prefix trailing\"\nCOMP_POINT=${{#prefix}}\n_kit_completion_probe_completions\n",
         generate_completion("kit-completion-probe", Shell::Bash)
     );
-    run_shell_script("bash", &bash_script, &path, &log);
-    assert_eq!(
-        fs::read_to_string(&log).expect("bash probe log should exist"),
-        format!(
-            "completion\n--bash\n--\n__guanghechen_commander_bash_line_v1__\n{bash_prefix} trailing\n{}\n",
-            bash_prefix.len()
-        )
-    );
-    fs::remove_file(&log).expect("bash probe log should be removed");
+    if run_shell_script("bash", &bash_script, &path, &log) {
+        assert_eq!(
+            fs::read_to_string(&log).expect("bash probe log should exist"),
+            format!(
+                "completion\n--bash\n--\n__guanghechen_commander_bash_line_v1__\n{bash_prefix} trailing\n{}\n",
+                bash_prefix.len()
+            )
+        );
+        fs::remove_file(&log).expect("bash probe log should be removed");
+    }
 
     let fish_script = format!(
         "{}\nfunction commandline\n  if contains -- -opc $argv\n    printf '%s\\n' kit-completion-probe repo clone\n  else if contains -- -ct $argv\n    printf ''\n  end\nend\n__kit_completion_probe_complete >/dev/null\n",
         generate_completion("kit-completion-probe", Shell::Fish)
     );
-    run_shell_script("fish", &fish_script, &path, &log);
-    assert_eq!(
-        fs::read_to_string(&log).expect("fish probe log should exist"),
-        "completion\n--fish\n--\nrepo\nclone\n\n"
-    );
+    if run_shell_script("fish", &fish_script, &path, &log) {
+        assert_eq!(
+            fs::read_to_string(&log).expect("fish probe log should exist"),
+            "completion\n--fish\n--\nrepo\nclone\n\n"
+        );
+    }
 
     fs::remove_dir_all(&temp).expect("temp directory should be removed");
 }
 
 #[cfg(unix)]
-fn run_shell_script(program: &str, script: &str, path: &str, log: &std::path::Path) {
+fn run_shell_script(program: &str, script: &str, path: &str, log: &std::path::Path) -> bool {
     let mut command = ProcessCommand::new(program);
     if program == "fish" {
         command.arg("--no-config");
@@ -566,7 +568,7 @@ fn run_shell_script(program: &str, script: &str, path: &str, log: &std::path::Pa
         .spawn()
     {
         Ok(child) => child,
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return false,
         Err(error) => panic!("failed to launch {program}: {error}"),
     };
     child
@@ -581,6 +583,7 @@ fn run_shell_script(program: &str, script: &str, path: &str, log: &std::path::Pa
         "{program} runtime probe failed: {}",
         String::from_utf8_lossy(&output.stderr)
     );
+    true
 }
 
 fn assert_shell_syntax(program: &str, args: &[&str], script: String) {

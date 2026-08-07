@@ -1,7 +1,4 @@
-//! A deterministic, zero-dependency ANSI styling engine.
-//!
-//! Callers provide terminal capability explicitly. This crate does not inspect streams, environment
-//! variables, or TTY state.
+#![doc = include_str!("../README.md")]
 
 mod color;
 mod effect;
