@@ -12,7 +12,7 @@ publish.workspace = true
 include = ["src/**", "LICENSE", "README.md"]
 
 [dependencies]
-guanghechen-chalk = { path = "../chalk", version = "=0.1.0" }
+guanghechen-chalk = { path = "../chalk", version = "=0.1.1" }
 
 [lints]
 workspace = true

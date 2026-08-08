@@ -5,6 +5,16 @@ All notable changes to the Rust crates in this repository are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the crates use
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-08-08
+
+### Changed
+
+- `guanghechen-commander`: delegate preset environment parsing to `guanghechen-env`, adding
+  multiline quoted values and the shared key grammar while keeping declaration-order interpolation,
+  caller-owned environment acquisition, and value-redacted errors.
+- Publish all foundation crates at one synchronized version so exact internal dependency pins keep a
+  single compatible graph for downstream consumers.
+
 ## [0.1.0] - 2026-08-07
 
 ### Added

@@ -4,11 +4,11 @@ version = 4
 
 [[package]]
 name = "guanghechen-chalk"
-version = "0.1.0"
+version = "0.1.1"
 
 [[package]]
 name = "guanghechen-commander"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "guanghechen-chalk",
  "guanghechen-env",
@@ -16,11 +16,11 @@ dependencies = [
 
 [[package]]
 name = "guanghechen-env"
-version = "0.1.0"
+version = "0.1.1"
 
 [[package]]
 name = "guanghechen-reporter"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "guanghechen-chalk",
 ]
