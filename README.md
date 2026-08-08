@@ -9,7 +9,8 @@ publishes four crates:
 - [`guanghechen-env`](crates/env): deterministic `.env` parsing and recursive resolution;
 - [`guanghechen-reporter`](crates/reporter): thread-safe, level-based reporting.
 
-`commander` and `reporter` depend on `chalk`; `env` has no runtime dependencies.
+`env` has no runtime dependencies. `reporter` depends on `chalk`, while `commander` depends on both
+`chalk` and `env`.
 
 ## Development
 
@@ -27,9 +28,9 @@ make prepublish
 
 ## Release order
 
-All crates currently share one workspace version. `guanghechen-env` can be published independently.
-Publish `guanghechen-chalk` before `guanghechen-reporter` and `guanghechen-commander`, and wait until
-the new `chalk` version is available from the crates.io index before publishing its dependents.
+All crates currently share one workspace version. Publish `guanghechen-chalk` and
+`guanghechen-env` before their dependents, and wait until the new versions are available from the
+crates.io index before publishing `guanghechen-reporter` or `guanghechen-commander`.
 
 ## License
 

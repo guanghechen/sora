@@ -4,8 +4,8 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 
 use guanghechen_commander::{
     Argument, ArgumentCardinality, Command, CompletionErrorKind, DiagnosticStage, InputSourceKind,
-    OptionArity, OptionSpec, ParseErrorKind, ParseOutcome, PresetConfig, PresetSourceState,
-    ReasonCode, Value, ValueType, completion_command, completion_request,
+    OptionArity, OptionSpec, ParseErrorKind, ParseOutcome, ParseRequest, PresetConfig,
+    PresetSourceState, ReasonCode, Value, ValueType, completion_command, completion_request,
 };
 
 static TEMP_SEQUENCE: AtomicUsize = AtomicUsize::new(0);
@@ -131,6 +131,76 @@ fn applies_profile_variant_options_and_environment_precedence() {
     assert!(debug.contains("[REDACTED]"));
     assert!(!debug.contains("variant-inline"));
     assert!(!debug.contains("line1\\nline2"));
+}
+
+#[test]
+fn preset_env_files_follow_the_shared_env_contract() {
+    let temp = TempDir::new("env-contract");
+    temp.write(
+        "contract.env",
+        concat!(
+            "ROOT=/opt\n",
+            "database.host=localhost\n",
+            "database-port=5432\n",
+            "URL=${database.host}:${database-port}\n",
+            "EARLIER=${ROOT}/bin\n",
+            "FORWARD=${LATER}/forward\n",
+            "UNKNOWN=${MISSING}/data\n",
+            "FROM_CALLER=${CALLER_ONLY}/data\n",
+            "EMPTY_REFERENCE=${}\n",
+            "UNCLOSED_REFERENCE=${ROOT\n",
+            "LATER=ready\n",
+            "MULTILINE=\"hello ${ROOT}\n",
+            "# literal comment\n",
+            "line3\"\n",
+            "SINGLE='${ROOT}\n",
+            "literal'\n",
+            "ESCAPED=\\${ROOT}/literal\n",
+            ".LEADING=ignored\n",
+            "TRAILING.=ignored\n",
+        ),
+    );
+    let preset = temp.write(
+        "preset.json",
+        r#"{"version":1,"profiles":{"dev":{"envFile":"contract.env"}}}"#,
+    );
+    let command = Command::builder("cli", "CLI")
+        .build()
+        .expect("command should build");
+    let ParseOutcome::Matches(matches) = command
+        .parse(
+            ParseRequest::new([
+                format!("--preset-file={}", preset.display()),
+                "--preset-profile=dev".to_owned(),
+            ])
+            .environment([("CALLER_ONLY", "caller-value")]),
+        )
+        .expect("shared env syntax should parse")
+    else {
+        panic!("expected matches");
+    };
+
+    assert_eq!(matches.preset_env("database.host"), Some("localhost"));
+    assert_eq!(matches.preset_env("database-port"), Some("5432"));
+    assert_eq!(matches.preset_env("URL"), Some("localhost:5432"));
+    assert_eq!(matches.preset_env("EARLIER"), Some("/opt/bin"));
+    assert_eq!(matches.preset_env("FORWARD"), Some("/forward"));
+    assert_eq!(matches.preset_env("UNKNOWN"), Some("/data"));
+    assert_eq!(matches.preset_env("FROM_CALLER"), Some("/data"));
+    assert_eq!(matches.preset_env("EMPTY_REFERENCE"), Some("${}"));
+    assert_eq!(matches.preset_env("UNCLOSED_REFERENCE"), Some("${ROOT"));
+    assert_eq!(
+        matches.preset_env("MULTILINE"),
+        Some("hello /opt\n# literal comment\nline3")
+    );
+    assert_eq!(matches.preset_env("SINGLE"), Some("${ROOT}\nliteral"));
+    assert_eq!(matches.preset_env("ESCAPED"), Some("${ROOT}/literal"));
+    assert_eq!(matches.preset_env(".LEADING"), None);
+    assert_eq!(matches.preset_env("TRAILING."), None);
+    assert_eq!(
+        matches.effective_environment().get("CALLER_ONLY"),
+        Some(&"caller-value".to_owned())
+    );
 }
 
 #[test]
@@ -746,7 +816,10 @@ fn validates_only_selected_env_files_and_enforces_file_bounds() {
           }
         }"#,
     );
-    temp.write("broken.env", "BROKEN=\"unterminated\n");
+    temp.write(
+        "broken.env",
+        "VALID=ok\nBROKEN=\"sensitive-placeholder\nsecond-sensitive-placeholder",
+    );
     let command = Command::builder("cli", "CLI")
         .build()
         .expect("command should build");
@@ -765,7 +838,11 @@ fn validates_only_selected_env_files_and_enforces_file_bounds() {
         ])
         .expect_err("broken selected env file should fail");
     assert_eq!(error.kind(), ParseErrorKind::Configuration);
-    assert!(error.message().contains("failed to parse preset env file"));
+    assert!(error.message().contains(
+        "failed to parse preset env file \"broken.env\": Unclosed quote for environment variable BROKEN at line 2"
+    ));
+    assert!(!error.message().contains("sensitive-placeholder"));
+    assert!(!format!("{error:?}").contains("sensitive-placeholder"));
 
     let oversized = temp.write("oversized.json", vec![b' '; 1024 * 1024 + 1]);
     let error = command

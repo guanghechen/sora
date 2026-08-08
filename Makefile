@@ -36,7 +36,7 @@ help:
 		'make dry-run-chalk     Dry-run the chalk publish' \
 		'make dry-run-env       Dry-run the env publish' \
 		'make dry-run-reporter  Dry-run the reporter publish after chalk is indexed' \
-		'make dry-run-commander Dry-run the commander publish after reporter is indexed'
+		'make dry-run-commander Dry-run the commander publish after chalk and env are indexed'
 
 audit:
 	@set -u; \

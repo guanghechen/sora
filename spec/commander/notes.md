@@ -23,7 +23,8 @@ The final contract is defined only by `design.md`.
 - preset file-size and JSON-depth bounds, duplicate-key rejection, and deterministic parsing;
 - runtime completion queries driven by the parsing metadata;
 - dedicated completion files, explicit home input, and temporary-file replacement;
-- one-way Commander-to-Chalk dependency and no Commander-to-Reporter dependency.
+- one-way Commander-to-Chalk and Commander-to-Env dependencies, with no Commander-to-Reporter
+  dependency.
 
 ## Reject from Commander Core
 
@@ -49,6 +50,8 @@ layer.
 - help formatting becomes structured and may use Chalk when color is explicitly enabled.
 - parse errors gain normalized issue metadata while keeping deterministic text rendering.
 - environment values are redacted from `Debug` output while remaining available through accessors.
+- preset env files use the shared `guanghechen-env` declaration-order parser, including its key,
+  multiline quote, interpolation, and value-redacted error contracts.
 - completion queries emit candidate/description records for shell-native help text.
 - preset numbers use Rust-native finite-number formatting without a separate formatter dependency.
 

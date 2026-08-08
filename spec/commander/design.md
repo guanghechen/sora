@@ -8,9 +8,10 @@ Callers own process arguments, environment acquisition, streams, action dispatch
 Commander never reads or mutates global process state, invokes business actions, writes help or
 errors, or exits the process.
 
-Commander depends only on Chalk for help rendering. The dependency direction is one-way: Commander
-owns CLI semantics and color policy, while Chalk is unaware of Commander. Commander does not depend
-on Reporter; callers may apply parsed built-ins to a Reporter or another logging implementation.
+Commander depends on Chalk for help rendering and Env for preset `.env` parsing. Both dependency
+directions are one-way: Commander owns CLI and preset semantics, while Chalk and Env are unaware of
+Commander. Commander does not depend on Reporter; callers may apply parsed built-ins to a Reporter
+or another logging implementation.
 
 The command tree is built and validated before use, then remains immutable. A node owns its local
 definition and children; it has no parent pointer. Cloning a tree shares immutable coercion
@@ -126,9 +127,18 @@ precedes user argv, so user scalar values override and user variadics append.
 Manifest paths resolve from the explicit parse base directory; env-file paths resolve from the
 manifest directory. Only selected env files are read, each with the same 1 MiB bound. Environment
 precedence is caller environment, profile file, profile inline values, variant file, then variant
-inline values. Env files support identifiers, comments, `export`, single and double quotes, standard
-double-quote escapes, and interpolation from entries defined earlier in the same file. Commander
-returns the overlay and effective environment without mutating the caller's environment.
+inline values. Env files are parsed by `guanghechen-env` with declaration-order interpolation:
+only entries defined earlier in the same file are visible, and unknown or forward references become
+empty strings. Keys follow `[A-Za-z_](?:[A-Za-z0-9_.-]*[A-Za-z0-9_])?`, so `.` and `-` are literal
+internal name characters. Comments, `export`, single and double quotes, standard double-quote
+escapes, and escaped references are supported. Single- and double-quoted values may span physical
+lines; line endings normalize to LF. Single-quoted and escaped references remain literal. Empty or
+unclosed interpolation-shaped text is not a reference and also remains literal.
+
+An unclosed quote aborts preset parsing and identifies the environment file, key, and physical line
+where the declaration started. Diagnostics never include the source line or environment value.
+Commander returns the overlay and effective environment without mutating the caller's environment;
+environment acquisition remains caller-owned and no preset path reads process-global environment.
 
 The source ledger records clean user argv, canonical and user-spelled command paths, preset state
 (`skipped`, `none`, or `applied`), generated argv, environment overlay, and selected file/profile/
@@ -226,9 +236,9 @@ There are no blocking open design questions.
 
 Tests cover definition invariants; route and alias semantics; controls; option and argument grammar;
 numeric forms and coercion; inherited/local result views; built-in resolution; source-attributed
-diagnostics; preset selection, bounds, precedence, and env parsing; plain and styled help including
-Unicode alignment; deterministic version output; Bash/Fish/PowerShell generation and quoting;
-dynamic candidate routing; link-safe completion replacement; invalid UTF-8; and failure
-propagation. Debug-formatting tests verify that environment values are redacted across requests,
-matches, source snapshots, help outcomes, and version outcomes while environment keys remain
-visible.
+diagnostics; preset selection, bounds, precedence, and Env-backed key, multiline, interpolation, and
+value-redacted failure semantics; plain and styled help including Unicode alignment; deterministic
+version output; Bash/Fish/PowerShell generation and quoting; dynamic candidate routing; link-safe
+completion replacement; invalid UTF-8; and failure propagation. Debug-formatting tests verify that
+environment values are redacted across requests, matches, source snapshots, help outcomes, and
+version outcomes while environment keys remain visible.

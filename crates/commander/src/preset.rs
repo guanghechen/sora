@@ -1,4 +1,3 @@
-mod env;
 mod json;
 mod path;
 
@@ -6,6 +5,8 @@ use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
+
+use guanghechen_env::parse as parse_env;
 
 use self::path::normalize_path;
 use crate::Command;
@@ -1152,7 +1153,7 @@ fn read_env_file(
         )
         .with_preset_file(display_path)
     })?;
-    let envs = env::parse(content).map_err(|error| {
+    let envs = parse_env(content).map_err(|error| {
         configuration_error(
             command_path,
             format!(

@@ -13,6 +13,7 @@ include = ["src/**", "LICENSE", "README.md"]
 
 [dependencies]
 guanghechen-chalk = { path = "../chalk", version = "=0.1.0" }
+guanghechen-env = { path = "../env", version = "=0.1.0" }
 
 [lints]
 workspace = true
