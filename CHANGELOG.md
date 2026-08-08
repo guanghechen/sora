@@ -13,5 +13,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
   restoration, and ANSI16/ANSI256/true-color rendering.
 - `guanghechen-commander`: validated command trees, strict parsing, structured diagnostics, preset
   resolution, help data, and Bash/Fish/PowerShell completion.
+- `guanghechen-env`: deterministic `.env` parsing and stringification, recursive reference
+  resolution, prioritized upward file discovery, and value-redacted errors.
 - `guanghechen-reporter`: thread-safe level filtering, prefix contexts, configurable formatting,
   output injection, and isolated capture sessions.
