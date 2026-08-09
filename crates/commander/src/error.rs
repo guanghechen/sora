@@ -1,8 +1,9 @@
 use std::error::Error;
-use std::fmt::{self, Display, Formatter};
+use std::fmt::{self, Debug, Display, Formatter};
 use std::path::PathBuf;
 
 use crate::PresetSource;
+use crate::redaction::{REDACTED, RedactedSlice};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum DiagnosticStage {
@@ -182,7 +183,7 @@ impl PresetIssueMetadata {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq)]
 pub struct DiagnosticIssue {
     kind: IssueKind,
     stage: DiagnosticStage,
@@ -192,6 +193,22 @@ pub struct DiagnosticIssue {
     message: String,
     source: Option<SourceAttribution>,
     preset: Option<PresetIssueMetadata>,
+}
+
+impl Debug for DiagnosticIssue {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("DiagnosticIssue")
+            .field("kind", &self.kind)
+            .field("stage", &self.stage)
+            .field("origin_stage", &self.origin_stage)
+            .field("scope", &self.scope)
+            .field("reason_code", &self.reason_code)
+            .field("message", &REDACTED)
+            .field("source", &self.source)
+            .field("preset", &self.preset)
+            .finish()
+    }
 }
 
 impl DiagnosticIssue {
@@ -298,13 +315,26 @@ pub enum DefinitionErrorKind {
     OptionConflict,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq)]
 pub struct DefinitionError {
     kind: DefinitionErrorKind,
     command_path: String,
     message: String,
     hints: Vec<String>,
     issues: Vec<DiagnosticIssue>,
+}
+
+impl Debug for DefinitionError {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("DefinitionError")
+            .field("kind", &self.kind)
+            .field("command_path", &self.command_path)
+            .field("message", &REDACTED)
+            .field("hints", &RedactedSlice::new(&self.hints))
+            .field("issues", &self.issues)
+            .finish()
+    }
 }
 
 impl DefinitionError {
@@ -387,7 +417,7 @@ pub enum ParseErrorKind {
     TooManyArguments,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq)]
 pub struct ParseError {
     kind: ParseErrorKind,
     command_path: Box<str>,
@@ -395,6 +425,20 @@ pub struct ParseError {
     hints: Vec<String>,
     issues: Vec<DiagnosticIssue>,
     option: Option<Box<str>>,
+}
+
+impl Debug for ParseError {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("ParseError")
+            .field("kind", &self.kind)
+            .field("command_path", &self.command_path)
+            .field("message", &REDACTED)
+            .field("hints", &RedactedSlice::new(&self.hints))
+            .field("issues", &self.issues)
+            .field("option", &self.option)
+            .finish()
+    }
 }
 
 impl ParseError {

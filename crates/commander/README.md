@@ -24,6 +24,10 @@ Diagnostic messages visibly escape control and non-printable Unicode characters 
 argv, presets, paths, or custom coercers. Structured inputs and parsed values retain their original
 data.
 
+Container `Debug` implementations redact environment, argv, option, argument, preset, and completion
+query values by default. Existing accessors return the original data, and explicitly formatting an
+accessed `Value` reveals that value.
+
 ## License
 
 [MIT](https://github.com/guanghechen/sora/blob/rust/LICENSE)

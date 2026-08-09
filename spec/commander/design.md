@@ -96,11 +96,18 @@ inherited options, explicit-presence sets, converted and raw arguments, the effe
 control state, and immutable source snapshots. Parsing has no retry or rollback because it performs
 no caller-visible mutation.
 
-`Debug` output retains environment keys for diagnostics but renders every environment value as
-`[REDACTED]` in parse requests, matches, and user or preset source snapshots. Help and version
-outcomes inherit the same source redaction. Redaction changes only diagnostic formatting; parsing,
-environment accessors, and equality continue to use the original values. Other fields are not
-redacted.
+`Debug` output retains structure needed for diagnostics but renders every environment value, argv
+token, option value, argument value, raw positional value, builtin value, preset-generated token,
+completion query word, and explicit completion destination path as `[REDACTED]`. Environment,
+option, and argument keys; presence and source sets; canonical command paths; control state; preset
+metadata; and completion mode/destination shape remain visible. Help and version outcomes inherit
+the same source redaction.
+Redaction changes only container `Debug` formatting; parsing, equality, and every existing accessor
+continue to use the original values. Explicitly formatting a `Value` or value returned by an
+accessor is an intentional opt-in to full value visibility. Error-container `Debug` also redacts
+diagnostic messages, hints, and completion I/O source text while preserving error and issue
+classification, attribution, preset metadata, and source presence. `Display`, message/hint
+accessors, issue message accessors, and `Error::source` remain explicit full-detail paths.
 
 ## Presets and Environment
 
@@ -251,7 +258,8 @@ diagnostics; preset selection, bounds, precedence, and Env-backed key, multiline
 value-redacted failure semantics, including adversarial expansion chains; plain and styled help
 including Unicode alignment; deterministic version output; Bash/Fish/PowerShell generation and
 quoting; dynamic candidate routing; link-safe completion replacement; invalid UTF-8; and failure
-propagation. Debug-formatting tests verify that environment values are redacted across requests,
-matches, source snapshots, help outcomes, and version outcomes while environment keys remain
-visible. Diagnostic tests verify control escaping across argv, definitions, custom coercers, presets,
-completion I/O, and command-path rendering while structured values remain unchanged.
+propagation. Debug-formatting tests verify that environment, argv, option, argument, builtin, preset,
+and completion-query values are redacted across requests, matches, source snapshots, help outcomes,
+and version outcomes while structural keys and raw accessors remain available. Diagnostic tests
+verify control escaping across argv, definitions, custom coercers, presets, completion I/O, and
+command-path rendering while structured values remain unchanged.

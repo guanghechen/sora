@@ -130,6 +130,39 @@ fn completion_request_preserves_write_and_query_modes() {
 }
 
 #[test]
+fn completion_query_debug_redacts_words() {
+    const SECRET: &str = "completion-query-secret";
+    let command = command_tree();
+    let request = completion_request(&completion_matches(
+        &command,
+        ["completion", "--bash", "--", SECRET],
+    ))
+    .expect("query request should parse");
+
+    assert_eq!(request.words(), [SECRET]);
+    for debug in [format!("{request:?}"), format!("{:?}", request.mode())] {
+        assert!(debug.contains("[REDACTED]"));
+        assert!(!debug.contains(SECRET));
+    }
+
+    const PATH_SECRET: &str = "completion-write-path-secret";
+    let generate = completion_request(&completion_matches(
+        &command,
+        ["completion", "--bash", &format!("--write={PATH_SECRET}")],
+    ))
+    .expect("generate request should parse");
+    assert_eq!(
+        generate.destination(),
+        Some(&CompletionDestination::File {
+            path: Some(PATH_SECRET.to_owned())
+        })
+    );
+    let debug = format!("{generate:?}");
+    assert!(debug.contains("[REDACTED]"));
+    assert!(!debug.contains(PATH_SECRET));
+}
+
+#[test]
 fn completion_paths_resolve_shell_defaults() {
     let paths = CompletionPaths::for_program("kit");
     assert_eq!(
@@ -168,14 +201,18 @@ fn completion_io_errors_expose_normalized_issues() {
 
 #[test]
 fn completion_io_diagnostics_escape_path_controls() {
-    let path = std::path::Path::new("bad\nError: forged\x1b]52;c;payload\x07\0");
+    const SECRET: &str = "completion-debug-path-secret";
+    let path = std::path::Path::new(concat!(
+        "completion-debug-path-secret",
+        "\nError: forged\x1b]52;c;payload\x07\0"
+    ));
     let error = write_completion_file(path, b"content")
         .expect_err("NUL-bearing completion path should fail");
 
     assert!(
         error.issues()[0]
             .message()
-            .contains(r"bad\nError: forged\u{1b}]52;c;payload\u{7}\u{0}")
+            .contains(r"completion-debug-path-secret\nError: forged\u{1b}]52;c;payload\u{7}\u{0}")
     );
     assert!(
         error
@@ -183,6 +220,9 @@ fn completion_io_diagnostics_escape_path_controls() {
             .chars()
             .all(|character| !character.is_control())
     );
+    let debug = format!("{error:?}");
+    assert!(debug.contains("[REDACTED]"));
+    assert!(!debug.contains(SECRET));
 }
 
 #[test]

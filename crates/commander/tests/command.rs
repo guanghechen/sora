@@ -155,6 +155,10 @@ fn parse_diagnostics_escape_controls_without_changing_parsed_values() {
         .parse_from(["--coerced=value"])
         .expect_err("custom coercer should fail");
     assert_eq!(coercer_error.message(), escaped);
+    let coercer_debug = format!("{coercer_error:?}");
+    assert!(coercer_debug.contains("[REDACTED]"));
+    assert!(!coercer_debug.contains(escaped));
+    assert!(!format!("{:?}", coercer_error.issues()[0]).contains(escaped));
 
     let ParseOutcome::Matches(matches) = command
         .parse_from([format!("--label={raw}")])
@@ -166,6 +170,43 @@ fn parse_diagnostics_escape_controls_without_changing_parsed_values() {
         matches.option("label"),
         Some(&Value::String(raw.to_owned()))
     );
+}
+
+#[test]
+fn error_debug_redacts_failed_values_but_explicit_diagnostics_retain_them() {
+    const OPTION_SECRET: &str = "failed-option-secret";
+    const COERCER_SECRET: &str = "failed-coercer-secret";
+    let command = Command::builder("tool", "Test tool")
+        .builtins(Builtins::disabled())
+        .option(
+            OptionSpec::value("token", "Token", ValueType::String, OptionArity::Required)
+                .choices(["allowed"]),
+        )
+        .argument(
+            Argument::new("payload", "Payload", ArgumentCardinality::Required)
+                .coerce(|_| Err(COERCER_SECRET.to_owned())),
+        )
+        .build()
+        .expect("command should build");
+
+    let option_error = command
+        .parse_from([format!("--token={OPTION_SECRET}"), "payload".to_owned()])
+        .expect_err("invalid option choice should fail");
+    assert!(option_error.message().contains(OPTION_SECRET));
+    assert!(option_error.to_string().contains(OPTION_SECRET));
+    for debug in [
+        format!("{option_error:?}"),
+        format!("{:?}", option_error.issues()[0]),
+    ] {
+        assert!(debug.contains("[REDACTED]"));
+        assert!(!debug.contains(OPTION_SECRET));
+    }
+
+    let argument_error = command
+        .parse_from(["--token=allowed", "payload"])
+        .expect_err("argument coercer should fail");
+    assert_eq!(argument_error.message(), COERCER_SECRET);
+    assert!(!format!("{argument_error:?}").contains(COERCER_SECRET));
 }
 
 #[test]
@@ -388,41 +429,113 @@ fn parse_request_exposes_input_snapshots_and_resolves_color_policy() {
 }
 
 #[test]
-fn debug_redacts_environment_values_across_parse_types() {
+fn debug_redacts_environment_and_argv_across_parse_types() {
     const ENVIRONMENT_KEY: &str = "COMMANDER_DEBUG_SECRET";
     const ENVIRONMENT_VALUE: &str = "commander-debug-secret-value";
+    const ARGV_VALUE: &str = "commander-debug-argv-value";
 
-    let request = ParseRequest::new(["calc", "-e", "visible-expression"])
+    let request = ParseRequest::new(["calc", "-e", ARGV_VALUE])
         .environment([(ENVIRONMENT_KEY, ENVIRONMENT_VALUE)]);
-    assert_redacted_debug(&request, ENVIRONMENT_KEY, ENVIRONMENT_VALUE);
-    assert!(format!("{request:?}").contains("visible-expression"));
+    assert_redacted_debug(&request, [ENVIRONMENT_KEY], [ENVIRONMENT_VALUE, ARGV_VALUE]);
 
     let command = command_tree();
     for argv in [
-        vec!["calc", "-e", "visible-expression"],
-        vec!["calc", "--help"],
-        vec!["calc", "--version"],
+        vec!["calc", "-e", ARGV_VALUE],
+        vec!["calc", "-e", ARGV_VALUE, "--help"],
+        vec!["calc", "-e", ARGV_VALUE, "--version"],
     ] {
         let outcome = command
             .parse(ParseRequest::new(argv).environment([(ENVIRONMENT_KEY, ENVIRONMENT_VALUE)]))
             .expect("request should produce a debug-formattable outcome");
-        assert_redacted_debug(&outcome, ENVIRONMENT_KEY, ENVIRONMENT_VALUE);
+        assert_redacted_debug(&outcome, [ENVIRONMENT_KEY], [ENVIRONMENT_VALUE, ARGV_VALUE]);
         assert_eq!(
             outcome.sources().user().environment().get(ENVIRONMENT_KEY),
             Some(&ENVIRONMENT_VALUE.to_owned())
         );
+        assert!(
+            outcome
+                .sources()
+                .user()
+                .argv()
+                .iter()
+                .any(|value| value == ARGV_VALUE)
+        );
+        assert!(!format!("{:?}", outcome.sources().user()).contains(ARGV_VALUE));
+        if let ParseOutcome::Matches(matches) = &outcome {
+            assert_eq!(
+                matches.option("expression"),
+                Some(&Value::String(ARGV_VALUE.to_owned()))
+            );
+            assert!(format!("{:?}", matches.option("expression")).contains(ARGV_VALUE));
+        }
     }
 }
 
-fn assert_redacted_debug(
+#[test]
+fn matches_debug_redacts_option_argument_builtin_and_raw_values() {
+    const OPTION_VALUE: &str = "commander-debug-option-value";
+    const ARGUMENT_VALUE: &str = "commander-debug-argument-value";
+    const BUILTIN_VALUE: &str = "warn";
+
+    let command = Command::builder("tool", "Test tool")
+        .builtins(Builtins::disabled().log_level(true))
+        .option(OptionSpec::value(
+            "token",
+            "Token",
+            ValueType::String,
+            OptionArity::Required,
+        ))
+        .argument(Argument::new(
+            "payload",
+            "Payload",
+            ArgumentCardinality::Required,
+        ))
+        .build()
+        .expect("command should build");
+    let ParseOutcome::Matches(matches) = command
+        .parse_from([
+            format!("--token={OPTION_VALUE}"),
+            format!("--log-level={BUILTIN_VALUE}"),
+            ARGUMENT_VALUE.to_owned(),
+        ])
+        .expect("values should parse")
+    else {
+        panic!("expected matches");
+    };
+
+    assert_redacted_debug(
+        &matches,
+        ["token", "payload", "logLevel"],
+        [OPTION_VALUE, ARGUMENT_VALUE, BUILTIN_VALUE],
+    );
+    assert_eq!(
+        matches.option("token"),
+        Some(&Value::String(OPTION_VALUE.to_owned()))
+    );
+    assert_eq!(
+        matches.argument("payload"),
+        Some(&Value::String(ARGUMENT_VALUE.to_owned()))
+    );
+    assert_eq!(matches.raw_arguments(), [ARGUMENT_VALUE]);
+    assert_eq!(
+        matches.builtins().option("logLevel"),
+        Some(&Value::String(BUILTIN_VALUE.to_owned()))
+    );
+}
+
+fn assert_redacted_debug<const VISIBLE: usize, const HIDDEN: usize>(
     value: &impl std::fmt::Debug,
-    environment_key: &str,
-    environment_value: &str,
+    visible: [&str; VISIBLE],
+    hidden: [&str; HIDDEN],
 ) {
     let output = format!("{value:?}");
-    assert!(output.contains(environment_key));
+    for value in visible {
+        assert!(output.contains(value), "missing {value:?} in {output}");
+    }
     assert!(output.contains("[REDACTED]"));
-    assert!(!output.contains(environment_value));
+    for value in hidden {
+        assert!(!output.contains(value), "exposed {value:?} in {output}");
+    }
 }
 
 #[cfg(unix)]

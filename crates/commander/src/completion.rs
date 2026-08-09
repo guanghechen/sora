@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 use std::error::Error;
 use std::ffi::OsStr;
-use std::fmt::{self, Display, Formatter};
+use std::fmt::{self, Debug, Display, Formatter};
 use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -15,16 +15,27 @@ use crate::error::{
     DiagnosticIssue, DiagnosticStage, InputSourceKind, IssueScope, PresetIssueMetadata, ReasonCode,
     SourceAttribution, render_issues,
 };
+use crate::redaction::{REDACTED, RedactedSlice};
 use crate::{DefinitionError, Matches, Value};
 
 const BASH_LINE_QUERY: &str = "__guanghechen_commander_bash_line_v1__";
 static TEMP_SEQUENCE: AtomicUsize = AtomicUsize::new(0);
 
-#[derive(Debug)]
 pub struct CompletionIoError {
     message: String,
     source: Option<std::io::Error>,
     issues: Vec<DiagnosticIssue>,
+}
+
+impl Debug for CompletionIoError {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("CompletionIoError")
+            .field("message", &REDACTED)
+            .field("source", &self.source.as_ref().map(|_| REDACTED))
+            .field("issues", &self.issues)
+            .finish()
+    }
 }
 
 impl CompletionIoError {
@@ -267,16 +278,43 @@ impl CompletionPaths {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq)]
 pub enum CompletionDestination {
     StandardOutput,
     File { path: Option<String> },
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+impl Debug for CompletionDestination {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::StandardOutput => formatter.write_str("StandardOutput"),
+            Self::File { path } => formatter
+                .debug_struct("File")
+                .field("path", &path.as_ref().map(|_| REDACTED))
+                .finish(),
+        }
+    }
+}
+
+#[derive(Clone, Eq, PartialEq)]
 pub enum CompletionMode {
     Generate(CompletionDestination),
     Query { words: Vec<String> },
+}
+
+impl Debug for CompletionMode {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Generate(destination) => formatter
+                .debug_tuple("Generate")
+                .field(destination)
+                .finish(),
+            Self::Query { words } => formatter
+                .debug_struct("Query")
+                .field("words", &RedactedSlice::new(words))
+                .finish(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]

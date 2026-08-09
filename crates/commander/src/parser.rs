@@ -17,7 +17,7 @@ use crate::matches::{
 };
 use crate::numeric::{parse_integer_literal, parse_number_literal};
 use crate::preset;
-use crate::redaction::RedactedEnvironment;
+use crate::redaction::{RedactedMap, RedactedSlice};
 use crate::{Matches, Value};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -83,8 +83,8 @@ impl Debug for ParseRequest {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         formatter
             .debug_struct("ParseRequest")
-            .field("argv", &self.argv)
-            .field("environment", &RedactedEnvironment::new(&self.environment))
+            .field("argv", &RedactedSlice::new(&self.argv))
+            .field("environment", &RedactedMap::new(&self.environment))
             .field("base_directory", &self.base_directory)
             .field("max_color_level", &self.max_color_level)
             .finish()

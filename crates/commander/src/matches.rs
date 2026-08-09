@@ -3,7 +3,7 @@ use std::fmt::{self, Debug, Formatter};
 
 use guanghechen_chalk::ColorLevel;
 
-use crate::redaction::RedactedEnvironment;
+use crate::redaction::{RedactedMap, RedactedSlice};
 use crate::{InputSourceKind, PresetSource};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -40,17 +40,20 @@ impl Debug for Matches {
         formatter
             .debug_struct("Matches")
             .field("command_path", &self.command_path)
-            .field("local_options", &self.local_options)
-            .field("effective_options", &self.effective_options)
+            .field("local_options", &RedactedMap::new(&self.local_options))
+            .field(
+                "effective_options",
+                &RedactedMap::new(&self.effective_options),
+            )
             .field("present_options", &self.present_options)
             .field("builtins", &self.builtins)
             .field("option_sources", &self.option_sources)
-            .field("arguments", &self.arguments)
-            .field("raw_arguments", &self.raw_arguments)
+            .field("arguments", &RedactedMap::new(&self.arguments))
+            .field("raw_arguments", &RedactedSlice::new(&self.raw_arguments))
             .field("had_separator", &self.had_separator)
             .field(
                 "effective_environment",
-                &RedactedEnvironment::new(&self.effective_environment),
+                &RedactedMap::new(&self.effective_environment),
             )
             .field("controls", &self.controls)
             .field("sources", &self.sources)
@@ -72,11 +75,22 @@ pub(crate) struct MatchesData {
     pub(crate) sources: InputSources,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct BuiltinMatches {
     values: BTreeMap<String, Value>,
     present: BTreeSet<String>,
     color_level: ColorLevel,
+}
+
+impl Debug for BuiltinMatches {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("BuiltinMatches")
+            .field("values", &RedactedMap::new(&self.values))
+            .field("present", &self.present)
+            .field("color_level", &self.color_level)
+            .finish()
+    }
 }
 
 impl Default for BuiltinMatches {
@@ -166,8 +180,8 @@ impl Debug for UserInputSource {
             .debug_struct("UserInputSource")
             .field("canonical_command_path", &self.canonical_command_path)
             .field("command_path", &self.command_path)
-            .field("argv", &self.argv)
-            .field("environment", &RedactedEnvironment::new(&self.environment))
+            .field("argv", &RedactedSlice::new(&self.argv))
+            .field("environment", &RedactedMap::new(&self.environment))
             .finish()
     }
 }
@@ -221,8 +235,8 @@ impl Debug for PresetInputSource {
         formatter
             .debug_struct("PresetInputSource")
             .field("state", &self.state)
-            .field("argv", &self.argv)
-            .field("environment", &RedactedEnvironment::new(&self.environment))
+            .field("argv", &RedactedSlice::new(&self.argv))
+            .field("environment", &RedactedMap::new(&self.environment))
             .field("metadata", &self.metadata)
             .finish()
     }

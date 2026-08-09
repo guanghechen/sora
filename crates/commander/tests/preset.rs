@@ -204,6 +204,53 @@ fn preset_env_files_follow_the_shared_env_contract() {
 }
 
 #[test]
+fn preset_debug_redacts_generated_argv_values() {
+    const SECRET: &str = "preset-debug-option-secret";
+    let temp = TempDir::new("debug-redaction");
+    let preset = temp.write(
+        "preset.json",
+        format!(r#"{{"version":1,"profiles":{{"dev":{{"opts":{{"token":"{SECRET}"}}}}}}}}"#),
+    );
+    let command = Command::builder("cli", "CLI")
+        .option(OptionSpec::value(
+            "token",
+            "Token",
+            ValueType::String,
+            OptionArity::Required,
+        ))
+        .build()
+        .expect("command should build");
+    let ParseOutcome::Matches(matches) = command
+        .parse_from([
+            &format!("--preset-file={}", preset.display()),
+            "--preset-profile=dev",
+        ])
+        .expect("preset value should parse")
+    else {
+        panic!("expected matches");
+    };
+
+    let matches_debug = format!("{matches:?}");
+    assert!(matches_debug.contains("token"));
+    for value in [
+        matches_debug,
+        format!("{:?}", matches.sources()),
+        format!("{:?}", matches.sources().preset()),
+    ] {
+        assert!(value.contains("[REDACTED]"));
+        assert!(!value.contains(SECRET));
+    }
+    assert_eq!(
+        matches.option("token"),
+        Some(&Value::String(SECRET.to_owned()))
+    );
+    assert_eq!(
+        matches.sources().preset().argv(),
+        [format!("--token={SECRET}")]
+    );
+}
+
+#[test]
 fn preset_env_files_reject_exponential_expansion_over_budget() {
     let temp = TempDir::new("env-expansion-limit");
     let mut content = String::from("V0=sensitive-placeholder\n");
