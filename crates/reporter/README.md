@@ -11,6 +11,10 @@ reporter.set_level(LogLevel::Info);
 reporter.info("ready").unwrap();
 ```
 
+The default console output renders each record on one physical line and visibly escapes control
+characters supplied in messages. Custom outputs and test capture receive the original message.
+Prefix components reject `:` and control characters.
+
 ## License
 
 [MIT](https://github.com/guanghechen/sora/blob/rust/LICENSE)

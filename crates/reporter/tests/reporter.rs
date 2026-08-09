@@ -193,6 +193,52 @@ fn invalid_prefixes_leave_state_unchanged() {
 }
 
 #[test]
+fn prefixes_reject_control_characters() {
+    let reporter = Reporter::new();
+    for control in ['\0', '\n', '\r', '\t', '\x1b', '\x7f', '\u{85}'] {
+        let prefix = format!("app{control}worker");
+        let constructor_error = Reporter::with_options(ReporterOptions {
+            prefix: Some(prefix.clone()),
+            ..ReporterOptions::default()
+        })
+        .err()
+        .expect("constructor prefix should be rejected");
+        assert_eq!(
+            constructor_error.to_string(),
+            "prefix cannot contain control characters"
+        );
+
+        let derived_error = reporter
+            .with_prefix(prefix)
+            .err()
+            .expect("derived prefix should be rejected");
+        assert_eq!(
+            derived_error.to_string(),
+            "prefix cannot contain control characters"
+        );
+    }
+}
+
+#[test]
+fn custom_outputs_and_capture_preserve_raw_messages() {
+    let (reporter, records) = captured_reporter(
+        None,
+        ReporterFlight {
+            date: Some(false),
+            color: Some(false),
+        },
+    );
+    let raw = "first\nsecond\x1b]52;c;payload\x07";
+
+    reporter.info(raw).unwrap();
+    assert_eq!(records.lock().unwrap()[0].2, raw);
+
+    reporter.mock();
+    reporter.info(raw).unwrap();
+    assert_eq!(reporter.collect()[0].message, raw);
+}
+
+#[test]
 fn mock_collect_captures_entries_and_restores_output() {
     let (reporter, records) = captured_reporter(
         Some("test"),

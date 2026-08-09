@@ -22,13 +22,17 @@ isolated. `ReporterFlight` updates date/color only when present and retains omit
 values; both default to enabled. Color-disabled formatting selects `ColorLevel::None`; color-enabled
 formatting explicitly selects `ColorLevel::Ansi16`. Reporter does not ask Chalk to detect terminal
 capability. Reporter exposes semantic formatting operations rather than raw ANSI escape constants.
-Prefix components cannot contain `:`. Lazy messages run only after filtering.
+Prefix components cannot contain `:` or Unicode control characters. Lazy messages run only after
+filtering.
 
-Without a custom sink, debug/info/hint use stdout and warn/error use stderr. Every record ends with one
-newline; embedded message newlines are preserved. Output errors propagate unchanged. Capture bypasses
-the sink and records level, context prefixes, resolved message, and time. `collect` ends the shared
-capture and is empty when capture is inactive. It is not a barrier: callers must quiesce or join log
-producers first. A record that began in a capture but finishes after that capture ends is discarded.
+Without a custom sink, debug/info/hint use stdout and warn/error use stderr. The default console sink
+emits exactly one physical line per record: LF, CR, and TAB in a message become `\n`, `\r`, and `\t`;
+every other Unicode control character becomes a lowercase `\u{hex}` escape. Non-control Unicode is
+preserved. Reporter-generated timestamp/tag ANSI remains trusted formatting and is not escaped.
+Output errors propagate unchanged. Custom sinks and capture receive the original message without
+console escaping. `collect` ends the shared capture and is empty when capture is inactive. It is not
+a barrier: callers must quiesce or join log producers first. A record that began in a capture but
+finishes after that capture ends is discarded.
 
 ## Formatting
 
@@ -40,9 +44,10 @@ the tag.
 [warn] retrying
 ```
 
-Color affects only timestamp/tag bytes; message bytes are untouched. Colors are gray debug, cyan info,
-magenta hint, yellow warn, red error, with gray delimiters and timestamps. Chalk renders nested tag
-colors with property-specific close and reopen sequences rather than blanket resets.
+Color affects only timestamp/tag bytes; raw message data is independent of color. Colors are gray
+debug, cyan info, magenta hint, yellow warn, red error, with gray delimiters and timestamps. Chalk
+renders nested tag colors with property-specific close and reopen sequences rather than blanket
+resets. Only the default console sink applies visible control escaping to the message.
 
 ## Concurrency and Failure
 
@@ -59,4 +64,5 @@ conversion.
 ## Verification
 
 Tests cover levels, lazy filtering, flight changes, formatting, timestamps, isolated prefix contexts,
-shared runtime state, custom output, capture generations, concurrency, and output failures.
+shared runtime state, prefix validation, safe console rendering, raw custom output and capture,
+capture generations, concurrency, and output failures.

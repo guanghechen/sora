@@ -106,8 +106,8 @@ impl Reporter {
 
     pub fn with_options(options: ReporterOptions) -> Result<Self, ReporterError> {
         let prefixes = options.prefix.into_iter().collect::<Vec<_>>();
-        if prefixes.iter().any(|prefix| prefix.contains(':')) {
-            return Err(ReporterError("prefix cannot contain ':'"));
+        for prefix in &prefixes {
+            validate_prefix(prefix)?;
         }
         Ok(Self {
             core: Arc::new(Core {
@@ -144,9 +144,7 @@ impl Reporter {
 
     pub fn with_prefix(&self, prefix: impl Into<String>) -> Result<Self, ReporterError> {
         let prefix = prefix.into();
-        if prefix.contains(':') {
-            return Err(ReporterError("prefix cannot contain ':'"));
-        }
+        validate_prefix(&prefix)?;
         let mut prefixes = self.prefixes.clone();
         prefixes.push(prefix);
         Ok(Self {
@@ -273,12 +271,65 @@ fn write_record(mut writer: impl Write, record: &ReporterOutputRecord<'_>) -> io
     if !record.parts.is_empty() && !record.message.is_empty() {
         writer.write_all(b" ")?;
     }
-    writer.write_all(record.message.as_bytes())?;
+    write_console_message(&mut writer, record.message)?;
     writer.write_all(b"\n")
+}
+
+fn write_console_message(mut writer: impl Write, message: &str) -> io::Result<()> {
+    let bytes = message.as_bytes();
+    let mut visible_start = 0;
+    for (index, character) in message.char_indices() {
+        if !character.is_control() {
+            continue;
+        }
+        writer.write_all(&bytes[visible_start..index])?;
+        match character {
+            '\n' => writer.write_all(b"\\n")?,
+            '\r' => writer.write_all(b"\\r")?,
+            '\t' => writer.write_all(b"\\t")?,
+            _ => write!(writer, "\\u{{{:x}}}", u32::from(character))?,
+        }
+        visible_start = index + character.len_utf8();
+    }
+    writer.write_all(&bytes[visible_start..])
+}
+
+fn validate_prefix(prefix: &str) -> Result<(), ReporterError> {
+    if prefix.contains(':') {
+        return Err(ReporterError("prefix cannot contain ':'"));
+    }
+    if prefix.chars().any(char::is_control) {
+        return Err(ReporterError("prefix cannot contain control characters"));
+    }
+    Ok(())
 }
 
 fn lock<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
     mutex
         .lock()
         .unwrap_or_else(std::sync::PoisonError::into_inner)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{ReporterOutputRecord, write_record};
+    use crate::LogLevel;
+
+    #[test]
+    fn console_output_visibly_escapes_message_controls_on_one_line() {
+        let parts = vec!["[info]".to_owned()];
+        let record = ReporterOutputRecord {
+            level: LogLevel::Info,
+            parts: &parts,
+            message: "可信\n[error:forged]\r\t\x1b]52;c;payload\x07\u{85}\0",
+        };
+        let mut output = Vec::new();
+
+        write_record(&mut output, &record).unwrap();
+
+        assert_eq!(
+            String::from_utf8(output).unwrap(),
+            "[info] 可信\\n[error:forged]\\r\\t\\u{1b}]52;c;payload\\u{7}\\u{85}\\u{0}\n"
+        );
+    }
 }
