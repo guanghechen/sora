@@ -86,7 +86,9 @@ assert!(env.contains_key("APP_NAME"));
 
 Missing files are skipped. File names must be single relative path components; absolute paths,
 parent traversal, and nested paths are rejected. `resolve_upward_files_with_limits` additionally
-caps each file read, cumulative loaded bytes, and expanded values.
+caps each file read, cumulative loaded bytes, and expanded values. The root is a search boundary,
+not a filesystem containment boundary: candidate symlinks are followed. Callers must trust the
+searched filesystem or acquire contained sources themselves before calling `resolve_upward`.
 
 ## License
 

@@ -27,7 +27,9 @@ thin, explicit filesystem adapter over the same resolver contract.
   directory. It canonicalizes the directories, then walks physical
   ancestors from nearest to farthest. Within each directory, file names are read in caller-provided
   priority order. The optional root directory is inclusive; `None` walks to the filesystem or
-  Windows volume root. Missing files are skipped.
+  Windows volume root. Missing files are skipped. The root controls search termination, not target
+  containment; candidate symlinks are followed, so callers own filesystem trust and secure source
+  acquisition when processing an untrusted tree.
 - The existing `parse`, `resolve`, `resolve_upward`, and `resolve_upward_files` functions retain
   their unbounded trusted-input contract. Their `*_with_limits` peers require explicit
   `EnvLimits` and enforce four UTF-8 byte budgets: one source, all sources, one expanded value, and
@@ -56,8 +58,9 @@ Single-quoted values and escaped references such as `\${NAME}` are literals and 
 create graph edges. References without a selected declaration resolve to an empty string, matching
 `parse` compatibility behavior.
 
-File names are constrained to one relative path component so every candidate remains in the
-directory currently being searched. Directory distance always outranks file-name priority. For
+File names are constrained to one relative path component, so every candidate pathname is formed
+within the directory currently being searched. Opening that pathname follows symlinks and may reach
+a target outside the search root. Directory distance always outranks file-name priority. For
 example, the lowest-priority file in the current directory still outranks the highest-priority file
 in its parent directory.
 
