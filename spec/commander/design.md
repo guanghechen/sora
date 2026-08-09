@@ -116,7 +116,11 @@ are removed before ordinary parsing. CLI directives override command defaults, r
 root. An optional configured file may be absent; a CLI-selected or otherwise required file must be a
 readable regular file. Resolution continues to the next ancestor after an optional configured file
 is absent. A profile selector is invalid unless the same parse resolves a preset file from the CLI
-or command defaults.
+or command defaults. Preset manifests and referenced environment files are trusted configuration,
+not sandboxed documents. Manifest and `envFile` paths may be absolute, contain parent traversal, or
+traverse symlinks to any file readable by the process. The explicit base directory only resolves
+relative manifest paths; it is not a containment root. Callers must not select presets from an
+untrusted filesystem tree.
 
 Preset manifests are UTF-8 JSON, at most 1 MiB, with maximum nesting depth 128 and schema version
 `1`. They contain optional defaults and named profiles with `envFile`, inline `envs`, `opts`,

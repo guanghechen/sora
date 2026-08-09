@@ -28,6 +28,10 @@ Container `Debug` implementations redact environment, argv, option, argument, pr
 query values by default. Existing accessors return the original data, and explicitly formatting an
 accessed `Value` reveals that value.
 
+Preset manifests and their referenced environment files are trusted configuration, not sandboxed
+documents. Absolute paths, parent traversal, and symlinks are followed; callers must not select a
+preset from an untrusted filesystem tree.
+
 ## License
 
 [MIT](https://github.com/guanghechen/sora/blob/rust/LICENSE)
