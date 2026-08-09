@@ -20,7 +20,13 @@ MESSAGE="hello ${database.host}
 
 `stringify` validates keys and returns `StringifyError` instead of emitting assignments that the
 parser would discard. It also escapes interpolation-shaped literals and all parser-sensitive
-whitespace so that `parse(stringify(env)?)` preserves the record.
+whitespace so that `parse(stringify(env)?)` preserves the record. By default it rejects control
+characters other than LF, CR, and TAB; those three are encoded and roundtrip safely.
+
+`StringifyOptions::with_control_policy(StringifyControlPolicy::Preserve)` explicitly restores the
+legacy arbitrary-control roundtrip when the destination accepts raw control bytes. The policy only
+governs serialized content; callers still own size limits, permissions, symlink policy, and atomic
+file replacement.
 
 ```rust
 use guanghechen_env::{parse, resolve};

@@ -3,9 +3,17 @@ use std::collections::BTreeSet;
 use crate::parser::is_key;
 use crate::{EnvRecord, StringifyError};
 
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub enum StringifyControlPolicy {
+    #[default]
+    RejectUnsupported,
+    Preserve,
+}
+
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct StringifyOptions {
     exclude: BTreeSet<String>,
+    control_policy: StringifyControlPolicy,
 }
 
 impl StringifyOptions {
@@ -13,6 +21,7 @@ impl StringifyOptions {
     pub const fn new() -> Self {
         Self {
             exclude: BTreeSet::new(),
+            control_policy: StringifyControlPolicy::RejectUnsupported,
         }
     }
 
@@ -25,6 +34,17 @@ impl StringifyOptions {
     #[must_use]
     pub fn is_excluded(&self, key: &str) -> bool {
         self.exclude.contains(key)
+    }
+
+    #[must_use]
+    pub const fn with_control_policy(mut self, control_policy: StringifyControlPolicy) -> Self {
+        self.control_policy = control_policy;
+        self
+    }
+
+    #[must_use]
+    pub const fn control_policy(&self) -> StringifyControlPolicy {
+        self.control_policy
     }
 }
 
@@ -43,6 +63,13 @@ pub fn stringify_with_options(
         }
         if !is_key(key) {
             return Err(StringifyError::invalid_key(key));
+        }
+        if options.control_policy == StringifyControlPolicy::RejectUnsupported
+            && let Some(character) = value.chars().find(|character| {
+                character.is_control() && !matches!(character, '\n' | '\r' | '\t')
+            })
+        {
+            return Err(StringifyError::unsupported_control(key, character));
         }
         output.push_str(key);
         output.push('=');

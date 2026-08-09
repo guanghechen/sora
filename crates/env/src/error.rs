@@ -87,22 +87,46 @@ impl Error for ParseWithLimitsError {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct StringifyError {
     key: String,
+    control_character: Option<char>,
 }
 
 impl StringifyError {
     pub(crate) fn invalid_key(key: impl Into<String>) -> Self {
-        Self { key: key.into() }
+        Self {
+            key: key.into(),
+            control_character: None,
+        }
+    }
+
+    pub(crate) fn unsupported_control(key: impl Into<String>, control_character: char) -> Self {
+        Self {
+            key: key.into(),
+            control_character: Some(control_character),
+        }
     }
 
     #[must_use]
     pub fn key(&self) -> &str {
         &self.key
     }
+
+    #[must_use]
+    pub const fn control_character(&self) -> Option<char> {
+        self.control_character
+    }
 }
 
 impl Display for StringifyError {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
-        write!(formatter, "Invalid environment variable key: {}", self.key)
+        match self.control_character {
+            Some(character) => write!(
+                formatter,
+                "Unsupported control character U+{:04X} in environment variable {}",
+                u32::from(character),
+                self.key
+            ),
+            None => write!(formatter, "Invalid environment variable key: {}", self.key),
+        }
     }
 }
 

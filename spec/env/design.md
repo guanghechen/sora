@@ -18,7 +18,12 @@ thin, explicit filesystem adapter over the same resolver contract.
 - `stringify` emits deterministic key order because `EnvRecord` is a `BTreeMap`. It rejects keys
   outside the parser grammar rather than emitting records that would be dropped on reload. Values
   requiring escaping, containing whitespace, single quotes, or `#`, or resembling interpolation
-  tokens are encoded so that `parse(stringify(env))` preserves the record.
+  tokens are encoded so that `parse(stringify(env))` preserves the record. The default
+  `StringifyControlPolicy::RejectUnsupported` rejects control characters other than LF, CR, and
+  TAB; those three are escaped and roundtrip safely. `StringifyControlPolicy::Preserve` explicitly
+  restores legacy raw-control output. Excluded keys are not validated or emitted. Control policy
+  covers content only; size limits, file permissions, symlink handling, and atomic replacement are
+  caller responsibilities.
 - `resolve` parses one source and resolves the final declaration graph, so forward and transitive
   references are supported.
 - `resolve_upward` receives sources from nearest to farthest. Within one source, the last
@@ -74,7 +79,8 @@ resolution and returns the closed cycle path, for example `A -> B -> A`; partial
 returned. A bounded operation aborts before exceeding a configured budget and reports only the
 limit kind, maximum, source index or file path when applicable, and environment key for a value
 limit; source values are never retained. Invalid UTF-8 file errors retain only the invalid sequence
-offset and length, not the loaded bytes. Stringification rejects invalid keys with `StringifyError`
-before emitting them. File resolution attaches the candidate path to I/O, parse, and source-limit
-errors, rejects non-directory search boundaries, and rejects a root directory that is not an
-ancestor of the starting directory.
+offset and length, not the loaded bytes. Stringification rejects invalid keys and unsupported value
+controls with `StringifyError`; the error retains the key and optional control code point but not the
+source value. File resolution attaches the candidate path to I/O, parse, and source-limit errors,
+rejects non-directory search boundaries, and rejects a root directory that is not an ancestor of
+the starting directory.

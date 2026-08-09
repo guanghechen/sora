@@ -1,8 +1,8 @@
 use guanghechen_env::{
     EnvLimits, EnvRecord, LimitError, ParseWithLimitsError, ResolveError, ResolveFilesError,
-    StringifyOptions, parse, parse_with_limits, resolve, resolve_upward, resolve_upward_files,
-    resolve_upward_files_with_limits, resolve_upward_with_limits, resolve_with_limits, stringify,
-    stringify_with_options,
+    StringifyControlPolicy, StringifyOptions, parse, parse_with_limits, resolve, resolve_upward,
+    resolve_upward_files, resolve_upward_files_with_limits, resolve_upward_with_limits,
+    resolve_with_limits, stringify, stringify_with_options,
 };
 use std::fmt::Write;
 use std::fs;
@@ -389,6 +389,54 @@ fn stringify_can_exclude_keys_and_roundtrip_values() {
             ("COLOR".into(), "#fff".into()),
             ("MESSAGE".into(), "hello \"world\"".into()),
         ])
+    );
+}
+
+#[test]
+fn stringify_rejects_unsupported_controls_without_retaining_values() {
+    for character in ['\0', '\u{7}', '\u{1b}', '\u{7f}', '\u{85}'] {
+        let source_value = format!("sensitive-placeholder{character}");
+        let env = EnvRecord::from([("VALUE".to_owned(), source_value.clone())]);
+        let error = stringify(&env).unwrap_err();
+
+        assert_eq!(error.key(), "VALUE");
+        assert_eq!(error.control_character(), Some(character));
+        assert_eq!(
+            error.to_string(),
+            format!(
+                "Unsupported control character U+{:04X} in environment variable VALUE",
+                u32::from(character)
+            )
+        );
+        assert!(!format!("{error:?}").contains("sensitive-placeholder"));
+    }
+}
+
+#[test]
+fn stringify_allows_escaped_controls_and_explicit_legacy_preservation() {
+    let escaped = EnvRecord::from([("VALUE".to_owned(), "line1\nline2\r\tend".to_owned())]);
+    let content = stringify(&escaped).unwrap();
+    assert_eq!(content, "VALUE=\"line1\\nline2\\r\\tend\"\n");
+    assert_eq!(parse(&content).unwrap(), escaped);
+
+    let preserved = EnvRecord::from([("VALUE".to_owned(), "nul\0esc\u{1b}bell\u{7}".to_owned())]);
+    let options = StringifyOptions::new()
+        .with_control_policy(StringifyControlPolicy::Preserve)
+        .exclude("OMIT");
+    assert_eq!(options.control_policy(), StringifyControlPolicy::Preserve);
+    let content = stringify_with_options(&preserved, &options).unwrap();
+    assert_eq!(parse(&content).unwrap(), preserved);
+    assert!(content.contains('\0'));
+    assert!(content.contains('\u{1b}'));
+    assert!(content.contains('\u{7}'));
+
+    let excluded = EnvRecord::from([
+        ("GOOD".to_owned(), "value".to_owned()),
+        ("OMIT".to_owned(), "nul\0value".to_owned()),
+    ]);
+    assert_eq!(
+        stringify_with_options(&excluded, &StringifyOptions::new().exclude("OMIT")).unwrap(),
+        "GOOD=value\n"
     );
 }
 
