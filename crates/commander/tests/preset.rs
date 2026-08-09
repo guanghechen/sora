@@ -755,6 +755,35 @@ fn rejects_malformed_manifest_shapes_with_configuration_errors() {
 }
 
 #[test]
+fn preset_diagnostics_escape_decoded_json_controls() {
+    let temp = TempDir::new("diagnostic-controls");
+    let preset = temp.write(
+        "preset.json",
+        br#"{"version":1,"profiles":{"bad\nError: forged\u001b]52;c;payload\u0007":{}}}"#,
+    );
+    let command = Command::builder("cli", "CLI")
+        .build()
+        .expect("command should build");
+
+    let error = command
+        .parse_from([&format!("--preset-file={}", preset.display())])
+        .expect_err("control-bearing profile name should fail");
+
+    assert!(
+        error
+            .message()
+            .contains(r"bad\nError: forged\u{1b}]52;c;payload\u{7}")
+    );
+    assert!(
+        error
+            .message()
+            .chars()
+            .all(|character| !character.is_control())
+    );
+    assert_eq!(error.to_string().lines().count(), 2);
+}
+
+#[test]
 fn ignores_unknown_manifest_fields_for_forward_compatibility() {
     let temp = TempDir::new("unknown-fields");
     let preset = temp.write(

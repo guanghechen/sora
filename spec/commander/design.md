@@ -200,6 +200,13 @@ normalized issue list. Every issue contains kind (`error` or `hint`), stage, sco
 message, optional origin stage, source attribution, and preset location. The unique primary error is
 always `issues[0]`; later entries are hints. User/preset mixed-source conflicts retain both sources.
 Preset-originated parse errors identify the selected file, profile, variant, and option when known.
+Issue messages are normalized when created: LF, CR, and TAB become `\n`, `\r`, and `\t`; every other
+control character and every non-ASCII scalar classified as non-printable by Rust `escape_debug`
+becomes a lowercase `\u{hex}` escape. Printable Unicode such as CJK and emoji is preserved. This
+applies equally to built-in messages, custom coercer failures, preset fragments, and completion I/O
+context. Message and hint accessors therefore expose display-safe text, while structured argv,
+values, paths, source metadata, and parse results retain their original data. The separately
+rendered command-path footer uses the same escaping without changing the command-path accessor.
 
 Diagnostic stages are `definition`, `route`, `control-scan`, `preset`, `tokenize`,
 `builtin-resolve`, `resolve`, `parse`, and `completion`. Scopes are `control`, `preset`, `option`,
@@ -220,7 +227,8 @@ appear only on the primary issue; hint reason codes appear only on hints. Empty 
 is omitted. Preset metadata is present only when preset is a related source and is mandatory when
 preset is the primary source.
 
-Rendering consumes normalized issues without inferring semantics:
+Rendering consumes normalized issues without inferring semantics, so external fragments cannot add
+error or hint lines or emit terminal control sequences:
 
 ```text
 Error: <message>
@@ -245,4 +253,5 @@ including Unicode alignment; deterministic version output; Bash/Fish/PowerShell 
 quoting; dynamic candidate routing; link-safe completion replacement; invalid UTF-8; and failure
 propagation. Debug-formatting tests verify that environment values are redacted across requests,
 matches, source snapshots, help outcomes, and version outcomes while environment keys remain
-visible.
+visible. Diagnostic tests verify control escaping across argv, definitions, custom coercers, presets,
+completion I/O, and command-path rendering while structured values remain unchanged.

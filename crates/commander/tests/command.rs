@@ -77,6 +77,98 @@ fn rejects_invalid_definition_combinations() {
 }
 
 #[test]
+fn definition_diagnostics_escape_controls_without_changing_command_path_data() {
+    let command_path = "bad\nError: forged\r\t\x1b]52;c;payload\x07\u{85}";
+    let escaped = r"bad\nError: forged\r\t\u{1b}]52;c;payload\u{7}\u{85}";
+    let error = Command::builder(command_path, "Test tool")
+        .build()
+        .expect_err("control-bearing command name should be rejected");
+
+    assert_eq!(error.command_path(), command_path);
+    assert_eq!(
+        error.message(),
+        format!("invalid command name \"{escaped}\"")
+    );
+    assert_eq!(
+        error.to_string(),
+        format!("Error: invalid command name \"{escaped}\"\nRun \"{escaped} --help\" for usage.")
+    );
+}
+
+#[test]
+fn parse_diagnostics_escape_controls_without_changing_parsed_values() {
+    let raw = "中文😀bad\nError: forged\r\t\x1b]52;c;payload\x07\u{85}\u{2028}\u{2029}\u{202e}\u{2066}\u{2069}\u{200b}";
+    let escaped = r"中文😀bad\nError: forged\r\t\u{1b}]52;c;payload\u{7}\u{85}\u{2028}\u{2029}\u{202e}\u{2066}\u{2069}\u{200b}";
+    let coercer_message = raw.to_owned();
+    let command = Command::builder("tool", "Test tool")
+        .builtins(Builtins::disabled())
+        .option(OptionSpec::value(
+            "count",
+            "Count",
+            ValueType::Integer,
+            OptionArity::Required,
+        ))
+        .option(OptionSpec::value(
+            "label",
+            "Label",
+            ValueType::String,
+            OptionArity::Required,
+        ))
+        .option(
+            OptionSpec::value(
+                "coerced",
+                "Coerced",
+                ValueType::String,
+                OptionArity::Required,
+            )
+            .coerce(move |_| Err(coercer_message.clone())),
+        )
+        .build()
+        .expect("command should build");
+
+    let error = command
+        .parse_from([format!("--count={raw}")])
+        .expect_err("invalid integer should fail");
+    assert_eq!(
+        error.message(),
+        format!("invalid integer \"{escaped}\" for option \"--count\"")
+    );
+    assert_eq!(error.issues()[0].message(), error.message());
+    let rendered = error.to_string();
+    assert_eq!(rendered.lines().count(), 2);
+    assert_eq!(
+        rendered
+            .lines()
+            .filter(|line| line.starts_with("Error:"))
+            .count(),
+        1
+    );
+    assert_eq!(
+        rendered
+            .chars()
+            .filter(|character| character.is_control())
+            .collect::<Vec<_>>(),
+        ['\n']
+    );
+
+    let coercer_error = command
+        .parse_from(["--coerced=value"])
+        .expect_err("custom coercer should fail");
+    assert_eq!(coercer_error.message(), escaped);
+
+    let ParseOutcome::Matches(matches) = command
+        .parse_from([format!("--label={raw}")])
+        .expect("string value should parse unchanged")
+    else {
+        panic!("expected matches");
+    };
+    assert_eq!(
+        matches.option("label"),
+        Some(&Value::String(raw.to_owned()))
+    );
+}
+
+#[test]
 fn validates_required_options_and_scalar_coercers() {
     let invalid_required_flag = Command::builder("tool", "Test tool")
         .option(OptionSpec::flag("token", "Token").required())

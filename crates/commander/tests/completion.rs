@@ -6,6 +6,7 @@ use guanghechen_commander::{
     CompletionMode, CompletionPaths, DiagnosticStage, IssueScope, Matches, OptionArity, OptionSpec,
     ParseOutcome, ReasonCode, Shell, ValueType, complete, complete_bash_line, complete_request,
     completion_command, completion_request, generate_completion, resolve_home_path,
+    write_completion_file,
 };
 
 #[test]
@@ -163,6 +164,25 @@ fn completion_io_errors_expose_normalized_issues() {
     assert_eq!(error.issues()[0].stage(), DiagnosticStage::Completion);
     assert_eq!(error.issues()[0].scope(), IssueScope::Runtime);
     assert_eq!(error.issues()[0].reason_code(), ReasonCode::IoError);
+}
+
+#[test]
+fn completion_io_diagnostics_escape_path_controls() {
+    let path = std::path::Path::new("bad\nError: forged\x1b]52;c;payload\x07\0");
+    let error = write_completion_file(path, b"content")
+        .expect_err("NUL-bearing completion path should fail");
+
+    assert!(
+        error.issues()[0]
+            .message()
+            .contains(r"bad\nError: forged\u{1b}]52;c;payload\u{7}\u{0}")
+    );
+    assert!(
+        error
+            .to_string()
+            .chars()
+            .all(|character| !character.is_control())
+    );
 }
 
 #[test]

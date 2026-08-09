@@ -29,14 +29,15 @@ pub struct CompletionIoError {
 
 impl CompletionIoError {
     fn message(message: impl Into<String>) -> Self {
-        let message = message.into();
+        let issue = DiagnosticIssue::error(
+            DiagnosticStage::Completion,
+            IssueScope::Runtime,
+            ReasonCode::IoError,
+            message,
+        );
+        let message = issue.message().to_owned();
         Self {
-            issues: vec![DiagnosticIssue::error(
-                DiagnosticStage::Completion,
-                IssueScope::Runtime,
-                ReasonCode::IoError,
-                message.clone(),
-            )],
+            issues: vec![issue],
             message,
             source: None,
         }
@@ -45,14 +46,16 @@ impl CompletionIoError {
     fn io(message: impl Into<String>, source: std::io::Error) -> Self {
         let message = message.into();
         let rendered = format!("{message}: {source}");
+        let issue = DiagnosticIssue::error(
+            DiagnosticStage::Completion,
+            IssueScope::Runtime,
+            ReasonCode::IoError,
+            rendered,
+        );
+        let message = issue.message().to_owned();
         Self {
-            issues: vec![DiagnosticIssue::error(
-                DiagnosticStage::Completion,
-                IssueScope::Runtime,
-                ReasonCode::IoError,
-                rendered.clone(),
-            )],
-            message: rendered,
+            issues: vec![issue],
+            message,
             source: Some(source),
         }
     }

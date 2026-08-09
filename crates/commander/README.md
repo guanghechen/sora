@@ -20,6 +20,10 @@ let ParseOutcome::Matches(matches) = command.parse_from(["--verbose"]).unwrap() 
 assert_eq!(matches.option("verbose"), Some(&Value::Bool(true)));
 ```
 
+Diagnostic messages visibly escape control and non-printable Unicode characters supplied through
+argv, presets, paths, or custom coercers. Structured inputs and parsed values retain their original
+data.
+
 ## License
 
 [MIT](https://github.com/guanghechen/sora/blob/rust/LICENSE)

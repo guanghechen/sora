@@ -201,13 +201,14 @@ impl DiagnosticIssue {
         reason_code: ReasonCode,
         message: impl Into<String>,
     ) -> Self {
+        let message = message.into();
         Self {
             kind: IssueKind::Error,
             stage,
             origin_stage: None,
             scope,
             reason_code,
-            message: message.into(),
+            message: escape_diagnostic_text(&message),
             source: None,
             preset: None,
         }
@@ -219,13 +220,14 @@ impl DiagnosticIssue {
         reason_code: ReasonCode,
         message: impl Into<String>,
     ) -> Self {
+        let message = message.into();
         Self {
             kind: IssueKind::Hint,
             stage,
             origin_stage: None,
             scope,
             reason_code,
-            message: message.into(),
+            message: escape_diagnostic_text(&message),
             source: None,
             preset: None,
         }
@@ -311,18 +313,19 @@ impl DefinitionError {
         command_path: impl Into<String>,
         message: impl Into<String>,
     ) -> Self {
-        let message = message.into();
+        let issue = DiagnosticIssue::error(
+            DiagnosticStage::Definition,
+            definition_scope(kind),
+            definition_reason(kind),
+            message,
+        );
+        let message = issue.message().to_owned();
         Self {
             kind,
             command_path: command_path.into(),
-            message: message.clone(),
+            message,
             hints: Vec::new(),
-            issues: vec![DiagnosticIssue::error(
-                DiagnosticStage::Definition,
-                definition_scope(kind),
-                definition_reason(kind),
-                message,
-            )],
+            issues: vec![issue],
         }
     }
 
@@ -400,19 +403,19 @@ impl ParseError {
         command_path: impl Into<String>,
         message: impl Into<String>,
     ) -> Self {
-        let message = message.into();
         let (stage, scope, reason_code) = parse_issue_contract(kind);
-        let mut primary = DiagnosticIssue::error(stage, scope, reason_code, message.clone());
+        let mut primary = DiagnosticIssue::error(stage, scope, reason_code, message);
         if kind != ParseErrorKind::Configuration {
             primary.source = Some(SourceAttribution {
                 primary: Some(InputSourceKind::User),
                 related: Vec::new(),
             });
         }
+        let message = primary.message().to_owned().into_boxed_str();
         Self {
             kind,
             command_path: command_path.into().into_boxed_str(),
-            message: message.clone().into_boxed_str(),
+            message,
             hints: Vec::new(),
             issues: vec![primary],
             option: None,
@@ -425,19 +428,19 @@ impl ParseError {
     }
 
     pub(crate) fn with_hint(mut self, reason_code: ReasonCode, hint: impl Into<String>) -> Self {
-        let hint = hint.into();
         let primary = &self.issues[0];
         let scope = if reason_code == ReasonCode::PresetTokenInjected {
             IssueScope::Preset
         } else {
             primary.scope
         };
-        let mut issue = DiagnosticIssue::hint(primary.stage, scope, reason_code, hint.clone());
+        let mut issue = DiagnosticIssue::hint(primary.stage, scope, reason_code, hint);
         if reason_code == ReasonCode::PresetTokenInjected {
             issue.origin_stage = Some(DiagnosticStage::Preset);
         }
         issue.source = primary.source.clone();
         issue.preset = primary.preset.clone();
+        let hint = issue.message().to_owned();
         self.issues.push(issue);
         self.hints.push(hint);
         self
@@ -514,7 +517,23 @@ pub(crate) fn render_issues(
             writeln!(formatter, "Hint: {}", issue.message)?;
         }
     }
+    let command_path = escape_diagnostic_text(command_path);
     write!(formatter, "Run \"{command_path} --help\" for usage.")
+}
+
+pub(crate) fn escape_diagnostic_text(value: &str) -> String {
+    let mut escaped = String::with_capacity(value.len());
+    for character in value.chars() {
+        match character {
+            '\n' => escaped.push_str("\\n"),
+            '\r' => escaped.push_str("\\r"),
+            '\t' => escaped.push_str("\\t"),
+            _ if character.is_control() => escaped.extend(character.escape_unicode()),
+            _ if character.is_ascii() => escaped.push(character),
+            _ => escaped.extend(character.escape_debug()),
+        }
+    }
+    escaped
 }
 
 const fn definition_scope(kind: DefinitionErrorKind) -> IssueScope {
