@@ -1,6 +1,8 @@
 use guanghechen_env::{
-    EnvRecord, ResolveError, ResolveFilesError, StringifyOptions, parse, resolve, resolve_upward,
-    resolve_upward_files, stringify, stringify_with_options,
+    EnvLimits, EnvRecord, LimitError, ParseWithLimitsError, ResolveError, ResolveFilesError,
+    StringifyOptions, parse, parse_with_limits, resolve, resolve_upward, resolve_upward_files,
+    resolve_upward_files_with_limits, resolve_upward_with_limits, resolve_with_limits, stringify,
+    stringify_with_options,
 };
 use std::fmt::Write;
 use std::fs;
@@ -163,6 +165,110 @@ fn parse_reports_unclosed_quotes_without_exposing_source_values() {
     assert_eq!(multiline.line_number(), 2);
     assert_eq!(multiline.key(), "MESSAGE");
     assert!(!format!("{multiline:?}").contains("second-sensitive-placeholder"));
+}
+
+#[test]
+fn bounded_parse_and_resolve_stop_exponential_expansion_before_allocation() {
+    let content = exponential_env(30);
+    let limits = EnvLimits::new(4 * 1024)
+        .with_maximum_source_bytes(1024)
+        .with_maximum_value_bytes(1024);
+
+    let parse_error = parse_with_limits(&content, &limits).unwrap_err();
+    assert_eq!(
+        parse_error.limit_error(),
+        Some(&LimitError::ValueBytes {
+            key: "V11".to_owned(),
+            maximum: 1024,
+        })
+    );
+    assert_eq!(
+        parse_error.to_string(),
+        "Expanded environment value V11 exceeds 1024 bytes"
+    );
+
+    let resolve_error = resolve_with_limits(&content, &limits).unwrap_err();
+    assert_eq!(
+        resolve_error.limit_error(),
+        Some(&LimitError::ValueBytes {
+            key: "V11".to_owned(),
+            maximum: 1024,
+        })
+    );
+}
+
+#[test]
+fn bounded_parse_charges_overwritten_values_and_redacts_source_values() {
+    let redaction_limits = EnvLimits::new(1024).with_maximum_value_bytes(4);
+    let error = parse_with_limits(
+        "TOKEN=first-sensitive-placeholder\nTOKEN=next",
+        &redaction_limits,
+    )
+    .unwrap_err();
+    assert_eq!(
+        error.limit_error(),
+        Some(&LimitError::ValueBytes {
+            key: "TOKEN".to_owned(),
+            maximum: 4,
+        })
+    );
+    assert!(!format!("{error:?}").contains("sensitive-placeholder"));
+
+    let limits = EnvLimits::new(1024).with_maximum_total_value_bytes(4);
+    let error = parse_with_limits("A=1234\nA=5678", &limits).unwrap_err();
+    assert_eq!(
+        error,
+        ParseWithLimitsError::Limit(LimitError::TotalValueBytes { maximum: 4 })
+    );
+}
+
+#[test]
+fn bounded_operations_enforce_individual_and_total_source_bytes() {
+    let error = parse_with_limits("A=123", &EnvLimits::new(4)).unwrap_err();
+    assert_eq!(
+        error,
+        ParseWithLimitsError::Limit(LimitError::SourceBytes {
+            source_index: 0,
+            maximum: 4,
+        })
+    );
+
+    let limits = EnvLimits::new(100).with_maximum_total_source_bytes(7);
+    let error = resolve_upward_with_limits(["A=1\n", "B=2\n"], &limits).unwrap_err();
+    assert_eq!(
+        error.limit_error(),
+        Some(&LimitError::TotalSourceBytes { maximum: 7 })
+    );
+}
+
+#[test]
+fn bounded_options_and_errors_preserve_the_underlying_contracts() {
+    let limits = EnvLimits::new(1)
+        .with_maximum_source_bytes(2)
+        .with_maximum_total_source_bytes(3)
+        .with_maximum_value_bytes(4)
+        .with_maximum_total_value_bytes(5);
+    assert_eq!(limits.maximum_source_bytes(), 2);
+    assert_eq!(limits.maximum_total_source_bytes(), 3);
+    assert_eq!(limits.maximum_value_bytes(), 4);
+    assert_eq!(limits.maximum_total_value_bytes(), 5);
+
+    let exact_limits = EnvLimits::new(6)
+        .with_maximum_value_bytes(4)
+        .with_maximum_total_value_bytes(4);
+    let exact = parse_with_limits("A=1234", &exact_limits).unwrap();
+    assert_eq!(exact.get("A").map(String::as_str), Some("1234"));
+
+    let syntax_limits = EnvLimits::new(1024);
+    let error = parse_with_limits("TOKEN='sensitive-placeholder", &syntax_limits).unwrap_err();
+    assert_eq!(error.parse_error().unwrap().key(), "TOKEN");
+    assert!(!format!("{error:?}").contains("sensitive-placeholder"));
+
+    let error = resolve_with_limits("A=${A}", &syntax_limits).unwrap_err();
+    assert_eq!(
+        error.cycle_error().unwrap().variables(),
+        ["A".to_owned(), "A".to_owned()]
+    );
 }
 
 #[test]
@@ -418,4 +524,84 @@ fn file_resolution_validates_directory_boundaries() {
         unrelated,
         ResolveFilesError::RootDirectoryNotAncestor { .. }
     ));
+}
+
+#[test]
+fn bounded_file_resolution_limits_loaded_and_expanded_bytes() {
+    let temp = TempDir::new("file-limits");
+    let current = temp.directory("workspace");
+    temp.write("workspace/first.conf", "A=1\n");
+    let second = temp.write("workspace/second.conf", "B=2\n");
+
+    let source_limits = EnvLimits::new(100).with_maximum_total_source_bytes(7);
+    let error = resolve_upward_files_with_limits(
+        ["first.conf", "second.conf"],
+        &current,
+        Some(&current),
+        &source_limits,
+    )
+    .unwrap_err();
+    assert_eq!(
+        error.limit_error(),
+        Some(&LimitError::TotalSourceBytes { maximum: 7 })
+    );
+    let canonical_second = fs::canonicalize(second).unwrap();
+    assert_eq!(error.limit_path(), Some(canonical_second.as_path()));
+
+    temp.write("workspace/expanded.conf", exponential_env(30));
+    let value_limits = EnvLimits::new(4 * 1024)
+        .with_maximum_source_bytes(1024)
+        .with_maximum_value_bytes(1024);
+    let error = resolve_upward_files_with_limits(
+        ["expanded.conf"],
+        &current,
+        Some(&current),
+        &value_limits,
+    )
+    .unwrap_err();
+    assert_eq!(
+        error.limit_error(),
+        Some(&LimitError::ValueBytes {
+            key: "V11".to_owned(),
+            maximum: 1024,
+        })
+    );
+    assert_eq!(error.limit_path(), None);
+}
+
+#[test]
+fn bounded_file_resolution_discards_invalid_utf8_source_bytes() {
+    let temp = TempDir::new("file-invalid-utf8");
+    let current = temp.directory("workspace");
+    temp.write("workspace/invalid.conf", b"TOKEN=sensitive-placeholder\xff");
+
+    let error = resolve_upward_files_with_limits(
+        ["invalid.conf"],
+        &current,
+        Some(&current),
+        &EnvLimits::new(1024),
+    )
+    .unwrap_err();
+    let io_error = error
+        .resolve_error()
+        .and_then(ResolveFilesError::io_error)
+        .expect("invalid UTF-8 should be reported as an I/O error");
+    let source = io_error
+        .get_ref()
+        .expect("invalid UTF-8 should retain safe error metadata");
+
+    assert!(source.downcast_ref::<std::str::Utf8Error>().is_some());
+    assert!(
+        source
+            .downcast_ref::<std::string::FromUtf8Error>()
+            .is_none()
+    );
+}
+
+fn exponential_env(last: usize) -> String {
+    let mut content = String::from("V0=x\n");
+    for index in 1..=last {
+        writeln!(content, "V{index}=${{V{}}}${{V{}}}", index - 1, index - 1).unwrap();
+    }
+    content
 }

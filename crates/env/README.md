@@ -50,6 +50,20 @@ assert_eq!(env.get("B").map(String::as_str), Some("parent"));
 Unknown references resolve to an empty string. Single-quoted and escaped references remain
 literal.
 
+The basic parsing and resolution functions are unbounded for trusted in-memory input. Use the
+`*_with_limits` variants when content may be untrusted. `EnvLimits` bounds one source, all sources,
+one expanded value, and all expanded values in UTF-8 bytes; expansion stops before allocating a
+value that exceeds its budget.
+
+```rust
+use guanghechen_env::{EnvLimits, parse_with_limits};
+
+let limits = EnvLimits::new(1024 * 1024);
+let env = parse_with_limits("ROOT=/opt\nBIN=${ROOT}/bin", &limits).unwrap();
+
+assert_eq!(env.get("BIN").map(String::as_str), Some("/opt/bin"));
+```
+
 `resolve_upward_files` discovers multiple prioritized files in each directory. Directories are
 searched from nearest to farthest; only within one directory does file-name order apply. A root
 directory is inclusive. Passing `None` walks to the current filesystem root or Windows volume
@@ -71,7 +85,8 @@ assert!(env.contains_key("APP_NAME"));
 ```
 
 Missing files are skipped. File names must be single relative path components; absolute paths,
-parent traversal, and nested paths are rejected.
+parent traversal, and nested paths are rejected. `resolve_upward_files_with_limits` additionally
+caps each file read, cumulative loaded bytes, and expanded values.
 
 ## License
 

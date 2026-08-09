@@ -1,4 +1,5 @@
-use crate::{EnvRecord, ParseError};
+use crate::limits::{SourceBudget, ValueBudget};
+use crate::{EnvLimits, EnvRecord, LimitError, ParseError, ParseWithLimitsError};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(crate) struct Declaration {
@@ -19,7 +20,7 @@ pub(crate) enum Segment {
 }
 
 impl EnvValue {
-    pub(crate) fn render<'a>(&self, mut lookup: impl FnMut(&str) -> Option<&'a str>) -> String {
+    pub(crate) fn render<'a>(&self, lookup: impl Fn(&str) -> Option<&'a str>) -> String {
         match self {
             Self::Literal(value) => value.clone(),
             Self::Template(segments) => {
@@ -39,6 +40,58 @@ impl EnvValue {
         }
     }
 
+    pub(crate) fn render_with_limits<'a>(
+        &self,
+        key: &str,
+        lookup: impl Fn(&str) -> Option<&'a str>,
+        budget: &mut ValueBudget,
+    ) -> Result<String, LimitError> {
+        let maximum = budget.maximum_value_bytes();
+        let mut bytes = 0usize;
+        let within_limit = self.for_each_rendered_part(&lookup, |part| {
+            bytes = bytes.saturating_add(part.len());
+            bytes <= maximum
+        });
+        if !within_limit {
+            return Err(LimitError::value_bytes(key, maximum));
+        }
+        budget.charge(bytes)?;
+
+        let mut output = String::with_capacity(bytes);
+        let rendered = self.for_each_rendered_part(&lookup, |part| {
+            output.push_str(part);
+            true
+        });
+        debug_assert!(rendered);
+        Ok(output)
+    }
+
+    fn for_each_rendered_part<'lookup>(
+        &self,
+        lookup: &impl Fn(&str) -> Option<&'lookup str>,
+        mut visit: impl FnMut(&str) -> bool,
+    ) -> bool {
+        match self {
+            Self::Literal(value) => {
+                if !visit(value) {
+                    return false;
+                }
+            }
+            Self::Template(segments) => {
+                for segment in segments {
+                    let value = match segment {
+                        Segment::Literal(value) => value.as_str(),
+                        Segment::Variable(name) => lookup(name).unwrap_or_default(),
+                    };
+                    if !visit(value) {
+                        return false;
+                    }
+                }
+            }
+        }
+        true
+    }
+
     pub(crate) fn for_each_dependency(&self, mut visit: impl FnMut(&str)) {
         if let Self::Template(segments) = self {
             for segment in segments {
@@ -56,6 +109,30 @@ pub fn parse(content: &str) -> Result<EnvRecord, ParseError> {
         let value = declaration
             .value
             .render(|name| env.get(name).map(String::as_str));
+        env.insert(declaration.key, value);
+    }
+    Ok(env)
+}
+
+pub fn parse_with_limits(
+    content: &str,
+    limits: &EnvLimits,
+) -> Result<EnvRecord, ParseWithLimitsError> {
+    SourceBudget::new(*limits)
+        .charge(0, content.len())
+        .map_err(ParseWithLimitsError::Limit)?;
+    let declarations = parse_declarations(content).map_err(ParseWithLimitsError::Parse)?;
+    let mut budget = ValueBudget::new(*limits);
+    let mut env = EnvRecord::new();
+    for declaration in declarations {
+        let value = declaration
+            .value
+            .render_with_limits(
+                &declaration.key,
+                |name| env.get(name).map(String::as_str),
+                &mut budget,
+            )
+            .map_err(ParseWithLimitsError::Limit)?;
         env.insert(declaration.key, value);
     }
     Ok(env)

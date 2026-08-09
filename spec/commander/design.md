@@ -136,7 +136,10 @@ lines; line endings normalize to LF. Single-quoted and escaped references remain
 unclosed interpolation-shaped text is not a reference and also remains literal.
 
 An unclosed quote aborts preset parsing and identifies the environment file, key, and physical line
-where the declaration started. Diagnostics never include the source line or environment value.
+where the declaration started. Each preset env file uses explicit 1 MiB limits for source bytes,
+one expanded value, and total expanded values, so interpolation cannot amplify the bounded file
+into an unbounded allocation. A limit failure identifies the file, key when applicable, and maximum
+without including source values. Diagnostics never include the source line or environment value.
 Commander returns the overlay and effective environment without mutating the caller's environment;
 environment acquisition remains caller-owned and no preset path reads process-global environment.
 
@@ -237,8 +240,9 @@ There are no blocking open design questions.
 Tests cover definition invariants; route and alias semantics; controls; option and argument grammar;
 numeric forms and coercion; inherited/local result views; built-in resolution; source-attributed
 diagnostics; preset selection, bounds, precedence, and Env-backed key, multiline, interpolation, and
-value-redacted failure semantics; plain and styled help including Unicode alignment; deterministic
-version output; Bash/Fish/PowerShell generation and quoting; dynamic candidate routing; link-safe
-completion replacement; invalid UTF-8; and failure propagation. Debug-formatting tests verify that
-environment values are redacted across requests, matches, source snapshots, help outcomes, and
-version outcomes while environment keys remain visible.
+value-redacted failure semantics, including adversarial expansion chains; plain and styled help
+including Unicode alignment; deterministic version output; Bash/Fish/PowerShell generation and
+quoting; dynamic candidate routing; link-safe completion replacement; invalid UTF-8; and failure
+propagation. Debug-formatting tests verify that environment values are redacted across requests,
+matches, source snapshots, help outcomes, and version outcomes while environment keys remain
+visible.

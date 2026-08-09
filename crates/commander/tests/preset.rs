@@ -204,6 +204,39 @@ fn preset_env_files_follow_the_shared_env_contract() {
 }
 
 #[test]
+fn preset_env_files_reject_exponential_expansion_over_budget() {
+    let temp = TempDir::new("env-expansion-limit");
+    let mut content = String::from("V0=sensitive-placeholder\n");
+    for index in 1..=30 {
+        content.push_str(&format!(
+            "V{index}=${{V{}}}${{V{}}}\n",
+            index - 1,
+            index - 1
+        ));
+    }
+    temp.write("expanded.env", content);
+    let preset = temp.write(
+        "preset.json",
+        r#"{"version":1,"profiles":{"dev":{"envFile":"expanded.env"}}}"#,
+    );
+    let command = Command::builder("cli", "CLI")
+        .build()
+        .expect("command should build");
+    let error = command
+        .parse_from([
+            &format!("--preset-file={}", preset.display()),
+            "--preset-profile=dev",
+        ])
+        .expect_err("expanded preset env should stop at the configured budget");
+
+    assert_eq!(error.kind(), ParseErrorKind::Configuration);
+    assert!(error.message().contains(
+        "failed to parse preset env file \"expanded.env\": Expanded environment values exceed 1048576 total bytes"
+    ));
+    assert!(!error.message().contains("sensitive-placeholder"));
+}
+
+#[test]
 fn preset_numbers_use_rust_native_string_formatting_for_cli_values() {
     let temp = TempDir::new("number-format");
     let preset = temp.write(

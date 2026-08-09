@@ -3,6 +3,8 @@ use std::fmt::{self, Display, Formatter};
 use std::io;
 use std::path::PathBuf;
 
+use crate::LimitError;
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ParseError {
     line_number: usize,
@@ -39,6 +41,48 @@ impl Display for ParseError {
 }
 
 impl Error for ParseError {}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum ParseWithLimitsError {
+    Parse(ParseError),
+    Limit(LimitError),
+}
+
+impl ParseWithLimitsError {
+    #[must_use]
+    pub const fn parse_error(&self) -> Option<&ParseError> {
+        match self {
+            Self::Parse(error) => Some(error),
+            Self::Limit(_) => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn limit_error(&self) -> Option<&LimitError> {
+        match self {
+            Self::Limit(error) => Some(error),
+            Self::Parse(_) => None,
+        }
+    }
+}
+
+impl Display for ParseWithLimitsError {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Parse(error) => Display::fmt(error, formatter),
+            Self::Limit(error) => Display::fmt(error, formatter),
+        }
+    }
+}
+
+impl Error for ParseWithLimitsError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            Self::Parse(error) => Some(error),
+            Self::Limit(error) => Some(error),
+        }
+    }
+}
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct StringifyError {
@@ -162,6 +206,64 @@ impl Error for ResolveError {
     }
 }
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum ResolveWithLimitsError {
+    Resolve(ResolveError),
+    Limit(LimitError),
+}
+
+impl ResolveWithLimitsError {
+    #[must_use]
+    pub const fn resolve_error(&self) -> Option<&ResolveError> {
+        match self {
+            Self::Resolve(error) => Some(error),
+            Self::Limit(_) => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn parse_error(&self) -> Option<&ParseError> {
+        match self {
+            Self::Resolve(error) => error.parse_error(),
+            Self::Limit(_) => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn cycle_error(&self) -> Option<&CycleError> {
+        match self {
+            Self::Resolve(error) => error.cycle_error(),
+            Self::Limit(_) => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn limit_error(&self) -> Option<&LimitError> {
+        match self {
+            Self::Limit(error) => Some(error),
+            Self::Resolve(_) => None,
+        }
+    }
+}
+
+impl Display for ResolveWithLimitsError {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Resolve(error) => Display::fmt(error, formatter),
+            Self::Limit(error) => Display::fmt(error, formatter),
+        }
+    }
+}
+
+impl Error for ResolveWithLimitsError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            Self::Resolve(error) => Some(error),
+            Self::Limit(error) => Some(error),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub enum ResolveFilesError {
     InvalidFileName { file_name: PathBuf },
@@ -267,6 +369,71 @@ impl Error for ResolveFilesError {
             Self::InvalidFileName { .. }
             | Self::NotDirectory { .. }
             | Self::RootDirectoryNotAncestor { .. } => None,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum ResolveFilesWithLimitsError {
+    Resolve(ResolveFilesError),
+    Limit {
+        path: Option<PathBuf>,
+        error: LimitError,
+    },
+}
+
+impl ResolveFilesWithLimitsError {
+    pub(crate) const fn limit(path: Option<PathBuf>, error: LimitError) -> Self {
+        Self::Limit { path, error }
+    }
+
+    #[must_use]
+    pub const fn resolve_error(&self) -> Option<&ResolveFilesError> {
+        match self {
+            Self::Resolve(error) => Some(error),
+            Self::Limit { .. } => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn limit_error(&self) -> Option<&LimitError> {
+        match self {
+            Self::Limit { error, .. } => Some(error),
+            Self::Resolve(_) => None,
+        }
+    }
+
+    #[must_use]
+    pub fn limit_path(&self) -> Option<&std::path::Path> {
+        match self {
+            Self::Limit { path, .. } => path.as_deref(),
+            Self::Resolve(_) => None,
+        }
+    }
+}
+
+impl Display for ResolveFilesWithLimitsError {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Resolve(error) => Display::fmt(error, formatter),
+            Self::Limit {
+                path: Some(path),
+                error,
+            } => write!(
+                formatter,
+                "Environment file {} exceeded a configured limit: {error}",
+                path.display()
+            ),
+            Self::Limit { path: None, error } => Display::fmt(error, formatter),
+        }
+    }
+}
+
+impl Error for ResolveFilesWithLimitsError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            Self::Resolve(error) => Some(error),
+            Self::Limit { error, .. } => Some(error),
         }
     }
 }

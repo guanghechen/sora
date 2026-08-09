@@ -6,7 +6,7 @@ use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 
-use guanghechen_env::parse as parse_env;
+use guanghechen_env::{EnvLimits, parse_with_limits as parse_env_with_limits};
 
 use self::path::normalize_path;
 use crate::Command;
@@ -15,6 +15,7 @@ use crate::error::{ParseError, ParseErrorKind};
 pub const PRESET_FILE_FLAG: &str = "--preset-file";
 pub const PRESET_PROFILE_FLAG: &str = "--preset-profile";
 const MAX_PRESET_BYTES: u64 = 1024 * 1024;
+const PRESET_ENV_LIMITS: EnvLimits = EnvLimits::new(MAX_PRESET_BYTES as usize);
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 struct PresetFileConfig {
@@ -1153,7 +1154,7 @@ fn read_env_file(
         )
         .with_preset_file(display_path)
     })?;
-    let envs = parse_env(content).map_err(|error| {
+    let envs = parse_env_with_limits(content, &PRESET_ENV_LIMITS).map_err(|error| {
         configuration_error(
             command_path,
             format!(

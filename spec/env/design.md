@@ -28,6 +28,20 @@ thin, explicit filesystem adapter over the same resolver contract.
   ancestors from nearest to farthest. Within each directory, file names are read in caller-provided
   priority order. The optional root directory is inclusive; `None` walks to the filesystem or
   Windows volume root. Missing files are skipped.
+- The existing `parse`, `resolve`, `resolve_upward`, and `resolve_upward_files` functions retain
+  their unbounded trusted-input contract. Their `*_with_limits` peers require explicit
+  `EnvLimits` and enforce four UTF-8 byte budgets: one source, all sources, one expanded value, and
+  all expanded values. `EnvLimits::new(maximum_bytes)` initializes every budget to the same value;
+  individual builders may override it. A bounded function checks source budgets before parsing and
+  computes an expanded value's size before allocating it.
+
+For declaration-order `parse_with_limits`, the total expanded-value budget charges every rendered
+declaration, including a value later overwritten by another declaration of the same key. For graph
+resolution, it charges each selected declaration once. This makes the limit a bound on work and
+allocation rather than only the final record size. File-backed bounded resolution caps each read
+and the cumulative loaded source bytes before parsing. Recursive-resolution topology edges borrow
+selected declaration keys instead of copying key text per edge, so key length and dependency
+fan-out cannot multiply graph-owned string bytes.
 
 Recursive resolution has two distinct phases:
 
@@ -54,6 +68,10 @@ default error retains only that line number and environment key; source values a
 `Display` or `Debug`. `resolve_upward` reports the zero-based source index so callers can attach
 their own path or layer metadata. Any cycle in the selected declaration graph aborts the entire
 resolution and returns the closed cycle path, for example `A -> B -> A`; partial values are never
-returned. Stringification rejects invalid keys with `StringifyError` before emitting them. File
-resolution attaches the candidate path to I/O and parse errors, rejects non-directory search
-boundaries, and rejects a root directory that is not an ancestor of the starting directory.
+returned. A bounded operation aborts before exceeding a configured budget and reports only the
+limit kind, maximum, source index or file path when applicable, and environment key for a value
+limit; source values are never retained. Invalid UTF-8 file errors retain only the invalid sequence
+offset and length, not the loaded bytes. Stringification rejects invalid keys with `StringifyError`
+before emitting them. File resolution attaches the candidate path to I/O, parse, and source-limit
+errors, rejects non-directory search boundaries, and rejects a root directory that is not an
+ancestor of the starting directory.
