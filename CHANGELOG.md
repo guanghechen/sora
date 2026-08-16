@@ -5,6 +5,19 @@ All notable changes to the Rust crates in this repository are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the crates use
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4] - 2026-08-16
+
+### Fixed
+
+- `guanghechen-cli-reporter`: add explicit `info_rendered` and `warn_rendered` methods that preserve
+  trusted semantic renderer multiline layout, SGR styling, and OSC 8 hyperlinks while ordinary
+  messages and `run_reported` terminal errors remain visibly escaped.
+
+### Changed
+
+- Publish all five crates at one synchronized patch version so exact internal dependency pins keep
+  a single compatible graph for downstream consumers.
+
 ## [0.1.3] - 2026-08-16
 
 ### Added

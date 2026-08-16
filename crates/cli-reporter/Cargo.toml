@@ -12,8 +12,8 @@ publish.workspace = true
 include = ["src/**", "LICENSE", "README.md"]
 
 [dependencies]
-guanghechen-commander = { path = "../commander", version = "=0.1.3" }
-guanghechen-reporter = { path = "../reporter", version = "=0.1.3" }
+guanghechen-commander = { path = "../commander", version = "=0.1.4" }
+guanghechen-reporter = { path = "../reporter", version = "=0.1.4" }
 
 [lints]
 workspace = true

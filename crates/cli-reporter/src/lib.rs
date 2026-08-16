@@ -25,17 +25,32 @@ impl Display for ReporterConfigError {
 impl std::error::Error for ReporterConfigError {}
 
 #[derive(Default)]
-struct BufferedOutput {
+struct ReportBuffer {
     bytes: Mutex<Vec<u8>>,
+}
+
+#[derive(Clone, Copy)]
+enum MessagePolicy {
+    Escape,
+    PreserveRendered,
+}
+
+struct BufferedOutput {
+    buffer: Arc<ReportBuffer>,
+    message_policy: MessagePolicy,
 }
 
 impl ReporterOutput for BufferedOutput {
     fn write(&self, record: ReporterOutputRecord<'_>) -> io::Result<()> {
         let mut bytes = self
+            .buffer
             .bytes
             .lock()
             .map_err(|_| io::Error::other("reporter buffer lock is poisoned"))?;
-        let message = escape_console_message(record.message);
+        let message = match self.message_policy {
+            MessagePolicy::Escape => escape_console_message(record.message),
+            MessagePolicy::PreserveRendered => record.message.into(),
+        };
         let additional = record_size(record.parts, &message)?;
         if exceeds_report_limit(bytes.len(), additional) {
             return Err(io::Error::other("reporter output exceeds 64 MiB"));
@@ -74,7 +89,8 @@ const fn exceeds_report_limit(current: usize, additional: usize) -> bool {
 /// A buffered Reporter configured from resolved Commander builtin matches.
 pub struct CliReporter {
     reporter: Reporter,
-    output: Arc<BufferedOutput>,
+    rendered_reporter: Reporter,
+    output: Arc<ReportBuffer>,
     terminal: bool,
     colorful: bool,
 }
@@ -112,19 +128,27 @@ impl CliReporter {
             level
         };
         let colorful = colorful(matches, all_destinations_terminal);
-        let output = Arc::new(BufferedOutput::default());
-        let reporter = Reporter::with_options(ReporterOptions {
-            prefix: Some(prefix.to_owned()),
+        let date = builtin_bool(matches, "logDate");
+        let output = Arc::new(ReportBuffer::default());
+        let reporter = create_reporter(
+            prefix,
             level,
-            flight: ReporterFlight {
-                date: Some(builtin_bool(matches, "logDate")),
-                color: Some(colorful),
-            },
-            output: Some(output.clone()),
-        })
-        .map_err(|error| ReporterConfigError(error.to_string()))?;
+            date,
+            colorful,
+            Arc::clone(&output),
+            MessagePolicy::Escape,
+        )?;
+        let rendered_reporter = create_reporter(
+            prefix,
+            level,
+            date,
+            colorful,
+            Arc::clone(&output),
+            MessagePolicy::PreserveRendered,
+        )?;
         Ok(Self {
             reporter,
+            rendered_reporter,
             output,
             terminal: all_destinations_terminal,
             colorful,
@@ -158,6 +182,24 @@ impl CliReporter {
         self.reporter.error(message)
     }
 
+    /// Buffer trusted, fully sanitized semantic renderer output at info level.
+    ///
+    /// Unlike [`Self::info`], this method preserves multiline layout and terminal control
+    /// sequences. Do not pass raw untrusted values; every interpolation must already be safe for
+    /// the destination terminal.
+    pub fn info_rendered(&self, message: impl Into<String>) -> io::Result<()> {
+        self.rendered_reporter.info(message)
+    }
+
+    /// Buffer trusted, fully sanitized semantic renderer output at warning level.
+    ///
+    /// Unlike [`Self::warn`], this method preserves multiline layout and terminal control
+    /// sequences. Do not pass raw untrusted values; every interpolation must already be safe for
+    /// the destination terminal.
+    pub fn warn_rendered(&self, message: impl Into<String>) -> io::Result<()> {
+        self.rendered_reporter.warn(message)
+    }
+
     /// Drain all currently buffered records to `output`.
     pub fn flush_to(&self, output: &mut dyn Write) -> io::Result<()> {
         let bytes = {
@@ -170,6 +212,29 @@ impl CliReporter {
         };
         output.write_all(&bytes)
     }
+}
+
+fn create_reporter(
+    prefix: &str,
+    level: LogLevel,
+    date: bool,
+    colorful: bool,
+    buffer: Arc<ReportBuffer>,
+    message_policy: MessagePolicy,
+) -> Result<Reporter, ReporterConfigError> {
+    Reporter::with_options(ReporterOptions {
+        prefix: Some(prefix.to_owned()),
+        level,
+        flight: ReporterFlight {
+            date: Some(date),
+            color: Some(colorful),
+        },
+        output: Some(Arc::new(BufferedOutput {
+            buffer,
+            message_policy,
+        })),
+    })
+    .map_err(|error| ReporterConfigError(error.to_string()))
 }
 
 /// Run one synchronous action and emit its terminal failure through a buffered Reporter.
@@ -365,6 +430,37 @@ mod tests {
     }
 
     #[test]
+    fn reporter_preserves_trusted_rendered_layout_controls_and_shared_order() {
+        let command = Command::builder("test", "test").build().unwrap();
+        let ParseOutcome::Matches(matches) = command
+            .parse_from(["--no-log-date", "--no-log-colorful"])
+            .unwrap()
+        else {
+            panic!("reporter options should produce matches");
+        };
+        let reporter = CliReporter::from_matches("test", &matches, false).unwrap();
+        reporter.info("untrusted\n\x1b]52;c;payload\x07").unwrap();
+        reporter
+            .info_rendered(
+                "first line\n\x1b[1;32msecond line\x1b[0m\n\x1b]8;;file:///tmp/demo\x1b\\/tmp/demo\x1b]8;;\x1b\\",
+            )
+            .unwrap();
+        reporter.warn_rendered("final warning").unwrap();
+
+        let mut output = Vec::new();
+        reporter.flush_to(&mut output).unwrap();
+
+        assert_eq!(
+            String::from_utf8(output).unwrap(),
+            "[test] untrusted\\n\\u{1b}]52;c;payload\\u{7}\n\
+             [test] first line\n\
+             \x1b[1;32msecond line\x1b[0m\n\
+             \x1b]8;;file:///tmp/demo\x1b\\/tmp/demo\x1b]8;;\x1b\\\n\
+             [test] final warning\n"
+        );
+    }
+
+    #[test]
     fn run_reported_honors_flight_silent_and_exit_code() {
         let command = Command::builder("test", "test").build().unwrap();
         let ParseOutcome::Matches(matches) = command
@@ -394,7 +490,15 @@ mod tests {
             "test",
             &mut output,
             false,
-            |reporter| reporter.info("hidden").map_err(TestError),
+            |reporter| {
+                reporter.info("hidden").map_err(TestError)?;
+                reporter
+                    .info_rendered("hidden rendered info")
+                    .map_err(TestError)?;
+                reporter
+                    .warn_rendered("hidden rendered warning")
+                    .map_err(TestError)
+            },
             |_| 1,
         );
         assert_eq!(code, 0);
@@ -441,6 +545,21 @@ mod tests {
         );
         assert_eq!(code, 3);
         assert_eq!(String::from_utf8(output).unwrap(), "[test] Error:\n");
+
+        let mut output = Vec::new();
+        let code = run_reported(
+            &matches,
+            "test",
+            &mut output,
+            false,
+            |_reporter| Err(ControlledError),
+            |_| 3,
+        );
+        assert_eq!(code, 3);
+        assert_eq!(
+            String::from_utf8(output).unwrap(),
+            "[test] Error: failure\\n\\u{1b}]52;c;payload\\u{7}\n"
+        );
 
         let mut output = Vec::new();
         let code = run_reported_with_disposition(
@@ -551,6 +670,14 @@ mod tests {
     impl fmt::Display for EmptyError {
         fn fmt(&self, _formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
             Ok(())
+        }
+    }
+
+    struct ControlledError;
+
+    impl fmt::Display for ControlledError {
+        fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+            formatter.write_str("failure\n\x1b]52;c;payload\x07")
         }
     }
 

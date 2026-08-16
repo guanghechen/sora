@@ -4,11 +4,11 @@ version = 4
 
 [[package]]
 name = "guanghechen-chalk"
-version = "0.1.3"
+version = "0.1.4"
 
 [[package]]
 name = "guanghechen-cli-reporter"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "guanghechen-commander",
  "guanghechen-reporter",
@@ -16,7 +16,7 @@ dependencies = [
 
 [[package]]
 name = "guanghechen-commander"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "guanghechen-chalk",
  "guanghechen-env",
@@ -24,11 +24,11 @@ dependencies = [
 
 [[package]]
 name = "guanghechen-env"
-version = "0.1.3"
+version = "0.1.4"
 
 [[package]]
 name = "guanghechen-reporter"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "guanghechen-chalk",
 ]

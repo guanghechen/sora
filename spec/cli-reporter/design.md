@@ -41,16 +41,25 @@ effective state for command-local semantic renderers.
 
 ## Output Ownership
 
-Each `CliReporter` owns one thread-safe bounded byte buffer used as a custom Reporter output. Records
-retain Reporter-formatted parts, separate parts with one ASCII space, append the message after
-Reporter console escaping, and end with LF. This keeps every record on one physical line and prevents
-untrusted message controls from reaching terminal-facing output. The buffer limit is 64 MiB. Size
-overflow, poisoned locking, and output errors propagate as I/O failures. `flush_to` atomically takes
-the current buffer and writes it to a caller-provided writer; successful repeated flushes emit only
-newly buffered records.
+Each `CliReporter` owns one thread-safe bounded byte buffer shared by both message channels. Records
+retain Reporter-formatted parts, separate parts with one ASCII space, and end with LF. The default
+`info`, `warn`, and `error` methods visibly escape message controls before buffering. This keeps
+ordinary and untrusted messages on one physical line and prevents their controls from reaching
+terminal-facing output.
 
-The adapter exposes `info`, `warn`, and `error` forwarding methods. Other Reporter capabilities stay
-on Reporter itself until a real one-shot CLI consumer requires them.
+`info_rendered` and `warn_rendered` are an explicit trusted channel for command-local semantic
+renderers. They preserve the renderer's complete message, including multiline layout, SGR styling,
+and OSC 8 hyperlinks. Callers must pass only fully sanitized renderer-owned output; raw arguments,
+environment values, file contents, remote responses, and other untrusted strings must not enter this
+channel unless the semantic renderer has made every interpolation terminal-safe. The ordinary
+methods remain the safe default, and `run_reported` terminal errors always use the escaped channel.
+
+Both channels apply the same Reporter level, prefix, date, and color configuration and serialize
+into the same buffer, preserving filtering and cross-channel call order. The buffer limit is 64 MiB.
+Size overflow, poisoned locking, and output errors propagate as I/O failures. `flush_to` atomically
+takes the current buffer and writes it to a caller-provided writer; successful repeated flushes emit
+only newly buffered records. Other Reporter capabilities stay on Reporter itself until a real
+one-shot CLI consumer requires them.
 
 ## Entrypoint Lifecycle
 
@@ -82,7 +91,8 @@ There are no blocking open design questions.
 
 ## Verification
 
-Tests cover buffer drain, bound enforcement, Reporter formatting, terminal/default/explicit color,
-`NO_COLOR`, effective style exposure, date and silent controls, visible escaping of untrusted message
-controls, action exit-code mapping, exact error marker normalization, explicit terminal-record
+Tests cover buffer drain, shared ordering and bound enforcement, Reporter formatting,
+terminal/default/explicit color, `NO_COLOR`, effective style exposure, date and silent controls,
+visible escaping of ordinary and terminal-error messages, preservation of trusted multiline SGR and
+OSC 8 output, action exit-code mapping, exact error marker normalization, explicit terminal-record
 suppression, full-buffer terminal-error retry, and final writer failure.

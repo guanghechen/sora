@@ -5,6 +5,12 @@ logging controls onto `guanghechen-reporter`, exposes effective terminal/color s
 renderers, visibly escapes message controls for terminal-facing output, and owns final error-record
 and flush behavior.
 
+`info`, `warn`, and `error` visibly escape controls and are safe by default for ordinary or
+untrusted messages. `info_rendered` and `warn_rendered` explicitly preserve trusted semantic
+renderer output, including multiline layout, SGR styling, and OSC 8 hyperlinks. Pass only fully
+sanitized renderer-owned output to the rendered methods; raw untrusted values must use the ordinary
+methods unless every interpolation has already been made terminal-safe.
+
 ```rust
 use guanghechen_cli_reporter::run_reported;
 use guanghechen_commander::{Command, ParseOutcome};
