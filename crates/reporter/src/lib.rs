@@ -8,5 +8,5 @@ pub use format::format_tag;
 pub use level::{LogLevel, resolve_log_level};
 pub use reporter::{
     Reporter, ReporterEntry, ReporterError, ReporterFlight, ReporterOptions, ReporterOutput,
-    ReporterOutputRecord,
+    ReporterOutputRecord, escape_console_message,
 };

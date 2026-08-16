@@ -1,7 +1,7 @@
 CARGO ?= cargo
 RG ?= rg
 
-CRATES := chalk env reporter commander
+CRATES := chalk env reporter commander cli-reporter
 PACKAGES := $(addprefix guanghechen-,$(CRATES))
 DRY_RUN_TARGETS := $(addprefix dry-run-,$(CRATES))
 WORKSPACE_FLAGS := --workspace --all-features --locked
@@ -36,7 +36,8 @@ help:
 		'make dry-run-chalk     Dry-run the chalk publish' \
 		'make dry-run-env       Dry-run the env publish' \
 		'make dry-run-reporter  Dry-run the reporter publish after chalk is indexed' \
-		'make dry-run-commander Dry-run the commander publish after chalk and env are indexed'
+		'make dry-run-commander Dry-run the commander publish after chalk and env are indexed' \
+		'make dry-run-cli-reporter Dry-run the CLI reporter publish after commander and reporter are indexed'
 
 audit:
 	@set -u; \

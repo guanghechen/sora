@@ -19,6 +19,18 @@ assert_eq!(
 );
 ```
 
+File paths use caller-owned terminal and color policy. Absolute terminal paths receive safe OSC 8
+hyperlinks, while redirected paths remain free of OSC control sequences:
+
+```rust
+use std::path::Path;
+
+use guanghechen_chalk::FilePathStyle;
+
+let visible = FilePathStyle::new(false, false).format(Path::new("output.txt"));
+assert_eq!(visible, "output.txt");
+```
+
 ## License
 
 [MIT](https://github.com/guanghechen/sora/blob/rust/LICENSE)

@@ -13,7 +13,8 @@ reporter.info("ready").unwrap();
 
 The default console output renders each record on one physical line and visibly escapes control
 characters supplied in messages. Custom outputs and test capture receive the original message.
-Prefix components reject `:` and control characters.
+`escape_console_message` exposes the same borrowed-or-owned transformation to terminal-facing custom
+outputs. Prefix components reject `:` and control characters.
 
 ## License
 

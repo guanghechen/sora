@@ -2,10 +2,10 @@
 
 ## Scope
 
-`guanghechen-chalk` is a zero-dependency, deterministic ANSI styling engine. It turns explicit
-style, capability, and text inputs into an owned string. It does not read process state, inspect a
-TTY, interpret `NO_COLOR` or `FORCE_COLOR`, select a stream, or write output. Those policies remain
-with Commander, Reporter, or another caller.
+`guanghechen-chalk` is a zero-dependency, deterministic terminal presentation foundation. It turns
+explicit style, capability, text, path, and terminal inputs into owned strings. It does not read
+process state, inspect a TTY, interpret `NO_COLOR` or `FORCE_COLOR`, select a stream, or write output.
+Those policies remain with Commander, Reporter, or another caller.
 
 The crate does not strip arbitrary ANSI sequences, compute terminal display width, parse CSS color
 names, provide logging semantics, or depend on Commander or Reporter. RGB is the canonical Truecolor
@@ -18,10 +18,11 @@ color model.
   rules;
 - `effect` owns independent effects and the mutually exclusive underline style;
 - `style` owns the ordered style value and its invariants;
-- `renderer` consumes the other modules and owns ANSI encoding, nesting repair, and line handling.
+- `renderer` consumes the style modules and owns ANSI encoding, nesting repair, and line handling;
+- `path` owns safe visible path presentation, file URI encoding, and optional OSC 8 envelopes.
 
 Dependencies flow from `renderer` to `style`, `color`, and `effect`; `style` depends only on `color`
-and `effect`. Leaf modules never depend on the renderer.
+and `effect`. `path` is independent from the style graph. Leaf modules never depend on the renderer.
 
 ## Capability and Color
 
@@ -105,6 +106,21 @@ Before each LF or CRLF, the renderer closes and reopens all retained attributes 
 This prevents terminal line-boundary bleed while preserving the original line ending and requested
 operation order.
 
+## File Path Presentation
+
+`FilePathStyle` receives explicit `terminal` and `color` booleans and formats one `Path` without
+reading stream or environment state. Control characters in the visible path become Unicode
+replacement characters. Color-enabled visible paths use underlined cyan SGR styling. Color is
+independent from hyperlinking: a terminal path may carry an OSC 8 link while remaining visibly
+plain, and a redirected path may retain explicitly requested color without carrying OSC bytes.
+
+Only absolute paths receive hyperlinks. Unix paths use their raw platform bytes in an absolute
+`file:` URI. Windows supports drive-letter, UNC, and the corresponding verbatim drive/UNC forms;
+relative, drive-relative, rooted-without-drive, device, incomplete UNC, and volume-GUID paths remain
+visible text without a hyperlink. URI bytes preserve ASCII alphanumerics and `-._~/:`; every other
+byte is uppercase percent-encoded. Invalid or unsupported hyperlink targets degrade to the already
+sanitized visible path.
+
 ## Failure Strategy and Open Questions
 
 Constructed color and style values are structurally valid: palette indices and RGB components are
@@ -121,4 +137,6 @@ Tests cover every effect and named color; strict Hex parsing and rejection; all 
 background, and underline color domains; capability disablement and downgrade boundaries; ordered,
 replaceable, and removable state; order-sensitive reset and intensity combinations; nested same and
 different properties; shared close codes; reset boundaries and explicit repainting; LF and CRLF
-repair; plain, visible-only, empty, and opaque text; and deterministic rendering.
+repair; plain, visible-only, empty, and opaque text; deterministic rendering; Unix raw-byte file URI
+encoding; Windows drive/UNC/verbatim mapping and rejection; visible control sanitization; and
+independent color/hyperlink policy.

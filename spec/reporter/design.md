@@ -29,10 +29,11 @@ Without a custom sink, debug/info/hint use stdout and warn/error use stderr. The
 emits exactly one physical line per record: LF, CR, and TAB in a message become `\n`, `\r`, and `\t`;
 every other Unicode control character becomes a lowercase `\u{hex}` escape. Non-control Unicode is
 preserved. Reporter-generated timestamp/tag ANSI remains trusted formatting and is not escaped.
-Output errors propagate unchanged. Custom sinks and capture receive the original message without
-console escaping. `collect` ends the shared capture and is empty when capture is inactive. It is not
-a barrier: callers must quiesce or join log producers first. A record that began in a capture but
-finishes after that capture ends is discarded.
+`escape_console_message` exposes this exact borrowed-or-owned transformation to custom sinks that
+also write terminal-facing text. Output errors propagate unchanged. Custom sinks and capture receive
+the original message unless they explicitly apply that helper. `collect` ends the shared capture and
+is empty when capture is inactive. It is not a barrier: callers must quiesce or join log producers
+first. A record that began in a capture but finishes after that capture ends is discarded.
 
 ## Formatting
 
@@ -64,5 +65,5 @@ conversion.
 ## Verification
 
 Tests cover levels, lazy filtering, flight changes, formatting, timestamps, isolated prefix contexts,
-shared runtime state, prefix validation, safe console rendering, raw custom output and capture,
+shared runtime state, prefix validation, shared safe console escaping, raw custom output and capture,
 capture generations, concurrency, and output failures.

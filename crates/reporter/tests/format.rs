@@ -1,6 +1,7 @@
 use std::time::{Duration, UNIX_EPOCH};
 
 pub use guanghechen_reporter::LogLevel;
+use guanghechen_reporter::escape_console_message;
 
 #[path = "../src/format.rs"]
 mod format;
@@ -80,5 +81,15 @@ fn color_wraps_only_the_timestamp() {
     assert_eq!(
         format::format_timestamp(UNIX_EPOCH, false),
         "1970-01-01T00:00:00.000Z"
+    );
+}
+
+#[test]
+fn console_message_escaping_is_borrowed_when_plain_and_visible_when_controlled() {
+    let plain = escape_console_message("ready");
+    assert!(matches!(plain, std::borrow::Cow::Borrowed("ready")));
+    assert_eq!(
+        escape_console_message("line\n\r\t\x1b\0"),
+        r"line\n\r\t\u{1b}\u{0}"
     );
 }

@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+use std::fmt::Write as _;
 use std::fmt::{self, Display, Formatter};
 use std::io::{self, Write};
 use std::sync::{Arc, Mutex, MutexGuard};
@@ -271,27 +273,34 @@ fn write_record(mut writer: impl Write, record: &ReporterOutputRecord<'_>) -> io
     if !record.parts.is_empty() && !record.message.is_empty() {
         writer.write_all(b" ")?;
     }
-    write_console_message(&mut writer, record.message)?;
+    writer.write_all(escape_console_message(record.message).as_bytes())?;
     writer.write_all(b"\n")
 }
 
-fn write_console_message(mut writer: impl Write, message: &str) -> io::Result<()> {
-    let bytes = message.as_bytes();
+/// Escape message controls into visible text suitable for one physical console line.
+#[must_use]
+pub fn escape_console_message(message: &str) -> Cow<'_, str> {
+    if !message.chars().any(char::is_control) {
+        return Cow::Borrowed(message);
+    }
+    let mut escaped = String::with_capacity(message.len());
     let mut visible_start = 0;
     for (index, character) in message.char_indices() {
         if !character.is_control() {
             continue;
         }
-        writer.write_all(&bytes[visible_start..index])?;
+        escaped.push_str(&message[visible_start..index]);
         match character {
-            '\n' => writer.write_all(b"\\n")?,
-            '\r' => writer.write_all(b"\\r")?,
-            '\t' => writer.write_all(b"\\t")?,
-            _ => write!(writer, "\\u{{{:x}}}", u32::from(character))?,
+            '\n' => escaped.push_str("\\n"),
+            '\r' => escaped.push_str("\\r"),
+            '\t' => escaped.push_str("\\t"),
+            _ => write!(escaped, "\\u{{{:x}}}", u32::from(character))
+                .unwrap_or_else(|_| unreachable!("writing to String cannot fail")),
         }
         visible_start = index + character.len_utf8();
     }
-    writer.write_all(&bytes[visible_start..])
+    escaped.push_str(&message[visible_start..]);
+    Cow::Owned(escaped)
 }
 
 fn validate_prefix(prefix: &str) -> Result<(), ReporterError> {

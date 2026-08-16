@@ -5,6 +5,22 @@ All notable changes to the Rust crates in this repository are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the crates use
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `guanghechen-chalk`: add explicit file path presentation with visible control sanitization,
+  optional underlined cyan styling, absolute `file:` URI encoding, and OSC 8 hyperlinks.
+- `guanghechen-cli-reporter`: add the Commander-aware buffered adapter for one-shot Reporter
+  lifecycle, effective terminal/color policy, normalized terminal errors, and explicit suppression.
+
+### Security
+
+- `guanghechen-reporter`: expose its console-message escaping primitive so terminal-facing custom
+  sinks can share the default sink's one-line control-sanitization contract.
+- `guanghechen-cli-reporter`: visibly escape untrusted message controls before buffered terminal
+  output instead of forwarding raw custom-sink messages.
+
 ## [0.1.2] - 2026-08-09
 
 ### Security
