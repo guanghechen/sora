@@ -15,6 +15,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Include integration test sources in published crates so package manifests and release verification
+  agree without ignored-test warnings.
 - Publish all five crates at one synchronized patch version so exact internal dependency pins keep
   a single compatible graph for downstream consumers.
 

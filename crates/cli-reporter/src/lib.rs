@@ -344,7 +344,7 @@ mod tests {
     use std::fmt;
     use std::io;
 
-    use guanghechen_commander::{Command, ParseOutcome, ParseRequest};
+    use guanghechen_commander::{Command, Matches, ParseOutcome, ParseRequest};
 
     use super::{
         CliReporter, MAX_REPORT_BYTES, TerminalErrorDisposition, exceeds_report_limit,
@@ -461,14 +461,8 @@ mod tests {
     }
 
     #[test]
-    fn run_reported_honors_flight_silent_and_exit_code() {
-        let command = Command::builder("test", "test").build().unwrap();
-        let ParseOutcome::Matches(matches) = command
-            .parse_from(["--no-log-date", "--no-log-colorful"])
-            .unwrap()
-        else {
-            panic!("reporter options should produce matches");
-        };
+    fn run_reported_flushes_success_output() {
+        let matches = test_matches(&["--no-log-date", "--no-log-colorful"]);
         let mut output = Vec::new();
         let code = run_reported(
             &matches,
@@ -480,13 +474,14 @@ mod tests {
         );
         assert_eq!(code, 0);
         assert_eq!(String::from_utf8(output).unwrap(), "[test] plain\n");
+    }
 
-        let ParseOutcome::Matches(silent) = command.parse_from(["--silent"]).unwrap() else {
-            panic!("silent should produce matches");
-        };
+    #[test]
+    fn run_reported_honors_silent_across_message_channels() {
+        let matches = test_matches(&["--silent"]);
         let mut output = Vec::new();
         let code = run_reported(
-            &silent,
+            &matches,
             "test",
             &mut output,
             false,
@@ -503,7 +498,11 @@ mod tests {
         );
         assert_eq!(code, 0);
         assert!(output.is_empty());
+    }
 
+    #[test]
+    fn run_reported_normalizes_and_escapes_terminal_errors() {
+        let matches = test_matches(&["--no-log-date", "--no-log-colorful"]);
         let mut output = Vec::new();
         let code = run_reported(
             &matches,
@@ -560,7 +559,11 @@ mod tests {
             String::from_utf8(output).unwrap(),
             "[test] Error: failure\\n\\u{1b}]52;c;payload\\u{7}\n"
         );
+    }
 
+    #[test]
+    fn run_reported_suppresses_the_terminal_error_when_requested() {
+        let matches = test_matches(&["--no-log-date", "--no-log-colorful"]);
         let mut output = Vec::new();
         let code = run_reported_with_disposition(
             &matches,
@@ -639,6 +642,15 @@ mod tests {
         let mut output = Vec::new();
         reporter.flush_to(&mut output).unwrap();
         String::from_utf8(output).unwrap()
+    }
+
+    fn test_matches(args: &[&str]) -> Matches {
+        let command = Command::builder("test", "test").build().unwrap();
+        let ParseOutcome::Matches(matches) = command.parse_from(args.iter().copied()).unwrap()
+        else {
+            panic!("reporter options should produce matches");
+        };
+        matches
     }
 
     struct TestError(io::Error);

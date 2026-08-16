@@ -55,7 +55,7 @@ channel unless the semantic renderer has made every interpolation terminal-safe.
 methods remain the safe default, and `run_reported` terminal errors always use the escaped channel.
 
 Both channels apply the same Reporter level, prefix, date, and color configuration and serialize
-into the same buffer, preserving filtering and cross-channel call order. The buffer limit is 64 MiB.
+through one shared append order. The buffer limit is 64 MiB.
 Size overflow, poisoned locking, and output errors propagate as I/O failures. `flush_to` atomically
 takes the current buffer and writes it to a caller-provided writer; successful repeated flushes emit
 only newly buffered records. Other Reporter capabilities stay on Reporter itself until a real
