@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/filepart@2.0.0/packages/filepart#readme">@guanghechen/filepart</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/filepart@2.0.4/packages/filepart#readme">@guanghechen/filepart</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/filepart">
@@ -142,4 +142,4 @@ console.log(DEFAULT_FILEPART_CODE_PREFIX) // '.ghc-part'
 - [homepage][homepage]
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/filepart@2.0.0/packages/filepart#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/filepart@2.0.4/packages/filepart#readme

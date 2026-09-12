@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/invariant",
-  "version": "7.0.3",
+  "version": "7.0.4",
   "description": "A simple invariant function",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/invariant@7.0.0",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/invariant@7.0.4",
     "directory": "packages/invariant"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/invariant@7.0.0/packages/invariant#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/invariant@7.0.4/packages/invariant#readme",
   "type": "module",
   "exports": {
     ".": {

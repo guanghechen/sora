@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/invariant@7.0.0/packages/invariant#readme">@guanghechen/invariant</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/invariant@7.0.4/packages/invariant#readme">@guanghechen/invariant</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/invariant">
@@ -122,5 +122,5 @@ function invariant(
 - [homepage][homepage]
 - Inspired by [tiny-invariant][tiny-invariant]
 
-[homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/invariant@7.0.0/packages/invariant#readme
+[homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/invariant@7.0.4/packages/invariant#readme
 [tiny-invariant]: https://github.com/alexreardon/tiny-invariant

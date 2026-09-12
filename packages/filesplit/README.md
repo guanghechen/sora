@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/filesplit@2.0.0/packages/filesplit#readme">@guanghechen/filesplit</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/filesplit@2.0.5/packages/filesplit#readme">@guanghechen/filesplit</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/filesplit">
@@ -142,4 +142,4 @@ const partFilepaths = splitter.calcPartFilepaths('/path/to/file.zip', parts)
 - [homepage][homepage]
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/filesplit@2.0.0/packages/filesplit#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/filesplit@2.0.5/packages/filesplit#readme

@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/reporter@3.0.0/packages/reporter#readme">@guanghechen/reporter</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/reporter@3.3.2/packages/reporter#readme">@guanghechen/reporter</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/reporter">
@@ -202,4 +202,4 @@ See full specification: [`spec/reporter.md`](./spec/reporter.md)
 - [homepage][homepage]
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/reporter@3.0.0/packages/reporter#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/reporter@3.3.2/packages/reporter#readme

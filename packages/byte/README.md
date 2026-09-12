@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/byte@2.0.0/packages/byte#readme">@guanghechen/byte</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/byte@2.0.5/packages/byte#readme">@guanghechen/byte</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/byte">
@@ -134,4 +134,4 @@ destroyBytes(sensitiveData) // Overwrites with zeros, ones, then random values
 - [homepage][homepage]
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/byte@2.0.0/packages/byte#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/byte@2.0.5/packages/byte#readme

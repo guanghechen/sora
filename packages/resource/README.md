@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/resource@2.0.0/packages/resource#readme">@guanghechen/resource</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/resource@2.1.2/packages/resource#readme">@guanghechen/resource</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/resource">
@@ -154,4 +154,4 @@ await strictMemo.load() // throws Error
 - [homepage][homepage]
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/resource@2.0.0/packages/resource#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/resource@2.1.2/packages/resource#readme

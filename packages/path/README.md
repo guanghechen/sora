@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/path@2.0.0/packages/path#readme">@guanghechen/path</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/path@2.1.4/packages/path#readme">@guanghechen/path</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/path">
@@ -158,4 +158,4 @@ const readme = findNearestFilepath('/project/src', (filepath) => {
 - [homepage][homepage]
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/path@2.0.0/packages/path#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/path@2.1.4/packages/path#readme

@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/string@2.0.0/packages/string#readme">@guanghechen/string</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/string@2.0.5/packages/string#readme">@guanghechen/string</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/string">
@@ -159,4 +159,4 @@ collectNumbers('1;2;3-5', /;/)  // [1, 2, 3, 4, 5]
 - [homepage][homepage]
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/string@2.0.0/packages/string#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/string@2.0.5/packages/string#readme

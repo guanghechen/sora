@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/string",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "String utilities including case transformers and parsers.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/string@2.0.0",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/string@2.0.5",
     "directory": "packages/string"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/string@2.0.0/packages/string#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/string@2.0.5/packages/string#readme",
   "keywords": [
     "string",
     "case",

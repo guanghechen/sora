@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@2.0.0/packages/viewmodel#readme">@guanghechen/viewmodel</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@2.1.5/packages/viewmodel#readme">@guanghechen/viewmodel</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/viewmodel">
@@ -264,4 +264,4 @@ class DashboardViewModel extends ViewModel {
 - [homepage][homepage]
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@2.0.0/packages/viewmodel#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/viewmodel@2.1.5/packages/viewmodel#readme

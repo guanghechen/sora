@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/equal@2.0.0/packages/equal#readme">@guanghechen/equal</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/equal@2.0.5/packages/equal#readme">@guanghechen/equal</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/equal">
@@ -140,4 +140,4 @@ isEqual(new Point(1, 2), new Point(1, 2))  // true
 - Inspired by [fast-deep-equal](https://github.com/epoberezkin/fast-deep-equal)
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/equal@2.0.0/packages/equal#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/equal@2.0.5/packages/equal#readme

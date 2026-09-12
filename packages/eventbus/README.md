@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/eventbus@7.0.0/packages/eventbus#readme">@guanghechen/eventbus</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/eventbus@7.1.3/packages/eventbus#readme">@guanghechen/eventbus</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/eventbus">
@@ -144,4 +144,4 @@ eventBus.dispose()
 
 - [homepage][homepage]
 
-[homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/eventbus@7.0.0/packages/eventbus#readme
+[homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/eventbus@7.1.3/packages/eventbus#readme

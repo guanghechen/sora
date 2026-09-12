@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/std@2.0.0/packages/std#readme">@guanghechen/std</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/std@2.0.4/packages/std#readme">@guanghechen/std</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/std">
@@ -180,4 +180,4 @@ root.setTimeout(() => {}, 100)
 
 - [homepage][homepage]
 
-[homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/std@2.0.0/packages/std#readme
+[homepage]: https://github.com/guanghechen/sora/tree/@guanghechen/std@2.0.4/packages/std#readme

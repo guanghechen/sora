@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/env@1.0.0/packages/env#readme">@guanghechen/env</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/env@2.0.4/packages/env#readme">@guanghechen/env</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/env">
@@ -158,4 +158,4 @@ KEY=
 - [homepage][homepage]
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/env@1.0.0/packages/env#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/env@2.0.4/packages/env#readme

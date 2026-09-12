@@ -1,5 +1,19 @@
 # Change Log
 
+## 7.1.5
+
+### Patch Changes
+
+- Settle material waiters when cooking or consuming fails, acknowledge pulled material exactly once, and preserve errors raised during processing and cleanup.
+- Regenerate ESM/CJS bundles and public declarations with the updated tsdown and TypeScript 7 toolchain, keeping declaration-only helpers private.
+- Updated dependencies:
+  - @guanghechen/observable@7.1.4
+  - @guanghechen/subscriber@2.1.3
+  - @guanghechen/task@2.1.5
+  - @guanghechen/middleware@2.0.4
+  - @guanghechen/reporter@3.3.2
+  - @guanghechen/types@2.2.2
+
 ## 7.1.4
 
 ### Patch Changes

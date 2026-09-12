@@ -1,5 +1,12 @@
 # Change Log
 
+## 2.0.4
+
+### Patch Changes
+
+- Handle trailing backslashes when scanning closing double quotes and preserve literal interpolation expressions when serializing environment values.
+- Regenerate ESM/CJS bundles and public declarations with the updated tsdown and TypeScript 7 toolchain, keeping declaration-only helpers private.
+
 ## 2.0.3
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/subscriber@2.0.0/packages/subscriber#readme">@guanghechen/subscriber</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/subscriber@2.1.3/packages/subscriber#readme">@guanghechen/subscriber</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/subscriber">
@@ -168,4 +168,4 @@ count.next(3) // (no output)
 - [homepage][homepage]
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/subscriber@2.0.0/packages/subscriber#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/subscriber@2.1.3/packages/subscriber#readme

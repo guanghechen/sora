@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/scheduler",
-  "version": "7.1.4",
+  "version": "7.1.5",
   "description": "Task scheduler",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@7.0.0",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@7.1.5",
     "directory": "packages/scheduler"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@7.0.0/packages/scheduler#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/scheduler@7.1.5/packages/scheduler#readme",
   "type": "module",
   "exports": {
     ".": {

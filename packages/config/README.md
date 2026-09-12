@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/config@2.0.0/packages/config#readme">@guanghechen/config</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/config@2.1.3/packages/config#readme">@guanghechen/config</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/config">
@@ -178,4 +178,4 @@ if (keeper.compatible('2.0.5')) {
 - [homepage][homepage]
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/config@2.0.0/packages/config#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/config@2.1.3/packages/config#readme

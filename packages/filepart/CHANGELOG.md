@@ -1,5 +1,14 @@
 # Change Log
 
+## 2.0.4
+
+### Patch Changes
+
+- Keep count-based file parts non-empty and within file bounds. For non-empty files, reject a part count greater than the file size in bytes; some previously invalid tail ranges now have different boundaries.
+- Regenerate ESM/CJS bundles and public declarations with the updated tsdown and TypeScript 7 toolchain, keeping declaration-only helpers private.
+- Updated dependencies:
+  - @guanghechen/invariant@7.0.4
+
 ## 2.0.3
 
 ### Patch Changes

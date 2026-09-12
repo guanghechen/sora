@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/version@1.0.0/packages/version#readme">@guanghechen/version</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/version@1.0.5/packages/version#readme">@guanghechen/version</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/version">
@@ -169,4 +169,4 @@ interface ISatisfiesOptions {
 - [homepage][homepage]
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/version@1.0.0/packages/version#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/version@1.0.5/packages/version#readme

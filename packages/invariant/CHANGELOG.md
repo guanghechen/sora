@@ -1,5 +1,11 @@
 # Change Log
 
+## 7.0.4
+
+### Patch Changes
+
+- Regenerate ESM/CJS bundles and public declarations with the updated tsdown and TypeScript 7 toolchain, keeping declaration-only helpers private.
+
 ## 7.0.3
 
 ### Patch Changes

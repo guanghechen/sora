@@ -1,6 +1,6 @@
 {
   "name": "@guanghechen/eventbus",
-  "version": "7.1.2",
+  "version": "7.1.3",
   "description": "A simple event bus with disposable support.",
   "author": {
     "name": "guanghechen",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/eventbus@7.0.0",
+    "url": "https://github.com/guanghechen/sora/tree/@guanghechen/eventbus@7.1.3",
     "directory": "packages/eventbus"
   },
-  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/eventbus@7.0.0/packages/eventbus#readme",
+  "homepage": "https://github.com/guanghechen/sora/tree/@guanghechen/eventbus@7.1.3/packages/eventbus#readme",
   "keywords": [
     "event bus",
     "eventbus",

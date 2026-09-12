@@ -1,5 +1,16 @@
 # Change Log
 
+## 7.1.4
+
+### Patch Changes
+
+- Complete all disposal phases even when cleanup throws. Register subscribers before their initial notification so updates made by that callback are delivered, and remove the registration if the callback fails.
+- Regenerate ESM/CJS bundles and public declarations with the updated tsdown and TypeScript 7 toolchain, keeping declaration-only helpers private.
+- Updated dependencies:
+  - @guanghechen/subscriber@2.1.3
+  - @guanghechen/disposable@2.1.3
+  - @guanghechen/types@2.2.2
+
 ## 7.1.3
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # Change Log
 
+## 2.1.5
+
+### Patch Changes
+
+- Regenerate ESM/CJS bundles and public declarations with the updated tsdown and TypeScript 7 toolchain, keeping declaration-only helpers private.
+- Updated dependencies:
+  - @guanghechen/observable@7.1.4
+  - @guanghechen/subscriber@2.1.3
+  - @guanghechen/disposable@2.1.3
+  - @guanghechen/types@2.2.2
+
 ## 2.1.4
 
 ### Patch Changes

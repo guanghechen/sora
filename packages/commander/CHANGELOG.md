@@ -1,5 +1,15 @@
 # Change Log
 
+## 4.8.3
+
+### Patch Changes
+
+- Copy array defaults for each parse and preserve every argument, including repeated separators, after the first pass-through separator.
+- Regenerate ESM/CJS bundles and public declarations with the updated tsdown and TypeScript 7 toolchain, keeping declaration-only helpers private.
+- Updated dependencies:
+  - @guanghechen/env@2.0.4
+  - @guanghechen/reporter@3.3.2
+
 ## 4.8.2
 
 ### Patch Changes

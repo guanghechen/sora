@@ -1,5 +1,15 @@
 # Change Log
 
+## 2.1.5
+
+### Patch Changes
+
+- Handle synchronous iterator failures and rejected lifecycle steps without leaving tasks in an intermediate state or producing unhandled rejections.
+- Regenerate ESM/CJS bundles and public declarations with the updated tsdown and TypeScript 7 toolchain, keeping declaration-only helpers private.
+- Updated dependencies:
+  - @guanghechen/observable@7.1.4
+  - @guanghechen/types@2.2.2
+
 ## 2.1.4
 
 ### Patch Changes

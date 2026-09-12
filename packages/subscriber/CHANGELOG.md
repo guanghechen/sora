@@ -1,5 +1,15 @@
 # Change Log
 
+## 2.1.3
+
+### Patch Changes
+
+- Stop notification traversal when the collection is disposed during a callback, and prevent stale unsubscribe handles from changing counts after removed subscriptions are compacted.
+- Regenerate ESM/CJS bundles and public declarations with the updated tsdown and TypeScript 7 toolchain, keeping declaration-only helpers private.
+- Updated dependencies:
+  - @guanghechen/disposable@2.1.3
+  - @guanghechen/types@2.2.2
+
 ## 2.1.2
 
 ### Patch Changes

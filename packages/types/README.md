@@ -1,6 +1,6 @@
 <header>
   <h1 align="center">
-    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/types@2.0.0/packages/types#readme">@guanghechen/types</a>
+    <a href="https://github.com/guanghechen/sora/tree/@guanghechen/types@2.2.2/packages/types#readme">@guanghechen/types</a>
   </h1>
   <div align="center">
     <a href="https://www.npmjs.com/package/@guanghechen/types">
@@ -179,4 +179,4 @@ type MaybeAsync = PromiseOr<string> // string | Promise<string>
 - [homepage][homepage]
 
 [homepage]:
-  https://github.com/guanghechen/sora/tree/@guanghechen/types@2.0.0/packages/types#readme
+  https://github.com/guanghechen/sora/tree/@guanghechen/types@2.2.2/packages/types#readme
