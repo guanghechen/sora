@@ -60,6 +60,8 @@ export class Subscribers<T> implements ISubscribers<T> {
     const batcher = new SafeBatchHandler()
     const items: Array<ISubscriberItem<T>> = this._items
     for (let i = 0, L = items.length; i < L; ++i) {
+      // A notification callback can dispose the collection and clear items.
+      if (this._disposed) break
       const item = items[i]
       if (item.unsubscribed || item.subscriber.disposed) continue
       batcher.run(() => item.subscriber.next(value, prevValue))

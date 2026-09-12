@@ -5,6 +5,27 @@ import { Observable } from '../src'
 import { TestSubscriber } from './common'
 
 describe('sync', () => {
+  it('can be disposed from a notification callback', () => {
+    const observable = new Observable(0)
+    const first = new Subscriber<number>({
+      onNext: value => {
+        if (value === 1) observable.dispose()
+      },
+    })
+    const onNext = vi.fn()
+    const later = new Subscriber<number>({ onNext })
+    observable.subscribe(first)
+    observable.subscribe(later)
+
+    expect(() => observable.next(1)).not.toThrow()
+    expect(observable.getSnapshot()).toBe(1)
+    expect(observable.disposed).toBe(true)
+    expect(first.disposed).toBe(true)
+    expect(later.disposed).toBe(true)
+    expect(onNext).toHaveBeenCalledTimes(1)
+    expect(onNext).toHaveBeenLastCalledWith(0, undefined)
+  })
+
   it('notifier', () => {
     const observable: IObservable<number> = new Observable<number>(0)
     const subscriber1 = new TestSubscriber(1)

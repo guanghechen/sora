@@ -36,6 +36,59 @@ describe('subscribers', () => {
     subscribers.dispose()
   })
 
+  it('stops notifying when a callback disposes the collection', () => {
+    const first = new Subscriber<string>({ onNext: () => subscribers.dispose() })
+    const later = new LocalSubscriber()
+    subscribers.subscribe(first)
+    subscribers.subscribe(later)
+
+    expect(() => subscribers.notify('A', undefined)).not.toThrow()
+    expect(subscribers.disposed).toBe(true)
+    expect(subscribers.size).toBe(0)
+    expect(first.disposed).toBe(true)
+    expect(later.disposed).toBe(true)
+    expect(later.values).toEqual(['#dispose'])
+
+    subscribers.notify('B', 'A')
+    subscribers.dispose()
+    expect(later.values).toEqual(['#dispose'])
+  })
+
+  it('preserves notification and disposal errors when a callback disposes the collection', () => {
+    const notificationError = new Error('notification failed')
+    const disposalError = new Error('disposal failed')
+    const first = new Subscriber<string>({
+      onNext: () => {
+        throw notificationError
+      },
+    })
+    const disposing = new Subscriber<string>({
+      onNext: () => subscribers.dispose(),
+      onDispose: () => {
+        throw disposalError
+      },
+    })
+    const later = new LocalSubscriber()
+    subscribers.subscribe(first)
+    subscribers.subscribe(disposing)
+    subscribers.subscribe(later)
+
+    let caught: unknown
+    try {
+      subscribers.notify('A', undefined)
+    } catch (error) {
+      caught = error
+    }
+    expect(caught).toBeInstanceOf(AggregateError)
+    expect((caught as AggregateError).errors).toEqual([notificationError, disposalError])
+    expect(subscribers.disposed).toBe(true)
+    expect(subscribers.size).toBe(0)
+    expect(first.disposed).toBe(true)
+    expect(disposing.disposed).toBe(true)
+    expect(later.disposed).toBe(true)
+    expect(later.values).toEqual(['#dispose'])
+  })
+
   it('should notify subscribers', () => {
     const subscriber1 = new LocalSubscriber()
     const subscriber2 = new LocalSubscriber()
