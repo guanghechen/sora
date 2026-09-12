@@ -93,11 +93,12 @@ export function parse(content: string): IEnvRecord {
 }
 
 /**
- * Find the closing quote index, handling escaped quotes.
+ * Find the closing quote, treating backslashes as escapes only inside double quotes.
  */
 function findClosingQuote(value: string, quoteChar: string): number {
   for (let i = 1; i < value.length; i += 1) {
-    if (value[i] === '\\' && value[i + 1] === quoteChar) {
+    if (quoteChar === '"' && value[i] === '\\') {
+      // Skip the pair so an escaped backslash cannot escape the following quote.
       i += 1
       continue
     }

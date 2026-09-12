@@ -76,6 +76,25 @@ describe('parse', () => {
     expect(result).toEqual({ PATH: 'C:\\Users\\test' })
   })
 
+  it.each([2, 4])('closes double quotes after %i backslashes', count => {
+    const content = 'VALUE="path' + '\\'.repeat(count) + '" # comment with a "quote"\nNEXT=ok'
+    expect(parse(content)).toEqual({ VALUE: 'path' + '\\'.repeat(count / 2), NEXT: 'ok' })
+  })
+
+  it.each([1, 3])(
+    'rejects an unclosed value ending in %i backslashes and an escaped quote',
+    count => {
+      const content = 'VALUE="path' + '\\'.repeat(count) + '"'
+      expect(() => parse(content)).toThrow(SyntaxError)
+      expect(() => parse(content)).toThrow('Unclosed quote at line 1')
+    },
+  )
+
+  it.each([1, 2])('preserves %i trailing backslashes in single quotes', count => {
+    const value = 'C:\\temp' + '\\'.repeat(count)
+    expect(parse("PATH='" + value + "'")).toEqual({ PATH: value })
+  })
+
   it('should handle variable interpolation in double quotes', () => {
     const result = parse('HOME=/opt\nDATA="${HOME}/data"')
     expect(result).toEqual({ HOME: '/opt', DATA: '/opt/data' })
@@ -214,6 +233,16 @@ describe('roundtrip', () => {
     const original = { PATH: 'C:\\Users\\test' }
     const result = parse(stringify(original))
     expect(result).toEqual(original)
+  })
+
+  it.each([1, 2, 3, 4])('should roundtrip values containing %i consecutive backslashes', count => {
+    const backslashes = '\\'.repeat(count)
+    const original = {
+      PATH: 'C:\\temp' + backslashes,
+      BACKSLASHES: backslashes,
+      QUOTED: backslashes + '"suffix',
+    }
+    expect(parse(stringify(original))).toEqual(original)
   })
 
   it('should roundtrip values with #', () => {
