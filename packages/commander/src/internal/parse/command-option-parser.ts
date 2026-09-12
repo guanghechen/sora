@@ -124,7 +124,8 @@ export class CommandOptionParser {
 
     for (const opt of allOptions) {
       if (opt.default !== undefined) {
-        opts[opt.long] = opt.default
+        // Parsed arrays must be independent of defaults and earlier parse results.
+        opts[opt.long] = Array.isArray(opt.default) ? [...opt.default] : opt.default
       } else if (opt.type === 'boolean' && opt.args === 'none') {
         opts[opt.long] = false
       } else if (opt.args === 'variadic') {

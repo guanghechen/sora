@@ -75,6 +75,80 @@ describe('Command (spec aligned)', () => {
       const result = await cmd.parse({ argv: ['--ports', '80', '443'], envs: {} })
       expect(result.opts).toEqual({ ports: [80, 443] })
     })
+
+    it('should isolate variadic defaults and results across parses', async () => {
+      const defaults = ['a']
+      const cmd = new Command({ name: 'app', desc: 'app' }).option({
+        long: 'list',
+        type: 'string',
+        args: 'variadic',
+        desc: 'list',
+        default: defaults,
+      })
+
+      const absent = await cmd.parse({ argv: [], envs: {} })
+      const first = await cmd.parse({ argv: ['--list', 'b', '--list=c'], envs: {} })
+      const second = await cmd.parse({ argv: ['--list', 'd'], envs: {} })
+
+      expect(defaults).toEqual(['a'])
+      expect(absent.opts).toEqual({ list: ['a'] })
+      expect(first.opts).toEqual({ list: ['a', 'b', 'c'] })
+      expect(second.opts).toEqual({ list: ['a', 'd'] })
+    })
+
+    it.each([{ defaults: [] }, { defaults: ['a'] }])(
+      'should isolate default-only array results: $defaults',
+      async ({ defaults }) => {
+        const original = [...defaults]
+        const cmd = new Command({ name: 'app', desc: 'app' }).option({
+          long: 'list',
+          type: 'string',
+          args: 'variadic',
+          desc: 'list',
+          default: defaults,
+        })
+        const first = await cmd.parse({ argv: [], envs: {} })
+        const second = await cmd.parse({ argv: [], envs: {} })
+        const values = first.opts['list'] as string[]
+        values.push('changed')
+
+        expect(defaults).toEqual(original)
+        expect(second.opts).toEqual({ list: original })
+        expect((await cmd.parse({ argv: [], envs: {} })).opts).toEqual({ list: original })
+      },
+    )
+
+    it('should accept frozen variadic defaults', async () => {
+      const defaults = Object.freeze([1])
+      const cmd = new Command({ name: 'app', desc: 'app' }).option({
+        long: 'numbers',
+        type: 'number',
+        args: 'variadic',
+        desc: 'numbers',
+        default: defaults,
+      })
+
+      const result = await cmd.parse({ argv: ['--numbers', '2'], envs: {} })
+      expect(result.opts).toEqual({ numbers: [1, 2] })
+      expect(defaults).toEqual([1])
+    })
+
+    it('should preserve variadic defaults after a partially parsed value fails', async () => {
+      const defaults = [1]
+      const cmd = new Command({ name: 'app', desc: 'app' }).option({
+        long: 'numbers',
+        type: 'number',
+        args: 'variadic',
+        desc: 'numbers',
+        default: defaults,
+      })
+
+      await expect(cmd.parse({ argv: ['--numbers', '2', 'invalid'], envs: {} })).rejects.toThrow(
+        'invalid number',
+      )
+      expect(defaults).toEqual([1])
+      expect((await cmd.parse({ argv: [], envs: {} })).opts).toEqual({ numbers: [1] })
+    })
   })
 
   describe('route and inherited options', () => {
