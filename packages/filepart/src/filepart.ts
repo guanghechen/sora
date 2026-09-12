@@ -39,9 +39,10 @@ export function* calcFilePartItemsBySize(
 
 /**
  * Generate file part items by total of parts.
+ * Non-empty files produce exactly partTotal non-empty parts.
  *
- * @param filepath
- * @param partTotal
+ * @param fileSize
+ * @param partTotal Must not exceed the byte size of a non-empty file.
  * @returns
  */
 export function* calcFilePartItemsByCount(
@@ -63,15 +64,19 @@ export function* calcFilePartItemsByCount(
     return
   }
 
-  const partSize = Math.ceil(fileSize / partTotal)
-  invariant(partSize > 0, 'Part size is too small!')
+  invariant(partTotal <= fileSize, 'Total of parts cannot exceed file size!')
 
+  const partSize = Math.ceil(fileSize / partTotal)
+  let start = 0
   for (let i = 0; i < partTotal; ++i) {
+    // Keep the existing ceil-sized layout while reserving one byte for each remaining part.
+    const end = Math.min(start + partSize, fileSize - (partTotal - i - 1))
     const part: IFilePartItem = {
       sid: i + 1,
-      start: i * partSize,
-      end: i + 1 === partTotal ? fileSize : (i + 1) * partSize,
+      start,
+      end,
     }
+    start = end
     yield part
   }
 }

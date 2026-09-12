@@ -1,7 +1,11 @@
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import type { IFilePartItem } from '@guanghechen/filepart'
-import { DEFAULT_FILEPART_CODE_PREFIX, calcFilePartItemsBySize } from '@guanghechen/filepart'
+import {
+  DEFAULT_FILEPART_CODE_PREFIX,
+  calcFilePartItemsByCount,
+  calcFilePartItemsBySize,
+} from '@guanghechen/filepart'
 import { emptyDir, locateFixtures, rm, writeFile } from 'vitest.helper'
 import { FileSplitter } from '../src'
 
@@ -191,6 +195,26 @@ describe('splitter', () => {
     await fileHelper.merge(partPathsG, filepath2G)
     expect(readFileSync(filepath2G, encoding)).toEqual(contentG)
   })
+
+  it.each([6, 9])(
+    'splits 10 bytes into %i non-empty parts and merges them losslessly',
+    async count => {
+      const filepath = path.join(workspaceDir, 'count.bin')
+      const mergedFilepath = path.join(workspaceDir, 'count-merged.bin')
+      const content = Buffer.from([0, 1, 2, 3, 4, 127, 128, 200, 254, 255])
+      await writeFile(filepath, content)
+
+      const parts = [...calcFilePartItemsByCount(content.length, count)]
+      const partPaths = await fileHelper.split(filepath, parts)
+      expect(partPaths).toHaveLength(count)
+      const chunks = partPaths.map(filepath => readFileSync(filepath))
+      expect(chunks.every(chunk => chunk.length > 0)).toBe(true)
+      expect(Buffer.concat(chunks)).toEqual(content)
+
+      await fileHelper.merge(partPaths, mergedFilepath)
+      expect(readFileSync(mergedFilepath)).toEqual(content)
+    },
+  )
 
   it('merge rejects (without crashing) when an input part is missing', async () => {
     const missing = path.join(workspaceDir, '__missing__.part')

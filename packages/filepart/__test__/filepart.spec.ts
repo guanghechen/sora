@@ -137,6 +137,45 @@ describe('util', () => {
     ])
   })
 
+  it.each([
+    { fileSize: 10, partTotal: 9, sizes: [2, 1, 1, 1, 1, 1, 1, 1, 1] },
+    { fileSize: 10, partTotal: 6, sizes: [2, 2, 2, 2, 1, 1] },
+    { fileSize: 3, partTotal: 3, sizes: [1, 1, 1] },
+  ])('reserves bytes for all $partTotal parts of a $fileSize-byte file', params => {
+    const parts = [...calcFilePartItemsByCount(params.fileSize, params.partTotal)]
+    expect(parts.map(part => part.end - part.start)).toEqual(params.sizes)
+  })
+
+  it('partitions small files into contiguous non-empty byte ranges', () => {
+    for (let fileSize = 1; fileSize <= 32; ++fileSize) {
+      for (let partTotal = 1; partTotal <= fileSize; ++partTotal) {
+        const parts = [...calcFilePartItemsByCount(fileSize, partTotal)]
+        expect(parts).toHaveLength(partTotal)
+        expect(parts[0].start).toBe(0)
+        expect(parts[parts.length - 1].end).toBe(fileSize)
+
+        for (let i = 0; i < parts.length; ++i) {
+          const part = parts[i]
+          expect(part.sid).toBe(i + 1)
+          expect(Number.isInteger(part.start)).toBe(true)
+          expect(Number.isInteger(part.end)).toBe(true)
+          expect(part.end).toBeGreaterThan(part.start)
+          expect(part.end).toBeLessThanOrEqual(fileSize)
+          if (i > 0) expect(part.start).toBe(parts[i - 1].end)
+        }
+      }
+    }
+  })
+
+  it.each([
+    [1, 2],
+    [10, 11],
+  ])('rejects splitting a %i-byte file into %i non-empty parts', (fileSize, partTotal) => {
+    expect(() => [...calcFilePartItemsByCount(fileSize, partTotal)]).toThrow(
+      'Total of parts cannot exceed file size!',
+    )
+  })
+
   it('calcFilePartNames', () => {
     // empty
     expect([...calcFilePartNames([], '')]).toEqual([])

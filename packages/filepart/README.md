@@ -90,7 +90,8 @@ const parts = [...calcFilePartItemsBySize(fileSize, partSize)]
 
 ### Calculate File Parts by Count
 
-Split a file into a specific number of parts:
+Split a file into a specific number of parts. For non-empty files, the part count must not exceed
+the file size in bytes; every part contains at least one byte. Empty files produce one empty part.
 
 ```typescript
 import { calcFilePartItemsByCount } from '@guanghechen/filepart'
