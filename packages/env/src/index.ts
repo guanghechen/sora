@@ -147,6 +147,8 @@ function stringifyValue(value: string): string {
     .replace(/\n/g, '\\n')
     .replace(/\r/g, '\\r')
     .replace(/\t/g, '\\t')
+    // Add interpolation escapes after escaping the original backslashes.
+    .replace(/\$\{[^}]+\}/g, match => '\\' + match)
   const needsQuote =
     escaped !== value || value.includes(' ') || value.includes("'") || value.includes('#')
   return needsQuote ? `"${escaped}"` : escaped
@@ -155,6 +157,7 @@ function stringifyValue(value: string): string {
 /**
  * Convert environment record to .env format string.
  * Values containing spaces, quotes, newlines, or # are double-quoted.
+ * Variable references are escaped and double-quoted to preserve their literal values.
  * @param env - Environment record to stringify
  * @param options - Stringify options
  * @returns .env format string

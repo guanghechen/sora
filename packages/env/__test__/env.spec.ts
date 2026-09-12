@@ -205,6 +205,10 @@ describe('stringify', () => {
     expect(result).toBe('PATH="C:\\\\Users\\\\test"\n')
   })
 
+  it('should escape literal variable references', () => {
+    expect(stringify({ A: 'world', B: '${A}' })).toBe('A=world\nB="\\${A}"\n')
+  })
+
   it('should quote values with #', () => {
     const result = stringify({ COLOR: '#fff' })
     expect(result).toBe('COLOR="#fff"\n')
@@ -217,6 +221,36 @@ describe('stringify', () => {
 })
 
 describe('roundtrip', () => {
+  it.each([
+    '${A}',
+    '${MISSING}',
+    '${A}/${B}/${A}',
+    'say "${A}"\n${B}\tend',
+    "'${A}' # literal",
+    '${}',
+    '${A',
+    '$A / $5',
+  ])('should preserve literal interpolation text: %j', value => {
+    const original = { A: 'world', B: 'there', VALUE: value }
+    expect(parse(stringify(original))).toEqual(original)
+  })
+
+  it.each([0, 1, 2, 3, 4])('should preserve variable references next to %i backslashes', count => {
+    const backslashes = '\\'.repeat(count)
+    const original = {
+      A: 'world',
+      VALUE: backslashes + '${A}',
+      QUOTED: 'say "' + backslashes + '${MISSING}"\n',
+      TRAILING: '${A}' + backslashes,
+    }
+    expect(parse(stringify(original))).toEqual(original)
+  })
+
+  it('should preserve literal references to excluded keys', () => {
+    const original = { A: 'world', VALUE: '${A}' }
+    expect(parse(stringify(original, { exclude: ['A'] }))).toEqual({ VALUE: '${A}' })
+  })
+
   it('should roundtrip simple values', () => {
     const original = { NAME: 'myapp', PORT: '3000' }
     const result = parse(stringify(original))

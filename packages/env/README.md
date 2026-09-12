@@ -102,6 +102,9 @@ console.log(env.MULTILINE) // 'Line1\nLine2\nLine3'
 
 ### Stringifying to .env Format
 
+Values are serialized literally. Variable references such as `${NAME}` are escaped so parsing
+the output preserves the original text instead of expanding it.
+
 ```typescript
 import { stringify } from '@guanghechen/env'
 
