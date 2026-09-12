@@ -497,14 +497,14 @@ describe('EventBus', () => {
       const eventBus = new EventBus<EventTypes>('test')
 
       eventBus.registerDisposable({
-        disposed: false,
+        disposed: false as boolean,
         dispose(): void {
           this.disposed = true
           throw new Error('error 1')
         },
       })
       eventBus.registerDisposable({
-        disposed: false,
+        disposed: false as boolean,
         dispose(): void {
           this.disposed = true
           throw new Error('error 2')

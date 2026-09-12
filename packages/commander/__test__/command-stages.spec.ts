@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import type {
   ICommand,
+  ICommandActionParams,
   ICommandOptionConfig,
   ICommandToken,
   ISubcommandEntry,
@@ -61,7 +62,7 @@ describe('stage: route/control', () => {
   it('should route command chain and stop at option token', () => {
     const leaf = { id: 'leaf' }
     const root = { id: 'root' }
-    const entries = new Map<unknown, Array<ISubcommandEntry<unknown>>>([
+    const entries = new Map<typeof root, Array<ISubcommandEntry<typeof root>>>([
       [root, [{ name: 'build', aliases: ['b'], command: leaf }]],
       [leaf, []],
     ])
@@ -80,7 +81,7 @@ describe('stage: route/control', () => {
   it('should resolve help target and find command by path', () => {
     const child = { id: 'child', name: 'child' }
     const root = { id: 'root', name: 'cli' }
-    const entries = new Map<unknown, Array<ISubcommandEntry<unknown>>>([
+    const entries = new Map<typeof root, Array<ISubcommandEntry<typeof root>>>([
       [root, [{ name: 'child', aliases: ['c'], command: child }]],
       [child, []],
     ])
@@ -97,7 +98,7 @@ describe('stage: route/control', () => {
       findCommandByPath({
         root,
         commandPath: 'cli child',
-        getCommandName: command => (command as { name?: string }).name,
+        getCommandName: command => command.name,
         getSubcommandEntries: command => entries.get(command) ?? [],
       }),
     ).toBe(child)
@@ -373,6 +374,7 @@ describe('stage: resolve/parse/run', () => {
       argumentDefs: [
         {
           name: 'env',
+          desc: 'Target environment',
           type: 'choice',
           kind: 'required',
           choices: ['prod', 'dev'],
@@ -406,7 +408,7 @@ describe('stage: resolve/parse/run', () => {
   })
 
   it('should run action path and help fallback path', async () => {
-    const action = vi.fn(async () => {})
+    const action = vi.fn(async (_params: ICommandActionParams) => {})
     await runStage({
       leafCommand: { name: 'leaf', hasAction: true, hasSubcommands: false },
       actionParams: {

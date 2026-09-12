@@ -1492,9 +1492,12 @@ describe('Command (spec aligned)', () => {
 
         expect(issues[0]?.kind).toBe('error')
         expect(issues[0]?.reason.code).toBe('configuration_error')
-        expect(
-          issues.some(issue => issue.kind === 'hint' && issue.reason.code === 'unknown_option'),
-        ).toBe(false)
+        expect(issues).not.toContainEqual(
+          expect.objectContaining({
+            kind: 'hint',
+            reason: expect.objectContaining({ code: 'unknown_option' }),
+          }),
+        )
       }
     })
   })

@@ -1,4 +1,4 @@
-import type { IBatchDisposable } from '../src'
+import type { IBatchDisposable } from '@guanghechen/types'
 import { BatchDisposable, Disposable, disposeAll, isDisposable } from '../src'
 
 test('isDisposable', () => {

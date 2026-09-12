@@ -17,6 +17,7 @@ pnpm build:production   # Build all packages (no sourcemaps)
 pnpm test               # Run tests
 pnpm test:coverage      # Run tests with coverage
 pnpm test:dist          # Check built exports, declarations, and runtime behavior
+pnpm typecheck          # Check source, tests, and TypeScript tool configs
 pnpm lint               # Check lint and formatting
 pnpm format             # Fix lint and formatting
 
@@ -58,6 +59,10 @@ Each package in `packages/` follows:
 ## Tech Stack
 
 - **Build**: tsdown (Rolldown + Oxc)
+- **TypeScript**: v7; declarations use the native tsgo generator
 - **Test**: Vitest
 - **Lint / Format**: Biome
 - **Versioning**: Changesets (independent mode)
+
+Build and test tools require Node.js ^22.22.1, ^24.11.0, or >=26.0.0. CI uses Node.js 24
+for these tools and checks the built artifacts on Node.js 20, 22, and 24.

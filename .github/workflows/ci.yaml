@@ -36,10 +36,10 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: 12.3.4
-      - name: Use Node.js ${{ matrix.node }}
+      - name: Use Node.js 24 for build and test tools
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 24
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -53,7 +53,11 @@ jobs:
         run: pnpm test:dist --sourcemap
       - name: Production build
         run: pnpm build:production
-      - name: Test production output
-        run: pnpm test:dist --no-sourcemap
       - name: Test
         run: pnpm test:coverage
+      - name: Use Node.js ${{ matrix.node }} for runtime checks
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Test production output
+        run: pnpm test:dist --no-sourcemap

@@ -9,7 +9,7 @@ const loadContent = async (fp: string): Promise<string> => fs.readFileSync(fp, e
 
 const _iv: Uint8Array = crypto.randomBytes(32)
 const _key: Uint8Array = crypto.randomBytes(32)
-const getCipher = (): crypto.Cipher => crypto.createCipheriv('aes-256-gcm', _key, _iv)
+const getCipher = (): crypto.Cipheriv => crypto.createCipheriv('aes-256-gcm', _key, _iv)
 
 describe('consumeStream', () => {
   const outFilepaths: string[] = filepaths.map(fp => fp + '.out')

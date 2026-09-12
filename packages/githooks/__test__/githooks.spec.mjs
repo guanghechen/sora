@@ -192,10 +192,10 @@ describe('installHooks', () => {
     expect(hooksPathOf(dir)).toBe('')
   })
 
-  it('is a no-op outside a git work tree (env defaults to process.env)', () => {
+  it('is a no-op outside a git work tree', () => {
     const dir = tmpdir()
     writeManifest(dir, { 'pre-commit': 'echo hi' })
-    expect(installHooks({ cwd: dir, logger: silent })).toBe(false)
+    expect(installHooks({ cwd: dir, env: notCI, logger: silent })).toBe(false)
   })
 })
 

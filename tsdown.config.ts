@@ -80,6 +80,7 @@ let copyAttached = false
 for (const [name, input] of Object.entries(resolveEntries(manifest))) {
   const entry = { [name]: input }
   const shared = {
+    cwd: process.cwd(),
     entry,
     clean: false,
     tsconfig,
@@ -120,7 +121,14 @@ for (const [name, input] of Object.entries(resolveEntries(manifest))) {
     format: 'esm',
     outDir: path.resolve('lib/types'),
     fixedExtension: false,
-    dts: { emitDtsOnly: true, tsconfig, compilerOptions: { declarationMap: false } },
+    // TypeScript 7 must not expose the bundler's non-exported helper declarations.
+    footer: { dts: 'export {};' },
+    dts: {
+      generator: 'tsgo',
+      emitDtsOnly: true,
+      tsconfig,
+      compilerOptions: { declarationMap: false },
+    },
     sourcemap: false,
   })
 }
