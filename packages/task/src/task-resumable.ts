@@ -68,8 +68,9 @@ export abstract class ResumableTask implements ITask {
 
     status.next(TaskStatusEnum.ATTEMPT_COMPLETING, { strict: false })
 
-    // Waiting current step to complete.
+    // Wait for the current step and its error handling before deciding whether to drain.
     await this._step
+    if (status.terminated) return
 
     // Execute until the task is terminated.
     const execution: IterableIterator<Promise<void>> = this._execution!
@@ -160,28 +161,31 @@ export abstract class ResumableTask implements ITask {
       return
     }
 
-    this._step = step.value
-    try {
-      await step.value
-      this._step = undefined
-      void this._queueStep()
-    } catch (error) {
-      this._step = undefined
-      const soraError: ISoraError = {
-        from: this.name,
-        level: ErrorLevelEnum.ERROR,
-        details: error,
-      }
-      this._errors.push(soraError)
-      switch (this.strategy) {
-        case TaskStrategyEnum.ABORT_ON_ERROR:
-          this.status.next(TaskStatusEnum.FAILED, { strict: false })
-          break
-        case TaskStrategyEnum.CONTINUE_ON_ERROR:
-          void this._queueStep()
-          break
-      }
-    }
+    // Lifecycle methods wait for the handled outcome, not the raw promise rejection.
+    this._step = step.value.then(
+      () => {
+        this._step = undefined
+        void this._queueStep()
+      },
+      error => {
+        this._step = undefined
+        const soraError: ISoraError = {
+          from: this.name,
+          level: ErrorLevelEnum.ERROR,
+          details: error,
+        }
+        this._errors.push(soraError)
+        switch (this.strategy) {
+          case TaskStrategyEnum.ABORT_ON_ERROR:
+            this.status.next(TaskStatusEnum.FAILED, { strict: false })
+            break
+          case TaskStrategyEnum.CONTINUE_ON_ERROR:
+            void this._queueStep()
+            break
+        }
+      },
+    )
+    await this._step
   }
 
   private async _queueStep(): Promise<void> {

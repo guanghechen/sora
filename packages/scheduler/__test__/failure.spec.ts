@@ -141,6 +141,68 @@ describe('pipeline pull failures', () => {
 
 describe.each(['cooker', 'consumer'])('scheduler %s failures', failureAt => {
   it.each([TaskStrategyEnum.ABORT_ON_ERROR, TaskStrategyEnum.CONTINUE_ON_ERROR])(
+    'completes while processing fails with strategy %s',
+    async strategy => {
+      const pipeline = new Pipeline<number, number>('pipeline')
+      const scheduler = new Scheduler({ name: 'scheduler', pipeline, strategy })
+      const error = new Error(`${failureAt} failed during completion`)
+      const task = new SuccessfulTask('next-task', strategy)
+      let release!: () => void
+      const pending = new Promise<void>(resolve => {
+        release = resolve
+      })
+      pipeline.use({
+        name: 'cooker',
+        cook: async data => {
+          if (data === 0 && failureAt === 'cooker') {
+            await pending
+            throw error
+          }
+          return data
+        },
+      })
+      scheduler.use({
+        name: 'consumer',
+        consume: async data => {
+          if (data === 0 && failureAt === 'consumer') {
+            await pending
+            throw error
+          }
+          return task
+        },
+      })
+
+      try {
+        const failed = await scheduler.schedule(0)
+        const next = await scheduler.schedule(1)
+        await scheduler.start()
+        const completing = scheduler.complete()
+        release()
+
+        await expect(completing).resolves.toBeUndefined()
+        expect(scheduler.status.getSnapshot()).toBe(TaskStatusEnum.FAILED)
+        expect(scheduler.errors).toHaveLength(1)
+        expect(scheduler.errors[0]).toMatchObject({ details: error })
+        await scheduler.waitTaskTerminated(failed)
+
+        if (strategy === TaskStrategyEnum.CONTINUE_ON_ERROR) {
+          await scheduler.waitTaskTerminated(next)
+          await scheduler.waitAllScheduledTasksTerminated()
+          expect(task.status.getSnapshot()).toBe(TaskStatusEnum.COMPLETED)
+          expect(pipeline.size).toBe(0)
+        } else {
+          expect(task.status.getSnapshot()).toBe(TaskStatusEnum.PENDING)
+          expect(pipeline.size).toBe(1)
+        }
+      } finally {
+        release()
+        await scheduler.cancel()
+        await pipeline.close()
+      }
+    },
+  )
+
+  it.each([TaskStrategyEnum.ABORT_ON_ERROR, TaskStrategyEnum.CONTINUE_ON_ERROR])(
     'settles waiters and preserves strategy %s',
     async strategy => {
       const pipeline = new Pipeline<number, number>('failing-pipeline')

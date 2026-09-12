@@ -186,6 +186,11 @@ Tasks have observable status with the following states:
 For `ResumableTask`, these strategies apply to rejected promises yielded by `run()`. If the
 iterator itself throws while advancing, the task becomes `FAILED` under either strategy.
 
+Lifecycle methods wait for the current step's error handling. Under `CONTINUE_ON_ERROR`, a
+rejected step still allows `pause()` to suspend, `cancel()` to cancel, and `complete()` to drain
+the remaining steps. Under `ABORT_ON_ERROR`, the task stays `FAILED` and does not advance further.
+Step errors remain available through `errors`.
+
 ## Reference
 
 - [homepage][homepage]

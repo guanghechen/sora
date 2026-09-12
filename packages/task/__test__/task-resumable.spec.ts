@@ -33,6 +33,89 @@ describe('CONTINUE_ON_ERROR', () => {
 })
 
 function basicTests(strategy: TaskStrategyEnum): void {
+  describe('lifecycle while a step rejects', () => {
+    it.each(['pause', 'cancel', 'complete'] as const)(
+      'settles %s after handling the rejection',
+      async method => {
+        const error = new Error('current step failed')
+        let rejectStep!: (error: Error) => void
+        const pending = new Promise<void>((_resolve, reject) => {
+          rejectStep = reject
+        })
+        const laterStep = vi.fn()
+        const processor: ITaskProcessor = {
+          process: function* (): IterableIterator<Promise<void>> {
+            yield pending
+            laterStep()
+            yield Promise.resolve()
+          },
+        }
+        const task = new ResumableTaskForTest(processor, strategy)
+        await task.start()
+
+        const operation = task[method]()
+        rejectStep(error)
+        await expect(operation).resolves.toBeUndefined()
+        expect(task.errors).toEqual([
+          { from: task.name, level: ErrorLevelEnum.ERROR, details: error },
+        ])
+
+        if (strategy === TaskStrategyEnum.ABORT_ON_ERROR) {
+          expect(task.status.getSnapshot()).toBe(TaskStatusEnum.FAILED)
+          expect(laterStep).not.toHaveBeenCalled()
+        } else if (method === 'pause') {
+          expect(task.status.getSnapshot()).toBe(TaskStatusEnum.SUSPENDED)
+          expect(laterStep).not.toHaveBeenCalled()
+          await task.resume()
+          await task.complete()
+          expect(laterStep).toHaveBeenCalledTimes(1)
+          expect(task.status.getSnapshot()).toBe(TaskStatusEnum.FAILED)
+        } else if (method === 'cancel') {
+          expect(task.status.getSnapshot()).toBe(TaskStatusEnum.CANCELLED)
+          expect(laterStep).not.toHaveBeenCalled()
+        } else {
+          expect(task.status.getSnapshot()).toBe(TaskStatusEnum.FAILED)
+          expect(laterStep).toHaveBeenCalledTimes(1)
+        }
+
+        await task.complete()
+        await task.cancel()
+        expect(task.errors).toHaveLength(1)
+        expect(task.status.terminated).toBe(true)
+      },
+    )
+
+    it('settles complete() from PENDING when the first promise rejects', async () => {
+      const error = new Error('first promise failed')
+      let rejectStep!: (error: Error) => void
+      const pending = new Promise<void>((_resolve, reject) => {
+        rejectStep = reject
+      })
+      const laterStep = vi.fn()
+      const processor: ITaskProcessor = {
+        process: function* (): IterableIterator<Promise<void>> {
+          yield pending
+          laterStep()
+          yield Promise.resolve()
+        },
+      }
+      const task = new ResumableTaskForTest(processor, strategy)
+
+      const completing = task.complete()
+      await Promise.resolve()
+      expect(task.status.getSnapshot()).toBe(TaskStatusEnum.ATTEMPT_COMPLETING)
+      rejectStep(error)
+      await expect(completing).resolves.toBeUndefined()
+      expect(task.status.getSnapshot()).toBe(TaskStatusEnum.FAILED)
+      expect(laterStep).toHaveBeenCalledTimes(
+        strategy === TaskStrategyEnum.CONTINUE_ON_ERROR ? 1 : 0,
+      )
+      expect(task.errors).toEqual([
+        { from: task.name, level: ErrorLevelEnum.ERROR, details: error },
+      ])
+    })
+  })
+
   describe('synchronous generator errors', () => {
     it.each(['start', 'complete'] as const)(
       'records an error before the first yield via %s',
