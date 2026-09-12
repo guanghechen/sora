@@ -22,20 +22,20 @@ describe('encode / decode', () => {
         },
       ]
 
-      it('encode', function () {
+      it('encode', () => {
         for (const { plaintext, ciphertext } of kases) {
           const bytes: Uint8Array = text2bytes(plaintext, 'utf8')
           expect(bytes2text(bytes, 'base64')).toEqual(ciphertext)
         }
       })
 
-      it('decode', function () {
+      it('decode', () => {
         for (const { plaintext, ciphertext } of kases) {
           expect(text2bytes(ciphertext, 'base64')).toEqual(text2bytes(plaintext, 'utf8'))
         }
       })
 
-      it('validate', function () {
+      it('validate', () => {
         expect(validateBase64Text('a')).toBe(false)
         expect(validateBase64Text('aa')).toBe(false)
         expect(validateBase64Text('aaa')).toBe(false)

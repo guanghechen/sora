@@ -32,7 +32,7 @@ export class EventBus<T extends IEventType> implements IEventBus<T> {
   protected _subscribers: Array<IEventSubscription<T>>
   protected _disposables: IDisposable[]
 
-  constructor(name: string) {
+  public constructor(name: string) {
     this.name = name
     this._disposed = false
     this._listeners = new Map<T, Array<IEventSubscription<T>>>()

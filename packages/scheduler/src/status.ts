@@ -13,7 +13,7 @@ const _transitionMap: Record<PipelineStatusEnum, PipelineStatusEnum> = {
 }
 
 export class PipelineStatus extends Observable<PipelineStatusEnum> implements IPipelineStatus {
-  constructor() {
+  public constructor() {
     super(PipelineStatusEnum.DRIED)
   }
 

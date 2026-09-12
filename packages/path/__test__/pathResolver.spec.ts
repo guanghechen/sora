@@ -1,5 +1,5 @@
-import type { IPathResolver } from '@guanghechen/types'
 import path from 'node:path'
+import type { IPathResolver } from '@guanghechen/types'
 import { PathResolver } from '../src'
 
 if (path.sep === '/') {

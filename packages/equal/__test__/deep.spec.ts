@@ -51,14 +51,14 @@ describe('isEqual', () => {
   it('should not equal with different constructor', () => {
     class F1 {
       public readonly name: string
-      constructor() {
+      public constructor() {
         this.name = 'waw'
       }
     }
 
     class F2 {
       public readonly name: string
-      constructor() {
+      public constructor() {
         this.name = 'waw'
       }
     }
@@ -73,7 +73,7 @@ describe('isEqual', () => {
       private static male = { gender: 'male' }
       private static female = { gender: 'female' }
 
-      constructor(readonly age: number) {}
+      public constructor(public readonly age: number) {}
 
       public valueOf(): object {
         return this.age > 10 ? F.male : F.female
@@ -89,7 +89,7 @@ describe('isEqual', () => {
 
   it('call customized toString', () => {
     class F {
-      constructor(readonly age: number) {}
+      public constructor(public readonly age: number) {}
 
       public toString(): string {
         return 'gender:' + (this.age > 10 ? 'male' : 'female')
@@ -142,7 +142,9 @@ describe('isEqual', () => {
   it('should compare DataView byte-wise', () => {
     const mk = (bytes: number[]): DataView => {
       const dv = new DataView(new ArrayBuffer(bytes.length))
-      bytes.forEach((b, i) => dv.setUint8(i, b))
+      bytes.forEach((b, i) => {
+        dv.setUint8(i, b)
+      })
       return dv
     }
     expect(isEqual(mk([1, 2, 3]), mk([1, 2, 3]))).toBe(true)

@@ -6,7 +6,7 @@ import { isDomain, isIp } from './is'
  * @module @guanghechen/commander/coerce
  */
 
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class -- keep a discoverable static factory namespace.
+// Keep a discoverable static factory namespace.
 export class Coerce {
   private constructor() {}
 

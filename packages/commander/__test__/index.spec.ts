@@ -1,4 +1,5 @@
 import * as internalExports from '../src/index'
+import * as browserExports from '../src/runtime/browser/entry'
 import {
   Command,
   CommanderError,
@@ -7,7 +8,6 @@ import {
   isIpv4,
   isIpv6,
 } from '../src/runtime/browser/entry'
-import * as browserExports from '../src/runtime/browser/entry'
 import * as nodeExports from '../src/runtime/node'
 
 describe('index exports', () => {

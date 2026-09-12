@@ -31,7 +31,7 @@ export function renderHookScript(command) {
   return [
     '#!/usr/bin/env sh',
     GENERATED_HEADER,
-    // eslint-disable-next-line no-template-curly-in-string -- intentional POSIX sh parameter expansion
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: Intentional POSIX sh parameter expansion.
     '[ "${GITHOOKS-}" = "0" ] && exit 0',
     command,
     '',

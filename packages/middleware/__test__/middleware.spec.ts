@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { AsyncMiddlewares, Middlewares } from '../src'
 import type { IAsyncMiddleware, IMiddleware } from '../src'
+import { AsyncMiddlewares, Middlewares } from '../src'
 
 describe('Middlewares', () => {
   it('should process input through middleware chain', () => {

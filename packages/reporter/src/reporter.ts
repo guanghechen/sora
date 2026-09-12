@@ -57,7 +57,7 @@ export class Reporter implements IReporter {
   #output: IReporterOutput
   #entries: IReporterEntry[] | null = null
 
-  constructor(props: IReporterProps = {}) {
+  public constructor(props: IReporterProps = {}) {
     const { prefix, level = 'info', flight = {}, output = defaultOutput } = props
     if (prefix !== undefined) {
       if (prefix.includes(':')) throw new Error('Prefix cannot contain ":"')

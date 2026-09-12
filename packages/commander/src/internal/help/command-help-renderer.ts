@@ -1,5 +1,4 @@
 import { TERMINAL_STYLE, styleText } from '../../command/chalk'
-import { CommanderError } from '../../command/types'
 import type {
   ICommandArgumentConfig,
   ICommandExample,
@@ -11,8 +10,10 @@ import type {
   IHelpOptionLine,
   IHelpPresetDirectiveLine,
 } from '../../command/types'
+import { CommanderError } from '../../command/types'
 
-const ANSI_ESCAPE_REGEX = new RegExp(String.raw`\x1B\[[0-?]*[ -/]*[@-~]`, 'g')
+// biome-ignore lint/suspicious/noControlCharactersInRegex: Match ANSI escape sequences in terminal help.
+const ANSI_ESCAPE_REGEX = /\x1B\[[0-?]*[ -/]*[@-~]/g
 
 function camelToKebabCase(str: string): string {
   return str.replace(/[A-Z]/g, m => '-' + m.toLowerCase())
@@ -248,7 +249,7 @@ export class CommandHelpRenderer {
     const colorOption = params.options.find(opt => opt.long === 'color')
     let color = !isNoColorEnabled(params.envs)
 
-    if (!colorOption || colorOption.type !== 'boolean' || colorOption.args !== 'none') {
+    if (colorOption?.type !== 'boolean' || colorOption.args !== 'none') {
       return color
     }
 

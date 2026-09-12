@@ -25,12 +25,12 @@ import {
   validateArgumentConfig,
   validateOptionConfig,
 } from '../internal/command/validation'
-import {
-  CommandKernel,
-  type ICommandExecutionMode,
-  type ICommandExecutionTermination,
-  type IExecutionOutcome,
+import type {
+  ICommandExecutionMode,
+  ICommandExecutionTermination,
+  IExecutionOutcome,
 } from '../internal/command-kernel'
+import { CommandKernel } from '../internal/command-kernel'
 import { CommandContextAdapter } from '../internal/context-adapter'
 import { CommandDiagnosticsEngine } from '../internal/diagnostics-engine'
 import { CommandHelpRenderer } from '../internal/help/command-help-renderer'
@@ -40,8 +40,8 @@ import {
   PRESET_FILE_FLAG,
   PRESET_PROFILE_FLAG,
 } from '../internal/preset/preset-profile-parser'
+import type { ICommandOptionPolicy } from '../internal/stages/builtin-resolve'
 import {
-  type ICommandOptionPolicy,
   buildOptionPolicyMap,
   mustGetOptionPolicy,
   resolveOptionPolicy,
@@ -54,7 +54,6 @@ import { findCommandByPath, resolveHelpCommand, routeCommandChain } from '../int
 import { runStage } from '../internal/stages/run'
 import { tokenizeArgv } from '../internal/stages/tokenize'
 import { getDefaultCommandRuntime } from '../runtime'
-import { CommanderError } from './types'
 import type {
   ICommand,
   ICommandAction,
@@ -78,6 +77,7 @@ import type {
   IHelpData,
   ISubcommandEntry,
 } from './types'
+import { CommanderError } from './types'
 
 // ==================== Command Class ====================
 
@@ -105,7 +105,7 @@ export class Command implements ICommand {
   readonly #subcommandsMap = new Map<string, Command>()
   #action: ICommandAction | undefined = undefined
 
-  constructor(config: ICommandConfig) {
+  public constructor(config: ICommandConfig) {
     this.#name = config.name ?? ''
     this.#desc = config.desc
     this.#version = config.version
@@ -289,10 +289,10 @@ export class Command implements ICommand {
       this.#subcommandsMap.set(name, cmd)
     } else {
       // New registration
-      /* eslint-disable no-param-reassign */
+      // biome-ignore lint/style/noParameterAssign: Registration assigns the child command name.
       cmd.#name = name
+      // biome-ignore lint/style/noParameterAssign: Registration attaches the child to its parent.
       cmd.#parent = this
-      /* eslint-enable no-param-reassign */
       this.#subcommandsList.push({ name, aliases: [], command: cmd })
       this.#subcommandsMap.set(name, cmd)
     }
@@ -641,7 +641,6 @@ export class Command implements ICommand {
 
   #getCommandPath(): string {
     const parts: string[] = []
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
     let current: Command | undefined = this
     while (current) {
       if (current.#name) {

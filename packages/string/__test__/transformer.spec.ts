@@ -24,97 +24,97 @@ import {
 } from '../src/vender/change-case'
 import { titleCase } from '../src/vender/title-case'
 
-describe('string', function () {
-  describe('toLowerCase', function () {
+describe('string', () => {
+  describe('toLowerCase', () => {
     test("'TEST STRING' => 'test string'", () =>
       expect(toLowerCase('TEST STRING')).toEqual('test string'))
   })
 
-  describe('toUpperCase', function () {
+  describe('toUpperCase', () => {
     test("'test string' => 'TEST STRING'", () =>
       expect(toUpperCase('test string')).toEqual('TEST STRING'))
   })
 
-  describe('toCapitalCase', function () {
+  describe('toCapitalCase', () => {
     test("'test string' => 'Test String'", () =>
       expect(toCapitalCase('test string')).toEqual('Test String'))
   })
 
-  describe('toPascalCase', function () {
+  describe('toPascalCase', () => {
     test("'test string' => 'TestString'", () =>
       expect(toPascalCase('test string')).toEqual('TestString'))
   })
 
-  describe('toCamelCase', function () {
+  describe('toCamelCase', () => {
     test("'test string' => 'testString'", () =>
       expect(toCamelCase('test string')).toEqual('testString'))
   })
 
-  describe('toConstantCase', function () {
+  describe('toConstantCase', () => {
     test("'test string' => 'TEST_STRING'", () =>
       expect(toConstantCase('test string')).toEqual('TEST_STRING'))
   })
 
-  describe('toKebabCase', function () {
+  describe('toKebabCase', () => {
     test("'test string' => 'test-string'", () =>
       expect(toKebabCase('test string')).toEqual('test-string'))
   })
 
-  describe('toSnakeCase', function () {
+  describe('toSnakeCase', () => {
     test("'test string' => 'test_string'", () =>
       expect(toSnakeCase('test string')).toEqual('test_string'))
   })
 
-  describe('toPathCase', function () {
+  describe('toPathCase', () => {
     test("'test string' => 'test/string'", () =>
       expect(toPathCase('test string')).toEqual('test/string'))
   })
 
-  describe('toSentenceCase', function () {
+  describe('toSentenceCase', () => {
     test("'testString' => 'Test string'", () =>
       expect(toSentenceCase('testString')).toEqual('Test string'))
   })
 
-  describe('toTitleCase', function () {
+  describe('toTitleCase', () => {
     test("'a simple test' => 'A Simple Test'", () =>
       expect(toTitleCase('a simple test')).toEqual('A Simple Test'))
   })
 
-  describe('toDotCase', function () {
+  describe('toDotCase', () => {
     test("'test string' => 'test.string'", () =>
       expect(toDotCase('test string')).toEqual('test.string'))
   })
 })
 
-describe('composeTextTransformers', function () {
-  it('trim and lower, then kebab', function () {
+describe('composeTextTransformers', () => {
+  it('trim and lower, then kebab', () => {
     const transform = composeTextTransformers(toTrim, toLowerCase, toKebabCase)
     const text: string = transform(' TeSt_StrinG ')
     expect(text).toEqual('test-string')
   })
 })
 
-describe('change-case additional coverage', function () {
-  describe('trainCase', function () {
+describe('change-case additional coverage', () => {
+  describe('trainCase', () => {
     test("'test string' => 'Test-String'", () =>
       expect(trainCase('test string')).toEqual('Test-String'))
   })
 
-  describe('pascalSnakeCase', function () {
+  describe('pascalSnakeCase', () => {
     test("'test string' => 'Test_String'", () =>
       expect(pascalSnakeCase('test string')).toEqual('Test_String'))
   })
 
-  describe('noCase', function () {
+  describe('noCase', () => {
     test("'testString' => 'test string'", () => expect(noCase('testString')).toEqual('test string'))
   })
 
-  describe('split with separateNumbers', function () {
+  describe('split with separateNumbers', () => {
     test("'test123abc' => ['test', '123', 'abc']", () =>
       expect(split('test123abc', { separateNumbers: true })).toEqual(['test', '123', 'abc']))
   })
 
-  describe('locale: false', function () {
+  describe('locale: false', () => {
     test('camelCase with locale: false', () =>
       expect(camelCase('TEST STRING', { locale: false })).toEqual('testString'))
 
@@ -123,7 +123,7 @@ describe('change-case additional coverage', function () {
   })
 })
 
-describe('titleCase additional coverage', function () {
+describe('titleCase additional coverage', () => {
   test('preserves manual case like iPhone', () =>
     expect(titleCase('iPhone app')).toEqual('iPhone App'))
 

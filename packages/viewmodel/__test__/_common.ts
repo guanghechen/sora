@@ -10,7 +10,7 @@ export class TestSubscriber<T> implements ISubscriber<T> {
   protected _value: T
   protected _disposed: boolean
 
-  constructor(name: string, initialValue: T) {
+  public constructor(name: string, initialValue: T) {
     this.displayName = name
     this._value = initialValue
     this._disposed = false
@@ -38,7 +38,7 @@ export class TestSubscriber<T> implements ISubscriber<T> {
 export class ImmutableMap<K, V> implements IImmutableMap<K, V> {
   protected _map: Map<K, V>
 
-  constructor(map = new Map<K, V>()) {
+  public constructor(map = new Map<K, V>()) {
     this._map = map
   }
 
@@ -96,7 +96,7 @@ export class ImmutableMap<K, V> implements IImmutableMap<K, V> {
 class MutableMap<K, V> implements IImmutableMap<K, V> {
   protected _map: Map<K, V>
 
-  constructor(map = new Map<K, V>()) {
+  public constructor(map = new Map<K, V>()) {
     this._map = new Map(map)
   }
 

@@ -1622,15 +1622,15 @@ describe('Command (spec aligned)', () => {
       })
 
       const absent = await cmd.parse({ argv: [], envs: {} })
-      expect(Object.prototype.hasOwnProperty.call(absent.opts, 'write')).toBe(false)
+      expect(Object.hasOwn(absent.opts, 'write')).toBe(false)
       expect(absent.opts['write']).toBeUndefined()
 
       const bareLong = await cmd.parse({ argv: ['--write'], envs: {} })
-      expect(Object.prototype.hasOwnProperty.call(bareLong.opts, 'write')).toBe(true)
+      expect(Object.hasOwn(bareLong.opts, 'write')).toBe(true)
       expect(bareLong.opts['write']).toBeUndefined()
 
       const emptyEq = await cmd.parse({ argv: ['--write='], envs: {} })
-      expect(Object.prototype.hasOwnProperty.call(emptyEq.opts, 'write')).toBe(true)
+      expect(Object.hasOwn(emptyEq.opts, 'write')).toBe(true)
       expect(emptyEq.opts['write']).toBe('')
 
       const withValue = await cmd.parse({ argv: ['--write', 'out.fish'], envs: {} })
@@ -1640,7 +1640,7 @@ describe('Command (spec aligned)', () => {
       expect(withEqValue.opts['write']).toBe('out.fish')
 
       const shortBare = await cmd.parse({ argv: ['-w'], envs: {} })
-      expect(Object.prototype.hasOwnProperty.call(shortBare.opts, 'write')).toBe(true)
+      expect(Object.hasOwn(shortBare.opts, 'write')).toBe(true)
       expect(shortBare.opts['write']).toBeUndefined()
     })
 
@@ -1657,7 +1657,7 @@ describe('Command (spec aligned)', () => {
       expect(absent.opts['write']).toBe('default-path')
 
       const bare = await cmd.parse({ argv: ['--write'], envs: {} })
-      expect(Object.prototype.hasOwnProperty.call(bare.opts, 'write')).toBe(true)
+      expect(Object.hasOwn(bare.opts, 'write')).toBe(true)
       expect(bare.opts['write']).toBeUndefined()
     })
 

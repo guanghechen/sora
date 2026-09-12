@@ -2,7 +2,6 @@ import { Observable } from '@guanghechen/observable'
 import type { IConsoleMock } from 'vitest.helper'
 import { createConsoleMock } from 'vitest.helper'
 import { State, ViewModel } from '../src'
-import type { IViewModelTicker } from '../src'
 import { TestSubscriber } from './_common'
 
 class TestViewModel extends ViewModel {
@@ -11,7 +10,7 @@ class TestViewModel extends ViewModel {
   public readonly items$: Observable<string[]>
   public notAnObservable: string
 
-  constructor() {
+  public constructor() {
     super()
     this.count$ = new Observable<number>(0)
     this.name$ = new State<string>('initial')
@@ -211,7 +210,7 @@ describe('ViewModel', () => {
         public readonly value$: Observable<number>;
         [key: symbol]: any
 
-        constructor() {
+        public constructor() {
           super()
           this.value$ = new Observable(0)
           this[symbolKey] = { dispose: vi.fn(), disposed: false }
@@ -236,7 +235,7 @@ describe('ViewModel ticker caching', () => {
       public readonly b$: Observable<number>
       public readonly c$: Observable<number>
 
-      constructor() {
+      public constructor() {
         super()
         this.a$ = new Observable(1)
         this.b$ = new Observable(2)

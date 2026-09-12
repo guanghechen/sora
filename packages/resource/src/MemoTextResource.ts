@@ -14,7 +14,7 @@ export class MemoTextResource implements ITextResource {
   protected _content: string | undefined
   protected _alive: boolean
 
-  constructor(props: IMemoTextResourceProps) {
+  public constructor(props: IMemoTextResourceProps) {
     this.strict = props.strict
     this.encoding = props.encoding
     this._content = props.content

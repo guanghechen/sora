@@ -20,13 +20,13 @@ export function filterInPlace<T>(
     if (predicate(el, i)) {
       // Keep the element in the array by overwriting the current position with it,
       // and incrementing the counter.
-      // eslint-disable-next-line no-param-reassign
+      // biome-ignore lint/style/noParameterAssign: Filter the caller-owned array in place.
       elements[tot] = el
       tot += 1
     }
   }
 
   // Set the length of the array to the number of kept elements.
-  // eslint-disable-next-line no-param-reassign
+  // biome-ignore lint/style/noParameterAssign: Filter the caller-owned array in place.
   elements.length = tot
 }

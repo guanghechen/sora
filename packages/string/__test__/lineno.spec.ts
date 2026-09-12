@@ -1,6 +1,6 @@
 import { collectIntervals, collectNumbers } from '../src'
 
-test('collectNumbers', function () {
+test('collectNumbers', () => {
   expect(collectNumbers('')).toEqual([])
   expect(collectNumbers('1')).toEqual([1])
   expect(collectNumbers('1-3')).toEqual([1, 2, 3])
@@ -12,7 +12,7 @@ test('collectNumbers', function () {
   expect(collectNumbers('2-4,1-3,6-9')).toEqual([1, 2, 3, 4, 6, 7, 8, 9])
 })
 
-test('collectIntervals', function () {
+test('collectIntervals', () => {
   expect(collectNumbers('')).toEqual([])
   expect(collectIntervals('1')).toEqual([[1, 1]])
   expect(collectIntervals('1-3')).toEqual([[1, 3]])
@@ -30,7 +30,7 @@ test('collectIntervals', function () {
   ])
 })
 
-test('custom separator', function () {
+test('custom separator', () => {
   expect(collectNumbers('2#4-5#5-8', /#/)).toEqual([2, 4, 5, 6, 7, 8])
 
   expect(collectIntervals('2#4-5#5-8', /#/)).toEqual([

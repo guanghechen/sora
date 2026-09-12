@@ -1,14 +1,14 @@
 import { Subscriber } from '@guanghechen/subscriber'
 import { vi } from 'vitest'
-import { Pipeline, PipelineStatusEnum } from '../src'
 import type { IMaterialCooker, IMaterialCookerApi, IMaterialCookerNext, IPipeline } from '../src'
+import { Pipeline, PipelineStatusEnum } from '../src'
 import type { IFIleProductData, IFileMaterialData } from './tester/FilePipelineTester'
 import { FileChangeTypeEnum, FileMaterialCooker } from './tester/FilePipelineTester'
 
 class InvalidatingCooker implements IMaterialCooker<IFileMaterialData, IFIleProductData> {
   public readonly name: string
 
-  constructor(name: string) {
+  public constructor(name: string) {
     this.name = name
   }
 

@@ -1,13 +1,13 @@
 import { invariant } from '../src'
 
-describe('development', function () {
-  it('truthy', function () {
+describe('development', () => {
+  it('truthy', () => {
     expect(() => void invariant(false, 'waw')).toThrow('Invariant failed: waw')
     expect(() => void invariant(false, () => 'waw')).toThrow('Invariant failed: waw')
     expect(() => void invariant(false)).toThrow('Invariant failed: ')
   })
 
-  it('falsy', function () {
+  it('falsy', () => {
     expect(() => void invariant(true, 'waw')).not.toThrow()
     expect(() => void invariant(true)).not.toThrow()
   })

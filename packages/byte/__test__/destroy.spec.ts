@@ -2,7 +2,7 @@ import { destroyBytes, destroyBytesList, text2bytes } from '../src'
 
 const encoding = 'utf8'
 
-test('destroyBytes', function () {
+test('destroyBytes', () => {
   const bytes: Uint8Array = text2bytes('waw', encoding)
   const original: Uint8Array = Uint8Array.from(bytes)
 
@@ -10,7 +10,7 @@ test('destroyBytes', function () {
   expect(bytes).not.toEqual(original)
 })
 
-test('destroyBytes overwrites with non-uniform, full-range random data', function () {
+test('destroyBytes overwrites with non-uniform, full-range random data', () => {
   // A 256-byte buffer makes the probabilistic assertions effectively deterministic
   // (each failure probability is on the order of 2^-256).
   const bytes = new Uint8Array(256)
@@ -26,11 +26,11 @@ test('destroyBytes overwrites with non-uniform, full-range random data', functio
   expect(other).not.toEqual(bytes)
 })
 
-test('destroyBytes handles an empty buffer', function () {
+test('destroyBytes handles an empty buffer', () => {
   expect(() => destroyBytes(new Uint8Array(0))).not.toThrow()
 })
 
-test('destroyBytesList', function () {
+test('destroyBytesList', () => {
   expect(() => destroyBytesList([])).not.toThrow()
 
   const contents: string[] = ['waw', 'wu wa wu', 'guanghechen']

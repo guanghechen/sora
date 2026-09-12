@@ -2,7 +2,7 @@ import type { ITaskStatus } from '../../src'
 import { TaskStatus, TaskStatusEnum } from '../../src'
 
 class LocalTaskStatus extends TaskStatus {
-  constructor(value: TaskStatusEnum) {
+  public constructor(value: TaskStatusEnum) {
     super()
     this._value = value
   }
@@ -13,7 +13,7 @@ export class TaskStatusTester {
   protected readonly _cases: Array<() => void>
   protected _status: ITaskStatus
 
-  constructor(from: TaskStatusEnum) {
+  public constructor(from: TaskStatusEnum) {
     this.from = from
     this._cases = []
     this._status = new TaskStatus()

@@ -1,7 +1,7 @@
 import type { IConsoleMock } from 'vitest.helper'
 import { createConsoleMock } from 'vitest.helper'
-import { ObservableMap } from '../src'
 import type { IImmutableMap, IObservableMap } from '../src'
+import { ObservableMap } from '../src'
 import { ImmutableMap, TestSubscriber } from './_common'
 
 describe('ObservableMap', () => {

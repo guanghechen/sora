@@ -1,12 +1,12 @@
-import type { IPathResolver, IPathResolverParams } from '@guanghechen/types'
 import path from 'node:path'
+import type { IPathResolver, IPathResolverParams } from '@guanghechen/types'
 
 const clazz = 'PathResolver'
 
 export class PathResolver implements IPathResolver {
   protected readonly defaultPreferSlash: boolean
 
-  constructor(params: IPathResolverParams = {}) {
+  public constructor(params: IPathResolverParams = {}) {
     this.defaultPreferSlash = params.preferSlash ?? false
   }
 

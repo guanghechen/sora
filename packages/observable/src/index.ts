@@ -1,5 +1,5 @@
 export * from './observable'
 export * from './ticker'
-export * from './util'
 export * from './types/observable'
 export * from './types/ticker'
+export * from './util'

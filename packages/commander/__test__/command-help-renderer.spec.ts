@@ -2,7 +2,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { ICommandOptionConfig, IHelpData } from '../src/command/types'
 import { CommandHelpRenderer } from '../src/internal/help/command-help-renderer'
 
-const ANSI_ESCAPE_REGEX = new RegExp(String.raw`\x1B\[[0-?]*[ -/]*[@-~]`, 'g')
+// biome-ignore lint/suspicious/noControlCharactersInRegex: Match ANSI escape sequences in terminal help.
+const ANSI_ESCAPE_REGEX = /\x1B\[[0-?]*[ -/]*[@-~]/g
 
 function isCombiningMark(codePoint: number): boolean {
   return (

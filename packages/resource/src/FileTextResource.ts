@@ -1,8 +1,8 @@
-import { invariant } from '@guanghechen/invariant'
-import type { ITextResource } from '@guanghechen/types'
 import { existsSync, mkdirSync, statSync, unlinkSync } from 'node:fs'
 import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import { invariant } from '@guanghechen/invariant'
+import type { ITextResource } from '@guanghechen/types'
 
 export interface IFileTextResourceProps {
   strict: boolean
@@ -17,7 +17,7 @@ export class FileTextResource implements ITextResource {
   public readonly filepath: string
   public readonly encoding: BufferEncoding
 
-  constructor(props: IFileTextResourceProps) {
+  public constructor(props: IFileTextResourceProps) {
     this.strict = props.strict
     this.filepath = props.filepath
     this.encoding = props.encoding

@@ -6,7 +6,7 @@ import type { IViewModel, IViewModelTicker } from './types/viewmodel'
 export abstract class ViewModel extends BatchDisposable implements IViewModel {
   protected readonly _tickerMap: Map<string, IViewModelTicker>
 
-  constructor() {
+  public constructor() {
     super()
     this._tickerMap = new Map<string, IViewModelTicker>()
   }

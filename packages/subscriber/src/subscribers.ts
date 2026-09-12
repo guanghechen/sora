@@ -18,7 +18,7 @@ export class Subscribers<T> implements ISubscribers<T> {
   private _items: Array<ISubscriberItem<T>>
   private _subscribingCount: number
 
-  constructor(options: IOptions = {}) {
+  public constructor(options: IOptions = {}) {
     /* c8 ignore next */
     this.ARRANGE_THRESHOLD = options.ARRANGE_THRESHOLD ?? 16
     this._disposed = false

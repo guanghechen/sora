@@ -19,7 +19,13 @@ export interface ICommandIssueSourceAttribution {
 }
 
 export type ICommandIssueScope =
-  'control' | 'preset' | 'option' | 'argument' | 'command' | 'runtime' | 'action'
+  | 'control'
+  | 'preset'
+  | 'option'
+  | 'argument'
+  | 'command'
+  | 'runtime'
+  | 'action'
 
 export type ICommandErrorIssueCode =
   | 'invalid_option_format'
@@ -111,7 +117,7 @@ export class CommanderError extends Error {
   public readonly commandPath: string
   public readonly meta: ICommandErrorMeta | undefined
 
-  constructor(
+  public constructor(
     kind: ICommanderErrorKind,
     message: string,
     commandPath: string,

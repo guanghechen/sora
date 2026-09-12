@@ -1,5 +1,5 @@
-import { CommanderError } from '../../command/types'
 import type { ICommandAction, ICommandActionParams, ICommandErrorIssue } from '../../command/types'
+import { CommanderError } from '../../command/types'
 
 export async function runCommandAction(params: {
   action: ICommandAction | undefined

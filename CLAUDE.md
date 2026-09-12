@@ -16,7 +16,8 @@ pnpm build              # Build all packages (with sourcemaps)
 pnpm build:production   # Build all packages (no sourcemaps)
 pnpm test               # Run tests
 pnpm test:coverage      # Run tests with coverage
-pnpm format             # Lint and format
+pnpm lint               # Check lint and formatting
+pnpm format             # Fix lint and formatting
 
 # Single package
 pnpm --filter @guanghechen/byte build
@@ -57,5 +58,5 @@ Each package in `packages/` follows:
 
 - **Build**: tsdown (Rolldown + Oxc)
 - **Test**: Vitest
-- **Lint**: ESLint + Prettier
+- **Lint / Format**: Biome
 - **Versioning**: Changesets (independent mode)

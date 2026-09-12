@@ -39,10 +39,10 @@
         src="https://img.shields.io/badge/tested_with-jest-9c465e.svg"
       />
     </a>
-    <a href="https://github.com/prettier/prettier">
+    <a href="https://biomejs.dev/">
       <img
-        alt="Code Style: prettier"
-        src="https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square"
+        alt="Code Style: Biome"
+        src="https://img.shields.io/badge/code_style-biome-60a5fa.svg?style=flat-square"
       />
     </a>
   </div>

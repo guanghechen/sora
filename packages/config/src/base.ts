@@ -29,7 +29,7 @@ export abstract class BaseConfigKeeper<Instance, Data> implements IConfigKeeper<
   protected _instance: Instance | undefined
   protected _nonce: string | undefined
 
-  constructor(props: IBaseConfigKeeperProps) {
+  public constructor(props: IBaseConfigKeeperProps) {
     this.hashAlgorithm = props.hashAlgorithm ?? 'sha256'
     this._resource = props.resource
     this._instance = undefined

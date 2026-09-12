@@ -27,12 +27,10 @@ describe('identity', () => {
 
 describe('noop', () => {
   it('no params', () => {
-    // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
     expect(noop()).toBeUndefined()
   })
 
   it('with params', () => {
-    // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
     expect(noop('some value', 2, 3)).toBeUndefined()
   })
 })

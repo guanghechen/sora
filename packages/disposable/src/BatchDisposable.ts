@@ -5,7 +5,7 @@ export class BatchDisposable implements IBatchDisposable {
   protected _disposed: boolean
   protected readonly _disposables: IDisposable[]
 
-  constructor() {
+  public constructor() {
     this._disposed = false
     this._disposables = []
   }

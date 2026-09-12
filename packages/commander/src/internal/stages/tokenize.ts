@@ -1,9 +1,9 @@
-import { CommanderError } from '../../command/types'
 import type {
   ICommandArgvSegment,
   ICommandToken,
   ICommandTokenizeResult,
 } from '../../command/types'
+import { CommanderError } from '../../command/types'
 
 const LONG_OPTION_REGEX = /^--[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/
 const NEGATIVE_OPTION_REGEX = /^--no-[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/

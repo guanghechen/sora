@@ -1,9 +1,10 @@
 import type { Reporter } from '@guanghechen/reporter'
-import { Subscriber } from '@guanghechen/subscriber'
 import type { ISubscriber, IUnsubscribable } from '@guanghechen/subscriber'
+import { Subscriber } from '@guanghechen/subscriber'
 import type { ITask } from '@guanghechen/task'
 import { ResumableTask, TaskStatusEnum, TaskStrategyEnum } from '@guanghechen/task'
-import { ErrorLevelEnum, type ISoraError } from '@guanghechen/types'
+import type { ISoraError } from '@guanghechen/types'
+import { ErrorLevelEnum } from '@guanghechen/types'
 import { PipelineStatusEnum } from './constant'
 import type { IProductConsumer, IProductConsumerApi, IProductConsumerNext } from './types/consumer'
 import type { IPipeline } from './types/pipeline'
@@ -31,7 +32,7 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
   protected _lastScheduledMaterialCode: number
   protected _completing: boolean
 
-  constructor(props: IProps<D, T>) {
+  public constructor(props: IProps<D, T>) {
     const { name, pipeline, reporter, strategy } = props
     const idleInterval: number = Math.max(0, Number(props.idleInterval) || 300)
     const pollInterval: number = Math.max(0, Number(props.pollInterval) || 0)

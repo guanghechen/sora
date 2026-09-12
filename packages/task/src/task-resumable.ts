@@ -13,7 +13,7 @@ export abstract class ResumableTask implements ITask {
   private _execution: IterableIterator<Promise<void>> | undefined
   private _step: Promise<void> | undefined
 
-  constructor(name: string, strategy: TaskStrategyEnum, pollInterval: number) {
+  public constructor(name: string, strategy: TaskStrategyEnum, pollInterval: number) {
     this.name = name
     this.strategy = strategy
     this.status = new TaskStatus()
@@ -74,7 +74,7 @@ export abstract class ResumableTask implements ITask {
     // Execute until the task is terminated.
     const execution: IterableIterator<Promise<void>> = this._execution!
 
-    for (let alive = true; alive;) {
+    for (let alive = true; alive; ) {
       const step = execution.next()
       if (step.done) {
         const nextStatus: TaskStatusEnum =

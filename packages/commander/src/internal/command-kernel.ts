@@ -1,5 +1,4 @@
 import type { IReporter } from '@guanghechen/reporter'
-import { CommanderError } from '../command/types'
 import type {
   ICommandArgvSegment,
   ICommandContext,
@@ -12,6 +11,7 @@ import type {
   ICommandToken,
   ICommandTokenizeResult,
 } from '../command/types'
+import { CommanderError } from '../command/types'
 import type { ICommandContextAdapter, IKernelPresetResult } from './context-adapter'
 import type { ICommandDiagnosticsEngine } from './diagnostics-engine'
 
@@ -85,7 +85,7 @@ export class CommandKernel<TCommand, TOptionPolicy> {
   readonly #diagnostics: ICommandDiagnosticsEngine
   readonly #contextAdapter: ICommandContextAdapter
 
-  constructor(params: {
+  public constructor(params: {
     port: ICommandKernelPort<TCommand, TOptionPolicy>
     diagnostics: ICommandDiagnosticsEngine
     contextAdapter: ICommandContextAdapter

@@ -1,4 +1,3 @@
-import { CommanderError } from '../../command/types'
 import type {
   ICommand,
   ICommandArgumentConfig,
@@ -14,6 +13,7 @@ import type {
   ICommandToken,
   ISubcommandEntry,
 } from '../../command/types'
+import { CommanderError } from '../../command/types'
 import { validateMergedShortOptions } from './resolve'
 
 function camelToKebabCase(str: string): string {
@@ -400,7 +400,7 @@ export function parseStage<TCommand extends ICommand>(
   const leafLocalOpts: ICommandParsedOpts = {}
   const leafParsedOpts = optsMap.get(leafCommand) ?? {}
   for (const option of getLocalOptions(leafCommand)) {
-    if (Object.prototype.hasOwnProperty.call(leafParsedOpts, option.long)) {
+    if (Object.hasOwn(leafParsedOpts, option.long)) {
       leafLocalOpts[option.long] = leafParsedOpts[option.long]
     }
   }

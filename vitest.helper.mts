@@ -1,10 +1,10 @@
-import type { Reporter } from '@guanghechen/reporter'
 import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
 import url from 'node:url'
-import { expect, vi } from 'vitest'
+import type { Reporter } from '@guanghechen/reporter'
 import type { MockInstance } from 'vitest'
+import { expect, vi } from 'vitest'
 
 // ============================================================================
 // Inline utilities from @guanghechen/std to avoid import/no-extraneous-dependencies

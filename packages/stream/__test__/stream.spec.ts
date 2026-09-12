@@ -57,7 +57,9 @@ describe('consumeStreams', () => {
   const cipherOutFilepath = locateFixtures('1.out.cipher')
 
   afterAll(async () => {
-    ;[outFilepath, cipherOutFilepath].flat().forEach(fp => unlinkSync(fp))
+    ;[outFilepath, cipherOutFilepath].flat().forEach(fp => {
+      unlinkSync(fp)
+    })
   })
 
   it('basic', async () => {
@@ -94,7 +96,7 @@ describe('consumeStreams', () => {
   })
 })
 
-describe('stream2buffer', function () {
+describe('stream2buffer', () => {
   it('basic', async () => {
     for (const fp of filepaths) {
       const reader = fs.createReadStream(fp)
@@ -112,7 +114,7 @@ describe('stream2buffer', function () {
   })
 })
 
-describe('stream2bytes', function () {
+describe('stream2bytes', () => {
   it('basic', async () => {
     for (const fp of filepaths) {
       const reader = fs.createReadStream(fp)

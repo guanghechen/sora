@@ -60,6 +60,7 @@ export function titleCase(input: string, options: Options | string[] | string = 
   const { smallWords = SMALL_WORDS, locale } =
     typeof options === 'string' || Array.isArray(options) ? { locale: options } : options
 
+  // biome-ignore lint/suspicious/noAssignInExpressions: Advance the stateful token regexp on each iteration.
   while ((m = TOKENS.exec(input)) !== null) {
     const { 0: token, index } = m
 

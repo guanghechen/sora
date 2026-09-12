@@ -1,7 +1,7 @@
-import { Ticker } from '@guanghechen/observable'
 import type { ITicker } from '@guanghechen/observable'
-import { Subscriber } from '@guanghechen/subscriber'
+import { Ticker } from '@guanghechen/observable'
 import type { ISubscriber, IUnsubscribable } from '@guanghechen/subscriber'
+import { Subscriber } from '@guanghechen/subscriber'
 import { PipelineStatusEnum } from './constant'
 import { PipelineStatus } from './status'
 import type { IMaterialCooker, IMaterialCookerApi, IMaterialCookerNext } from './types/cooker'
@@ -20,13 +20,13 @@ export class Pipeline<D, T> implements IPipeline<D, T> {
   private _maxContinuousHandledCode: number
   private _code: number
 
-  constructor(name: string) {
+  public constructor(name: string) {
     const status: IPipelineStatus = new PipelineStatus()
     const materials: Array<IMaterial<D>> = []
     const cookers: Array<IMaterialCooker<D, T>> = []
     const cookerApi: IMaterialCookerApi<D> = {
       invalidate: (material: IMaterial<D>): void => {
-        // eslint-disable-next-line no-param-reassign
+        // biome-ignore lint/style/noParameterAssign: Invalidate the shared pipeline material.
         material.alive = false
       },
       subsequent: function* (): IterableIterator<IMaterial<D>> {
@@ -69,7 +69,6 @@ export class Pipeline<D, T> implements IPipeline<D, T> {
     if (this.status.closed) return -1
     this.status.next(PipelineStatusEnum.IDLE, { strict: false })
 
-    // eslint-disable-next-line no-plusplus
     const code = this._code++
     this._materials.push({ code, data, alive: true })
     return code

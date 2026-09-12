@@ -1,4 +1,5 @@
-import { type ISemVer, compareSemVer, compareVersions } from '../src'
+import type { ISemVer } from '../src'
+import { compareSemVer, compareVersions } from '../src'
 
 describe('compareSemVer', () => {
   it('should compare ISemVer objects directly', () => {

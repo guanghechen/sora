@@ -1,9 +1,9 @@
-import { CommanderError } from '../../command/types'
 import type {
   ICommandArgumentConfig,
   ICommandExample,
   ICommandOptionConfig,
 } from '../../command/types'
+import { CommanderError } from '../../command/types'
 
 export function validateOptionConfig<T>(params: {
   opt: ICommandOptionConfig<T>

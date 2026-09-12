@@ -34,13 +34,13 @@ export const isDate = (value: unknown): value is Date => {
  * Check if the given data is a `Function` type.
  * @param v
  */
-// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+// biome-ignore lint/complexity/noBannedTypes: This guard accepts functions with any call signature.
 export function isFunction(v: unknown): v is Function {
   return Object.prototype.toString.call(v) === '[object Function]' || isAsyncFunction(v)
 }
 
 // Not known why TypeScript cannot find the `AsyncFunction` type, use Function temporarily.
-// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+// biome-ignore lint/complexity/noBannedTypes: This guard accepts functions with any call signature.
 export function isAsyncFunction(v: unknown): v is Function {
   return Object.prototype.toString.call(v) === '[object AsyncFunction]'
 }
@@ -219,6 +219,6 @@ export const isPlainObject = (v: unknown): v is object => {
   // If has modified prototype
   const prot = ctor.prototype
 
-  // eslint-disable-next-line no-prototype-builtins
+  // biome-ignore lint/suspicious/noPrototypeBuiltins: Inspect the prototype own-property method deliberately.
   return isObject(prot) && prot.hasOwnProperty('isPrototypeOf')
 }

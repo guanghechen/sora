@@ -1,4 +1,5 @@
-import { AtomicTask, type ITask, TaskStrategyEnum } from '@guanghechen/task'
+import type { ITask } from '@guanghechen/task'
+import { AtomicTask, TaskStrategyEnum } from '@guanghechen/task'
 import type {
   IMaterialCooker,
   IMaterialCookerApi,
@@ -27,7 +28,7 @@ export interface IFIleProductData {
 export class FileMaterialCooker implements IMaterialCooker<IFileMaterialData, IFIleProductData> {
   public readonly name: string
 
-  constructor(name: string) {
+  public constructor(name: string) {
     this.name = name
   }
 
@@ -103,7 +104,7 @@ export class FileMaterialCooker implements IMaterialCooker<IFileMaterialData, IF
 export class FileProductConsumer implements IProductConsumer<IFIleProductData, ITask> {
   public readonly name: string
 
-  constructor(name: string) {
+  public constructor(name: string) {
     this.name = name
   }
 
@@ -122,7 +123,7 @@ export class FileProductConsumer implements IProductConsumer<IFIleProductData, I
 export class FileTask extends AtomicTask implements ITask {
   protected readonly data: IFIleProductData
 
-  constructor(name: string, data: IFIleProductData) {
+  public constructor(name: string, data: IFIleProductData) {
     super(name, TaskStrategyEnum.ABORT_ON_ERROR)
     this.data = data
   }
@@ -142,7 +143,7 @@ export class SlowFileTask extends AtomicTask implements ITask {
   protected readonly data: IFIleProductData
   protected readonly delay: number
 
-  constructor(name: string, data: IFIleProductData, delay = 100) {
+  public constructor(name: string, data: IFIleProductData, delay = 100) {
     super(name, TaskStrategyEnum.ABORT_ON_ERROR)
     this.data = data
     this.delay = delay
@@ -164,7 +165,7 @@ export class SlowFileProductConsumer implements IProductConsumer<IFIleProductDat
   public readonly name: string
   private readonly delay: number
 
-  constructor(name: string, delay = 50) {
+  public constructor(name: string, delay = 50) {
     this.name = name
     this.delay = delay
   }

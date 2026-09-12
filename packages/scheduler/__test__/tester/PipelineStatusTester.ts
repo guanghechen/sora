@@ -2,7 +2,7 @@ import type { IPipelineStatus } from '../../src'
 import { PipelineStatus, PipelineStatusEnum } from '../../src'
 
 class LocalPipelineStatus extends PipelineStatus {
-  constructor(value: PipelineStatusEnum) {
+  public constructor(value: PipelineStatusEnum) {
     super()
     this._value = value
   }
@@ -13,7 +13,7 @@ export class PipelineStatusTester {
   protected readonly _cases: Array<() => void>
   protected _status: IPipelineStatus
 
-  constructor(from: PipelineStatusEnum) {
+  public constructor(from: PipelineStatusEnum) {
     this.from = from
     this._cases = []
     this._status = new PipelineStatus()

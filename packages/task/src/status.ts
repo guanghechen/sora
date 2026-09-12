@@ -1,5 +1,5 @@
-import { Observable } from '@guanghechen/observable'
 import type { IObservableNextOptions } from '@guanghechen/observable'
+import { Observable } from '@guanghechen/observable'
 import { TaskStatusEnum } from './constant'
 import type { ITaskStatus } from './types'
 
@@ -45,7 +45,7 @@ const _transitionMap: Record<TaskStatusEnum, TaskStatusEnum> = {
 }
 
 export class TaskStatus extends Observable<TaskStatusEnum> implements ITaskStatus {
-  constructor() {
+  public constructor() {
     super(TaskStatusEnum.PENDING)
   }
 

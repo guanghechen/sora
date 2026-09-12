@@ -341,13 +341,13 @@ describe('is', () => {
     it('falsy', () => {
       class Student {
         protected readonly profile: unknown
-        constructor() {
+        public constructor() {
           this.profile = {}
         }
       }
 
       expect(isPlainObject(/foo/)).toEqual(false)
-      expect(isPlainObject(function () {})).toEqual(false)
+      expect(isPlainObject(() => {})).toEqual(false)
       expect(isPlainObject(1)).toEqual(false)
       expect(isPlainObject(['foo', 'bar'])).toEqual(false)
       expect(isPlainObject([])).toEqual(false)

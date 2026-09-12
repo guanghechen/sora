@@ -22,7 +22,7 @@ export class Observable<T> extends BatchDisposable implements IObservable<T> {
   protected _lastNotifiedValue: T | undefined
   protected _timer: ReturnType<typeof setTimeout> | undefined
 
-  constructor(defaultValue: T, options: IObservableOptions<T> = {}) {
+  public constructor(defaultValue: T, options: IObservableOptions<T> = {}) {
     super()
 
     const { equals = defaultEquals, onError } = options

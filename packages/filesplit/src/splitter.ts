@@ -1,9 +1,9 @@
+import { createReadStream, createWriteStream } from 'node:fs'
+import { pipeline } from 'node:stream/promises'
 import type { IFilePartItem } from '@guanghechen/filepart'
 import { DEFAULT_FILEPART_CODE_PREFIX, calcFilePartNames } from '@guanghechen/filepart'
 import { invariant } from '@guanghechen/invariant'
 import { consumeStream } from '@guanghechen/stream'
-import { createReadStream, createWriteStream } from 'node:fs'
-import { pipeline } from 'node:stream/promises'
 import type { IFileSplitter } from './types'
 
 interface IProps {
@@ -23,7 +23,7 @@ export class FileSplitter implements IFileSplitter {
   // !!! so node:fs will return raw bytes instead of any structured or pretreated data.
   readonly #encoding: BufferEncoding | undefined = undefined
 
-  constructor(options: IProps = {}) {
+  public constructor(options: IProps = {}) {
     this.partCodePrefix = options.partCodePrefix ?? DEFAULT_FILEPART_CODE_PREFIX
   }
 

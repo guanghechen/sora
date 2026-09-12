@@ -1,4 +1,3 @@
-import { CommanderError } from '../../command/types'
 import type {
   ICommand,
   ICommandOptionConfig,
@@ -6,6 +5,7 @@ import type {
   ICommandShiftResult,
   ICommandToken,
 } from '../../command/types'
+import { CommanderError } from '../../command/types'
 
 interface IOptionPolicy {
   mergedOptions: ICommandOptionConfig[]

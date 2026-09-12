@@ -4,7 +4,7 @@ import { Subscriber, Subscribers } from '../src'
 class LocalSubscriber extends Subscriber<string> {
   public readonly _values: string[]
 
-  constructor() {
+  public constructor() {
     const values: string[] = []
 
     super({

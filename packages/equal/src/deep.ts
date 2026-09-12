@@ -90,6 +90,7 @@ export function isEqual(x: any, y: any): boolean {
     if (keys.length !== Object.keys(y).length) return false
 
     for (const key of keys) {
+      // biome-ignore lint/suspicious/noPrototypeBuiltins: Preserve support for runtimes without Object.hasOwn.
       if (!Object.prototype.hasOwnProperty.call(y, key)) return false
     }
 

@@ -24,7 +24,7 @@ export interface IMiddlewares<Input, Output, Api> {
 export class Middlewares<Input, Output, Api> implements IMiddlewares<Input, Output, Api> {
   protected readonly _middlewares: Array<IMiddleware<Input, Output, Api>>
 
-  constructor() {
+  public constructor() {
     this._middlewares = []
   }
 

@@ -4,7 +4,7 @@ export class WorkspacePathResolver implements IWorkspacePathResolver {
   public readonly root: string
   public readonly pathResolver: IPathResolver
 
-  constructor(root: string, pathResolver: IPathResolver) {
+  public constructor(root: string, pathResolver: IPathResolver) {
     this.root = root
     this.pathResolver = pathResolver
   }

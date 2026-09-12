@@ -1,11 +1,11 @@
 import { Disposable } from '@guanghechen/disposable'
-import { Observable, Ticker } from '@guanghechen/observable'
 import type {
   IBaseObservable,
   IObservable,
   IObservableOptions,
   IValueList,
 } from '@guanghechen/observable'
+import { Observable, Ticker } from '@guanghechen/observable'
 import type { ISubscriber, IUnsubscribable } from '@guanghechen/subscriber'
 import { Subscriber } from '@guanghechen/subscriber'
 import type { IDisposable } from '@guanghechen/types'
@@ -14,7 +14,7 @@ import type { IComputed } from './types/computed'
 export class Computed<T> implements IComputed<T> {
   protected readonly _observable: IBaseObservable<T>
 
-  constructor(observable: IBaseObservable<T>) {
+  public constructor(observable: IBaseObservable<T>) {
     this._observable = observable
   }
 

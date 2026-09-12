@@ -1,7 +1,7 @@
-import { bytes2text, text2bytes } from '@guanghechen/byte'
-import { FileTextResource } from '@guanghechen/resource'
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import { bytes2text, text2bytes } from '@guanghechen/byte'
+import { FileTextResource } from '@guanghechen/resource'
 import {
   assertPromiseThrow,
   emptyDir,

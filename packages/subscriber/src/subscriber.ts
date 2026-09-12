@@ -15,7 +15,7 @@ export class Subscriber<T> implements ISubscriber<T> {
   protected readonly _onNext: IOnNext<T>
   protected _disposed: boolean
 
-  constructor(options: ISubscriberOptions<T>) {
+  public constructor(options: ISubscriberOptions<T>) {
     this._onDispose = options?.onDispose ?? noop
     this._onNext = options.onNext
     this._disposed = false

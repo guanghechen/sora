@@ -1,5 +1,5 @@
-import { CommanderError } from '../../command/types'
 import type { ICommandControlScanResult, ICommandParseResult } from '../../command/types'
+import { CommanderError } from '../../command/types'
 import type { ICommandExecutionTermination, IExecutionOutcome } from '../command-kernel'
 
 interface IRouteResult<TCommand> {

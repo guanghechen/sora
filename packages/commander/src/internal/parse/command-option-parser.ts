@@ -1,4 +1,3 @@
-import { CommanderError } from '../../command/types'
 import type {
   ICommandBuiltinOptionResolved,
   ICommandBuiltinParsedOptions,
@@ -6,6 +5,7 @@ import type {
   ICommandParsedOpts,
   ICommandToken,
 } from '../../command/types'
+import { CommanderError } from '../../command/types'
 
 const DECIMAL_INTEGER_REGEX = /^\d(?:_?\d)*$/
 const DECIMAL_FRACTION_REGEX = /^\d(?:_?\d)*$/
@@ -254,7 +254,7 @@ export class CommandOptionParser {
     }
 
     for (const opt of allOptions) {
-      if (opt.required && !Object.prototype.hasOwnProperty.call(opts, opt.long)) {
+      if (opt.required && !Object.hasOwn(opts, opt.long)) {
         throw new CommanderError(
           'MissingRequired',
           `missing required option "--${camelToKebabCase(opt.long)}"`,

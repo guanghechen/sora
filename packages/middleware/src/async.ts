@@ -26,7 +26,7 @@ export interface IAsyncMiddlewares<Input, Output, Api> {
 export class AsyncMiddlewares<Input, Output, Api> implements IAsyncMiddlewares<Input, Output, Api> {
   protected readonly _middlewares: Array<IAsyncMiddleware<Input, Output, Api>>
 
-  constructor() {
+  public constructor() {
     this._middlewares = []
   }
 

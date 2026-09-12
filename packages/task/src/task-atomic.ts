@@ -12,7 +12,7 @@ export abstract class AtomicTask implements ITask {
   protected readonly _errors: unknown[]
   private _promise: Promise<void> | undefined
 
-  constructor(name: string, strategy: TaskStrategyEnum) {
+  public constructor(name: string, strategy: TaskStrategyEnum) {
     this.name = name
     this.strategy = strategy
     this.status = new TaskStatus()

@@ -1,6 +1,7 @@
 import { Disposable } from '@guanghechen/disposable'
 import { Observable } from '@guanghechen/observable'
-import { type ISubscriber, Subscriber } from '@guanghechen/subscriber'
+import type { ISubscriber } from '@guanghechen/subscriber'
+import { Subscriber } from '@guanghechen/subscriber'
 import type { IDisposable } from '@guanghechen/types'
 import type { IState, IValuePatcher } from './types/state'
 

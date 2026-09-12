@@ -1,4 +1,3 @@
-import { CommanderError } from '../../command/types'
 import type {
   ICommandArgvSegment,
   ICommandInputSources,
@@ -9,6 +8,7 @@ import type {
   ICommandPresetSourceState,
   ICommandRuntime,
 } from '../../command/types'
+import { CommanderError } from '../../command/types'
 import { buildPresetProfileInputs } from '../command/preset'
 import type { IResolvedPresetProfile } from '../preset/preset-profile-parser'
 

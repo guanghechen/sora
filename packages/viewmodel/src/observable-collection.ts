@@ -1,7 +1,8 @@
 import { BatchDisposable, Disposable, SafeBatchHandler } from '@guanghechen/disposable'
-import { Observable } from '@guanghechen/observable'
 import type { IEquals, IObservable, IObservableNextOptions } from '@guanghechen/observable'
-import { type ISubscriber, type IUnsubscribable, Subscriber } from '@guanghechen/subscriber'
+import { Observable } from '@guanghechen/observable'
+import type { ISubscriber, IUnsubscribable } from '@guanghechen/subscriber'
+import { Subscriber } from '@guanghechen/subscriber'
 import type { IDisposable } from '@guanghechen/types'
 import { DisposedObservable } from './observable-disposed'
 import type { IImmutableCollection } from './types/collection'
@@ -26,7 +27,7 @@ export class ObservableCollection<K, V, C extends IImmutableCollection<K, V>>
   protected _value: C
   protected _lastNotifiedValue: C | undefined
 
-  constructor(defaultValue: C, options: IObservableCollectionOptions<V> = {}) {
+  public constructor(defaultValue: C, options: IObservableCollectionOptions<V> = {}) {
     super()
     this._value = defaultValue
     this._subscribers = []
@@ -52,18 +53,15 @@ export class ObservableCollection<K, V, C extends IImmutableCollection<K, V>>
       }
       this._subscribers.length = 0
     }
-
-    {
-      for (const subscribers of this._keySubscribersMap.values()) {
-        const size: number = subscribers.length
-        for (let i = 0; i < size; ++i) {
-          const item: IObservableSubscriber<V> = subscribers[i]
-          if (item.inactive || item.subscriber.disposed) continue
-          batcher.run(() => item.subscriber.dispose())
-        }
+    for (const subscribers of this._keySubscribersMap.values()) {
+      const size: number = subscribers.length
+      for (let i = 0; i < size; ++i) {
+        const item: IObservableSubscriber<V> = subscribers[i]
+        if (item.inactive || item.subscriber.disposed) continue
+        batcher.run(() => item.subscriber.dispose())
       }
-      this._keySubscribersMap.clear()
     }
+    this._keySubscribersMap.clear()
     batcher.summary('[observable-collection] Encountered errors while disposing.')
     batcher.cleanup()
   }

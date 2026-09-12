@@ -1,5 +1,5 @@
-import { CommanderError } from '../../command/types'
 import type { ICommandActionParams } from '../../command/types'
+import { CommanderError } from '../../command/types'
 
 export async function runStage<TCommand>(params: {
   leafCommand: TCommand

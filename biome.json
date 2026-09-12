@@ -1,0 +1,210 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.13/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": true,
+    "includes": [
+      "**",
+      "!!**/.vscode",
+      "!!**/__tmp__",
+      "!!**/__test__/fixtures",
+      "!!**/__test__/cases",
+      "!!**/coverage",
+      "!!**/dist",
+      "!!**/doc",
+      "!!**/lib",
+      "!!**/spec",
+      "!!packages/*/resource"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100,
+    "lineEnding": "lf"
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "jsxQuoteStyle": "double",
+      "semicolons": "asNeeded",
+      "trailingCommas": "all",
+      "arrowParentheses": "asNeeded",
+      "bracketSpacing": true
+    }
+  },
+  "json": {
+    "formatter": {
+      "trailingCommas": "none"
+    }
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "groups": [[":NODE:", ":PACKAGE:"], ":ALIAS:", ":PATH:"],
+            "identifierOrder": "lexicographic"
+          }
+        }
+      }
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "correctness": {
+        "noUndeclaredDependencies": "error",
+        "noUnusedVariables": "warn",
+        "noUnusedFunctionParameters": "warn"
+      },
+      "suspicious": {
+        "noExplicitAny": "off",
+        "noImportCycles": "error",
+        "noReturnAssign": "error",
+        "noConfusingVoidType": "off",
+        "noEmptyInterface": "off"
+      },
+      "style": {
+        "noNonNullAssertion": "off",
+        "noParameterAssign": {
+          "level": "error",
+          "options": {
+            "propertyAssignment": "deny"
+          }
+        },
+        "useEnumInitializers": "error",
+        "useImportType": {
+          "level": "error",
+          "options": {
+            "style": "separatedType"
+          }
+        },
+        "useConsistentTypeDefinitions": {
+          "level": "warn",
+          "options": {
+            "style": "interface"
+          }
+        },
+        "useTemplate": "off"
+      },
+      "nursery": {
+        "noFloatingPromises": "error",
+        "noMisusedPromises": "error",
+        "useImportsFirst": "error"
+      },
+      "preset": "recommended",
+      "complexity": {
+        "noThisInStatic": "off",
+        "useLiteralKeys": "off"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
+      "linter": {
+        "rules": {
+          "nursery": {
+            "useExplicitReturnType": {
+              "level": "error",
+              "options": {
+                "allowExpressions": true
+              }
+            }
+          },
+          "style": {
+            "useConsistentMemberAccessibility": {
+              "level": "error",
+              "options": {
+                "accessibility": "explicit"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/__test__/**/*.{ts,mjs}", "vitest.helper.mts"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noUnusedVariables": "off",
+            "noUnusedFunctionParameters": "off",
+            "noUndeclaredDependencies": "off"
+          },
+          "suspicious": {
+            "noTemplateCurlyInString": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["script/**"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noUndeclaredDependencies": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/constant.ts", "**/constant/**/*.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useLiteralEnumMembers": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/std/__test__/is.spec.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noThenProperty": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/equal/__test__/deep.spec.ts"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "useRegexLiterals": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/*.d.ts"],
+      "linter": {
+        "enabled": false
+      }
+    },
+    {
+      "includes": ["tsdown.config.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useImportType": {
+              "level": "error",
+              "options": {
+                "style": "inlineType"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

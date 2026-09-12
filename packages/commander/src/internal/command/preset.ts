@@ -1,6 +1,6 @@
 import { parse as parseEnv } from '@guanghechen/env'
-import { CommanderError } from '../../command/types'
 import type { ICommandRuntime } from '../../command/types'
+import { CommanderError } from '../../command/types'
 import type { IPresetFileSource, IResolvedPresetProfile } from '../preset/preset-profile-parser'
 
 export function resolvePresetFileAbsolutePath(params: {

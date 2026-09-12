@@ -1,7 +1,7 @@
-import { destroyBytes, destroyBytesList } from '@guanghechen/byte'
 import type { ReadableOptions } from 'node:stream'
 import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
+import { destroyBytes, destroyBytesList } from '@guanghechen/byte'
 
 /**
  * Concatenate readable streams to async iterator.

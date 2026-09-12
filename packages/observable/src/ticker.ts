@@ -10,7 +10,7 @@ import { noopUnobservable } from './util'
 const equals: IEquals<number> = (x, y) => x === y
 
 export class Ticker extends Observable<number> implements ITicker {
-  constructor(options: ITickerOptions = {}) {
+  public constructor(options: ITickerOptions = {}) {
     const { start = 0, delay } = options
     super(start, { delay, equals })
   }

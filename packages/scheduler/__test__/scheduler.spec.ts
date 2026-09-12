@@ -1,10 +1,9 @@
 import { Reporter } from '@guanghechen/reporter'
-import { TaskStatus, TaskStatusEnum, TaskStrategyEnum } from '@guanghechen/task'
 import type { ITask } from '@guanghechen/task'
+import { TaskStatus, TaskStatusEnum, TaskStrategyEnum } from '@guanghechen/task'
 import { vi } from 'vitest'
 import type { IReporterMock } from 'vitest.helper'
 import { createReporterMock, desensitize } from 'vitest.helper'
-import { Pipeline, Scheduler } from '../src'
 import type {
   IMaterialCooker,
   IMaterialCookerApi,
@@ -15,6 +14,7 @@ import type {
   IProductConsumerNext,
   IScheduler,
 } from '../src'
+import { Pipeline, Scheduler } from '../src'
 import type { IFIleProductData, IFileMaterialData } from './tester/FilePipelineTester'
 import {
   FileChangeTypeEnum,
@@ -26,7 +26,7 @@ import {
 class NumberCooker implements IMaterialCooker<number, number> {
   public readonly name: string
 
-  constructor(name: string) {
+  public constructor(name: string) {
     this.name = name
   }
 
@@ -45,7 +45,7 @@ class QueueConsumer implements IProductConsumer<number, ITask> {
   public readonly name: string
   private readonly _tasks: ITask[]
 
-  constructor(name: string, tasks: ITask[]) {
+  public constructor(name: string, tasks: ITask[]) {
     this.name = name
     this._tasks = tasks
   }
@@ -72,7 +72,7 @@ class ControlledTask implements ITask {
   private _startedResolve: (() => void) | undefined
   public readonly started: Promise<void>
 
-  constructor(name: string, runDelay: number) {
+  public constructor(name: string, runDelay: number) {
     this.name = name
     this.status = new TaskStatus()
     this.strategy = TaskStrategyEnum.CONTINUE_ON_ERROR
@@ -655,7 +655,7 @@ class CompleteRequiredTask implements ITask {
   public readonly status: TaskStatus
   public readonly strategy: TaskStrategyEnum
 
-  constructor(name: string) {
+  public constructor(name: string) {
     this.name = name
     this.status = new TaskStatus()
     this.strategy = TaskStrategyEnum.CONTINUE_ON_ERROR

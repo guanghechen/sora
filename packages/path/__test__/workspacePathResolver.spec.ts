@@ -1,5 +1,5 @@
-import type { IWorkspacePathResolver } from '@guanghechen/types'
 import path from 'node:path'
+import type { IWorkspacePathResolver } from '@guanghechen/types'
 import { WorkspacePathResolver, pathResolver, urlPathResolver } from '../src'
 
 describe('WorkspacePathResolver (url)', () => {

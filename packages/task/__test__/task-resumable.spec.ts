@@ -14,7 +14,7 @@ const delay = (duration: number): Promise<void> =>
 class ResumableTaskForTest extends ResumableTask {
   protected readonly _processor: ITaskProcessor
 
-  constructor(processor: ITaskProcessor, strategy: TaskStrategyEnum) {
+  public constructor(processor: ITaskProcessor, strategy: TaskStrategyEnum) {
     super('ResumableTaskForTest', strategy, pollInterval)
     this._processor = processor
   }

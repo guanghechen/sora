@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { vi } from 'vitest'
+import type { ICompletionMeta, ICompletionPaths } from '../src/runtime/node'
 import {
   BashCompletion,
   Command,
@@ -9,7 +10,6 @@ import {
   FishCompletion,
   PwshCompletion,
 } from '../src/runtime/node'
-import type { ICompletionMeta, ICompletionPaths } from '../src/runtime/node'
 
 // Default paths for testing
 const testPaths: ICompletionPaths = {

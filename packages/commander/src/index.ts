@@ -4,9 +4,9 @@
  * @module @guanghechen/commander
  */
 
-export * from './command/command'
 export * from './command/coerce'
+export * from './command/command'
 export * from './command/is'
 export { logColorfulOption, logDateOption, silentOption } from './command/options'
-export * from './runtime'
 export * from './command/types'
+export * from './runtime'

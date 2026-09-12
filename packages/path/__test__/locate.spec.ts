@@ -4,8 +4,8 @@ import { findNearestFilepath, locateNearestFilepath } from '../src'
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
 
-describe('locateNearestFilepath', function () {
-  it('single filename', function () {
+describe('locateNearestFilepath', () => {
+  it('single filename', () => {
     expect(locateNearestFilepath(__dirname, 'package.json')).toBe(
       path.join(__dirname, '../package.json'),
     )
@@ -23,7 +23,7 @@ describe('locateNearestFilepath', function () {
     )
   })
 
-  it('multiple filenames', function () {
+  it('multiple filenames', () => {
     expect(locateNearestFilepath(__dirname, ['package.json'])).toBe(
       path.join(__dirname, '../package.json'),
     )
@@ -41,13 +41,13 @@ describe('locateNearestFilepath', function () {
     )
   })
 
-  it('not found', function () {
+  it('not found', () => {
     expect(locateNearestFilepath(__dirname, '.xx.yy.zz....xxx' + Math.random())).toBeNull()
   })
 })
 
-describe('findNearestFilepath', function () {
-  it('basic', function () {
+describe('findNearestFilepath', () => {
+  it('basic', () => {
     expect(findNearestFilepath(__dirname, p => path.basename(p) === 'package.json')).toBe(
       path.join(__dirname, '../package.json'),
     )
@@ -57,16 +57,16 @@ describe('findNearestFilepath', function () {
     ).toBe(path.join(__dirname, '../package.json'))
   })
 
-  it('not found', function () {
+  it('not found', () => {
     expect(findNearestFilepath(__dirname, () => false)).toBeNull()
   })
 
-  it('returns null without throwing for a non-existent directory', function () {
+  it('returns null without throwing for a non-existent directory', () => {
     const ghost = path.join(__dirname, 'no-such-dir-' + Math.random())
     expect(findNearestFilepath(ghost, () => false)).toBeNull()
   })
 
-  it('walks up from a non-existent directory to a matching ancestor', function () {
+  it('walks up from a non-existent directory to a matching ancestor', () => {
     const ghost = path.join(__dirname, 'no-such-dir-' + Math.random())
     expect(findNearestFilepath(ghost, p => path.basename(p) === 'package.json')).toBe(
       path.join(__dirname, '../package.json'),

@@ -1,7 +1,7 @@
-import { DEFAULT_FILEPART_CODE_PREFIX, calcFilePartItemsBySize } from '@guanghechen/filepart'
-import type { IFilePartItem } from '@guanghechen/filepart'
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
+import type { IFilePartItem } from '@guanghechen/filepart'
+import { DEFAULT_FILEPART_CODE_PREFIX, calcFilePartItemsBySize } from '@guanghechen/filepart'
 import { emptyDir, locateFixtures, rm, writeFile } from 'vitest.helper'
 import { FileSplitter } from '../src'
 

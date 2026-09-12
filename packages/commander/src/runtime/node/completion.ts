@@ -7,7 +7,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { Command } from '../../command/command'
-import { CommanderError } from '../../command/types'
 import type {
   ICommandContext,
   ICompletionCommandConfig,
@@ -15,6 +14,7 @@ import type {
   ICompletionOptionMeta,
   ICompletionPaths,
 } from '../../command/types'
+import { CommanderError } from '../../command/types'
 
 // ==================== Naming Utilities ====================
 
@@ -104,7 +104,7 @@ function mustGetCompletionShell(ctx: ICommandContext): keyof ICompletionPaths {
  * ```
  */
 export class CompletionCommand extends Command {
-  constructor(root: Command, config: ICompletionCommandConfig = {}) {
+  public constructor(root: Command, config: ICompletionCommandConfig = {}) {
     const programName = config.programName ?? root.name ?? 'program'
     const paths: ICompletionPaths = {
       ...createDefaultCompletionPaths(programName),
@@ -172,7 +172,7 @@ export class CompletionCommand extends Command {
             break
         }
 
-        const hasWrite = Object.prototype.hasOwnProperty.call(opts, 'write')
+        const hasWrite = Object.hasOwn(opts, 'write')
         if (hasWrite) {
           const writeOpt = opts['write']
           // --write was specified
@@ -222,7 +222,7 @@ export class BashCompletion {
   readonly #meta: ICompletionMeta
   readonly #programName: string
 
-  constructor(meta: ICompletionMeta, programName: string) {
+  public constructor(meta: ICompletionMeta, programName: string) {
     this.#meta = meta
     this.#programName = programName
   }
@@ -413,7 +413,7 @@ export class FishCompletion {
   readonly #programName: string
   readonly #slotMatcherName: string
 
-  constructor(meta: ICompletionMeta, programName: string) {
+  public constructor(meta: ICompletionMeta, programName: string) {
     this.#meta = meta
     this.#programName = programName
     this.#slotMatcherName = `__${this.#sanitizeName(programName)}_match_arg_slot`
@@ -617,7 +617,7 @@ export class PwshCompletion {
   readonly #meta: ICompletionMeta
   readonly #programName: string
 
-  constructor(meta: ICompletionMeta, programName: string) {
+  public constructor(meta: ICompletionMeta, programName: string) {
     this.#meta = meta
     this.#programName = programName
   }

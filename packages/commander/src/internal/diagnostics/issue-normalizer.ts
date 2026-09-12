@@ -1,4 +1,3 @@
-import { CommanderError } from '../../command/types'
 import type {
   ICommandErrorIssue,
   ICommandErrorIssueCode,
@@ -8,6 +7,7 @@ import type {
   ICommandIssueScope,
   ICommandPresetIssueMeta,
 } from '../../command/types'
+import { CommanderError } from '../../command/types'
 import { isErrorIssueCode, isHintIssueCode } from '../issue-codes'
 import type { INormalizeCommanderErrorOptions, IWithErrorIssueParams } from './contracts'
 
@@ -131,7 +131,8 @@ export class CommandIssueNormalizer {
       .map(issue => this.#normalizeIssue(issue))
       .filter((issue): issue is ICommandErrorIssue | ICommandHintIssue => issue !== undefined)
     const primaryError = normalized.find(issue => issue.kind === 'error') as
-      ICommandErrorIssue | undefined
+      | ICommandErrorIssue
+      | undefined
     const hints = normalized.filter(issue => issue.kind === 'hint')
 
     if (primaryError === undefined) {

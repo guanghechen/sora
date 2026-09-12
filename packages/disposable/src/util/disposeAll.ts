@@ -4,7 +4,7 @@ export class SafeBatchHandler {
   private readonly _errors: unknown[]
   private _summary: unknown | undefined
 
-  constructor() {
+  public constructor() {
     this._errors = []
     this._summary = undefined
   }
@@ -25,7 +25,10 @@ export class SafeBatchHandler {
 
   public summary(errorSummary: string): void | never {
     if (this._summary === undefined) {
-      if (this._errors.length === 1) throw (this._summary = this._errors[0])
+      if (this._errors.length === 1) {
+        this._summary = this._errors[0]
+        throw this._summary
+      }
       if (this._errors.length > 1) {
         this._summary = new AggregateError(this._errors, errorSummary)
       }

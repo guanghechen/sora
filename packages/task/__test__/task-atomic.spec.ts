@@ -12,7 +12,7 @@ const delay = (duration: number): Promise<void> =>
 class AtomicTaskForTest extends AtomicTask {
   protected readonly _processor: ITaskProcessor
 
-  constructor(processor: ITaskProcessor, strategy: TaskStrategyEnum) {
+  public constructor(processor: ITaskProcessor, strategy: TaskStrategyEnum) {
     super('AtomicTaskForTest', strategy)
     this._processor = processor
   }

@@ -1,4 +1,3 @@
-import { CommanderError } from '../../command/types'
 import type {
   ICommandPresetIssueMeta,
   ICommandPresetProfileItem,
@@ -6,6 +5,7 @@ import type {
   ICommandPresetProfileOptionValue,
   ICommandPresetProfileVariantItem,
 } from '../../command/types'
+import { CommanderError } from '../../command/types'
 
 export const PRESET_FILE_FLAG = '--preset-file'
 export const PRESET_PROFILE_FLAG = '--preset-profile'
@@ -64,7 +64,7 @@ export class CommandPresetProfileParser {
     commandPath: string,
   ) => Promise<string | undefined>
 
-  constructor(params: {
+  public constructor(params: {
     resolvePresetFileAbsolutePath: (filepath: string, baseDirectory?: string) => string
     resolvePath: (...paths: string[]) => string
     readPresetFile: (file: IPresetFileSource, commandPath: string) => Promise<string | undefined>

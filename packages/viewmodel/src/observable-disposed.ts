@@ -1,10 +1,10 @@
-import { noopUnsubscribable } from '@guanghechen/observable'
 import type {
   IEquals,
   IObservable,
   IObservableNextOptions,
   IObservableOptions,
 } from '@guanghechen/observable'
+import { noopUnsubscribable } from '@guanghechen/observable'
 import type { ISubscriber, IUnsubscribable } from '@guanghechen/subscriber'
 import type { IDisposable } from '@guanghechen/types'
 
@@ -14,7 +14,7 @@ export class DisposedObservable<T> implements IObservable<T> {
   public readonly equals: IEquals<T>
   protected _value: T
 
-  constructor(defaultValue: T, options?: IObservableOptions<T>) {
+  public constructor(defaultValue: T, options?: IObservableOptions<T>) {
     this._value = defaultValue
     this.equals = options?.equals ?? defaultEquals
   }
