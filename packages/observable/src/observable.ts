@@ -1,4 +1,4 @@
-import { BatchDisposable } from '@guanghechen/disposable'
+import { BatchDisposable, SafeBatchHandler } from '@guanghechen/disposable'
 import type { ISubscriber, ISubscribers, IUnsubscribable } from '@guanghechen/subscriber'
 import { Subscribers } from '@guanghechen/subscriber'
 import type {
@@ -50,13 +50,17 @@ export class Observable<T> extends BatchDisposable implements IObservable<T> {
       this._timer = undefined
     }
 
-    super.dispose()
+    // Finish every disposal phase before reporting errors.
+    const batcher = new SafeBatchHandler()
+    batcher.run(() => super.dispose())
 
     // Notify subscribers if has changes not notified.
-    this._flush()
+    batcher.run(() => this._flush())
 
     // Dispose subscribers.
-    this._subscribers.dispose()
+    batcher.run(() => this._subscribers.dispose())
+    batcher.summary('[observable] Encountered errors while disposing.')
+    batcher.cleanup()
   }
 
   public getSnapshot(): T {
