@@ -210,6 +210,20 @@ describe('stage: preset', () => {
 })
 
 describe('stage: tokenize/builtin-resolve', () => {
+  it.each([
+    { tail: [] },
+    { tail: ['--'] },
+    { tail: ['x', '--', 'y'] },
+    { tail: ['--', '--', '--bad_option', '-x=1', ''] },
+  ])('should preserve every token after the first separator: $tail', ({ tail }) => {
+    const result = tokenizeArgv(
+      ['--verbose', '--', ...tail].map(value => ({ value, source: 'user' as const })),
+      'cli',
+    )
+    expect(result.optionTokens.map(token => token.resolved)).toEqual(['--verbose'])
+    expect(result.restArgs).toEqual(tail)
+  })
+
   it('should tokenize long/short/negative options and pass through -- rest args', () => {
     const result = tokenizeArgv(
       [

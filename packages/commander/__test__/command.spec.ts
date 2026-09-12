@@ -2549,6 +2549,22 @@ describe('Command (spec aligned)', () => {
       expect(parseWithSeparator.args).toEqual({ items: ['--version'] })
     })
 
+    it('should preserve repeated separators and control-like tokens as literal arguments', async () => {
+      const cmd = new Command({ name: 'cli', desc: 'cli', version: '1.0.0' })
+        .option({ long: 'verbose', type: 'boolean', args: 'none', desc: 'verbose' })
+        .argument({ name: 'items', kind: 'variadic', type: 'string', desc: 'items' })
+      const tail = ['x', '--', '--help', '--version', '--preset-file=missing.json', '--', '']
+      const result = await cmd.parse({
+        argv: ['--verbose', 'before', '--', ...tail],
+        envs: {},
+      })
+
+      expect(result.opts).toEqual({ verbose: true })
+      expect(result.ctx.controls).toEqual({ help: false, version: false })
+      expect(result.args).toEqual({ items: ['before', ...tail] })
+      expect(result.rawArgs).toEqual(['before', ...tail])
+    })
+
     it('should keep --version as normal token when leaf does not support builtin version', async () => {
       const root = new Command({ name: 'cli', desc: 'cli', version: '1.0.0' })
       const sub = new Command({ desc: 'sub' }).option({

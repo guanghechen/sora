@@ -106,13 +106,14 @@ export function tokenizeArgv(
 
   for (const segment of segments) {
     const arg = segment.value
-    if (arg === '--') {
-      passThrough = true
+    // After the first separator, every token is literal, including further '--' tokens.
+    if (passThrough) {
+      restArgs.push(segment.value)
       continue
     }
 
-    if (passThrough) {
-      restArgs.push(segment.value)
+    if (arg === '--') {
+      passThrough = true
       continue
     }
 
