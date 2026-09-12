@@ -183,6 +183,9 @@ Tasks have observable status with the following states:
 | `ABORT_ON_ERROR`    | Stop task execution when an error occurs       |
 | `CONTINUE_ON_ERROR` | Continue execution despite errors              |
 
+For `ResumableTask`, these strategies apply to rejected promises yielded by `run()`. If the
+iterator itself throws while advancing, the task becomes `FAILED` under either strategy.
+
 ## Reference
 
 - [homepage][homepage]

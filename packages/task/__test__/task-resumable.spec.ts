@@ -33,6 +33,83 @@ describe('CONTINUE_ON_ERROR', () => {
 })
 
 function basicTests(strategy: TaskStrategyEnum): void {
+  describe('synchronous generator errors', () => {
+    it.each(['start', 'complete'] as const)(
+      'records an error before the first yield via %s',
+      async method => {
+        const error = new Error('first step failed synchronously')
+        const step = vi.fn((): Promise<void> => {
+          throw error
+        })
+        const processor: ITaskProcessor = {
+          process: vi.fn(function* (): IterableIterator<Promise<void>> {
+            yield step()
+          }),
+        }
+        const task = new ResumableTaskForTest(processor, strategy)
+
+        await expect(task[method]()).resolves.toBeUndefined()
+        expect(task.status.getSnapshot()).toBe(TaskStatusEnum.FAILED)
+        expect(task.status.disposed).toBe(true)
+        expect(task.errors).toEqual([
+          { from: task.name, level: ErrorLevelEnum.ERROR, details: error },
+        ])
+
+        await task.start()
+        await task.complete()
+        await task.cancel()
+        expect(processor.process).toHaveBeenCalledTimes(1)
+        expect(step).toHaveBeenCalledTimes(1)
+        expect(task.errors).toHaveLength(1)
+        expect(task.status.getSnapshot()).toBe(TaskStatusEnum.FAILED)
+      },
+    )
+
+    it('records a generator error while advancing automatically', async () => {
+      const error = new Error('later step failed synchronously')
+      const step = vi.fn((): Promise<void> => {
+        throw error
+      })
+      const processor: ITaskProcessor = {
+        process: function* (): IterableIterator<Promise<void>> {
+          yield Promise.resolve()
+          yield step()
+        },
+      }
+      const task = new ResumableTaskForTest(processor, strategy)
+
+      await task.start()
+      await vi.waitFor(() => expect(task.status.getSnapshot()).toBe(TaskStatusEnum.FAILED))
+      expect(task.errors).toEqual([
+        { from: task.name, level: ErrorLevelEnum.ERROR, details: error },
+      ])
+      expect(step).toHaveBeenCalledTimes(1)
+    })
+
+    it('records a generator error while complete() drains later steps', async () => {
+      const error = new Error('drain failed synchronously')
+      const step = vi.fn((): Promise<void> => {
+        throw error
+      })
+      const processor: ITaskProcessor = {
+        process: function* (): IterableIterator<Promise<void>> {
+          yield Promise.resolve()
+          yield step()
+        },
+      }
+      const task = new ResumableTaskForTest(processor, strategy)
+
+      await task.start()
+      await expect(task.complete()).resolves.toBeUndefined()
+      expect(task.status.getSnapshot()).toBe(TaskStatusEnum.FAILED)
+      expect(task.status.disposed).toBe(true)
+      expect(task.errors).toEqual([
+        { from: task.name, level: ErrorLevelEnum.ERROR, details: error },
+      ])
+      expect(step).toHaveBeenCalledTimes(1)
+    })
+  })
+
   describe('basic', () => {
     it('should start and finish successfully', async () => {
       let result = 0

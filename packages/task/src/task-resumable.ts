@@ -75,7 +75,20 @@ export abstract class ResumableTask implements ITask {
     const execution: IterableIterator<Promise<void>> = this._execution!
 
     for (let alive = true; alive; ) {
-      const step = execution.next()
+      let step: IteratorResult<Promise<void>>
+      try {
+        step = execution.next()
+      } catch (error) {
+        // Iterator failures are fatal; the strategy applies to rejected step promises.
+        const soraError: ISoraError = {
+          from: this.name,
+          level: ErrorLevelEnum.ERROR,
+          details: error,
+        }
+        this._errors.push(soraError)
+        status.next(TaskStatusEnum.FAILED, { strict: false })
+        break
+      }
       if (step.done) {
         const nextStatus: TaskStatusEnum =
           this._errors.length > 0 ? TaskStatusEnum.FAILED : TaskStatusEnum.COMPLETED
@@ -126,7 +139,20 @@ export abstract class ResumableTask implements ITask {
     if (this.status.getSnapshot() !== TaskStatusEnum.RUNNING) return
 
     const execution: IterableIterator<Promise<void>> = this._execution
-    const step = execution.next()
+    let step: IteratorResult<Promise<void>>
+    try {
+      step = execution.next()
+    } catch (error) {
+      // Iterator failures are fatal; the strategy applies to rejected step promises.
+      const soraError: ISoraError = {
+        from: this.name,
+        level: ErrorLevelEnum.ERROR,
+        details: error,
+      }
+      this._errors.push(soraError)
+      this.status.next(TaskStatusEnum.FAILED, { strict: false })
+      return
+    }
     if (step.done) {
       this.status.next(this._errors.length > 0 ? TaskStatusEnum.FAILED : TaskStatusEnum.COMPLETED, {
         strict: false,
