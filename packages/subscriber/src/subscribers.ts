@@ -98,7 +98,11 @@ export class Subscribers<T> implements ISubscribers<T> {
     if (items.length >= this.ARRANGE_THRESHOLD && this._subscribingCount * 2 <= items.length) {
       const nextItems: Array<ISubscriberItem<T>> = []
       for (const item of items) {
-        if (item.unsubscribed || item.subscriber.disposed) continue
+        if (item.unsubscribed || item.subscriber.disposed) {
+          // Retained handles must not decrement the count again after this item is removed.
+          item.unsubscribed = true
+          continue
+        }
         nextItems.push(item)
       }
       this._items = nextItems

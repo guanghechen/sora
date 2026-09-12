@@ -89,6 +89,74 @@ describe('subscribers', () => {
     expect(later.values).toEqual(['#dispose'])
   })
 
+  it.each([false, true])(
+    'keeps removed handles inert after compaction (collection disposed: %s)',
+    disposeCollection => {
+      subscribers = new Subscribers<string>({ ARRANGE_THRESHOLD: 2 })
+      const first = new LocalSubscriber()
+      const second = new LocalSubscriber()
+      const firstSubscription = subscribers.subscribe(first)
+      const secondSubscription = subscribers.subscribe(second)
+
+      first.dispose()
+      secondSubscription.unsubscribe()
+      expect(subscribers.size).toBe(0)
+
+      if (disposeCollection) subscribers.dispose()
+      firstSubscription.unsubscribe()
+      expect(subscribers.size).toBe(0)
+      firstSubscription.unsubscribe()
+      secondSubscription.unsubscribe()
+      expect(subscribers.size).toBe(0)
+      expect(first.values).toEqual(['#dispose'])
+      second.dispose()
+    },
+  )
+
+  it('does not subtract a live subscription when a removed handle is used', () => {
+    const removed = new LocalSubscriber()
+    const second = new LocalSubscriber()
+    const third = new LocalSubscriber()
+    const active = new LocalSubscriber()
+    const removedSubscription = subscribers.subscribe(removed)
+    const secondSubscription = subscribers.subscribe(second)
+    const thirdSubscription = subscribers.subscribe(third)
+    const activeSubscription = subscribers.subscribe(active)
+
+    removed.dispose()
+    secondSubscription.unsubscribe()
+    thirdSubscription.unsubscribe()
+    expect(subscribers.size).toBe(1)
+
+    removedSubscription.unsubscribe()
+    expect(subscribers.size).toBe(1)
+    subscribers.notify('A', undefined)
+    expect(active.values).toEqual(['#next:A:undefined'])
+    expect(removed.values).toEqual(['#dispose'])
+
+    activeSubscription.unsubscribe()
+    removedSubscription.unsubscribe()
+    expect(subscribers.size).toBe(0)
+    second.dispose()
+    third.dispose()
+    active.dispose()
+  })
+
+  it('still decrements for a disposed subscriber that has not been compacted', () => {
+    const removed = new LocalSubscriber()
+    const active = new LocalSubscriber()
+    const subscription = subscribers.subscribe(removed)
+    subscribers.subscribe(active)
+
+    removed.dispose()
+    subscription.unsubscribe()
+    expect(subscribers.size).toBe(1)
+    subscription.unsubscribe()
+    expect(subscribers.size).toBe(1)
+    subscribers.notify('A', undefined)
+    expect(active.values).toEqual(['#next:A:undefined'])
+  })
+
   it('should notify subscribers', () => {
     const subscriber1 = new LocalSubscriber()
     const subscriber2 = new LocalSubscriber()
