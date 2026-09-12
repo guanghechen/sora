@@ -16,6 +16,7 @@ pnpm build              # Build all packages (with sourcemaps)
 pnpm build:production   # Build all packages (no sourcemaps)
 pnpm test               # Run tests
 pnpm test:coverage      # Run tests with coverage
+pnpm test:dist          # Check built exports, declarations, and runtime behavior
 pnpm lint               # Check lint and formatting
 pnpm format             # Fix lint and formatting
 

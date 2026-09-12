@@ -1,7 +1,8 @@
 import { readFileSync, rmSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-import { type UserConfig, defineConfig } from 'tsdown'
+import type { UserConfig } from 'tsdown'
+import { defineConfig } from 'tsdown'
 
 // Run per-package: `tsdown --config ../../tsdown.config.ts` (cwd = the package dir).
 // rolldown anchors relative entry/outDir/copy to the config file's dir (repo root),

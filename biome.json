@@ -190,21 +190,6 @@
       "linter": {
         "enabled": false
       }
-    },
-    {
-      "includes": ["tsdown.config.ts"],
-      "linter": {
-        "rules": {
-          "style": {
-            "useImportType": {
-              "level": "error",
-              "options": {
-                "style": "inlineType"
-              }
-            }
-          }
-        }
-      }
     }
   ]
 }

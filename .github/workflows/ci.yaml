@@ -49,5 +49,11 @@ jobs:
         run: pnpm typecheck
       - name: Build
         run: pnpm build
+      - name: Test build output
+        run: pnpm test:dist --sourcemap
+      - name: Production build
+        run: pnpm build:production
+      - name: Test production output
+        run: pnpm test:dist --no-sourcemap
       - name: Test
         run: pnpm test:coverage
