@@ -79,21 +79,42 @@ export class Pipeline<D, T> implements IPipeline<D, T> {
     const materials: Array<IMaterial<D>> = this._materials
 
     let cooked: T | null = null
-    while (materials.length > 0) {
-      const material: IMaterial<D> = materials.shift()!
-      codes.push(material.code)
-      if (material.alive) {
-        cooked = await this._cook(material.data)
-        if (cooked !== null) break
+    const errors: unknown[] = []
+    try {
+      while (materials.length > 0) {
+        const material: IMaterial<D> = materials.shift()!
+        codes.push(material.code)
+        if (material.alive) {
+          cooked = await this._cook(material.data)
+          if (cooked !== null) break
+        }
       }
+
+      while (materials.length > 0 && !materials[0].alive) {
+        const material: IMaterial<D> = materials.shift()!
+        codes.push(material.code)
+      }
+    } catch (error) {
+      errors.push(error)
     }
 
-    while (materials.length > 0 && !materials[0].alive) {
-      const material: IMaterial<D> = materials.shift()!
-      codes.push(material.code)
+    // Restore the queue state even after a cooker fails; status callbacks can also throw.
+    try {
+      if (materials.length === 0) this.status.next(PipelineStatusEnum.DRIED, { strict: false })
+    } catch (error) {
+      errors.push(error)
     }
 
-    if (materials.length === 0) this.status.next(PipelineStatusEnum.DRIED, { strict: false })
+    if (errors.length > 0) {
+      // A failed pull cannot return its codes; finish only the materials already dequeued.
+      try {
+        if (codes.length > 0) this.notifyMaterialHandled(codes)
+      } catch (error) {
+        errors.push(error)
+      }
+      if (errors.length === 1) throw errors[0]
+      throw new AggregateError(errors, `[${this.name}] Encountered errors while pulling.`)
+    }
     return { codes, data: cooked }
   }
 

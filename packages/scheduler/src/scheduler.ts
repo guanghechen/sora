@@ -169,87 +169,99 @@ export class Scheduler<D, T> extends ResumableTask implements IScheduler<D, T> {
 
     const pipeline: IPipeline<D, T> = this._pipeline
     const { codes, data } = await pipeline.pull()
-    if (data === null || codes.length <= 0) {
-      // Materials may have been pulled but produced no product (e.g. all invalidated); still mark
-      // them handled, otherwise waitTaskTerminated/waitAllScheduledTasksTerminated hang on them.
-      if (codes.length > 0) pipeline.notifyMaterialHandled(codes)
-      return delay(this._idleInterval)
-    }
-
-    const api: IProductConsumerApi = this._consumerApi
-    const reducer: IProductConsumerNext<ITask> = this._consumers.reduceRight<
-      IProductConsumerNext<ITask>
-    >(
-      (next, consumer) => embryo => consumer.consume(data, embryo, api, next),
-      async embryo => embryo,
-    )
-    const task: ITask | null = await reducer(null)
-    if (task === null) {
-      // No consumer produced a task: the product is dropped. Mark the codes handled so waiters
-      // do not hang, and surface the drop for observability.
-      this._reporter?.debug(
-        `[${this.name}] no task produced; dropping codes: [${codes.join(', ')}]`,
-      )
-      pipeline.notifyMaterialHandled(codes)
-      return delay(this._idleInterval)
-    }
-
-    const reporter: Reporter | undefined = this._reporter
-    reporter?.debug(`[${this.name}] task(${task.name}) starting. codes: [${codes.join(', ')}]`)
-
-    this._task = task
-    void task.start()
-    // A child created while the scheduler is completing is not seen by the status subscriber
-    // (that only fires task.complete() for the task present at the ATTEMPT_COMPLETING transition),
-    // so drive it to completion here -- otherwise a task that only terminates via complete()
-    // would hang the drain.
-    if (this._completing) void task.complete()
-
-    let resolved = false
-    let subscriber: ISubscriber<TaskStatusEnum> | undefined
-    let unsubscribable: IUnsubscribable | undefined
-    await new Promise<void>((resolve, reject) => {
-      subscriber = new Subscriber<TaskStatusEnum>({
-        onNext: status => {
-          if (resolved) return
-          if (task.status.terminated) {
-            reporter?.debug(
-              `[${this.name}] task(${task.name}) ${TaskStatusEnum[status]}. codes: ${codes.join(', ')}.`,
-            )
-            if (status === TaskStatusEnum.FAILED) reject(task.errors)
-            else resolve()
-          }
-        },
-      })
-      unsubscribable = task.status.subscribe(subscriber)
-    }).finally(() => {
-      resolved = true
-      unsubscribable?.unsubscribe()
-      subscriber?.dispose()
-      pipeline.notifyMaterialHandled(codes)
-
-      this._task = undefined
-      if (task.errors.length > 0) {
-        const error: ISoraError = {
-          from: task.name,
-          level: ErrorLevelEnum.ERROR,
-          details: task.errors.length > 1 ? new AggregateError(task.errors) : task.errors,
-        }
-        this._errors.push(error)
-
-        reporter?.error(
-          `[${this.name}] task(${task.name}) failed. codes: ${JSON.stringify(codes)}. error:`,
-          error,
-        )
-
-        switch (this.strategy) {
-          case TaskStrategyEnum.ABORT_ON_ERROR:
-            throw error
-          case TaskStrategyEnum.CONTINUE_ON_ERROR:
-            break
-          default:
-        }
+    let processingFailed = false
+    try {
+      if (data === null || codes.length <= 0) {
+        // A pull can consume materials without producing a product (e.g. all were invalidated).
+        return delay(this._idleInterval)
       }
-    })
+
+      const api: IProductConsumerApi = this._consumerApi
+      const reducer: IProductConsumerNext<ITask> = this._consumers.reduceRight<
+        IProductConsumerNext<ITask>
+      >(
+        (next, consumer) => embryo => consumer.consume(data, embryo, api, next),
+        async embryo => embryo,
+      )
+      const task: ITask | null = await reducer(null)
+      if (task === null) {
+        // No consumer produced a task; drop the product and report it for observability.
+        this._reporter?.debug(
+          `[${this.name}] no task produced; dropping codes: [${codes.join(', ')}]`,
+        )
+        return delay(this._idleInterval)
+      }
+
+      const reporter: Reporter | undefined = this._reporter
+      reporter?.debug(`[${this.name}] task(${task.name}) starting. codes: [${codes.join(', ')}]`)
+
+      this._task = task
+      void task.start()
+      // A child created while the scheduler is completing is not seen by the status subscriber
+      // (that only fires task.complete() for the task present at the ATTEMPT_COMPLETING transition),
+      // so drive it to completion here -- otherwise a task that only terminates via complete()
+      // would hang the drain.
+      if (this._completing) void task.complete()
+
+      let resolved = false
+      let subscriber: ISubscriber<TaskStatusEnum> | undefined
+      let unsubscribable: IUnsubscribable | undefined
+      await new Promise<void>((resolve, reject) => {
+        subscriber = new Subscriber<TaskStatusEnum>({
+          onNext: status => {
+            if (resolved) return
+            if (task.status.terminated) {
+              reporter?.debug(
+                `[${this.name}] task(${task.name}) ${TaskStatusEnum[status]}. codes: ${codes.join(', ')}.`,
+              )
+              if (status === TaskStatusEnum.FAILED) reject(task.errors)
+              else resolve()
+            }
+          },
+        })
+        unsubscribable = task.status.subscribe(subscriber)
+      }).finally(() => {
+        resolved = true
+        unsubscribable?.unsubscribe()
+        subscriber?.dispose()
+
+        this._task = undefined
+        if (task.errors.length > 0) {
+          const error: ISoraError = {
+            from: task.name,
+            level: ErrorLevelEnum.ERROR,
+            details: task.errors.length > 1 ? new AggregateError(task.errors) : task.errors,
+          }
+          this._errors.push(error)
+
+          reporter?.error(
+            `[${this.name}] task(${task.name}) failed. codes: ${JSON.stringify(codes)}. error:`,
+            error,
+          )
+
+          switch (this.strategy) {
+            case TaskStrategyEnum.ABORT_ON_ERROR:
+              throw error
+            case TaskStrategyEnum.CONTINUE_ON_ERROR:
+              break
+            default:
+          }
+        }
+      })
+    } catch (error) {
+      processingFailed = true
+      try {
+        if (codes.length > 0) pipeline.notifyMaterialHandled(codes)
+      } catch (notificationError) {
+        throw new AggregateError(
+          [error, notificationError],
+          `[${this.name}] Encountered errors while running a product.`,
+        )
+      }
+      throw error
+    } finally {
+      // The failure path already notified; every returned code must be finished exactly once.
+      if (!processingFailed && codes.length > 0) pipeline.notifyMaterialHandled(codes)
+    }
   }
 }

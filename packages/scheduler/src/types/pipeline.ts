@@ -53,6 +53,7 @@ export interface IPipeline<D, T> {
 
   /**
    * Retrieve an element from the pipeline.
+   * On failure, mark any dequeued materials handled before rejecting.
    */
   pull(): Promise<IProduct<T>>
 
