@@ -45,7 +45,8 @@ export class PathResolver implements IPathResolver {
   public isSafeRelative(root: string, filepath: string): boolean {
     if (!this.isAbsolute(root)) return false
     const relativePath: string = this._internalSafeRelative(root, filepath)
-    return !relativePath.startsWith('..')
+    // path.relative() returns an absolute path when Windows drives differ.
+    return !path.isAbsolute(relativePath) && !relativePath.startsWith('..')
   }
 
   public join(filepath: string, ...pathPieces: string[]): string | never {
