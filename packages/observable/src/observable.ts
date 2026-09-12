@@ -87,18 +87,31 @@ export class Observable<T> extends BatchDisposable implements IObservable<T> {
   public subscribe(subscriber: ISubscriber<T>): IUnsubscribable {
     if (subscriber.disposed) return noopUnsubscribable
 
+    // Capture the previous notification value before flushing advances it.
+    // Flush callbacks may dispose the subscriber, so recheck before proceeding.
     const prevValue: T | undefined = this._lastNotifiedValue
-    const value: T = this._value
+    if (!this.disposed) this._flush()
+    if (subscriber.disposed) return noopUnsubscribable
 
+    // Use the value and disposal state left by flush callbacks.
+    const value: T = this._value
     if (this.disposed) {
       subscriber.next(value, prevValue)
       subscriber.dispose()
       return noopUnsubscribable
     }
 
-    this._flush()
-    subscriber.next(value, prevValue)
-    return this._subscribers.subscribe(subscriber)
+    // Register before the initial callback so its reentrant updates are delivered.
+    // Roll back on failure because the caller will not receive the unsubscribe handle.
+    const unsubscribable = this._subscribers.subscribe(subscriber)
+    try {
+      subscriber.next(value, prevValue)
+    } catch (error) {
+      unsubscribable.unsubscribe()
+      throw error
+    }
+    if (subscriber.disposed) unsubscribable.unsubscribe()
+    return unsubscribable
   }
 
   protected _flush(): void {
