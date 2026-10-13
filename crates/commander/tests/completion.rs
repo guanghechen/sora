@@ -541,6 +541,84 @@ fn generated_scripts_use_safe_runtime_transport() {
 }
 
 #[test]
+fn generated_scripts_preserve_block_indentation() {
+    let cases: [(Shell, &[&str]); 3] = [
+        (Shell::Bash, &["  COMPREPLY=()"]),
+        (
+            Shell::Fish,
+            &[
+                "    set -l words (commandline -opc)",
+                "    if test (count $words) -gt 0",
+                "        set -e words[1]",
+                "    end",
+                r#"    command 'kit' completion --fish -- $words "$current" | while read -l record"#,
+                r"        set -l fields (string split -m 1 \t -- $record)",
+                "        if test (count $fields) -gt 1",
+                r#"            printf '%s\t%s\n' $candidate "$fields[2]""#,
+                "        else",
+                r"            printf '%s\n' $candidate",
+                "        end",
+            ],
+        ),
+        (
+            Shell::PowerShell,
+            &[
+                "  param($wordToComplete, $commandAst, $cursorPosition)",
+                "  foreach ($record in $records) {",
+                "    $candidate = $fields[0]",
+                "  }",
+            ],
+        ),
+    ];
+
+    for (shell, expected_lines) in cases {
+        let script = generate_completion("kit", shell);
+        for expected in expected_lines {
+            assert!(
+                script.lines().any(|line| line == *expected),
+                "{shell:?} script should contain an exactly indented line: {expected:?}"
+            );
+        }
+    }
+}
+
+#[test]
+fn generated_fish_script_matches_fish_indent_when_installed() {
+    let script = generate_completion("kit", Shell::Fish);
+    let unindented = script
+        .split_inclusive('\n')
+        .map(|line| line.trim_start_matches([' ', '\t']))
+        .collect::<String>();
+    let mut child = match ProcessCommand::new("fish_indent")
+        .arg("--only-indent")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+    {
+        Ok(child) => child,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return,
+        Err(error) => panic!("failed to launch fish_indent: {error}"),
+    };
+    child
+        .stdin
+        .take()
+        .expect("piped stdin should exist")
+        .write_all(unindented.as_bytes())
+        .expect("script should write to fish_indent stdin");
+    let output = child.wait_with_output().expect("fish_indent should finish");
+    assert!(
+        output.status.success(),
+        "fish_indent rejected generated script: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert_eq!(
+        String::from_utf8(output.stdout).expect("fish_indent output should be UTF-8"),
+        script
+    );
+}
+
+#[test]
 fn generated_scripts_are_deterministic_and_parse_in_installed_shells() {
     for shell in [Shell::Bash, Shell::Fish, Shell::PowerShell] {
         assert_eq!(
