@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::ffi::{OsStr, OsString};
 use std::fmt::{self, Debug, Formatter};
 use std::path::Path;
-use std::sync::Arc;
+use std::sync::{Arc, LazyLock};
 
 use guanghechen_chalk::ColorLevel;
 
@@ -682,19 +682,14 @@ impl CommandBuilder {
 }
 
 pub(crate) fn builtin_options(command: &Command) -> Vec<OptionSpec> {
-    let mut options = Vec::new();
-    if command.builtins.color {
-        options.push(
+    builtin_option_refs(command.builtins).cloned().collect()
+}
+
+fn builtin_option_refs(builtins: Builtins) -> impl Iterator<Item = &'static OptionSpec> {
+    static OPTIONS: LazyLock<[OptionSpec; 6]> = LazyLock::new(|| {
+        [
             OptionSpec::flag("color", "Enable colored help output").default(Value::Bool(true)),
-        );
-    }
-    if command.builtins.devmode {
-        options.push(
             OptionSpec::flag("devmode", "Enable development mode").default(Value::Bool(false)),
-        );
-    }
-    if command.builtins.log_level {
-        options.push(
             OptionSpec::value(
                 "logLevel",
                 "Set log level",
@@ -703,24 +698,24 @@ pub(crate) fn builtin_options(command: &Command) -> Vec<OptionSpec> {
             )
             .choices(["debug", "info", "hint", "warn", "error"])
             .default(Value::String("info".to_owned())),
-        );
-    }
-    if command.builtins.silent {
-        options.push(
             OptionSpec::flag("silent", "Suppress non-error output").default(Value::Bool(false)),
-        );
-    }
-    if command.builtins.log_date {
-        options
-            .push(OptionSpec::flag("logDate", "Enable log timestamp").default(Value::Bool(true)));
-    }
-    if command.builtins.log_colorful {
-        options.push(
+            OptionSpec::flag("logDate", "Enable log timestamp").default(Value::Bool(true)),
             OptionSpec::flag("logColorful", "Enable colorful log output")
                 .default(Value::Bool(true)),
-        );
-    }
-    options
+        ]
+    });
+    [
+        builtins.color,
+        builtins.devmode,
+        builtins.log_level,
+        builtins.silent,
+        builtins.log_date,
+        builtins.log_colorful,
+    ]
+    .into_iter()
+    .enumerate()
+    .filter(|(_, enabled)| *enabled)
+    .map(|(index, _)| &OPTIONS[index])
 }
 
 pub(crate) fn effective_options_owned(chain: &[&Command]) -> Vec<OptionSpec> {
@@ -743,12 +738,27 @@ pub(crate) struct EffectiveOption {
 }
 
 pub(crate) fn effective_option_entries(chain: &[&Command]) -> Vec<EffectiveOption> {
-    let mut options = BTreeMap::<String, EffectiveOption>::new();
+    effective_option_refs(chain)
+        .into_iter()
+        .map(|entry| EffectiveOption {
+            spec: entry.spec.clone(),
+            origin: entry.origin,
+        })
+        .collect()
+}
+
+pub(crate) struct EffectiveOptionRef<'a> {
+    pub(crate) spec: &'a OptionSpec,
+    pub(crate) origin: OptionOrigin,
+}
+
+pub(crate) fn effective_option_refs<'a>(chain: &[&'a Command]) -> Vec<EffectiveOptionRef<'a>> {
+    let mut options = BTreeMap::<&str, EffectiveOptionRef<'_>>::new();
     for (depth, command) in chain.iter().enumerate() {
-        for option in builtin_options(command) {
+        for option in builtin_option_refs(command.builtins) {
             options.insert(
-                option.long.clone(),
-                EffectiveOption {
+                option.long(),
+                EffectiveOptionRef {
                     spec: option,
                     origin: OptionOrigin::Builtin,
                 },
@@ -756,9 +766,9 @@ pub(crate) fn effective_option_entries(chain: &[&Command]) -> Vec<EffectiveOptio
         }
         for option in &command.options {
             options.insert(
-                option.long.clone(),
-                EffectiveOption {
-                    spec: option.clone(),
+                option.long(),
+                EffectiveOptionRef {
+                    spec: option,
                     origin: OptionOrigin::User { depth },
                 },
             );

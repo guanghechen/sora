@@ -2,7 +2,7 @@ use std::io::Write;
 use std::process::{Command as ProcessCommand, Stdio};
 
 use guanghechen_commander::{
-    Argument, ArgumentCardinality, Command, CompletionDestination, CompletionErrorKind,
+    Argument, ArgumentCardinality, Builtins, Command, CompletionDestination, CompletionErrorKind,
     CompletionMode, CompletionPaths, DiagnosticStage, IssueScope, Matches, OptionArity, OptionSpec,
     ParseOutcome, ReasonCode, Shell, ValueType, complete, complete_bash_line, complete_request,
     completion_command, completion_request, generate_completion, resolve_home_path,
@@ -268,6 +268,133 @@ fn rust_engine_routes_only_leading_nested_commands() {
 }
 
 #[test]
+fn rust_engine_preserves_selected_command_shadows_and_controls() {
+    let mode = |choice| {
+        OptionSpec::value("mode", "Mode", ValueType::String, OptionArity::Required)
+            .choices([choice])
+    };
+    let clone = Command::builder("clone", "Clone repository")
+        .alias("c")
+        .option(mode("leaf"))
+        .option(OptionSpec::flag("leafOnly", "Leaf option"))
+        .argument(
+            Argument::new("remote", "Remote", ArgumentCardinality::Required).choices(["origin"]),
+        )
+        .build()
+        .expect("leaf command should build");
+    let repo = Command::builder("repo", "Repository operations")
+        .alias("r")
+        .version("1.0.0")
+        .option(mode("branch"))
+        .subcommand(clone)
+        .build()
+        .expect("branch command should build");
+    let sibling = Command::builder("other", "Unrelated command")
+        .option(OptionSpec::flag("siblingOnly", "Sibling option"))
+        .build()
+        .expect("sibling command should build");
+    let command = Command::builder("kit", "Test tool")
+        .version("1.0.0")
+        .option(mode("root"))
+        .option(OptionSpec::flag("verbose", "Verbose output"))
+        .subcommand(repo)
+        .subcommand(sibling)
+        .build()
+        .expect("root command should build");
+
+    for (tokens, expected) in [
+        (vec!["--mode", ""], vec!["root"]),
+        (vec!["r", "--mode", ""], vec!["branch"]),
+        (vec!["r", "c", "--mode", ""], vec!["leaf"]),
+        (vec!["r", "c", "--MODE=l"], vec!["--mode=leaf"]),
+        (vec!["r", "--v"], vec!["--verbose", "--version"]),
+        (vec!["r", "c", "--v"], vec!["--verbose"]),
+        (vec!["r", "c", "--leaf"], vec!["--leaf-only"]),
+        (vec!["r", "c", "--sibling"], vec![]),
+        (vec!["r", "c", "o"], vec!["origin"]),
+        (vec!["r", "c", "--", "o"], vec!["origin"]),
+        (vec!["r", "positional", "c", "--leaf"], vec![]),
+        (vec!["r", "--verbose", "c", "--leaf"], vec![]),
+    ] {
+        let words = tokens
+            .iter()
+            .map(|token| (*token).to_owned())
+            .collect::<Vec<_>>();
+        assert_eq!(complete(&command, &words), expected, "tokens: {tokens:?}");
+    }
+}
+
+#[test]
+fn completion_builtin_definitions_respect_each_command_scope() {
+    let defaults = Command::builder("defaults", "Default builtins")
+        .build()
+        .expect("default command should build");
+    let custom = Command::builder("custom", "Custom log levels")
+        .builtins(Builtins::enabled().log_level(false))
+        .option(
+            OptionSpec::value(
+                "logLevel",
+                "Custom levels",
+                ValueType::String,
+                OptionArity::Required,
+            )
+            .choices(["custom"]),
+        )
+        .subcommand(
+            Command::builder("child", "Builtin options")
+                .build()
+                .expect("child should build"),
+        )
+        .build()
+        .expect("custom command should build");
+    let disabled = Command::builder("disabled", "Disabled builtins")
+        .builtins(Builtins::disabled())
+        .build()
+        .expect("disabled command should build");
+    let query = words(["--log-level", ""]);
+    let expected = ["debug", "error", "hint", "info", "warn"];
+
+    assert_eq!(complete(&defaults, &query), expected);
+    assert_eq!(complete(&custom, &query), ["custom"]);
+    assert_eq!(
+        complete(&custom, &words(["child", "--log-level", ""])),
+        expected
+    );
+    assert!(complete(&disabled, &words(["--log-level"])).is_empty());
+    assert_eq!(complete(&defaults, &query), expected);
+
+    let metadata = custom.completion_meta();
+    let option = metadata
+        .options()
+        .iter()
+        .find(|option| option.long() == "log-level")
+        .expect("custom option should be exported");
+    assert_eq!(option.choices(), ["custom"]);
+    assert_eq!(option.description(), "Custom levels");
+}
+
+#[test]
+fn option_prefixes_preserve_case_insensitive_matching_and_original_spelling() {
+    let command = Command::builder("kit", "Test tool")
+        .builtins(Builtins::disabled())
+        .option(OptionSpec::flag("verboseOutput", "Verbose output").short('Q'))
+        .build()
+        .expect("command should build");
+
+    for (prefix, expected) in [
+        ("--VERB", vec!["--verbose-output"]),
+        ("--NO-VERB", vec!["--no-verbose-output"]),
+        ("-q", vec!["-Q"]),
+        ("-Q", vec!["-Q"]),
+        ("--verbose-output-extra", vec![]),
+        ("-Qextra", vec![]),
+        ("--vé", vec![]),
+    ] {
+        assert_eq!(complete(&command, &words([prefix])), expected, "{prefix:?}");
+    }
+}
+
+#[test]
 fn bash_line_query_is_cursor_scoped_and_quote_aware() {
     let command = command_tree();
     let line = "kit repo clone --format fast oXYZ";
@@ -526,8 +653,11 @@ fn generated_scripts_use_safe_runtime_transport() {
     assert!(!bash.contains("${COMP_WORDS"));
     assert!(bash.contains("IFS=$'\\t' read -r candidate _description"));
     assert!(fish.contains("$words \"$current\""));
-    assert!(fish.contains("string split -m 1 \\t -- $record"));
-    assert!(fish.contains("printf '%s\\t%s\\n' $candidate \"$fields[2]\""));
+    assert!(fish.contains("| string split0)"));
+    assert!(fish.contains("while read -l -d \\t candidate description"));
+    assert!(fish.contains("string escape -- \"$candidate\""));
+    assert!(fish.contains("if set -q description[1]"));
+    assert!(fish.contains("printf '%s\\t%s\\n' $candidate \"$description\""));
     assert!(powershell.contains("$_.Extent.EndOffset -lt $cursorPosition"));
     assert!(powershell.contains("Select-Object -Skip 1"));
     assert!(!powershell.contains("$completed[-1] -eq $wordToComplete"));
@@ -551,10 +681,13 @@ fn generated_scripts_preserve_block_indentation() {
                 "    if test (count $words) -gt 0",
                 "        set -e words[1]",
                 "    end",
-                r#"    command 'kit' completion --fish -- $words "$current" | while read -l record"#,
-                r"        set -l fields (string split -m 1 \t -- $record)",
-                "        if test (count $fields) -gt 1",
-                r#"            printf '%s\t%s\n' $candidate "$fields[2]""#,
+                r#"    set -l records (command 'kit' completion --fish -- $words "$current" | string split0)"#,
+                r#"        printf '%s' "$records""#,
+                "        return",
+                r#"    printf '%s' "$records" | while read -l -d \t candidate description"#,
+                r#"        set candidate (string escape -- "$candidate")"#,
+                "        if set -q description[1]",
+                r#"            printf '%s\t%s\n' $candidate "$description""#,
                 "        else",
                 r"            printf '%s\n' $candidate",
                 "        end",
@@ -647,7 +780,7 @@ fn generated_shells_forward_cursor_scoped_words_at_runtime() {
     let log = temp.join("args.log");
     fs::write(
         &executable,
-        "#!/bin/sh\nprintf '%s\\n' \"$@\" > \"$KIT_COMPLETION_LOG\"\nprintf 'candidate\\tCandidate description\\n'\n",
+        "#!/bin/sh\nprintf '%s\\n' \"$@\" > \"$KIT_COMPLETION_LOG\"\nprintf '%s' \"$KIT_COMPLETION_RECORDS\"\n",
     )
     .expect("probe executable should be written");
     let mut permissions = fs::metadata(&executable)
@@ -660,13 +793,32 @@ fn generated_shells_forward_cursor_scoped_words_at_runtime() {
         temp.display(),
         std::env::var("PATH").unwrap_or_default()
     );
+    let candidates = [
+        ("plain", None),
+        ("described", Some("Candidate description")),
+        ("two words", Some("  spaced description  ")),
+        (" leading trailing ", Some("")),
+        ("$(printf CANDIDATE_EVAL)", Some("Shell metacharacters")),
+        ("a\\b'\"", Some("Quotes and backslash")),
+        ("", None),
+        ("", Some("Empty value")),
+        ("-leading", None),
+        ("with-tabs", Some("description\ttail")),
+    ];
+    let records = candidates
+        .iter()
+        .map(|(candidate, description)| match description {
+            Some(description) => format!("{candidate}\t{description}\n"),
+            None => format!("{candidate}\n"),
+        })
+        .collect::<String>();
 
     let bash_prefix = "kit-completion-probe repo clone --format fast o";
     let bash_script = format!(
         "{}\nprefix='{bash_prefix}'\nCOMP_LINE=\"$prefix trailing\"\nCOMP_POINT=${{#prefix}}\n_kit_completion_probe_completions\n",
         generate_completion("kit-completion-probe", Shell::Bash)
     );
-    if run_shell_script("bash", &bash_script, &path, &log) {
+    if run_shell_script("bash", &bash_script, &path, &log, &records).is_some() {
         assert_eq!(
             fs::read_to_string(&log).expect("bash probe log should exist"),
             format!(
@@ -678,21 +830,57 @@ fn generated_shells_forward_cursor_scoped_words_at_runtime() {
     }
 
     let fish_script = format!(
-        "{}\nfunction commandline\n  if contains -- -opc $argv\n    printf '%s\\n' kit-completion-probe repo clone\n  else if contains -- -ct $argv\n    printf ''\n  end\nend\n__kit_completion_probe_complete >/dev/null\n",
+        "{}\nfunction commandline\n  if contains -- -opc $argv\n    printf '%s\\n' kit-completion-probe repo clone\n  else if contains -- -ct $argv\n    printf ''\n  end\nend\n__kit_completion_probe_complete\n",
         generate_completion("kit-completion-probe", Shell::Fish)
     );
-    if run_shell_script("fish", &fish_script, &path, &log) {
+    if let Some(output) = run_shell_script("fish", &fish_script, &path, &log, &records) {
         assert_eq!(
             fs::read_to_string(&log).expect("fish probe log should exist"),
             "completion\n--fish\n--\nrepo\nclone\n\n"
         );
+        let escaped = ProcessCommand::new("fish")
+            .args(["--no-config", "-c", "string escape -- $argv", "--"])
+            .args(candidates.iter().map(|(candidate, _)| candidate))
+            .output()
+            .expect("Fish escaping should run");
+        assert!(escaped.status.success(), "Fish escaping should succeed");
+        let escaped =
+            String::from_utf8(escaped.stdout).expect("escaped candidates should be UTF-8");
+        assert_eq!(escaped.lines().count(), candidates.len());
+        let expected = escaped
+            .lines()
+            .zip(candidates)
+            .map(|(candidate, (_, description))| match description {
+                Some(description) => format!("{candidate}\t{description}\n"),
+                None => format!("{candidate}\n"),
+            })
+            .collect::<String>();
+        assert_eq!(output, expected);
+
+        let simple_records = "--mode\tMode\nrepo\t仓库 $() '\"\npath/to_file.ext\t\n-leading\n";
+        for (records, expected) in [
+            ("", ""),
+            ("\n", "''\n"),
+            ("plain", "plain\n"),
+            (simple_records, simple_records),
+        ] {
+            let output = run_shell_script("fish", &fish_script, &path, &log, records)
+                .expect("Fish should still be available");
+            assert_eq!(output, expected, "records: {records:?}");
+        }
     }
 
     fs::remove_dir_all(&temp).expect("temp directory should be removed");
 }
 
 #[cfg(unix)]
-fn run_shell_script(program: &str, script: &str, path: &str, log: &std::path::Path) -> bool {
+fn run_shell_script(
+    program: &str,
+    script: &str,
+    path: &str,
+    log: &std::path::Path,
+    records: &str,
+) -> Option<String> {
     let mut command = ProcessCommand::new(program);
     if program == "fish" {
         command.arg("--no-config");
@@ -700,13 +888,14 @@ fn run_shell_script(program: &str, script: &str, path: &str, log: &std::path::Pa
     let mut child = match command
         .env("PATH", path)
         .env("KIT_COMPLETION_LOG", log)
+        .env("KIT_COMPLETION_RECORDS", records)
         .stdin(Stdio::piped())
-        .stdout(Stdio::null())
+        .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
     {
         Ok(child) => child,
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return false,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return None,
         Err(error) => panic!("failed to launch {program}: {error}"),
     };
     child
@@ -721,7 +910,7 @@ fn run_shell_script(program: &str, script: &str, path: &str, log: &std::path::Pa
         "{program} runtime probe failed: {}",
         String::from_utf8_lossy(&output.stderr)
     );
-    true
+    Some(String::from_utf8(output.stdout).expect("shell probe output should be UTF-8"))
 }
 
 fn assert_shell_syntax(program: &str, args: &[&str], script: String) {

@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::collections::BTreeSet;
 use std::error::Error;
 use std::ffi::OsStr;
@@ -9,7 +10,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 
 use crate::command::{
     Argument, ArgumentCardinality, Command, OptionArity, OptionSpec, ValueType,
-    effective_options_owned,
+    effective_option_refs,
 };
 use crate::error::{
     DiagnosticIssue, DiagnosticStage, InputSourceKind, IssueScope, PresetIssueMetadata, ReasonCode,
@@ -631,22 +632,6 @@ impl CompletionMeta {
     pub fn subcommands(&self) -> &[CompletionMeta] {
         &self.subcommands
     }
-
-    fn find_subcommand(&self, token: &str) -> Option<&Self> {
-        self.subcommands.iter().find(|command| {
-            command.name == token || command.aliases.iter().any(|alias| alias == token)
-        })
-    }
-
-    fn find_long_option(&self, token: &str) -> Option<&CompletionOption> {
-        self.options.iter().find(|option| option.long == token)
-    }
-
-    fn find_short_option(&self, token: char) -> Option<&CompletionOption> {
-        self.options
-            .iter()
-            .find(|option| option.short == Some(token))
-    }
 }
 
 impl Command {
@@ -767,7 +752,7 @@ pub fn completion_request(matches: &Matches) -> Result<CompletionRequest, Comple
 
 #[must_use]
 pub fn complete(command: &Command, words: &[String]) -> Vec<String> {
-    complete_meta(&command.completion_meta(), words)
+    complete_command(command, words)
         .into_iter()
         .map(|candidate| candidate.value)
         .collect()
@@ -802,7 +787,7 @@ pub fn complete_request(
                 "invalid Bash completion query payload",
             ));
         }
-        _ => complete_meta(&command.completion_meta(), words),
+        _ => complete_command(command, words),
     };
     Ok(candidates
         .into_iter()
@@ -828,7 +813,7 @@ fn complete_bash_line_meta(
     if !words.is_empty() {
         words.remove(0);
     }
-    complete_meta(&command.completion_meta(), &words)
+    complete_command(command, &words)
 }
 
 #[must_use]
@@ -841,24 +826,11 @@ pub fn generate_completion(program_name: &str, shell: Shell) -> String {
 }
 
 fn build_meta(command: &Command, chain: &[&Command]) -> CompletionMeta {
-    let mut options = effective_options_owned(chain)
+    let mut options = build_options(command, chain)
         .into_iter()
-        .map(|option| CompletionOption {
-            long: option.cli_long(),
-            short: option.short_name(),
-            description: option.description().to_owned(),
-            value_type: option.value_type(),
-            arity: option.arity(),
-            choices: option.choices_ref().to_vec(),
-            can_negate: option.value_type() == ValueType::Boolean,
-        })
+        .map(CompletionOptionRef::into_owned)
         .collect::<Vec<_>>();
-    options.push(control_option("help", 'h', "Show help information"));
-    if command.builtins().version && command.version().is_some() {
-        options.push(control_option("version", 'V', "Show version number"));
-    }
     options.sort_by(|left, right| left.long.cmp(&right.long));
-
     let arguments = command
         .arguments()
         .iter()
@@ -888,24 +860,92 @@ fn build_meta(command: &Command, chain: &[&Command]) -> CompletionMeta {
     }
 }
 
-fn control_option(long: &str, short: char, description: &str) -> CompletionOption {
-    CompletionOption {
-        long: long.to_owned(),
+fn build_options<'a>(command: &'a Command, chain: &[&'a Command]) -> Vec<CompletionOptionRef<'a>> {
+    let mut options = effective_option_refs(chain)
+        .into_iter()
+        .map(|entry| {
+            let option = entry.spec;
+            CompletionOptionRef {
+                long: if option.long().bytes().any(|byte| byte.is_ascii_uppercase()) {
+                    Cow::Owned(option.cli_long())
+                } else {
+                    Cow::Borrowed(option.long())
+                },
+                short: option.short_name(),
+                description: option.description(),
+                value_type: option.value_type(),
+                arity: option.arity(),
+                choices: option.choices_ref(),
+                can_negate: option.value_type() == ValueType::Boolean,
+            }
+        })
+        .collect::<Vec<_>>();
+    options.push(control_option("help", 'h', "Show help information"));
+    if command.builtins().version && command.version().is_some() {
+        options.push(control_option("version", 'V', "Show version number"));
+    }
+    options
+}
+
+fn control_option(
+    long: &'static str,
+    short: char,
+    description: &'static str,
+) -> CompletionOptionRef<'static> {
+    CompletionOptionRef {
+        long: Cow::Borrowed(long),
         short: Some(short),
-        description: description.to_owned(),
+        description,
         value_type: ValueType::Boolean,
         arity: OptionArity::None,
-        choices: Vec::new(),
+        choices: &[],
         can_negate: false,
     }
 }
 
+struct CompletionOptionRef<'a> {
+    long: Cow<'a, str>,
+    short: Option<char>,
+    description: &'a str,
+    value_type: ValueType,
+    arity: OptionArity,
+    choices: &'a [String],
+    can_negate: bool,
+}
+
+impl CompletionOptionRef<'_> {
+    fn into_owned(self) -> CompletionOption {
+        CompletionOption {
+            long: self.long.into_owned(),
+            short: self.short,
+            description: self.description.to_owned(),
+            value_type: self.value_type,
+            arity: self.arity,
+            choices: self.choices.to_vec(),
+            can_negate: self.can_negate,
+        }
+    }
+}
+
 struct CompletionCursor<'a> {
-    meta: &'a CompletionMeta,
-    expected: Option<&'a CompletionOption>,
+    command: &'a Command,
+    options: &'a [CompletionOptionRef<'a>],
+    expected: Option<&'a CompletionOptionRef<'a>>,
     positional_count: usize,
     after_separator: bool,
     routing_open: bool,
+}
+
+impl<'a> CompletionCursor<'a> {
+    fn find_long_option(&self, token: &str) -> Option<&'a CompletionOptionRef<'a>> {
+        self.options.iter().find(|option| option.long == token)
+    }
+
+    fn find_short_option(&self, token: char) -> Option<&'a CompletionOptionRef<'a>> {
+        self.options
+            .iter()
+            .find(|option| option.short == Some(token))
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -938,14 +978,29 @@ impl CompletionCandidate {
     }
 }
 
-fn complete_meta(meta: &CompletionMeta, words: &[String]) -> Vec<CompletionCandidate> {
-    let (current, completed) = words
+fn complete_command(mut command: &Command, words: &[String]) -> Vec<CompletionCandidate> {
+    let (current, mut completed) = words
         .split_last()
         .map_or(("", &[][..]), |(current, completed)| {
             (current.as_str(), completed)
         });
+    let mut chain = vec![command];
+    // Routing ends at the first non-subcommand token, before option and argument parsing.
+    while let Some((token, remaining)) = completed.split_first() {
+        if is_option_token(token) {
+            break;
+        }
+        let Some(subcommand) = command.find_subcommand(token) else {
+            break;
+        };
+        command = subcommand;
+        chain.push(command);
+        completed = remaining;
+    }
+    let options = build_options(command, &chain);
     let mut cursor = CompletionCursor {
-        meta,
+        command,
+        options: &options,
         expected: None,
         positional_count: 0,
         after_separator: false,
@@ -1009,14 +1064,6 @@ fn consume_completed_token<'a>(cursor: &mut CompletionCursor<'a>, token: &str) {
         consume_short_options(cursor, &token[1..]);
         return;
     }
-    if cursor.routing_open
-        && let Some(subcommand) = cursor.meta.find_subcommand(token)
-    {
-        cursor.meta = subcommand;
-        cursor.expected = None;
-        cursor.positional_count = 0;
-        return;
-    }
     cursor.routing_open = false;
     cursor.positional_count += 1;
 }
@@ -1030,7 +1077,7 @@ fn consume_long_option<'a>(cursor: &mut CompletionCursor<'a>, token: &str) {
     if inline || normalized.starts_with("no-") {
         return;
     }
-    if let Some(option) = cursor.meta.find_long_option(positive)
+    if let Some(option) = cursor.find_long_option(positive)
         && option.arity != OptionArity::None
     {
         cursor.expected = Some(option);
@@ -1043,7 +1090,7 @@ fn consume_short_options<'a>(cursor: &mut CompletionCursor<'a>, token: &str) {
     }
     let count = token.chars().count();
     for (index, short) in token.chars().enumerate() {
-        let Some(option) = cursor.meta.find_short_option(short) else {
+        let Some(option) = cursor.find_short_option(short) else {
             return;
         };
         if option.arity != OptionArity::None && index + 1 == count {
@@ -1065,7 +1112,7 @@ fn current_candidates(cursor: &CompletionCursor<'_>, current: &str) -> Vec<Compl
                 // next token can still start an option. This mirrors the subcommand and argument
                 // branches below, which both fall back to options on an empty prefix.
                 if current.is_empty() || !should_complete_value(current, expected) {
-                    candidates.extend(option_candidates(cursor.meta, current));
+                    candidates.extend(option_candidates(cursor.options, current));
                 }
                 return candidates;
             }
@@ -1075,73 +1122,84 @@ fn current_candidates(cursor: &CompletionCursor<'_>, current: &str) -> Vec<Compl
     if let Some((name, prefix)) = current
         .strip_prefix("--")
         .and_then(|token| token.split_once('='))
-        && let Some(option) = cursor.meta.find_long_option(&name.to_ascii_lowercase())
+        && let Some(option) = cursor.find_long_option(&name.to_ascii_lowercase())
     {
         return choice_candidates(option, prefix, Some(&option.long));
     }
     if current.starts_with('-') {
-        return option_candidates(cursor.meta, current);
+        return option_candidates(cursor.options, current);
     }
-    if cursor.routing_open && !cursor.meta.subcommands.is_empty() {
-        let mut candidates = subcommand_candidates(cursor.meta, current);
+    if cursor.routing_open && !cursor.command.subcommands().is_empty() {
+        let mut candidates = subcommand_candidates(cursor.command, current);
         if current.is_empty() {
-            candidates.extend(option_candidates(cursor.meta, current));
+            candidates.extend(option_candidates(cursor.options, current));
         }
         return candidates;
     }
     let mut candidates = argument_candidates(cursor, current);
     if current.is_empty() {
-        candidates.extend(option_candidates(cursor.meta, current));
+        candidates.extend(option_candidates(cursor.options, current));
     }
     candidates
 }
 
-fn option_candidates(meta: &CompletionMeta, prefix: &str) -> Vec<CompletionCandidate> {
-    let normalized_prefix = prefix.to_ascii_lowercase();
-    meta.options
-        .iter()
-        .flat_map(|option| {
-            let mut candidates = vec![CompletionCandidate::described(
+fn option_candidates(
+    options: &[CompletionOptionRef<'_>],
+    prefix: &str,
+) -> Vec<CompletionCandidate> {
+    let mut candidates = Vec::new();
+    for option in options {
+        if matches_option_prefix("--", &option.long, prefix) {
+            candidates.push(CompletionCandidate::described(
                 format!("--{}", option.long),
-                &option.description,
-            )];
-            if let Some(short) = option.short {
+                option.description,
+            ));
+        }
+        if let Some(short) = option.short {
+            let mut buffer = [0; 4];
+            if matches_option_prefix("-", short.encode_utf8(&mut buffer), prefix) {
                 candidates.push(CompletionCandidate::described(
                     format!("-{short}"),
-                    &option.description,
+                    option.description,
                 ));
             }
-            if option.can_negate {
-                candidates.push(CompletionCandidate::described(
-                    format!("--no-{}", option.long),
-                    &option.description,
-                ));
-            }
-            candidates
-        })
-        .filter(|candidate| {
-            candidate
-                .value
-                .to_ascii_lowercase()
-                .starts_with(&normalized_prefix)
-        })
-        .collect()
+        }
+        if option.can_negate && matches_option_prefix("--no-", &option.long, prefix) {
+            candidates.push(CompletionCandidate::described(
+                format!("--no-{}", option.long),
+                option.description,
+            ));
+        }
+    }
+    candidates
 }
 
-fn subcommand_candidates(meta: &CompletionMeta, prefix: &str) -> Vec<CompletionCandidate> {
-    meta.subcommands
+fn matches_option_prefix(marker: &str, name: &str, prefix: &str) -> bool {
+    prefix.len() <= marker.len() + name.len()
+        && marker
+            .bytes()
+            .chain(name.bytes())
+            .zip(prefix.bytes())
+            .all(|(actual, expected)| actual.eq_ignore_ascii_case(&expected))
+}
+
+fn subcommand_candidates(command: &Command, prefix: &str) -> Vec<CompletionCandidate> {
+    command
+        .subcommands()
         .iter()
         .flat_map(|subcommand| {
-            std::iter::once(subcommand.name.clone())
-                .chain(subcommand.aliases.iter().cloned())
+            std::iter::once(subcommand.name())
+                .chain(subcommand.aliases().iter().map(String::as_str))
                 .filter(|candidate| candidate.starts_with(prefix))
-                .map(|candidate| CompletionCandidate::described(candidate, &subcommand.description))
+                .map(|candidate| {
+                    CompletionCandidate::described(candidate.to_owned(), subcommand.description())
+                })
         })
         .collect()
 }
 
 fn choice_candidates(
-    option: &CompletionOption,
+    option: &CompletionOptionRef<'_>,
     prefix: &str,
     inline_name: Option<&str>,
 ) -> Vec<CompletionCandidate> {
@@ -1157,16 +1215,16 @@ fn choice_candidates(
         .collect()
 }
 
-fn is_separate_value_choice(_option: &CompletionOption, choice: &str) -> bool {
+fn is_separate_value_choice(_option: &CompletionOptionRef<'_>, choice: &str) -> bool {
     !choice.starts_with('-')
 }
 
 fn argument_candidates(cursor: &CompletionCursor<'_>, prefix: &str) -> Vec<CompletionCandidate> {
-    let Some(argument) = argument_for_slot(cursor.meta, cursor.positional_count) else {
+    let Some(argument) = argument_for_slot(cursor.command, cursor.positional_count) else {
         return Vec::new();
     };
     argument
-        .choices
+        .choices_ref()
         .iter()
         .filter(|choice| choice.starts_with(prefix))
         .cloned()
@@ -1174,13 +1232,13 @@ fn argument_candidates(cursor: &CompletionCursor<'_>, prefix: &str) -> Vec<Compl
         .collect()
 }
 
-fn argument_for_slot(meta: &CompletionMeta, slot: usize) -> Option<&CompletionArgument> {
-    if let Some(argument) = meta.arguments.get(slot) {
+fn argument_for_slot(command: &Command, slot: usize) -> Option<&Argument> {
+    if let Some(argument) = command.arguments().get(slot) {
         return Some(argument);
     }
-    let last = meta.arguments.last()?;
+    let last = command.arguments().last()?;
     if matches!(
-        last.cardinality,
+        last.cardinality(),
         ArgumentCardinality::Variadic | ArgumentCardinality::OneOrMore
     ) {
         return Some(last);
@@ -1192,11 +1250,11 @@ fn is_option_token(token: &str) -> bool {
     token.len() > 1 && token.starts_with('-')
 }
 
-fn is_option_value(token: &str, _option: &CompletionOption) -> bool {
+fn is_option_value(token: &str, _option: &CompletionOptionRef<'_>) -> bool {
     !is_option_token(token)
 }
 
-fn should_complete_value(token: &str, option: &CompletionOption) -> bool {
+fn should_complete_value(token: &str, option: &CompletionOptionRef<'_>) -> bool {
     if !token.starts_with('-') {
         return true;
     }
@@ -1412,11 +1470,17 @@ function {function_name}
         set -e words[1]
     end
     set -l current (commandline -ct)
-    command {program} completion {} -- $words "$current" | while read -l record
-        set -l fields (string split -m 1 \t -- $record)
-        set -l candidate (string escape -- $fields[1])
-        if test (count $fields) -gt 1
-            printf '%s\t%s\n' $candidate "$fields[2]"
+    # Keep blank lines and trailing newlines when capturing query records.
+    set -l records (command {program} completion {} -- $words "$current" | string split0)
+    # Simple candidate tokens need no per-record escaping.
+    if string match -qr '\A(?:[-./0-9A-Za-z_]+(?:\t[^\n]*)?\n)*\z' -- "$records"
+        printf '%s' "$records"
+        return
+    end
+    printf '%s' "$records" | while read -l -d \t candidate description
+        set candidate (string escape -- "$candidate")
+        if set -q description[1]
+            printf '%s\t%s\n' $candidate "$description"
         else
             printf '%s\n' $candidate
         end
