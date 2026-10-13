@@ -32,6 +32,21 @@ Preset manifests and their referenced environment files are trusted configuratio
 documents. Absolute paths, parent traversal, and symlinks are followed; callers must not select a
 preset from an untrusted filesystem tree.
 
+## Shell completion
+
+Completion scripts query the CLI at completion time. Generated Fish scripts require Fish 3.0 or
+later because they use `read --delimiter` and `string split0`.
+
+After upgrading a CLI to Commander 0.2.0, regenerate its installed completion scripts to enable the
+updated shell adapters. Fish 2.x users must keep their previously generated scripts or upgrade Fish
+before regenerating them. Existing scripts remain compatible with the candidate query protocol,
+and the Rust completion APIs retain their owned return values.
+
+The Fish adapter buffers each query's output before processing it. Batches of simple candidate
+tokens are forwarded directly; other batches use Fish's escaping. This reduces shell overhead for
+ordinary options and command names, while buffered output uses additional memory and can add
+overhead for batches that require escaping.
+
 ## License
 
 [MIT](https://github.com/guanghechen/sora/blob/rust/LICENSE)

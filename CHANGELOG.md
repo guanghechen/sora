@@ -5,6 +5,27 @@ All notable changes to the Rust crates in this repository are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the crates use
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-10-13
+
+### Changed
+
+- **Breaking:** newly generated Fish completion scripts require Fish 3.0 or later for
+  `read --delimiter` and `string split0`. Fish 2.x users must retain their existing scripts or
+  upgrade Fish before regenerating completions. Rust completion APIs and the candidate query
+  protocol remain compatible.
+- `guanghechen-commander`: resolve completion against the selected command path, borrow effective
+  option definitions, reuse immutable builtins, and allocate candidate strings after prefix
+  matching to avoid unrelated metadata and choice copies.
+- `guanghechen-commander`: buffer Fish query output and forward batches that need no escaping,
+  while preserving the escaping fallback for other candidates.
+- Publish all five crates at one synchronized minor version so exact internal dependency pins keep
+  a single compatible graph for downstream consumers.
+
+### Fixed
+
+- `guanghechen-commander`: preserve indentation in generated Bash, Fish, and PowerShell scripts;
+  format Fish blocks with four spaces per level.
+
 ## [0.1.4] - 2026-08-16
 
 ### Fixed
